@@ -1,0 +1,86 @@
+{
+    "edges": [
+        {
+            "source": 3,
+            "target": 5
+        },
+        {
+            "source": 7,
+            "target": 2
+        },
+        {
+            "source": 1,
+            "target": 5
+        },
+        {
+            "source": 3,
+            "target": 4
+        },
+        {
+            "source": 7,
+            "target": 4
+        },
+        {
+            "source": 7,
+            "target": 6
+        },
+        {
+            "source": 0,
+            "target": 6
+        },
+        {
+            "source": 1,
+            "target": 2
+        },
+        {
+            "source": 0,
+            "target": 5
+        },
+        {
+            "source": 3,
+            "target": 6
+        },
+        {
+            "source": 1,
+            "target": 4
+        },
+        {
+            "source": 0,
+            "target": 2
+        }
+    ],
+    "nodes": [
+        {
+            "id": 0,
+            "id_slot": -1
+        },
+        {
+            "id": 1,
+            "id_slot": -1
+        },
+        {
+            "id": 2,
+            "id_slot": -1
+        },
+        {
+            "id": 3,
+            "id_slot": -1
+        },
+        {
+            "id": 4,
+            "id_slot": -1
+        },
+        {
+            "id": 5,
+            "id_slot": -1
+        },
+        {
+            "id": 6,
+            "id_slot": -1
+        },
+        {
+            "id": 7,
+            "id_slot": -1
+        }
+    ]
+}

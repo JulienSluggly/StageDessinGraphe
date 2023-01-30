@@ -1,0 +1,378 @@
+{
+    "edges": [
+        {
+            "source": 39,
+            "target": 12
+        },
+        {
+            "source": 31,
+            "target": 21
+        },
+        {
+            "source": 18,
+            "target": 14
+        },
+        {
+            "source": 33,
+            "target": 26
+        },
+        {
+            "source": 19,
+            "target": 13
+        },
+        {
+            "source": 24,
+            "target": 8
+        },
+        {
+            "source": 2,
+            "target": 8
+        },
+        {
+            "source": 5,
+            "target": 28
+        },
+        {
+            "source": 9,
+            "target": 28
+        },
+        {
+            "source": 17,
+            "target": 26
+        },
+        {
+            "source": 11,
+            "target": 1
+        },
+        {
+            "source": 4,
+            "target": 35
+        },
+        {
+            "source": 4,
+            "target": 11
+        },
+        {
+            "source": 30,
+            "target": 36
+        },
+        {
+            "source": 39,
+            "target": 23
+        },
+        {
+            "source": 38,
+            "target": 23
+        },
+        {
+            "source": 35,
+            "target": 19
+        },
+        {
+            "source": 20,
+            "target": 11
+        },
+        {
+            "source": 3,
+            "target": 14
+        },
+        {
+            "source": 9,
+            "target": 29
+        },
+        {
+            "source": 25,
+            "target": 0
+        },
+        {
+            "source": 32,
+            "target": 6
+        },
+        {
+            "source": 25,
+            "target": 32
+        },
+        {
+            "source": 27,
+            "target": 15
+        },
+        {
+            "source": 5,
+            "target": 3
+        },
+        {
+            "source": 22,
+            "target": 10
+        },
+        {
+            "source": 29,
+            "target": 33
+        },
+        {
+            "source": 34,
+            "target": 16
+        },
+        {
+            "source": 15,
+            "target": 9
+        },
+        {
+            "source": 7,
+            "target": 27
+        },
+        {
+            "source": 13,
+            "target": 31
+        },
+        {
+            "source": 10,
+            "target": 7
+        },
+        {
+            "source": 28,
+            "target": 24
+        },
+        {
+            "source": 36,
+            "target": 7
+        },
+        {
+            "source": 1,
+            "target": 38
+        },
+        {
+            "source": 31,
+            "target": 0
+        },
+        {
+            "source": 19,
+            "target": 25
+        },
+        {
+            "source": 35,
+            "target": 21
+        },
+        {
+            "source": 13,
+            "target": 34
+        },
+        {
+            "source": 6,
+            "target": 3
+        },
+        {
+            "source": 22,
+            "target": 15
+        },
+        {
+            "source": 38,
+            "target": 37
+        },
+        {
+            "source": 20,
+            "target": 24
+        },
+        {
+            "source": 22,
+            "target": 5
+        },
+        {
+            "source": 10,
+            "target": 30
+        },
+        {
+            "source": 1,
+            "target": 34
+        },
+        {
+            "source": 0,
+            "target": 36
+        },
+        {
+            "source": 16,
+            "target": 27
+        },
+        {
+            "source": 17,
+            "target": 2
+        },
+        {
+            "source": 8,
+            "target": 39
+        },
+        {
+            "source": 11,
+            "target": 18
+        },
+        {
+            "source": 3,
+            "target": 33
+        },
+        {
+            "source": 37,
+            "target": 12
+        }
+    ],
+    "nodes": [
+        {
+            "id": 0,
+            "id_slot": -1
+        },
+        {
+            "id": 1,
+            "id_slot": -1
+        },
+        {
+            "id": 2,
+            "id_slot": -1
+        },
+        {
+            "id": 3,
+            "id_slot": -1
+        },
+        {
+            "id": 4,
+            "id_slot": -1
+        },
+        {
+            "id": 5,
+            "id_slot": -1
+        },
+        {
+            "id": 6,
+            "id_slot": -1
+        },
+        {
+            "id": 7,
+            "id_slot": -1
+        },
+        {
+            "id": 8,
+            "id_slot": -1
+        },
+        {
+            "id": 9,
+            "id_slot": -1
+        },
+        {
+            "id": 10,
+            "id_slot": -1
+        },
+        {
+            "id": 11,
+            "id_slot": -1
+        },
+        {
+            "id": 12,
+            "id_slot": -1
+        },
+        {
+            "id": 13,
+            "id_slot": -1
+        },
+        {
+            "id": 14,
+            "id_slot": -1
+        },
+        {
+            "id": 15,
+            "id_slot": -1
+        },
+        {
+            "id": 16,
+            "id_slot": -1
+        },
+        {
+            "id": 17,
+            "id_slot": -1
+        },
+        {
+            "id": 18,
+            "id_slot": -1
+        },
+        {
+            "id": 19,
+            "id_slot": -1
+        },
+        {
+            "id": 20,
+            "id_slot": -1
+        },
+        {
+            "id": 21,
+            "id_slot": -1
+        },
+        {
+            "id": 22,
+            "id_slot": -1
+        },
+        {
+            "id": 23,
+            "id_slot": -1
+        },
+        {
+            "id": 24,
+            "id_slot": -1
+        },
+        {
+            "id": 25,
+            "id_slot": -1
+        },
+        {
+            "id": 26,
+            "id_slot": -1
+        },
+        {
+            "id": 27,
+            "id_slot": -1
+        },
+        {
+            "id": 28,
+            "id_slot": -1
+        },
+        {
+            "id": 29,
+            "id_slot": -1
+        },
+        {
+            "id": 30,
+            "id_slot": -1
+        },
+        {
+            "id": 31,
+            "id_slot": -1
+        },
+        {
+            "id": 32,
+            "id_slot": -1
+        },
+        {
+            "id": 33,
+            "id_slot": -1
+        },
+        {
+            "id": 34,
+            "id_slot": -1
+        },
+        {
+            "id": 35,
+            "id_slot": -1
+        },
+        {
+            "id": 36,
+            "id_slot": -1
+        },
+        {
+            "id": 37,
+            "id_slot": -1
+        },
+        {
+            "id": 38,
+            "id_slot": -1
+        },
+        {
+            "id": 39,
+            "id_slot": -1
+        }
+    ]
+}
