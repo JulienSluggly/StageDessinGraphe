@@ -8,7 +8,7 @@
 using std::string;
 using nlohmann::json;
 
-bool DEBUG_JSON = false;
+bool DEBUG_JSON = true;
 
 // ----- CREATION D'UN Graph A PARTIR D'UN FICHIER JSON -----
 // Precondition: Les id des noeuds sont ordonnées et commencent par 0

@@ -1,9 +1,10 @@
 ﻿#ifndef DISPOPENGL_HPP
 #define DISPOPENGL_HPP
 
-#include <Windows.h>
-#include <gl/GL.h>
 #include <GLFW/glfw3.h>
+#include <GL/gl.h>
+#include <GL/glut.h>
+#include <GL/glu.h>
 #include <stdio.h>
 #include "jsonIO.hpp"
 #include "EdgeMaps.hpp"

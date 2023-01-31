@@ -56,7 +56,7 @@ int perfectGraphe(std::vector<Graphe>& graphes)
 
 
 
-std::vector<int> grapheGenetique(int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit=false, bool useRand=false, int modeCroisement=0) {
+std::vector<int> grapheGenetique(int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit=false, bool useRand=false) {
 	std::vector<Graphe> graphes;
 	graphes.resize(population);
 	readFromJsonGraph(graphes[0], nomGraphe);
@@ -83,14 +83,7 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 			grapheID1 = generateRand(population/2 - 1);
 			grapheID2 = generateRand(population/2 - 1);
 			//std::cout << "P1: " << grapheID1 << " P2: " << grapheID2 << std::endl;
-			bool result;
-			if (modeCroisement == 0) {
-				result = graphes[i].croisementVoisinageFrom(graphes[grapheID1], graphes[grapheID2], useRand);
-			}
-			else if (modeCroisement == 1) {
-				graphes[i].croisementHalfParent(graphes[grapheID1], graphes[grapheID2], useRand);
-			}
-			if (!result) {
+			if (!graphes[i].croisementVoisinageFrom(graphes[grapheID1], graphes[grapheID2], useRand)) {
 				numberOfNoChange++;
 			}
 			if (useRecuit) {
