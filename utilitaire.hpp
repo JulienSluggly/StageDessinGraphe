@@ -27,4 +27,6 @@ int generateRand(int n) {
     return dis(gen);
 }
 
+bool comparePtrEmplacement(Emplacement* a, Emplacement* b) { return (a->getX() < b->getX()); }
+
 #endif

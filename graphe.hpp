@@ -1806,6 +1806,132 @@ public:
 		return true;
 	}
 
+	// Effectue un croisement entre deux parents en séparant le graphe en deux parties
+	// Les emplacements sont triés par leur coord X
+	// Ne met pas à jour la variable nombreCroisement du graphe
+	bool croisementHalfParent(Graphe& graphe1, Graphe& graphe2, bool useRand) {
+		int nbNoeudATraiter = graphe1._noeuds.size() - nbNoeudEnCommun(graphe1, graphe2);
+		//std::cout << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
+		if (nbNoeudATraiter == 0) {
+			copyFromGraphe(graphe1);
+			return false;
+		}
+
+		std::vector<Emplacement*> empPtrVec;
+		empPtrVec.resize(graphe1._emplacementsPossibles.size());
+		for (int i = 0; i < graphe1._emplacementsPossibles.size(); i++) {
+			empPtrVec[i] = &graphe1._emplacementsPossibles[i];
+		}
+		// Tri des emplacements pas la coord X
+		std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacement);
+		int startVec2 = empPtrVec.size() / 2;
+
+		Graphe* currentGraphe, * otherGraphe;
+		int currentGrapheNumber = generateRand(1) + 1;
+		int startVec, endVec;
+		if (currentGrapheNumber == 1) { currentGraphe = &graphe1; otherGraphe = &graphe2; startVec = 0; endVec = startVec2; }
+		else { currentGraphe = &graphe2; otherGraphe = &graphe1; startVec = startVec2; endVec = empPtrVec.size(); }
+
+		while (nbNoeudATraiter > 0) {
+			Noeud* meilleurNoeud = nullptr;
+			int meilleurScore;
+			int nbRencontre = 0;
+			for (int i = startVec; i < endVec; ++i) { // Recherche du meilleur noeud du coté du graphe choisi
+				std::cout << "NNT: " << nbNoeudATraiter << " i: " << i << " Current: " << currentGrapheNumber << std::endl;
+				if (empPtrVec[i]->_noeud != nullptr) {
+					int idNode = currentGraphe->_emplacementsPossibles[i]._noeud->getId();
+					if (!_noeuds[idNode].estPlace()) {
+						int nodeScore = currentGraphe->getScoreCroisementNode(idNode);
+						if (meilleurNoeud == nullptr || meilleurScore < nodeScore) {
+							meilleurNoeud = &currentGraphe->_noeuds[idNode];
+							meilleurScore = nodeScore;
+							nbRencontre = 1;
+						}
+						else if (meilleurScore == nodeScore) {
+							++nbRencontre;
+							if (generateRand(nbRencontre) == 1) {
+								meilleurNoeud = &currentGraphe->_noeuds[idNode];
+							}
+						}
+					}
+				}
+			}
+
+			if (meilleurNoeud != nullptr) {
+				Emplacement* meilleurEmplacement = meilleurNoeud->getEmplacement();
+				_noeuds[meilleurNoeud->getId()].setEmplacement(&_emplacementsPossibles[meilleurEmplacement->getId()]);
+				if (!graphe1._noeuds[meilleurNoeud->getId()].compare(&graphe2._noeuds[meilleurNoeud->getId()])) {
+					--nbNoeudATraiter;
+					otherGraphe->_noeuds[meilleurNoeud->getId()].ecraseNoeud(&otherGraphe->_emplacementsPossibles[meilleurEmplacement->getId()]);
+				}
+				//Place tout les voisins du point choisis
+				/*for (Noeud* noeudVoisin : meilleurNoeud->getVoisins()) {
+					if (!_noeuds[noeudVoisin->getId()].estPlace()) {
+						meilleurEmplacement = noeudVoisin->getEmplacement();
+						if (meilleurEmplacement == nullptr) {
+							meilleurEmplacement = getMeilleurEmplacement(_noeuds[noeudVoisin->getId()]);
+						}
+						else {
+							meilleurEmplacement = &_emplacementsPossibles[meilleurEmplacement->getId()];
+						}
+						_noeuds[noeudVoisin->getId()].setEmplacement(&_emplacementsPossibles[meilleurEmplacement->getId()]);
+						Noeud* noeudGraphe1 = &graphe1._noeuds[noeudVoisin->getId()];
+						Noeud* noeudGraphe2 = &graphe2._noeuds[noeudVoisin->getId()];
+						if (noeudGraphe1->estPlace() && noeudGraphe2->estPlace()) {
+							if (!noeudGraphe1->compare(noeudGraphe2)) {
+								--nbNoeudATraiter;
+							}
+						}
+						else {
+							--nbNoeudATraiter;
+						}
+						graphe1._noeuds[noeudVoisin->getId()].ecraseNoeud(&graphe1._emplacementsPossibles[meilleurEmplacement->getId()]);
+						graphe2._noeuds[noeudVoisin->getId()].ecraseNoeud(&graphe2._emplacementsPossibles[meilleurEmplacement->getId()]);
+					}
+				}
+				*/
+				//Liste des noeuds à placer
+				std::vector<int> noeudsAVerifier;
+				for (int i = 0; i < _noeuds.size(); ++i) {
+					if (!graphe1._noeuds[i].estPlace() || !graphe2._noeuds[i].estPlace()) {
+						noeudsAVerifier.push_back(i);
+					}
+				}
+				if (useRand) {
+					graphe1.completePlacementAleatoire();
+					graphe2.completePlacementAleatoire();
+				}
+				else {
+					graphe1.completeBasicGlouton();
+					graphe2.completeBasicGlouton();
+				}
+				//Si les lieux coincident les noeuds ne sont plus à traiter
+				for (int i = 0; i < noeudsAVerifier.size(); ++i) {
+					if (graphe1._noeuds[noeudsAVerifier[i]].compare(&graphe2._noeuds[noeudsAVerifier[i]])) {
+						--nbNoeudATraiter;
+					}
+				}
+			}
+
+			//Change le parent choisis 
+			if (currentGrapheNumber == 1) {
+				currentGraphe = &graphe2;
+				otherGraphe = &graphe1;
+				currentGrapheNumber = 0;
+			}
+			else {
+				currentGraphe = &graphe1;
+				otherGraphe = &graphe2;
+				currentGrapheNumber = 1;
+			}
+		}
+
+		_noeuds.swap(graphe1._noeuds);
+		_liens.swap(graphe1._liens);
+		_emplacementsPossibles.swap(graphe1._emplacementsPossibles);
+		return true;
+	}
+
 	// Nombre de noeuds du même ID placé aux mêmes emplacements.
 	int nbNoeudEnCommun(const Graphe& graphe1, const Graphe& graphe2) {
 		int total = 0;
