@@ -6,29 +6,31 @@
 class Noeud {
 public:
 	Emplacement* _emplacement = nullptr;
-	std::vector<int> _aretes; // Contient les indices des aretes contenant ce noeud
+	// Contient les indices des aretes contenant ce noeud
+	std::vector<int> _aretes;
 	int _id;
 	std::vector<Noeud*> voisins;
 	Noeud(int id) {
 		_id = id;
 	}
+	// Score d'intersection du noeud
+	// Attention ce score n'est pas toujours a jour!
+	long score = -1;
 	
 	bool estPlace() const { return _emplacement != nullptr; }
 	Emplacement* getEmplacement()  const { return _emplacement; }
 	void connect(Noeud* noeud) { voisins.push_back(noeud); }
 	std::vector<Noeud*> getVoisins() const { return voisins; }
 	bool voisinsSontPlaces() const {
-		for (Noeud* noeud : voisins)
-		{
-			if (!noeud->estPlace()) return false;
+		for (int i=0;i<voisins.size();i++) {
+			if (!voisins[i]->estPlace()) return false;
 		}
 		return true;
 	}
 	int getVoisinsPlaces() const {
 		int nbVoisinPlaces = 0;
-		for (Noeud* noeud : voisins)
-		{
-			if (noeud->estPlace()) ++nbVoisinPlaces;
+		for (int i=0;i<voisins.size();i++) {
+			if (voisins[i]->estPlace()) ++nbVoisinPlaces;
 		}
 		return nbVoisinPlaces;
 	}
@@ -50,15 +52,20 @@ public:
 		emplacement->setNoeud(this);
 	}
 
-	void ecraseNoeud(Emplacement& emplacement) {
+	// Force le noeud à l'emplacement en enlevant l'ancien noeud s'il y en avait un.
+	// Renvoie l'id de l'ancien noeud présent sur l'emplacement ou -1 s'il n'y en avait pas.
+	int ecraseNoeud(Emplacement& emplacement) {
+		int oldNodeId = -1;
 		if (_emplacement != nullptr) {
 			_emplacement->removeNoeud();
 		}
 		if (emplacement._noeud != nullptr) {
+			oldNodeId = emplacement._noeud->getId();
 			emplacement._noeud->clearEmplacement();
 		}
 		_emplacement = &emplacement;
 		emplacement.setNoeud(this);
+		return oldNodeId;
 	}
 
 	void clearEmplacement() {

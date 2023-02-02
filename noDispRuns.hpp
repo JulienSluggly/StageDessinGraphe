@@ -29,35 +29,11 @@ void readOldFiles(Graphe& G) {
 	}
 }
 
-void multipleFilesRuns(Graphe& G) {
-	std::ofstream out("data.txt");
-	std::streambuf* coutbuf = std::cout.rdbuf(); //save old buf
-	std::cout.rdbuf(out.rdbuf()); //redirect std::cout
-	std::unordered_map<string, std::vector<string>> mapGraphSlots;
-	for (int i = 1; i <= 6; i++) {
-		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots"} });
-	}
-	for (auto key : mapGraphSlots) {
-		for (int i = 0; i < key.second.size(); i++) {
-			std::cout << "-----------------------------------------" << std::endl;
-			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
-			G.clearGraphe();
-			string fileGraph = "D:/The World/Cours/M2S1/ProjetDessinGraphe/GitHub/ProjetDessinDeGraphe/exemple/Graphe/" + key.first + ".json";
-			string fileSlots = "D:/The World/Cours/M2S1/ProjetDessinGraphe/GitHub/ProjetDessinDeGraphe/exemple/Slots/" + key.second[i] + ".json";
-			readFromJsonGraph(G, fileGraph);
-			readFromJsonSlots(G, fileSlots);
-			G.placementAleatoire();
-			G.recuitSimule();
-		}
-	}
-	std::cout.rdbuf(coutbuf); //reset to standard output again
-}
-
 void allRunsSingleThread() {
 	std::unordered_map<string, std::vector<string>> mapGraphSlots;
-	//std::vector<string> methodesPlacement = { "Aléatoire", "Glouton", "Glouton Revisité", "Glouton Gravité", "Glouton Voisin", "OGDF" };
+	//std::vector<string> methodesPlacement = { "Aleatoire", "Glouton", "Glouton Revisite", "Glouton Gravite", "Glouton Voisin", "OGDF" };
 	std::vector<string> methodesPlacement = { "OGDF" };
-	//std::vector<string> methodesAlgo = { "Recuit Simulé",  "Recuit Simulé Delay",  "Recuit Simulé Tournoi Binaire",  "Recuit Simulé Tournoi Multiple",  "Best Deplacement" };
+	//std::vector<string> methodesAlgo = { "Recuit Simule",  "Recuit Simule Delay",  "Recuit Simule Tournoi Binaire",  "Recuit Simule Tournoi Multiple",  "Best Deplacement" };
 	std::vector<string> methodesAlgo;
 	for (int i = 1; i <= 6; i++) {
 		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots"} });
@@ -89,12 +65,12 @@ void allRunsSingleThread() {
 	}
 }
 
+// MultithreadÃ©
 void allRunsLogged() {
 	std::unordered_map<string, std::vector<string>> mapGraphSlots;
-	//std::vector<string> methodesPlacement = { "Aléatoire", "Glouton", "Glouton Revisité", "Glouton Gravité", "Glouton Voisin", "OGDF"};
+	//std::vector<string> methodesPlacement = { "Aleatoire", "Glouton", "Glouton Revisite", "Glouton Gravite", "Glouton Voisin", "OGDF"};
 	std::vector<string> methodesPlacement = { "Aucun"};
-	//std::vector<string> methodesAlgo = { "Recuit Simulé",  "Recuit Simulé Delay",  "Recuit Simulé Tournoi Binaire",  "Recuit Simulé Tournoi Multiple",  "Best Deplacement", "Recuit Simulé M1",  "Recuit Simulé Delay M1",  "Recuit Simulé Tournoi Binaire M1",  "Recuit Simulé Tournoi Multiple M1", "Recuit Simulé M2",  "Recuit Simulé Delay M2",  "Recuit Simulé Tournoi Binaire M2",  "Recuit Simulé Tournoi Multiple M2" };
-	std::vector<string> methodesAlgo = { "Génétique No Recuit Random", "Génétique Recuit Random","Génétique No Recuit","Génétique Recuit"};
+	std::vector<string> methodesAlgo = { "Genetique No Recuit Random", "Genetique Recuit Random","Genetique No Recuit","Genetique Recuit"};
 	//std::vector<int> runMethodesAlgo = { 5, 1, 5, 5, 5,5, 1, 5, 5,5, 1, 5, 5 };
 	std::vector<int> runMethodesAlgo = { 5,5,5,5 };
 	//std::vector<string> methodesAlgo;
@@ -115,7 +91,7 @@ void allRunsLogged() {
 			printf("Chunk size: %d\n", chunk);
 		}
 		for (auto key : mapGraphSlots) {
-			if (tid == indexKey) {
+			if (tid == (indexKey % nthreads)) {
 				for (int i = 0; i < key.second.size(); i++) {
 					if (tid == 0) std::cout << "-----------------------------------------" << std::endl;
 					if (tid == 0) std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
@@ -139,8 +115,7 @@ void allRunsLogged() {
 			}
 			indexKey++;
 		}
-		if (tid < mapGraphSlots.size())
-			std::cout << "Thread: " << tid << " done." << std::endl;
+		std::cout << "Thread: " << tid << " done." << std::endl;
 	}
 }
 

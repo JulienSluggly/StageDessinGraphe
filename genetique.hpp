@@ -55,7 +55,10 @@ int perfectGraphe(std::vector<Graphe>& graphes)
 }
 
 
-
+// Applique un algorithme genetique sur une population, la moitié de la population est remplacée à chaque génération en croisant 2 parents appartenant aux 50% des meilleurs.
+// useRecuit indique si on applique un court recuit simulé à chaque nouvel enfant créé
+// useRand indique si l'on doit utiliser l'algorithme aléatoire plutôt que le glouton pour le replacage des noeuds lors du croisement
+// modeCroisement indique quel algorithme de croisement utiliser 0=Voisinage, 1=HalfParent, 2=Aléatoire, 3=VoisinageV2
 std::vector<int> grapheGenetique(int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit=false, bool useRand=false, int modeCroisement=0) {
 	std::vector<Graphe> graphes;
 	graphes.resize(population);
@@ -64,10 +67,12 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 	for (int i = 1; i < population; ++i) {
 		graphes[i].copyFromGraphe(graphes[0]);
 		graphes[i].placementAleatoire();
-		graphes[i].getNbCroisement();
+		if (modeCroisement != 3) { graphes[i].getNbCroisement(); }
+		else { graphes[i].initGraphAndNodeScoresAndCrossings(); }
 	}
 	graphes[0].placementAleatoire();
-	graphes[0].getNbCroisement();
+	if (modeCroisement != 3) { graphes[0].getNbCroisement(); }
+	else { graphes[0].initGraphAndNodeScoresAndCrossings(); }
 	// Vecteur pour le mode half parent
 	std::vector<int> sortedEmpId;
 	if (modeCroisement == 1) {
@@ -88,7 +93,7 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 	long bestCrossingResult = graphes[0].nombreCroisement;
 	std::cout << bestCrossingResult << " Meilleur debut genetique\n";
 	std::cout << "[";
-		for (int i = 0; i<4;i++) {
+		for (int i = 0; i<5;i++) {
 			std::cout << graphes[i].nombreCroisement << " ";
 		}
 		std::cout << "]" << std::endl;
@@ -97,28 +102,32 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 		int numberOfNoChange = 0;
 		for (int i = population/2; i < population; ++i) {
 			graphes[i].clearNodeEmplacement();
-			//std::cout << "Enfant: " << i << std::endl;
 			int grapheID1, grapheID2;
 			grapheID1 = generateRand(population/2 - 1);
 			grapheID2 = generateRand(population/2 - 1);
 			while (grapheID2 == grapheID1) {
 				grapheID2 = generateRand(population/2 - 1);
 			}
-			//std::cout << "P1: " << grapheID1 << " P2: " << grapheID2 << std::endl;
 			bool result;
 			if (modeCroisement == 0) {
 				result = graphes[i].croisementVoisinageFrom(graphes[grapheID1], graphes[grapheID2], useRand);
 			}
 			else if (modeCroisement == 1) {
-				graphes[i].croisementHalfParent(graphes[grapheID1], graphes[grapheID2], sortedEmpId, useRand);
+				result = graphes[i].croisementHalfParent(graphes[grapheID1], graphes[grapheID2], sortedEmpId, useRand);
+			}
+			else if (modeCroisement == 2) {
+				result = graphes[i].croisementAleatoire(graphes[grapheID1], graphes[grapheID2], useRand);
+			}
+			else if (modeCroisement == 3) {
+				std::cout << "NYI\n";
 			}
 			if (!result) {
 				numberOfNoChange++;
 			}
-			if (useRecuit) {
+			if (useRecuit) { // Le recuit met le nombre de croisement à jour.
 				graphes[i].recuitSimule(0.99, 100.0);
 			}
-			else {
+			else if (!graphes[i].isNombreCroisementUpdated){ // Si le nombre de croisement n'est pas à jour, on le recalcule.
 				graphes[i].getNbCroisement();
 			}
 			if (graphes[i].nombreCroisement < bestCrossingResult) {
@@ -132,7 +141,7 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 		sort(graphes.begin(), graphes.end());
 		std::cout << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " \n";
 		std::cout << "[";
-		for (int i = 0; i<4;i++) {
+		for (int i = 0; i<5;i++) {
 			std::cout << graphes[i].nombreCroisement << " ";
 		}
 		std::cout << "]" << std::endl;

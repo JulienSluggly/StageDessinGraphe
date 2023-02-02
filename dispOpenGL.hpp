@@ -51,7 +51,7 @@ int stepNbCrois;
 std::vector<int> graphCopy;
 // Parents pour affichage genetique
 Graphe parent1, parent2, enfant;
-int nbNoeudATraiter, currentGrapheNumber=1;
+int nbNoeudATraiter, currentGrapheNumber=0;
 
 void error_callback(int error, const char* description) {
 	fputs(description, stderr);
@@ -416,9 +416,9 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			changeWindowNormal = false;
 		}
 		else if (stepGenetic) {
-			std::cout << "NNT: " << nbNoeudATraiter << " CGN: " << currentGrapheNumber;
-			enfant.stepCroisementVoisinageFrom(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
-			std::cout << " done\n";
+			if (nbNoeudATraiter > 0) {
+				enfant.stepCroisementVoisinageFrom(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
+			}
 			stepGenetic = false;
 		}
 		// affichage de la grille avec une marge de 1

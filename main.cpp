@@ -35,7 +35,7 @@ int main() {
 	readFromJsonSlots(G, fileSlots);
 
 	auto start = std::chrono::system_clock::now();
-	G.loadCopy(grapheGenetique(50,30,fileGraph,fileSlots,false,false,0));
+	G.loadCopy(grapheGenetique(40,30,fileGraph,fileSlots,false,false,0));
 	//G.placementAleatoire();
 	//G.afficherNoeudSeul();
 	//G.afficherAreteDouble();

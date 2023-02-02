@@ -25,11 +25,11 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		std::cout << "Current Execution: " << i << "\n";
 		auto start = std::chrono::system_clock::now();
 		if (methodeName == "Glouton") G.glouton();
-		else if (methodeName == "Glouton Revisit�") G.gloutonRevisite();
-		else if (methodeName == "Glouton Gravit�") G.gloutonRevisiteGravite();
+		else if (methodeName == "Glouton Revisite") G.gloutonRevisite();
+		else if (methodeName == "Glouton Gravite") G.gloutonRevisiteGravite();
 		else if (methodeName == "Glouton Voisin") G.gloutonRevisiteVoisin();
 		else if (methodeName == "OGDF") ogdfPlacementAuPlusProche(G);
-		else if (methodeName == "Al�atoire") G.placementAleatoire();
+		else if (methodeName == "Aleatoire") G.placementAleatoire();
 		else if (methodeName != "Aucun") {
 			std::cout << "ERROR Aucune methode " << methodeName << " trouve !";
 			return;
@@ -37,23 +37,23 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 
 		if (methodeName == "Aucun" || G.estPlace()) {
 
-			if (methodeAlgoName == "Recuit Simul�") G.recuitSimule();
-			else if (methodeAlgoName == "Recuit Simul� Delay") G.recuitSimuleDelay();
-			else if (methodeAlgoName == "Recuit Simul� Tournoi Binaire") G.recuitSimuleTournoiBinaire();
-			else if (methodeAlgoName == "Recuit Simul� Tournoi Multiple") G.recuitSimuleTournoiMultiple();
-			else if (methodeAlgoName == "Recuit Simul� M1") G.recuitSimule(0.99999, 100, 1);
-			else if (methodeAlgoName == "Recuit Simul� M2") G.recuitSimule(0.99999, 100, 2);
-			else if (methodeAlgoName == "Recuit Simul� Delay M1") G.recuitSimuleDelay(0.99999, 100, 10, 1);
-			else if (methodeAlgoName == "Recuit Simul� Delay M2") G.recuitSimuleDelay(0.99999, 100, 10, 2);
-			else if (methodeAlgoName == "Recuit Simul� Tournoi Binaire M1") G.recuitSimuleTournoiBinaire(0.99999, 100, 1);
-			else if (methodeAlgoName == "Recuit Simul� Tournoi Binaire M2") G.recuitSimuleTournoiBinaire(0.99999, 100, 2);
-			else if (methodeAlgoName == "Recuit Simul� Tournoi Multiple M1") G.recuitSimuleTournoiMultiple(0.99999, 100, 1);
-			else if (methodeAlgoName == "Recuit Simul� Tournoi Multiple M2") G.recuitSimuleTournoiMultiple(0.99999, 100, 2);
+			if (methodeAlgoName == "Recuit Simule") G.recuitSimule();
+			else if (methodeAlgoName == "Recuit Simule Delay") G.recuitSimule(0.99999,100.0,10);
+			else if (methodeAlgoName == "Recuit Simule TBN") G.recuitSimule(0.99999,100.0,1,1);
+			else if (methodeAlgoName == "Recuit Simule TMN") G.recuitSimule(0.99999,100.0,1,2);
+			else if (methodeAlgoName == "Recuit Simule TBE") G.recuitSimule(0.99999, 100, 0,1);
+			else if (methodeAlgoName == "Recuit Simule TME") G.recuitSimule(0.99999, 100, 0,2);
+			else if (methodeAlgoName == "Recuit Simule Delay TBE") G.recuitSimule(0.99999, 100, 10, 0, 1);
+			else if (methodeAlgoName == "Recuit Simule Delay TME") G.recuitSimule(0.99999, 100, 10, 0, 2);
+			else if (methodeAlgoName == "Recuit Simule TBNE") G.recuitSimule(0.99999, 100, 1, 1, 1);
+			else if (methodeAlgoName == "Recuit Simule TBN TME") G.recuitSimule(0.99999, 100, 1, 1, 2);
+			else if (methodeAlgoName == "Recuit Simule TMN TBE") G.recuitSimule(0.99999, 100, 1, 2, 1);
+			else if (methodeAlgoName == "Recuit Simule TMNE") G.recuitSimule(0.99999, 100, 1, 2, 2);
 			else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
-			else if (methodeAlgoName == "G�n�tique Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true));
-			else if (methodeAlgoName == "G�n�tique Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true, true));
-			else if (methodeAlgoName == "G�n�tique No Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false));
-			else if (methodeAlgoName == "G�n�tique No Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false, true));
+			else if (methodeAlgoName == "Genetique Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true));
+			else if (methodeAlgoName == "Genetique Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true, true));
+			else if (methodeAlgoName == "Genetique No Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false));
+			else if (methodeAlgoName == "Genetique No Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false, true));
 			else if (methodeAlgoName != "Aucun") {
 				std::cout << "ERROR Aucun algo " << methodeAlgoName << " trouve !";
 				return;
@@ -63,7 +63,6 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 			auto end = std::chrono::system_clock::now();
 			std::chrono::duration<double> secondsTotal = end - start;
 			croisementVector[i] = G.getNbCroisement();
-			//cout << croisementVector[i] << "\n";
 			tempExecVector[i] = secondsTotal.count();
 			if (G.hasIllegalCrossing()) {
 				nbSolutionIllegale++;

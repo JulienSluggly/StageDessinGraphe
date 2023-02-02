@@ -16,6 +16,13 @@ public:
 		noeud1->connect(noeud2);
 		noeud2->connect(noeud1);
 	}
+	// Vecteur contenant les id des aretes ayant une intersection legale avec celle-ci.
+	// Attention ce vecteur n'est pas toujours a jour!
+	std::vector<int> intersections;
+	// Vecteur contenant les id des aretes ayant une intersection illegale avec celle-ci.
+	// Attention ce vecteur n'est pas toujours a jour!
+	std::vector<int> intersectionsIll;
+	bool isUpdated = false;
 
 	Noeud* getNoeud1()  const { return _noeud1; }
 	Noeud* getNoeud2()  const { return _noeud2; }
@@ -32,7 +39,7 @@ public:
 		return (_noeud1->getId() == id || _noeud2->getId() == id);
 	}
 
-	// Renvoie le noeud qui n'est pas en commun avec l'arete passé en parametre
+	// Renvoie le noeud qui n'est pas en commun avec l'arete passe en parametre
 	Noeud* nodeNotInCommon(Aretes l) const {
 		if (_noeud1->getId() == l.getNoeud1()->getId() || _noeud1->getId() == l.getNoeud2()->getId()) { return _noeud2; }
 		return _noeud1;
