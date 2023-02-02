@@ -9,6 +9,7 @@
 #include "ogdfFunctions.hpp"
 #include <omp.h>
 #include "genetique.hpp"
+#include <climits>
 
 void generateCSV(int nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None") {
 	double moyenneCroisement = 0, medianCroisement;
@@ -24,11 +25,11 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		std::cout << "Current Execution: " << i << "\n";
 		auto start = std::chrono::system_clock::now();
 		if (methodeName == "Glouton") G.glouton();
-		else if (methodeName == "Glouton Revisité") G.gloutonRevisite();
-		else if (methodeName == "Glouton Gravité") G.gloutonRevisiteGravite();
+		else if (methodeName == "Glouton Revisitï¿½") G.gloutonRevisite();
+		else if (methodeName == "Glouton Gravitï¿½") G.gloutonRevisiteGravite();
 		else if (methodeName == "Glouton Voisin") G.gloutonRevisiteVoisin();
 		else if (methodeName == "OGDF") ogdfPlacementAuPlusProche(G);
-		else if (methodeName == "Aléatoire") G.placementAleatoire();
+		else if (methodeName == "Alï¿½atoire") G.placementAleatoire();
 		else if (methodeName != "Aucun") {
 			std::cout << "ERROR Aucune methode " << methodeName << " trouve !";
 			return;
@@ -36,23 +37,23 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 
 		if (methodeName == "Aucun" || G.estPlace()) {
 
-			if (methodeAlgoName == "Recuit Simulé") G.recuitSimule();
-			else if (methodeAlgoName == "Recuit Simulé Delay") G.recuitSimuleDelay();
-			else if (methodeAlgoName == "Recuit Simulé Tournoi Binaire") G.recuitSimuleTournoiBinaire();
-			else if (methodeAlgoName == "Recuit Simulé Tournoi Multiple") G.recuitSimuleTournoiMultiple();
-			else if (methodeAlgoName == "Recuit Simulé M1") G.recuitSimule(0.99999, 100, 1);
-			else if (methodeAlgoName == "Recuit Simulé M2") G.recuitSimule(0.99999, 100, 2);
-			else if (methodeAlgoName == "Recuit Simulé Delay M1") G.recuitSimuleDelay(0.99999, 100, 10, 1);
-			else if (methodeAlgoName == "Recuit Simulé Delay M2") G.recuitSimuleDelay(0.99999, 100, 10, 2);
-			else if (methodeAlgoName == "Recuit Simulé Tournoi Binaire M1") G.recuitSimuleTournoiBinaire(0.99999, 100, 1);
-			else if (methodeAlgoName == "Recuit Simulé Tournoi Binaire M2") G.recuitSimuleTournoiBinaire(0.99999, 100, 2);
-			else if (methodeAlgoName == "Recuit Simulé Tournoi Multiple M1") G.recuitSimuleTournoiMultiple(0.99999, 100, 1);
-			else if (methodeAlgoName == "Recuit Simulé Tournoi Multiple M2") G.recuitSimuleTournoiMultiple(0.99999, 100, 2);
+			if (methodeAlgoName == "Recuit Simulï¿½") G.recuitSimule();
+			else if (methodeAlgoName == "Recuit Simulï¿½ Delay") G.recuitSimuleDelay();
+			else if (methodeAlgoName == "Recuit Simulï¿½ Tournoi Binaire") G.recuitSimuleTournoiBinaire();
+			else if (methodeAlgoName == "Recuit Simulï¿½ Tournoi Multiple") G.recuitSimuleTournoiMultiple();
+			else if (methodeAlgoName == "Recuit Simulï¿½ M1") G.recuitSimule(0.99999, 100, 1);
+			else if (methodeAlgoName == "Recuit Simulï¿½ M2") G.recuitSimule(0.99999, 100, 2);
+			else if (methodeAlgoName == "Recuit Simulï¿½ Delay M1") G.recuitSimuleDelay(0.99999, 100, 10, 1);
+			else if (methodeAlgoName == "Recuit Simulï¿½ Delay M2") G.recuitSimuleDelay(0.99999, 100, 10, 2);
+			else if (methodeAlgoName == "Recuit Simulï¿½ Tournoi Binaire M1") G.recuitSimuleTournoiBinaire(0.99999, 100, 1);
+			else if (methodeAlgoName == "Recuit Simulï¿½ Tournoi Binaire M2") G.recuitSimuleTournoiBinaire(0.99999, 100, 2);
+			else if (methodeAlgoName == "Recuit Simulï¿½ Tournoi Multiple M1") G.recuitSimuleTournoiMultiple(0.99999, 100, 1);
+			else if (methodeAlgoName == "Recuit Simulï¿½ Tournoi Multiple M2") G.recuitSimuleTournoiMultiple(0.99999, 100, 2);
 			else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
-			else if (methodeAlgoName == "Génétique Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true));
-			else if (methodeAlgoName == "Génétique Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true, true));
-			else if (methodeAlgoName == "Génétique No Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false));
-			else if (methodeAlgoName == "Génétique No Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false, true));
+			else if (methodeAlgoName == "Gï¿½nï¿½tique Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true));
+			else if (methodeAlgoName == "Gï¿½nï¿½tique Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true, true));
+			else if (methodeAlgoName == "Gï¿½nï¿½tique No Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false));
+			else if (methodeAlgoName == "Gï¿½nï¿½tique No Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false, true));
 			else if (methodeAlgoName != "Aucun") {
 				std::cout << "ERROR Aucun algo " << methodeAlgoName << " trouve !";
 				return;

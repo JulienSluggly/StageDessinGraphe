@@ -9,10 +9,6 @@ public:
 	std::vector<int> _aretes; // Contient les indices des aretes contenant ce noeud
 	int _id;
 	std::vector<Noeud*> voisins;
-	Noeud(Emplacement* emplacement, int id) {
-		_emplacement = emplacement;
-		_id = id;
-	}
 	Noeud(int id) {
 		_id = id;
 	}
@@ -39,8 +35,9 @@ public:
 	int getX()  const { return _emplacement->getX(); }
 	int getY()  const { return _emplacement->getY(); }
 	Point getPosition() const { return _emplacement->getPosition(); }
+	// Indique si deux noeuds ont les mêmes coordonnées
 	bool compare(const Noeud* noeud) const {
-		return getX() == noeud->getX() && getY() == noeud->getY();
+		return ((getX() == noeud->getX()) && (getY() == noeud->getY()));
 	}
 	int getId() const { return _id; }
 
@@ -53,18 +50,15 @@ public:
 		emplacement->setNoeud(this);
 	}
 
-	void ecraseNoeud(Emplacement* emplacement)
-	{
-		if (_emplacement != nullptr)
-		{
+	void ecraseNoeud(Emplacement& emplacement) {
+		if (_emplacement != nullptr) {
 			_emplacement->removeNoeud();
 		}
-		if (emplacement->_noeud != nullptr)
-		{
-			emplacement->_noeud->clearEmplacement();
+		if (emplacement._noeud != nullptr) {
+			emplacement._noeud->clearEmplacement();
 		}
-		_emplacement = emplacement;
-		emplacement->setNoeud(this);
+		_emplacement = &emplacement;
+		emplacement.setNoeud(this);
 	}
 
 	void clearEmplacement() {

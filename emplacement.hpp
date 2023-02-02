@@ -23,7 +23,7 @@ public:
 	int getY() const { return _position.getY(); }
 	bool estDisponible() { return _estDisponible; }
 
-	// NE PAS APPELER CETTE FONCTION
+	// NE PAS APPELER CES FONCTIONS
 	void setNoeud(Noeud* noeud)
 	{
 		_noeud = noeud;

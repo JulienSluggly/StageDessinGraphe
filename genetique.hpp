@@ -68,13 +68,32 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 	}
 	graphes[0].placementAleatoire();
 	graphes[0].getNbCroisement();
-	int indexBestGraphe = -1;
+	// Vecteur pour le mode half parent
+	std::vector<int> sortedEmpId;
+	if (modeCroisement == 1) {
+		std::vector<Emplacement*> empPtrVec;
+		empPtrVec.resize(graphes[0]._emplacementsPossibles.size());
+		for (int i = 0; i < graphes[0]._emplacementsPossibles.size(); i++) {
+			empPtrVec[i] = &graphes[0]._emplacementsPossibles[i];
+		}
+		// Tri des emplacements pas la coord X
+		std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacement);
+		sortedEmpId.resize(empPtrVec.size());
+		for (int i=0;i<empPtrVec.size();i++) {
+			sortedEmpId[i] = empPtrVec[i]->getId();
+		}
+	}
+	sort(graphes.begin(), graphes.end());
 	int currentIteration = 0;
-	long bestCrossingResult = 99999999;
+	long bestCrossingResult = graphes[0].nombreCroisement;
+	std::cout << bestCrossingResult << " Meilleur debut genetique\n";
+	std::cout << "[";
+		for (int i = 0; i<4;i++) {
+			std::cout << graphes[i].nombreCroisement << " ";
+		}
+		std::cout << "]" << std::endl;
 	bool noChange = false;
 	while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
-		sort(graphes.begin(), graphes.end());
-		indexBestGraphe = 0;
 		int numberOfNoChange = 0;
 		for (int i = population/2; i < population; ++i) {
 			graphes[i].clearNodeEmplacement();
@@ -82,13 +101,16 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 			int grapheID1, grapheID2;
 			grapheID1 = generateRand(population/2 - 1);
 			grapheID2 = generateRand(population/2 - 1);
+			while (grapheID2 == grapheID1) {
+				grapheID2 = generateRand(population/2 - 1);
+			}
 			//std::cout << "P1: " << grapheID1 << " P2: " << grapheID2 << std::endl;
 			bool result;
 			if (modeCroisement == 0) {
 				result = graphes[i].croisementVoisinageFrom(graphes[grapheID1], graphes[grapheID2], useRand);
 			}
 			else if (modeCroisement == 1) {
-				graphes[i].croisementHalfParent(graphes[grapheID1], graphes[grapheID2], useRand);
+				graphes[i].croisementHalfParent(graphes[grapheID1], graphes[grapheID2], sortedEmpId, useRand);
 			}
 			if (!result) {
 				numberOfNoChange++;
@@ -101,19 +123,23 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 			}
 			if (graphes[i].nombreCroisement < bestCrossingResult) {
 				bestCrossingResult = graphes[i].nombreCroisement;
-				indexBestGraphe = i;
 			}
 		}
-		if (numberOfNoChange == (population / 2)-1) {
+		if (numberOfNoChange >= (population / 2)-1) {
 			noChange = true;
 		}
 		++currentIteration;
-
+		sort(graphes.begin(), graphes.end());
 		std::cout << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " \n";
+		std::cout << "[";
+		for (int i = 0; i<4;i++) {
+			std::cout << graphes[i].nombreCroisement << " ";
+		}
+		std::cout << "]" << std::endl;
 
 	}
 
-	return graphes[indexBestGraphe].saveCopy();
+	return graphes[0].saveCopy();
 }
 
 

@@ -11,7 +11,7 @@
 using std::min;
 using std::max;
 
-// Retourne une valeur réelle comprise dans [0.0,n[
+// Retourne une valeur rÃ©elle comprise dans [0.0,n[
 double generateDoubleRand(double n) {
     std::random_device rd;  // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
