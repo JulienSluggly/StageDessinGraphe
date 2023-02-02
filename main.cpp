@@ -27,16 +27,16 @@ int main() {
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-4-input";
-	string nomFichierSlots = "3X-4-input-slots";
+	string nomFichierGraph = "graph-1-input";
+	string nomFichierSlots = "1-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	readFromJsonGraph(G, fileGraph);
 	readFromJsonSlots(G, fileSlots);
 
 	auto start = std::chrono::system_clock::now();
-	//G.loadCopy(grapheGenetique(1000,10,fileGraph,fileSlots,false));
-	G.placementAleatoire();
+	G.loadCopy(grapheGenetique(50,30,fileGraph,fileSlots,false,false,0));
+	//G.placementAleatoire();
 	//G.afficherNoeudSeul();
 	//G.afficherAreteDouble();
 	//G.afficherInfo();
