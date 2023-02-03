@@ -7,7 +7,6 @@
 #include <GL/glu.h>
 #include <stdio.h>
 #include "jsonIO.hpp"
-#include "EdgeMaps.hpp"
 #include <random>
 #include "personnel.hpp"
 
@@ -339,7 +338,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			show_nb_intersection = false;
 		}
 		else if (move_current_left) {
-			areteIll.clear();
+			G.areteIll.clear();
 			int numPos = G._noeuds[selectedNode].getEmplacement()->getId();
 			for (int i = numPos - 1; i >= 0; i--) {
 				if (G._emplacementsPossibles[i].estDisponible()) {
@@ -350,7 +349,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			move_current_left = false;
 		}
 		else if (move_current_right) {
-			areteIll.clear();
+			G.areteIll.clear();
 			int numPos = G._noeuds[selectedNode].getEmplacement()->getId();
 			for (int i = numPos + 1; i < G._emplacementsPossibles.size(); i++) {
 				if (G._emplacementsPossibles[i].estDisponible()) {
@@ -361,7 +360,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			move_current_right = false;
 		}
 		else if (make_swap) {
-			areteIll.clear();
+			G.areteIll.clear();
 			if (G._noeuds[selectedNode].getEmplacement()->getId() != selectedEmplacement) {
 				int oldEmplacement = G._noeuds[selectedNode].getEmplacement()->getId();
 				if (G._emplacementsPossibles[selectedEmplacement].estDisponible()) {
@@ -488,14 +487,14 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				glEnd();
 			}
 			if (show_noeud_illegal && !recalc_illegal) {
-				for (auto a : areteInter) {
+				for (auto a : G.areteInter) {
 					glColor3f(1.0f, 0.0f, 0.0f);
 					glBegin(GL_LINE_STRIP);
 					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
 					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
 					glEnd();
 				}
-				for (auto a : areteIll) {
+				for (auto a : G.areteIll) {
 					glColor3f(1.0f, 0.0f, 1.0f);
 					glBegin(GL_LINE_STRIP);
 					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
@@ -526,14 +525,10 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				glVertex2d(G._emplacementsPossibles[selectedEmplacement].getX(), G._emplacementsPossibles[selectedEmplacement].getY());
 			}
 			if (recalc_illegal) {
-				glColor3f(0.0f, 0.0f, 0.5f);
-				areteIll.clear();
-				areteInter.clear();
+				G.areteIll.clear();
+				G.areteInter.clear();
 				for (int i = 0; i < G._noeuds.size(); i++) {
-					if (G.getScoreCroisementNode(i) >= 10000) {
-						int idEmp = G._noeuds[i].getEmplacement()->getId();
-						glVertex2d(G._emplacementsPossibles[idEmp].getX(), G._emplacementsPossibles[idEmp].getY());
-					}
+					G.getScoreCroisementNode(i);
 				}
 				recalc_illegal = false;
 			}

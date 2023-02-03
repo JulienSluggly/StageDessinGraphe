@@ -2,6 +2,7 @@
 #define ARETES_HPP
 
 #include "noeud.hpp"
+#include <unordered_set>
 
 class Aretes {
 public:
@@ -18,10 +19,13 @@ public:
 	}
 	// Vecteur contenant les id des aretes ayant une intersection legale avec celle-ci.
 	// Attention ce vecteur n'est pas toujours a jour!
-	std::vector<int> intersections;
-	// Vecteur contenant les id des aretes ayant une intersection illegale avec celle-ci.
+	std::unordered_set<int> intersections;
+	// Vecteur contenant les id des aretes ne contenant pas de noeud commun ayant une intersection illegale avec celle-ci.
 	// Attention ce vecteur n'est pas toujours a jour!
-	std::vector<int> intersectionsIll;
+	std::unordered_set<int> intersectionsIll;
+	// Vecteur contenant les id des aretes contenant un noeud commun ayant une intersection illegale avec celle-ci.
+	// Attention ce vecteur n'est pas toujours a jour!
+	std::unordered_set<int> intersectionsIllSelf;
 	bool isUpdated = false;
 
 	Noeud* getNoeud1()  const { return _noeud1; }
@@ -40,8 +44,8 @@ public:
 	}
 
 	// Renvoie le noeud qui n'est pas en commun avec l'arete passe en parametre
-	Noeud* nodeNotInCommon(Aretes l) const {
-		if (_noeud1->getId() == l.getNoeud1()->getId() || _noeud1->getId() == l.getNoeud2()->getId()) { return _noeud2; }
+	Noeud* nodeNotInCommon(const Aretes* l) const {
+		if (_noeud1->getId() == l->getNoeud1()->getId() || _noeud1->getId() == l->getNoeud2()->getId()) { return _noeud2; }
 		return _noeud1;
 	}
 

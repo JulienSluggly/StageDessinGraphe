@@ -7,7 +7,6 @@
 #include "intersection.hpp"
 #include "emplacement.hpp"
 #include "utilitaire.hpp"
-#include "EdgeMaps.hpp"
 #include <iostream>
 #include <climits>
 
@@ -16,7 +15,12 @@ public:
 	std::vector<Emplacement> _emplacementsPossibles;
 	std::vector<Aretes> _liens;
 	std::vector<Noeud> _noeuds;
+
+	std::set<Aretes*> areteIll;
+	std::set<Aretes*> areteInter;
+
 	int PENALITE_MAX = 10000;
+	int PENALITE_MAX_SELF = 1000000;
 	int gridHeight = 10;
 	int gridWidth = 10;
 
@@ -146,6 +150,75 @@ public:
 		std::cout << "-----------------------------------------------" << std::endl;
 	}
 
+	void debugScoreNoeud() {
+		std::cout << "-----------------------------------------------" << std::endl;
+		std::cout << "Affichage DEBUG Score Noeud:" << std::endl;
+		long nbWrongScore = 0;
+		for (int i = 0; i < _noeuds.size(); i++) {
+			if (_noeuds[i].getEmplacement() != nullptr) {
+				long scoreReel = getScoreCroisementNode(i);
+				if (scoreReel != _noeuds[i].score) {
+					std::cout << "Noeud: " << i << " Score:" << _noeuds[i].score << " Score Reel: " << scoreReel << std::endl;
+					nbWrongScore++;
+				}
+			}
+		}
+		if (nbWrongScore == 0) {
+			std::cout << "Aucun" << std::endl;
+		}
+		std::cout << "-----------------------------------------------" << std::endl;
+	}
+
+	void debugScoreNoeudV2() {
+		std::cout << "-----------------------------------------------" << std::endl;
+		std::cout << "Affichage DEBUG Score Noeud:" << std::endl;
+		long nbWrongScore = 0;
+		for (int i = 0; i < _noeuds.size(); i++) {
+			if (_noeuds[i].getEmplacement() != nullptr) {
+				long scoreReel = getScoreCroisementNode(i);
+				long scoreArrays = getScoreCroisementNodeFromArrays(i);
+				if ((scoreReel != _noeuds[i].score)||(scoreReel != scoreArrays)||(scoreArrays != _noeuds[i].score)) {
+					std::cout << "Noeud: " << i << " Score:" << _noeuds[i].score << " Score Reel: " << scoreReel << " Score Arrays: " << scoreArrays << std::endl;
+					nbWrongScore++;
+				}
+			}
+		}
+		if (nbWrongScore == 0) {
+			std::cout << "Aucun" << std::endl;
+		}
+		std::cout << "-----------------------------------------------" << std::endl;
+	}
+
+	void debugInterArrays() {
+		std::cout << "-----------------------------------------------" << std::endl;
+		std::cout << "Affichage DEBUG Inter Arrays:" << std::endl;
+		long nbWrongArray = 0;
+		for (int i = 0; i < _liens.size(); i++) {
+			for (const int& idOtherArray : _liens[i].intersections) {
+				if (_liens[idOtherArray].intersections.count(i) == 0) {
+					std::cout << "Inter: " << i << "&" << idOtherArray << std::endl;
+					nbWrongArray++;
+				}
+			}
+			for (const int& idOtherArray : _liens[i].intersectionsIll) {
+				if (_liens[idOtherArray].intersectionsIll.count(i) == 0) {
+					std::cout << "InterIll: " << i << "&" << idOtherArray << std::endl;
+					nbWrongArray++;
+				}
+			}
+			for (const int& idOtherArray : _liens[i].intersectionsIllSelf) {
+				if (_liens[idOtherArray].intersectionsIllSelf.count(i) == 0) {
+					std::cout << "InterIllSelf: " << i << "&" << idOtherArray << std::endl;
+					nbWrongArray++;
+				}
+			}
+		}
+		if (nbWrongArray == 0) {
+			std::cout << "Aucun" << std::endl;
+		}
+		std::cout << "-----------------------------------------------" << std::endl;
+	}
+
 	// Fait une estimation du temps requis pour effectuer un recuit simule complet
 	void tempsCalculRecuitSimule(double cool = 0.99999, double t = 100, int mode = 0) {
 		std::vector<int> bestResult = saveCopy();
@@ -269,12 +342,12 @@ public:
 					}
 				}
 				else {
-					Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(_liens[i]);
+					Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[i]);
 					if (surSegment(_liens[i], *nodeNotInCommon)) {
 						return true;
 					}
 					else {
-						nodeNotInCommon = _liens[i].nodeNotInCommon(_liens[j]);
+						nodeNotInCommon = _liens[i].nodeNotInCommon(&_liens[j]);
 						if (surSegment(_liens[j], *nodeNotInCommon)) {
 							return true;
 						}
@@ -304,14 +377,14 @@ public:
 					}
 				}
 				else {
-					Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(_liens[i]);
+					Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[i]);
 					if (surSegment(_liens[i], *nodeNotInCommon)) {
-						total += PENALITE_MAX;
+						total += PENALITE_MAX_SELF;
 					}
 					else {
-						nodeNotInCommon = _liens[i].nodeNotInCommon(_liens[j]);
+						nodeNotInCommon = _liens[i].nodeNotInCommon(&_liens[j]);
 						if (surSegment(_liens[j], *nodeNotInCommon)) {
-							total += PENALITE_MAX;
+							total += PENALITE_MAX_SELF;
 						}
 					}
 				}
@@ -345,14 +418,14 @@ public:
 							}
 						}
 						else {
-							Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(_liens[i]);
+							Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[i]);
 							if (surSegment(_liens[i], *nodeNotInCommon)) {
-								total += PENALITE_MAX;
+								total += PENALITE_MAX_SELF;
 							}
 							else {
-								nodeNotInCommon = _liens[i].nodeNotInCommon(_liens[j]);
+								nodeNotInCommon = _liens[i].nodeNotInCommon(&_liens[j]);
 								if (surSegment(_liens[j], *nodeNotInCommon)) {
-									total += PENALITE_MAX;
+									total += PENALITE_MAX_SELF;
 								}
 							}
 						}
@@ -1306,8 +1379,25 @@ public:
 		}
 	}
 
+	// Calcule le score du noeud en fonction de ses vecteur d'intersections
+	long getScoreCroisementNodeFromArrays(int nodeIndex) {
+		long score = 0;
+		std::vector<int> passedIndex;
+		for (int i=0;i<_noeuds[nodeIndex]._aretes.size();i++) {
+			score += _liens[_noeuds[nodeIndex]._aretes[i]].intersections.size();
+			score += _liens[_noeuds[nodeIndex]._aretes[i]].intersectionsIll.size() * PENALITE_MAX;
+			for (const int& idArray : _liens[_noeuds[nodeIndex]._aretes[i]].intersectionsIllSelf) {
+				if (!isInVector(passedIndex,idArray)) {
+					score += PENALITE_MAX_SELF;
+				}
+			}
+			passedIndex.push_back(_noeuds[nodeIndex]._aretes[i]);
+		}
+		return score;
+	}
+
 	// Calcule le score du noeud en parametre.
-	int getScoreCroisementNode(int nodeIndex) {
+	long getScoreCroisementNode(int nodeIndex) {
 		long score = 0;
 		std::vector<int> indexPasse;
 		for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
@@ -1331,15 +1421,15 @@ public:
 						}
 					}
 					else {
-						Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(_liens[index]);
+						Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[index]);
 						if (surSegment(_liens[index], *nodeNotInCommon)) {
-							score += PENALITE_MAX;
+							score += PENALITE_MAX_SELF;
 							if (DEBUG_OPENGL) areteIll.insert(&_liens[index]);
 						}
 						else {
-							nodeNotInCommon = _liens[index].nodeNotInCommon(_liens[j]);
+							nodeNotInCommon = _liens[index].nodeNotInCommon(&_liens[j]);
 							if (surSegment(_liens[j], *nodeNotInCommon)) {
-								score += PENALITE_MAX;
+								score += PENALITE_MAX_SELF;
 								if (DEBUG_OPENGL) areteIll.insert(&_liens[index]);
 							}
 						}
@@ -1375,14 +1465,14 @@ public:
 								}
 							}
 							else {
-								Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(_liens[index]);
+								Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[index]);
 								if (surSegment(_liens[index], *nodeNotInCommon)) {
-									score += PENALITE_MAX;
+									score += PENALITE_MAX_SELF;
 								}
 								else {
-									nodeNotInCommon = _liens[index].nodeNotInCommon(_liens[j]);
+									nodeNotInCommon = _liens[index].nodeNotInCommon(&_liens[j]);
 									if (surSegment(_liens[j], *nodeNotInCommon)) {
-										score += PENALITE_MAX;
+										score += PENALITE_MAX_SELF;
 									}
 								}
 							}
@@ -1510,9 +1600,122 @@ public:
 		return true;
 	}
 
+	// Indique aux aretes du noeuds que leur liste d'intersection n'est pas à jours.
 	void changeUpdateValue(int idNode) {
 		for (int i=0;i<_noeuds[idNode]._aretes.size();i++) {
 			_liens[_noeuds[idNode]._aretes[i]].isUpdated = false;
+		}
+	}
+
+	// Recalcule les intersections d'une arete et met a jour sa liste d'intersection uniquement
+	void recalculateInterArray(int idArray) {
+		_liens[idArray].intersections.clear();
+		_liens[idArray].intersectionsIll.clear();
+		_liens[idArray].intersectionsIllSelf.clear();
+		for (int i = 0; i < _liens.size(); ++i) {
+			if (i != idArray) {
+				if (!(_liens[idArray].contains(_liens[i].getNoeud1()) || _liens[idArray].contains(_liens[i].getNoeud2()))) {
+					if (seCroisent(_liens[idArray], _liens[i])) {
+						if (surSegment(_liens[idArray], *_liens[i].getNoeud1()) || surSegment(_liens[idArray], *_liens[i].getNoeud2())) {
+							_liens[idArray].intersectionsIll.insert(i);
+						}
+						else if (surSegment(_liens[i], *_liens[idArray].getNoeud1()) || surSegment(_liens[i], *_liens[idArray].getNoeud2())) {
+							_liens[idArray].intersectionsIll.insert(i);
+						}
+						else {
+							_liens[idArray].intersections.insert(i);
+						}
+					}
+				}
+				else {
+					Noeud* nodeNotInCommon = _liens[i].nodeNotInCommon(&_liens[idArray]);
+					if (surSegment(_liens[idArray], *nodeNotInCommon)) {
+						_liens[idArray].intersectionsIllSelf.insert(i);
+					}
+					else {
+						nodeNotInCommon = _liens[idArray].nodeNotInCommon(&_liens[i]);
+						if (surSegment(_liens[i], *nodeNotInCommon)) {
+							_liens[idArray].intersectionsIllSelf.insert(i);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Met a jour le score du noeud et met a jour la liste d'intersection de ses aretes
+	// Modifie le score des noeuds affectes par la liste
+	void updateNodeScore(int idNode) {
+		for (int i=0;i<_noeuds[idNode]._aretes.size();i++) {
+			int idOtherNode = _liens[_noeuds[idNode]._aretes[i]].getNoeud1()->getId();
+			if (idNode == idOtherNode) {
+				idOtherNode = _liens[_noeuds[idNode]._aretes[i]].getNoeud2()->getId();
+			}
+			if (!_liens[_noeuds[idNode]._aretes[i]].isUpdated) {
+				std::unordered_set<int> oldIntersections = _liens[_noeuds[idNode]._aretes[i]].intersections;
+				std::unordered_set<int> oldIntersectionsIll = _liens[_noeuds[idNode]._aretes[i]].intersectionsIll;
+				std::unordered_set<int> oldIntersectionsIllSelf = _liens[_noeuds[idNode]._aretes[i]].intersectionsIllSelf;
+				recalculateInterArray(_noeuds[idNode]._aretes[i]);
+				for (const int& elem: oldIntersections) {
+					if (_liens[_noeuds[idNode]._aretes[i]].intersections.count(elem) == 0) {
+						_liens[elem].getNoeud1()->score--;
+						_liens[elem].getNoeud2()->score--;
+						_liens[elem].intersections.erase(_noeuds[idNode]._aretes[i]);
+						_noeuds[idOtherNode].score--;
+						_noeuds[idNode].score--;
+						nombreCroisement--;
+					}
+				}
+				for (const int& elem: _liens[_noeuds[idNode]._aretes[i]].intersections) {
+					if (oldIntersections.count(elem) == 0) {
+						_liens[elem].getNoeud1()->score++;
+						_liens[elem].getNoeud2()->score++;
+						_liens[elem].intersections.insert(_noeuds[idNode]._aretes[i]);
+						_noeuds[idOtherNode].score++;
+						_noeuds[idNode].score++;
+						nombreCroisement++;
+					}
+				}
+				for (const int& elem: oldIntersectionsIll) {
+					if (_liens[_noeuds[idNode]._aretes[i]].intersectionsIll.count(elem) == 0) {
+						_liens[elem].getNoeud1()->score -= PENALITE_MAX;
+						_liens[elem].getNoeud2()->score -= PENALITE_MAX;
+						_liens[elem].intersectionsIll.erase(_noeuds[idNode]._aretes[i]);
+						_noeuds[idOtherNode].score -= PENALITE_MAX;
+						_noeuds[idNode].score -= PENALITE_MAX;
+						nombreCroisement -= PENALITE_MAX;
+					}
+				}
+				for (const int& elem: _liens[_noeuds[idNode]._aretes[i]].intersectionsIll) {
+					if (oldIntersectionsIll.count(elem) == 0) {
+						_liens[elem].getNoeud1()->score += PENALITE_MAX;
+						_liens[elem].getNoeud2()->score += PENALITE_MAX;
+						_liens[elem].intersectionsIll.insert(_noeuds[idNode]._aretes[i]);
+						_noeuds[idOtherNode].score += PENALITE_MAX;
+						_noeuds[idNode].score += PENALITE_MAX;
+						nombreCroisement += PENALITE_MAX;
+					}
+				}
+				for (const int& elem: oldIntersectionsIllSelf) {
+					if (_liens[_noeuds[idNode]._aretes[i]].intersectionsIllSelf.count(elem) == 0) {
+						_liens[elem].getNoeud1()->score -= PENALITE_MAX_SELF;
+						_liens[elem].getNoeud2()->score -= PENALITE_MAX_SELF;
+						_liens[elem].intersectionsIllSelf.erase(_noeuds[idNode]._aretes[i]);
+						_liens[_noeuds[idNode]._aretes[i]].nodeNotInCommon(&_liens[elem])->score -= PENALITE_MAX_SELF;
+						nombreCroisement -= PENALITE_MAX_SELF;
+					}
+				}
+				for (const int& elem: _liens[_noeuds[idNode]._aretes[i]].intersectionsIllSelf) {
+					if (oldIntersectionsIllSelf.count(elem) == 0) {
+						_liens[elem].getNoeud1()->score += PENALITE_MAX_SELF;
+						_liens[elem].getNoeud2()->score += PENALITE_MAX_SELF;
+						_liens[elem].intersectionsIllSelf.insert(_noeuds[idNode]._aretes[i]);
+						_liens[_noeuds[idNode]._aretes[i]].nodeNotInCommon(&_liens[elem])->score += PENALITE_MAX_SELF;
+						nombreCroisement += PENALITE_MAX_SELF;
+					}
+				}
+				_liens[_noeuds[idNode]._aretes[i]].isUpdated = true;
+			}
 		}
 	}
 
@@ -1613,8 +1816,12 @@ public:
 			else {
 				otherGraphe->completeBasicGlouton();
 			}
+			for (int i=0;i<nodeToUpdate.size();i++) {
+				otherGraphe->updateNodeScore(i);
+			}
 			//Si les lieux coincident les noeuds ne sont plus à traiter
 			for (int i = 0; i < numberOfNodeToRelocate; ++i) {
+				otherGraphe->updateNodeScore(i);
 				if (graphe1._noeuds[nodeToRelocate[i]].compare(&graphe2._noeuds[nodeToRelocate[i]])) {
 					--nbNoeudATraiter;
 				}
@@ -1632,7 +1839,7 @@ public:
 				currentGrapheNumber = 0;
 			}
 		}
-		nombreCroisement = graphe1.nombreCroisement;
+		nombreCroisement = otherGraphe->nombreCroisement;
 		_noeuds.swap(graphe1._noeuds);
 		_liens.swap(graphe1._liens);
 		_emplacementsPossibles.swap(graphe1._emplacementsPossibles);
@@ -1924,38 +2131,6 @@ public:
 		return total;
 	}
 
-	void croisementAleatoireFrom(Graphe* graphe1, Graphe* graphe2)
-	{
-		std::vector<int> noeudNonTraite;
-		for (int noeud = 0; noeud < _noeuds.size(); ++noeud)
-		{
-			int random = generateRand(1) + 1;
-			Graphe* currentGraphe;
-			if (random == 1)
-			{
-				currentGraphe = graphe1;
-			}
-			else
-			{
-				currentGraphe = graphe2;
-			}
-			int idEmplacement = currentGraphe->_noeuds[noeud].getEmplacement()->getId();
-			if (_emplacementsPossibles[idEmplacement].estDisponible())
-			{
-				_noeuds[noeud].setEmplacement(&_emplacementsPossibles[noeud]);
-			}
-			else
-			{
-				noeudNonTraite.push_back(noeud);
-			}
-		}
-
-		for (int noeud : noeudNonTraite)
-		{
-			placementNoeudAleatoire(noeud);
-		}
-	}
-
 	long getNbCroisementConst() const
 	{
 		long total = 0;
@@ -1982,15 +2157,15 @@ public:
 					}
 				}
 				else {
-					Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(_liens[i]);
+					Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[i]);
 					if (surSegment(_liens[i], *nodeNotInCommon))
 					{
-						total += PENALITE_MAX;
+						total += PENALITE_MAX_SELF;
 					}
 					else {
-						nodeNotInCommon = _liens[i].nodeNotInCommon(_liens[j]);
+						nodeNotInCommon = _liens[i].nodeNotInCommon(&_liens[j]);
 						if (surSegment(_liens[j], *nodeNotInCommon)) {
-							total += PENALITE_MAX;
+							total += PENALITE_MAX_SELF;
 						}
 					}
 				}
@@ -2019,34 +2194,34 @@ public:
 					if (seCroisent(_liens[i], _liens[j])) {
 						if (surSegment(_liens[i], *_liens[j].getNoeud1()) || surSegment(_liens[i], *_liens[j].getNoeud2())) {
 							total += PENALITE_MAX;
-							_liens[i].intersectionsIll.push_back(j);
-							_liens[j].intersectionsIll.push_back(i);
+							_liens[i].intersectionsIll.insert(j);
+							_liens[j].intersectionsIll.insert(i);
 						}
 						else if (surSegment(_liens[j], *_liens[i].getNoeud1()) || surSegment(_liens[j], *_liens[i].getNoeud2())) {
 							total += PENALITE_MAX;
-							_liens[i].intersectionsIll.push_back(j);
-							_liens[j].intersectionsIll.push_back(i);
+							_liens[i].intersectionsIll.insert(j);
+							_liens[j].intersectionsIll.insert(i);
 						}
 						else {
 							++total;
-							_liens[i].intersections.push_back(j);
-							_liens[j].intersections.push_back(i);
+							_liens[i].intersections.insert(j);
+							_liens[j].intersections.insert(i);
 						}
 					}
 				}
 				else {
-					Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(_liens[i]);
+					Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[i]);
 					if (surSegment(_liens[i], *nodeNotInCommon)) {
-						total += PENALITE_MAX;
-						_liens[i].intersectionsIll.push_back(j);
-						_liens[j].intersectionsIll.push_back(i);
+						total += PENALITE_MAX_SELF;
+						_liens[i].intersectionsIllSelf.insert(j);
+						_liens[j].intersectionsIllSelf.insert(i);
 					}
 					else {
-						nodeNotInCommon = _liens[i].nodeNotInCommon(_liens[j]);
+						nodeNotInCommon = _liens[i].nodeNotInCommon(&_liens[j]);
 						if (surSegment(_liens[j], *nodeNotInCommon)) {
-							total += PENALITE_MAX;
-							_liens[i].intersectionsIll.push_back(j);
-							_liens[j].intersectionsIll.push_back(i);
+							total += PENALITE_MAX_SELF;
+							_liens[i].intersectionsIllSelf.insert(j);
+							_liens[j].intersectionsIllSelf.insert(i);
 						}
 					}
 				}

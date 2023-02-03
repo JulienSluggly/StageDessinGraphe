@@ -95,6 +95,7 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 	std::cout << "[";
 		for (int i = 0; i<5;i++) {
 			std::cout << graphes[i].nombreCroisement << " ";
+			graphes[i].debugScoreNoeudV2();
 		}
 		std::cout << "]" << std::endl;
 	bool noChange = false;
@@ -119,7 +120,7 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 				result = graphes[i].croisementAleatoire(graphes[grapheID1], graphes[grapheID2], useRand);
 			}
 			else if (modeCroisement == 3) {
-				std::cout << "NYI\n";
+				result = graphes[i].croisementVoisinageScore(graphes[grapheID1], graphes[grapheID2], useRand);
 			}
 			if (!result) {
 				numberOfNoChange++;
@@ -142,7 +143,8 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 		std::cout << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " \n";
 		std::cout << "[";
 		for (int i = 0; i<5;i++) {
-			std::cout << graphes[i].nombreCroisement << " ";
+			std::cout << "NombreCroisement: " << graphes[i].nombreCroisement << " NombreCroisementReel: " << graphes[i].getNbCroisementConst() << std::endl;
+			graphes[i].debugScoreNoeudV2();
 		}
 		std::cout << "]" << std::endl;
 
