@@ -68,13 +68,11 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 		graphes[i].nomGraphe = "Graphe" + std::to_string(i);
 		graphes[i].copyFromGraphe(graphes[0]);
 		graphes[i].placementAleatoire();
-		if (modeCroisement != 3) { graphes[i].getNbCroisement(); }
-		else { graphes[i].initGraphAndNodeScoresAndCrossings(); }
+		graphes[i].initGraphAndNodeScoresAndCrossings();
 	}
 	graphes[0].nomGraphe = "Graphe0";
 	graphes[0].placementAleatoire();
-	if (modeCroisement != 3) { graphes[0].getNbCroisement(); }
-	else { graphes[0].initGraphAndNodeScoresAndCrossings(); }
+	graphes[0].initGraphAndNodeScoresAndCrossings();
 	// Vecteur pour le mode half parent
 	std::vector<int> sortedEmpId;
 	if (modeCroisement == 1) {
@@ -96,12 +94,12 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 	std::cout << bestCrossingResult << " Meilleur debut genetique\n";
 	std::cout << "[";
 	for (int i = 0; i<10;i++) {
-		std::cout << graphes[i].nombreCroisement << "&" << graphes[i].getNbCroisementConst() << " ";
+		std::cout << graphes[i].nombreCroisement << " ";
 	}
 	std::cout << "]" << std::endl;
-	for (int i = 0; i<graphes.size();i++) {
-		graphes[i].debugEverything();
-	}
+	//for (int i = 0; i<graphes.size();i++) {
+	//	graphes[i].debugEverything();
+	//}
 	std::cout << "Debut Croisement Genetique." << std::endl;
 	bool noChange = false;
 	while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
@@ -151,12 +149,12 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 		std::cout << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " \n";
 		std::cout << "[";
 		for (int i = 0; i<10;i++) {
-			std::cout << graphes[i].nombreCroisement << "&" << graphes[i].getNbCroisementConst() << " ";
+			std::cout << graphes[i].nombreCroisement << " ";
 		}
 		std::cout << "]" << std::endl;
-		for (int i = 0; i<graphes.size();i++) {
-			graphes[i].debugEverything();
-		}
+		//for (int i = 0; i<graphes.size();i++) {
+		//	graphes[i].debugEverything();
+		//}
 	}
 
 	return graphes[0].saveCopy();

@@ -27,8 +27,8 @@ int main() {
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-1-input";
-	string nomFichierSlots = "1-input-slots";
+	string nomFichierGraph = "graph-5-input";
+	string nomFichierSlots = "5-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	string fileGraphSlots = chemin + "combined/exemple3.json";
@@ -41,7 +41,7 @@ int main() {
 
 
 	auto start = std::chrono::system_clock::now();
-	G.loadCopy(grapheGenetique(100,50,fileGraph,fileSlots,false,false,3));
+	G.loadCopy(grapheGenetique(100,20,fileGraph,fileSlots,false,false,0));
 	//G.placementFixe();
 	//G.initGraphAndNodeScoresAndCrossings();
 	//G.debugScoreNoeudV2();

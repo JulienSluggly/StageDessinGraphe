@@ -1635,14 +1635,13 @@ public:
 		else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
 
 		std::vector<int> nodeToRelocate;
-		nodeToRelocate.resize(graphe1.maxVoisin);
+		nodeToRelocate.resize(graphe1.maxVoisin+1);
 
 		while (nbNoeudATraiter > 0) {
 			int bestNodeId = -1;
 			int meilleurScore;
 			int nbRencontre = 0;
 			int numberOfNodeToRelocate = 0;
-			//std::cout << "Nb noeud a traiter encore: " << nbNoeudATraiter << "\n";
 
 			//Trouve le meilleur noeud du graphe en cours d'analyse
 			for (int i = 0; i < _noeuds.size(); ++i) {
@@ -1668,8 +1667,10 @@ public:
 				--nbNoeudATraiter;
 				int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
 				if (oldNodeId != -1) {
-					nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
-					numberOfNodeToRelocate++;
+					if (!areVoisin(bestNodeId,oldNodeId)) {
+						nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+						numberOfNodeToRelocate++;
+					}
 				}
 			}
 			//Place tout les voisins du point choisis
@@ -1683,22 +1684,18 @@ public:
 						bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
 					}
 					_noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
-					if (graphe1._noeuds[idNodeVoisin].estPlace() && graphe2._noeuds[idNodeVoisin].estPlace()) {
-						if (!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin])) {
-							--nbNoeudATraiter;
-							int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
-							if (oldNodeId != -1) {
+					if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
+						--nbNoeudATraiter;
+						int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+						if (oldNodeId != -1) {
+							if (!areVoisin(bestNodeId,oldNodeId)) {
 								nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
 								numberOfNodeToRelocate++;
 							}
 						}
 					}
-					else {
-						--nbNoeudATraiter;
-					}
 				}
 			}
-
 			if (useRand) {
 				otherGraphe->completePlacementAleatoire();
 			}
@@ -1753,7 +1750,7 @@ public:
 		int numberOfNodeToRelocate = 0;
 
 		std::vector<int> nodeToRelocate;
-		nodeToRelocate.resize(graphe1.maxVoisin);
+		nodeToRelocate.resize(graphe1.maxVoisin+1);
 
 		for (int i = 0; i < _noeuds.size(); ++i) {
 			if (!_noeuds[i].estPlace()) {
@@ -1778,8 +1775,10 @@ public:
 			--nbNoeudATraiter;
 			int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
 			if (oldNodeId != -1) {
-				nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
-				numberOfNodeToRelocate++;
+				if (!areVoisin(bestNodeId,oldNodeId)) {
+					nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+					numberOfNodeToRelocate++;
+				}
 			}
 		}
 		//Place tout les voisins du point choisis
@@ -1793,11 +1792,11 @@ public:
 					bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
 				}
 				_noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
-				if (otherGraphe->_noeuds[idNodeVoisin].estPlace()) {
-					if (!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin])) {
-						--nbNoeudATraiter;
-						int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
-						if (oldNodeId != -1) {
+				if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
+					--nbNoeudATraiter;
+					int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+					if (oldNodeId != -1) {
+						if (!areVoisin(bestNodeId,oldNodeId)) {
 							nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
 							numberOfNodeToRelocate++;
 						}
@@ -1965,8 +1964,8 @@ public:
 
 		std::vector<int> nodeToUpdate;
 		std::vector<int> nodeToRelocate;
-		nodeToUpdate.resize(originalGraphe1.maxVoisin);
-		nodeToRelocate.resize(originalGraphe1.maxVoisin);
+		nodeToUpdate.resize(originalGraphe1.maxVoisin+1);
+		nodeToRelocate.resize(originalGraphe1.maxVoisin+1);
 		while (nbNoeudATraiter > 0) {
 			int bestNodeId = -1;
 			int meilleurScore;
@@ -2001,9 +2000,11 @@ public:
 				numberOfNodeToUpdate++;
 				otherGraphe->changeUpdateValue(bestNodeId);
 				if (oldNodeId != -1) {
-					nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
-					numberOfNodeToRelocate++;
-					otherGraphe->changeUpdateValue(oldNodeId);
+					if (!areVoisin(bestNodeId,oldNodeId)) {
+						nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+						numberOfNodeToRelocate++;
+						otherGraphe->changeUpdateValue(oldNodeId);
+					}
 				}
 			}
 			//Place tout les voisins du point choisis
@@ -2017,22 +2018,19 @@ public:
 						bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
 					}
 					_noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
-					if (graphe1._noeuds[idNodeVoisin].estPlace() && graphe2._noeuds[idNodeVoisin].estPlace()) {
-						if (!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin])) {
-							--nbNoeudATraiter;
-							int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
-							nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
-							numberOfNodeToUpdate++;
-							otherGraphe->changeUpdateValue(idNodeVoisin);
-							if (oldNodeId != -1) {
+					if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
+						--nbNoeudATraiter;
+						int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+						nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
+						numberOfNodeToUpdate++;
+						otherGraphe->changeUpdateValue(idNodeVoisin);
+						if (oldNodeId != -1) {
+							if (!areVoisin(bestNodeId,oldNodeId)) {
 								nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
 								numberOfNodeToRelocate++;
 								otherGraphe->changeUpdateValue(oldNodeId);
 							}
 						}
-					}
-					else {
-						--nbNoeudATraiter;
 					}
 				}
 			}
@@ -2084,8 +2082,8 @@ public:
 
 		std::vector<int> nodeToUpdate;
 		std::vector<int> nodeToRelocate;
-		nodeToUpdate.resize(graphe1.maxVoisin);
-		nodeToRelocate.resize(graphe1.maxVoisin);
+		nodeToUpdate.resize(graphe1.maxVoisin+1);
+		nodeToRelocate.resize(graphe1.maxVoisin+1);
 
 		int bestNodeId = -1;
 		int meilleurScore;
@@ -2120,9 +2118,11 @@ public:
 			numberOfNodeToUpdate++;
 			otherGraphe->changeUpdateValue(bestNodeId);
 			if (oldNodeId != -1) {
-				nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
-				numberOfNodeToRelocate++;
-				otherGraphe->changeUpdateValue(oldNodeId);
+				if (!areVoisin(bestNodeId,oldNodeId)) {
+					nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+					numberOfNodeToRelocate++;
+					otherGraphe->changeUpdateValue(oldNodeId);
+				}
 			}
 		}
 		//Place tout les voisins du point choisis
@@ -2136,22 +2136,19 @@ public:
 					bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
 				}
 				_noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
-				if (graphe1._noeuds[idNodeVoisin].estPlace() && graphe2._noeuds[idNodeVoisin].estPlace()) {
-					if (!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin])) {
-						--nbNoeudATraiter;
-						int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
-						nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
-						numberOfNodeToUpdate++;
-						otherGraphe->changeUpdateValue(idNodeVoisin);
-						if (oldNodeId != -1) {
+				if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
+					--nbNoeudATraiter;
+					int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+					nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
+					numberOfNodeToUpdate++;
+					otherGraphe->changeUpdateValue(idNodeVoisin);
+					if (oldNodeId != -1) {
+						if (!areVoisin(bestNodeId,oldNodeId)) {
 							nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
 							numberOfNodeToRelocate++;
 							otherGraphe->changeUpdateValue(oldNodeId);
 						}
 					}
-				}
-				else {
-					--nbNoeudATraiter;
 				}
 			}
 		}
@@ -2197,8 +2194,8 @@ public:
 
 		std::vector<int> nodeToUpdate;
 		std::vector<int> nodeToRelocate;
-		nodeToUpdate.resize(originalGraphe1.maxVoisin);
-		nodeToRelocate.resize(originalGraphe1.maxVoisin);
+		nodeToUpdate.resize(originalGraphe1.maxVoisin+1);
+		nodeToRelocate.resize(originalGraphe1.maxVoisin+1);
 		while (nbNoeudATraiter > 0) {
 			int bestNodeId = -1;
 			int meilleurScore;
@@ -2251,9 +2248,11 @@ public:
 				numberOfNodeToUpdate++;
 				otherGraphe->changeUpdateValue(bestNodeId);
 				if (oldNodeId != -1) {
-					nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
-					numberOfNodeToRelocate++;
-					otherGraphe->changeUpdateValue(oldNodeId);
+					if (!areVoisin(bestNodeId,oldNodeId)) {
+						nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+						numberOfNodeToRelocate++;
+						otherGraphe->changeUpdateValue(oldNodeId);
+					}
 				}
 			}
 			//Place tout les voisins du point choisis
@@ -2267,22 +2266,19 @@ public:
 						bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
 					}
 					_noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
-					if (graphe1._noeuds[idNodeVoisin].estPlace() && graphe2._noeuds[idNodeVoisin].estPlace()) {
-						if (!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin])) {
-							--nbNoeudATraiter;
-							int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
-							nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
-							numberOfNodeToUpdate++;
-							otherGraphe->changeUpdateValue(idNodeVoisin);
-							if (oldNodeId != -1) {
+					if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
+						--nbNoeudATraiter;
+						int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+						nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
+						numberOfNodeToUpdate++;
+						otherGraphe->changeUpdateValue(idNodeVoisin);
+						if (oldNodeId != -1) {
+							if (!areVoisin(bestNodeId,oldNodeId)) {
 								nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
 								numberOfNodeToRelocate++;
 								otherGraphe->changeUpdateValue(oldNodeId);
 							}
 						}
-					}
-					else {
-						--nbNoeudATraiter;
 					}
 				}
 			}
@@ -2335,7 +2331,6 @@ public:
 			int meilleurScore;
 			int nbRencontre = 0;
 			for (int i = startVec; i < endVec; ++i) { // Recherche du meilleur noeud du coté du graphe choisi
-				std::cout << "NNT: " << nbNoeudATraiter << " i: " << i << " Current: " << currentGrapheNumber << std::endl;
 				if (currentGraphe->_emplacementsPossibles[sortedEmpId[i]]._noeud != nullptr) {
 					int idNode = currentGraphe->_emplacementsPossibles[sortedEmpId[i]]._noeud->getId();
 					if (!_noeuds[idNode].estPlace()) {
@@ -2631,6 +2626,18 @@ public:
 		areteInter.clear();
 		areteIll.clear();
 		areteIllSelf.clear();
+	}
+
+	// Indique si les deux noeuds ont une aretes commune
+	bool areVoisin(int nodeId1, int nodeId2) {
+		for (int i=0;i<_noeuds[nodeId1]._aretes.size();i++) {
+			int areteNodeId1 = _liens[_noeuds[nodeId1]._aretes[i]]._noeud1->_id;
+			int areteNodeId2 = _liens[_noeuds[nodeId1]._aretes[i]]._noeud2->_id;
+			if (((nodeId1 == areteNodeId1)&&(nodeId2 == areteNodeId2))||((nodeId2 == areteNodeId1)&&(nodeId1 == areteNodeId2))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	bool operator < (const Graphe& G) const {
