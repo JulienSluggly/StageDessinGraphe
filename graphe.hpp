@@ -17,9 +17,10 @@ public:
 	std::vector<Noeud> _noeuds;
 
 	std::set<Aretes*> areteIll;
+	std::set<Aretes*> areteIllSelf;
 	std::set<Aretes*> areteInter;
 
-	int PENALITE_MAX = 10000;
+	int PENALITE_MAX = 1000;
 	int PENALITE_MAX_SELF = 1000000;
 	int gridHeight = 10;
 	int gridWidth = 10;
@@ -27,6 +28,9 @@ public:
 	// Attention cette variable n'est pas forcément à jour!
 	long nombreCroisement = -1;
 	bool isNombreCroisementUpdated = false;
+
+	// Nombre maximum de voisin d'un noeud dans le graphe.
+	int maxVoisin = -1;
 
 	bool DEBUG_GRAPHE = false;
 	bool DEBUG_OPENGL = true;
@@ -85,9 +89,11 @@ public:
 		std::cout << "-----------------------------------------------" << std::endl;
 	}
 
-	void afficherNoeudSeul(std::string nom = "") {
-		std::cout << "-----------------------------------------------" << std::endl;
-		std::cout << "Affichage DEBUG Noeud Seul: " << nomGraphe << " " << nom << std::endl;
+	void afficherNoeudSeul(bool display=true, std::string nom = "") {
+		if (display) {
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Noeud Seul: " << nomGraphe << " " << nom << std::endl;
+		}
 		int nbNoeudSeul = 0;
 		for (int i = 0; i < _noeuds.size(); i++) {
 			if (_noeuds[i]._aretes.size() == 0) {
@@ -96,9 +102,12 @@ public:
 			}
 		}
 		if (nbNoeudSeul == 0) {
-			std::cout << "Aucun" << std::endl;
+			if (display) { std::cout << "Aucun" << std::endl; }
 		}
-		std::cout << "-----------------------------------------------" << std::endl;
+		else {
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 	}
 
 	void afficherInfo(std::string nom = "") {
@@ -110,9 +119,11 @@ public:
 		std::cout << "-----------------------------------------------" << std::endl;
 	}
 
-	void afficherAreteDouble(std::string nom = "") {
-		std::cout << "-----------------------------------------------" << std::endl;
-		std::cout << "Affichage DEBUG Arrete Double: " << nomGraphe << " " << nom << std::endl;
+	void afficherAreteDouble(bool display=true, std::string nom = "") {
+		if (display) {
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Arrete Double: " << nomGraphe << " " << nom << std::endl;
+		}
 		int nbAreteDouble = 0;
 		for (int i = 0; i < _liens.size(); i++) {
 			int id1 = _liens[i].getNoeud1()->getId();
@@ -127,14 +138,19 @@ public:
 			}
 		}
 		if (nbAreteDouble == 0) {
-			std::cout << "Aucune" << std::endl;
+			if (display) { std::cout << "Aucune" << std::endl; }
 		}
-		std::cout << "-----------------------------------------------" << std::endl;
+		else {
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 	}
 
-	void afficherNoeudDouble(std::string nom = "") {
-		std::cout << "-----------------------------------------------" << std::endl;
-		std::cout << "Affichage DEBUG Noeud Double: " << nomGraphe << " " << nom << std::endl;
+	void afficherNoeudDouble(bool display=true, std::string nom = "") {
+		if (display) {
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Noeud Double: " << nomGraphe << " " << nom << std::endl;
+		}
 		int nbNoeudDouble = 0;
 		for (int i = 0; i < _noeuds.size(); i++) {
 			if (_noeuds[i].getEmplacement() != nullptr) {
@@ -151,14 +167,50 @@ public:
 			}
 		}
 		if (nbNoeudDouble == 0) {
-			std::cout << "Aucun" << std::endl;
+			if (display) { std::cout << "Aucun" << std::endl; }
 		}
-		std::cout << "-----------------------------------------------" << std::endl;
+		else {
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 	}
 
-	void debugScoreNoeud(std::string nom = "") {
-		std::cout << "-----------------------------------------------" << std::endl;
-		std::cout << "Affichage DEBUG Score Noeud: " << nomGraphe << " " << nom << std::endl;
+	void debugDesyncNoeudEmplacement(bool display=true, std::string nom = "") {
+		if (display) { 
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Sync Noeud Emplacement: " << nomGraphe << " " << nom << std::endl;
+		}
+		long nbWrongSync = 0;
+		for (int i=0;i<_noeuds.size();i++) {
+			if (_noeuds[i]._emplacement != nullptr) {
+				if (_noeuds[i]._id != _emplacementsPossibles[_noeuds[i]._emplacement->_id]._noeud->_id) {
+					std::cout << "Noeud: " << i << " NodeEmpId: " << _noeuds[i]._emplacement->_id << " EmpNodeId: " << _emplacementsPossibles[_noeuds[i]._emplacement->_id]._noeud->_id << std::endl;
+					nbWrongSync++;
+				}
+			}
+		}
+		for (int i=0;i<_emplacementsPossibles.size();i++) {
+			if (!_emplacementsPossibles[i].estDisponible()) {
+				if (_emplacementsPossibles[i]._id != _noeuds[_emplacementsPossibles[i]._noeud->_id]._emplacement->_id) {
+					std::cout << "Emplacement: " << i << " EmpNodeId: " << _emplacementsPossibles[_noeuds[i]._emplacement->_id]._noeud->_id << " NodeEmpId: " << _noeuds[i]._emplacement->_id << std::endl;
+					nbWrongSync++;
+				}
+			}
+		}
+		if (nbWrongSync == 0) {
+			if (display) { std::cout << "Aucun" << std::endl; }
+		}
+		else {
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+	}
+
+	void debugScoreNoeud(bool display=true, std::string nom = "") {
+		if (display) { 
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Score Noeud: " << nomGraphe << " " << nom << std::endl;
+		}
 		long nbWrongScore = 0;
 		for (int i = 0; i < _noeuds.size(); i++) {
 			if (_noeuds[i].getEmplacement() != nullptr) {
@@ -170,39 +222,53 @@ public:
 			}
 		}
 		if (nbWrongScore == 0) {
-			std::cout << "Aucun" << std::endl;
+			if (display) { std::cout << "Aucun" << std::endl; }
 		}
-		std::cout << "-----------------------------------------------" << std::endl;
+		else {
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 	}
 
-	void debugScoreNoeudV2(std::string nom = "") {
-		std::cout << "-----------------------------------------------" << std::endl;
-		std::cout << "Affichage DEBUG Score Noeud: " << nomGraphe << " " << nom << std::endl;
+	void debugScoreNoeudV2(bool display=true, std::string nom = "") {
+		if (display) {
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Score Noeud: " << nomGraphe << " " << nom << std::endl;
+		}
 		long nbWrongScore = 0;
 		for (int i = 0; i < _noeuds.size(); i++) {
 			if (_noeuds[i].getEmplacement() != nullptr) {
 				long scoreReel = getScoreCroisementNode(i);
 				long scoreArrays = getScoreCroisementNodeFromArrays(i);
-				if ((scoreReel != _noeuds[i].score)||(scoreReel != scoreArrays)||(scoreArrays != _noeuds[i].score)) {
+				if ((scoreReel != _noeuds[i].score)||(scoreReel != scoreArrays)) {
 					std::cout << "Noeud: " << i << " Score:" << _noeuds[i].score << " Score Reel: " << scoreReel << " Score Arrays: " << scoreArrays << std::endl;
 					nbWrongScore++;
 				}
 			}
 		}
 		if (nbWrongScore == 0) {
-			std::cout << "Aucun" << std::endl;
+			if (display) { std::cout << "Aucun" << std::endl; }
 		}
-		std::cout << "-----------------------------------------------" << std::endl;
+		else {
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 	}
 
-	void debugInterArrays(std::string nom = "") {
-		std::cout << "-----------------------------------------------" << std::endl;
-		std::cout << "Affichage DEBUG Inter Arrays: " << nomGraphe << " " << nom << std::endl;
+	void debugInterArrays(bool display=true, std::string nom = "") {
+		if (display) {
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Inter Arrays: " << nomGraphe << " " << nom << std::endl;
+		}
 		long nbWrongArray = 0;
 		for (int i = 0; i < _liens.size(); i++) {
 			for (const int& idOtherArray : _liens[i].intersections) {
 				if (_liens[idOtherArray].intersections.count(i) == 0) {
 					std::cout << "Inter: " << i << "&" << idOtherArray << std::endl;
+					nbWrongArray++;
+				}
+				if (idOtherArray == i) {
+					std::cout << "Inter: " << i << " self in array: " << idOtherArray << std::endl;
 					nbWrongArray++;
 				}
 			}
@@ -211,18 +277,57 @@ public:
 					std::cout << "InterIll: " << i << "&" << idOtherArray << std::endl;
 					nbWrongArray++;
 				}
+				if (idOtherArray == i) {
+					std::cout << "InterIll: " << i << " self in array: " << idOtherArray << std::endl;
+					nbWrongArray++;
+				}
 			}
 			for (const int& idOtherArray : _liens[i].intersectionsIllSelf) {
 				if (_liens[idOtherArray].intersectionsIllSelf.count(i) == 0) {
 					std::cout << "InterIllSelf: " << i << "&" << idOtherArray << std::endl;
 					nbWrongArray++;
 				}
+				if (idOtherArray == i) {
+					std::cout << "InterIllSelf: " << i << " self in array: " << idOtherArray << std::endl;
+					nbWrongArray++;
+				}
 			}
 		}
 		if (nbWrongArray == 0) {
-			std::cout << "Aucun" << std::endl;
+			if (display) { std::cout << "Aucun" << std::endl; }
 		}
-		std::cout << "-----------------------------------------------" << std::endl;
+		else {
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+	}
+
+	void debugScoreGraphe(bool display=true, std::string nom = "") {
+		if (display) { 
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Score Graphe: " << nomGraphe << " " << nom << std::endl;
+		}
+		long scoreReel = getNbCroisementConst();
+		long scoreArray = getNbCroisementArray();
+		if ((nombreCroisement != scoreReel)||(nombreCroisement != scoreArray)) {
+			std::cout << "Croisement: " << nombreCroisement << " reel: " << scoreReel << " array: " << scoreArray << std::endl;
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		}
+		else {
+			if (display) { std::cout << "Score Correct" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+	}
+
+	void debugEverything() {
+		afficherAreteDouble(false);
+		afficherNoeudDouble(false);
+		afficherNoeudSeul(false);
+		debugDesyncNoeudEmplacement(false);
+		debugScoreNoeud(false);
+		debugScoreNoeudV2(false);
+		debugInterArrays(false);
+		debugScoreGraphe(false);
 	}
 
 	// Fait une estimation du temps requis pour effectuer un recuit simule complet
@@ -1401,6 +1506,9 @@ public:
 				_noeuds[i].setEmplacement(&_emplacementsPossibles[idEmplacement]);
 			}
 		}
+		nombreCroisement = graphe.nombreCroisement;
+		isNombreCroisementUpdated = graphe.isNombreCroisementUpdated;
+		maxVoisin = graphe.maxVoisin;
 	}
 
 	// Calcule le score du noeud en fonction de ses vecteur d'intersections
@@ -1448,13 +1556,13 @@ public:
 						Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[index]);
 						if (surSegment(_liens[index], *nodeNotInCommon)) {
 							score += PENALITE_MAX_SELF;
-							if (DEBUG_OPENGL) areteIll.insert(&_liens[index]);
+							if (DEBUG_OPENGL) areteIllSelf.insert(&_liens[index]);
 						}
 						else {
 							nodeNotInCommon = _liens[index].nodeNotInCommon(&_liens[j]);
 							if (surSegment(_liens[j], *nodeNotInCommon)) {
 								score += PENALITE_MAX_SELF;
-								if (DEBUG_OPENGL) areteIll.insert(&_liens[index]);
+								if (DEBUG_OPENGL) areteIllSelf.insert(&_liens[index]);
 							}
 						}
 					}
@@ -1526,10 +1634,14 @@ public:
 		if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
 		else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
 
+		std::vector<int> nodeToRelocate;
+		nodeToRelocate.resize(graphe1.maxVoisin);
+
 		while (nbNoeudATraiter > 0) {
 			int bestNodeId = -1;
 			int meilleurScore;
 			int nbRencontre = 0;
+			int numberOfNodeToRelocate = 0;
 			//std::cout << "Nb noeud a traiter encore: " << nbNoeudATraiter << "\n";
 
 			//Trouve le meilleur noeud du graphe en cours d'analyse
@@ -1554,7 +1666,11 @@ public:
 			_noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
 			if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
 				--nbNoeudATraiter;
-				otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+				int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+				if (oldNodeId != -1) {
+					nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+					numberOfNodeToRelocate++;
+				}
 			}
 			//Place tout les voisins du point choisis
 			for (int i=0;i<currentGraphe->_noeuds[bestNodeId].voisins.size();i++) {
@@ -1570,7 +1686,11 @@ public:
 					if (graphe1._noeuds[idNodeVoisin].estPlace() && graphe2._noeuds[idNodeVoisin].estPlace()) {
 						if (!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin])) {
 							--nbNoeudATraiter;
-							otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+							int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+							if (oldNodeId != -1) {
+								nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+								numberOfNodeToRelocate++;
+							}
 						}
 					}
 					else {
@@ -1579,24 +1699,15 @@ public:
 				}
 			}
 
-			//Liste des noeuds à placer
-			std::vector<int> noeudsAVerifier;
-			for (int i = 0; i < _noeuds.size(); ++i) {
-				if (!graphe1._noeuds[i].estPlace() || !graphe2._noeuds[i].estPlace()) {
-					noeudsAVerifier.push_back(i);
-				}
-			}
 			if (useRand) {
-				graphe1.completePlacementAleatoire();
-				graphe2.completePlacementAleatoire();
+				otherGraphe->completePlacementAleatoire();
 			}
 			else {
-				graphe1.completeBasicGlouton();
-				graphe2.completeBasicGlouton();
+				otherGraphe->completeBasicGlouton();
 			}
 			//Si les lieux coincident les noeuds ne sont plus à traitercurrentGraphe->_noeuds[idNodeVoisin].ecraseNoeud(currentGraphe->_emplacementsPossibles[bestEmplacementId]);
-			for (int i = 0; i < noeudsAVerifier.size(); ++i) {
-				if (graphe1._noeuds[noeudsAVerifier[i]].compare(&graphe2._noeuds[noeudsAVerifier[i]])) {
+			for (int i = 0; i < numberOfNodeToRelocate; ++i) {
+				if (graphe1._noeuds[nodeToRelocate[i]].compare(&graphe2._noeuds[nodeToRelocate[i]])) {
 					--nbNoeudATraiter;
 				}
 			}
@@ -1627,6 +1738,7 @@ public:
 	// Effectue une seule etape dans l'algorithme de croisement, utile pour l'affichage opengl
 	void stepCroisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool useRand, int &nbNoeudATraiter, int &currentGrapheNumber) {
 		if (nbNoeudATraiter == 0) {
+			copyFromGraphe(graphe1);
 			return;
 		}
 
@@ -1638,6 +1750,10 @@ public:
 		int bestEmplacementId = -1;
 		int meilleurScore;
 		int nbRencontre = 0;
+		int numberOfNodeToRelocate = 0;
+
+		std::vector<int> nodeToRelocate;
+		nodeToRelocate.resize(graphe1.maxVoisin);
 
 		for (int i = 0; i < _noeuds.size(); ++i) {
 			if (!_noeuds[i].estPlace()) {
@@ -1660,7 +1776,11 @@ public:
 		_noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
 		if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
 			--nbNoeudATraiter;
-			otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+			int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+			if (oldNodeId != -1) {
+				nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+				numberOfNodeToRelocate++;
+			}
 		}
 		//Place tout les voisins du point choisis
 		for (int i=0;i<currentGraphe->_noeuds[bestNodeId].voisins.size();i++) {
@@ -1673,25 +1793,19 @@ public:
 					bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
 				}
 				_noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
-				if (graphe1._noeuds[idNodeVoisin].estPlace() && graphe2._noeuds[idNodeVoisin].estPlace()) {
+				if (otherGraphe->_noeuds[idNodeVoisin].estPlace()) {
 					if (!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin])) {
 						--nbNoeudATraiter;
-						otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+						int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+						if (oldNodeId != -1) {
+							nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+							numberOfNodeToRelocate++;
+						}
 					}
-				}
-				else {
-					--nbNoeudATraiter;
 				}
 			}
 		}
 
-		//Liste des noeuds à placer
-		std::vector<int> noeudsAVerifier;
-		for (int i = 0; i < _noeuds.size(); ++i) {
-			if (!graphe1._noeuds[i].estPlace() || !graphe2._noeuds[i].estPlace()) {
-				noeudsAVerifier.push_back(i);
-			}
-		}
 		if (useRand) {
 			otherGraphe->completePlacementAleatoire();
 		}
@@ -1699,8 +1813,8 @@ public:
 			otherGraphe->completeBasicGlouton();
 		}
 		//Si les lieux coincident les noeuds ne sont plus à traiter
-		for (int i = 0; i < noeudsAVerifier.size(); ++i) {
-			if (graphe1._noeuds[noeudsAVerifier[i]].compare(&graphe2._noeuds[noeudsAVerifier[i]])) {
+		for (int i = 0; i < numberOfNodeToRelocate; ++i) {
+			if (graphe1._noeuds[nodeToRelocate[i]].compare(&graphe2._noeuds[nodeToRelocate[i]])) {
 				--nbNoeudATraiter;
 			}
 		}
@@ -1803,7 +1917,7 @@ public:
 					if (oldIntersectionsIll.count(elem) == 0) {
 						_liens[elem].getNoeud1()->score += PENALITE_MAX;
 						_liens[elem].getNoeud2()->score += PENALITE_MAX;
-						tmpPair = _liens[elem].intersectionsIll.insert(_noeuds[idNode]._aretes[i]);
+						_liens[elem].intersectionsIll.insert(_noeuds[idNode]._aretes[i]);
 						_noeuds[idOtherNode].score += PENALITE_MAX;
 						_noeuds[idNode].score += PENALITE_MAX;
 						nombreCroisement += PENALITE_MAX;
@@ -1851,8 +1965,8 @@ public:
 
 		std::vector<int> nodeToUpdate;
 		std::vector<int> nodeToRelocate;
-		nodeToUpdate.resize(graphe1._noeuds.size());
-		nodeToRelocate.resize(graphe1._noeuds.size());
+		nodeToUpdate.resize(originalGraphe1.maxVoisin);
+		nodeToRelocate.resize(originalGraphe1.maxVoisin);
 		while (nbNoeudATraiter > 0) {
 			int bestNodeId = -1;
 			int meilleurScore;
@@ -1928,12 +2042,12 @@ public:
 			else {
 				otherGraphe->completeBasicGlouton();
 			}
-			for (int i=0;i<nodeToUpdate.size();i++) {
-				otherGraphe->updateNodeScore(i);
+			for (int i=0;i<numberOfNodeToUpdate;i++) {
+				otherGraphe->updateNodeScore(nodeToUpdate[i]);
 			}
 			//Si les lieux coincident les noeuds ne sont plus à traiter
 			for (int i = 0; i < numberOfNodeToRelocate; ++i) {
-				otherGraphe->updateNodeScore(i);
+				otherGraphe->updateNodeScore(nodeToRelocate[i]);
 				if (graphe1._noeuds[nodeToRelocate[i]].compare(&graphe2._noeuds[nodeToRelocate[i]])) {
 					--nbNoeudATraiter;
 				}
@@ -1970,8 +2084,8 @@ public:
 
 		std::vector<int> nodeToUpdate;
 		std::vector<int> nodeToRelocate;
-		nodeToUpdate.resize(graphe1._noeuds.size());
-		nodeToRelocate.resize(graphe1._noeuds.size());
+		nodeToUpdate.resize(graphe1.maxVoisin);
+		nodeToRelocate.resize(graphe1.maxVoisin);
 
 		int bestNodeId = -1;
 		int meilleurScore;
@@ -2048,11 +2162,11 @@ public:
 			otherGraphe->completeBasicGlouton();
 		}
 		for (int i=0;i<nodeToUpdate.size();i++) {
-			otherGraphe->updateNodeScore(i);
+			otherGraphe->updateNodeScore(nodeToUpdate[i]);
 		}
 		//Si les lieux coincident les noeuds ne sont plus à traiter
 		for (int i = 0; i < numberOfNodeToRelocate; ++i) {
-			otherGraphe->updateNodeScore(i);
+			otherGraphe->updateNodeScore(nodeToRelocate[i]);
 			if (graphe1._noeuds[nodeToRelocate[i]].compare(&graphe2._noeuds[nodeToRelocate[i]])) {
 				--nbNoeudATraiter;
 			}
@@ -2065,6 +2179,136 @@ public:
 			nombreCroisement = otherGraphe->nombreCroisement;
 		}
 		std::cout << "NNT: " << nbNoeudATraiter << std::endl;
+	}
+
+	// Effectue le croisement entre deux parents,
+	// Renvoie vrai si les deux parents ne sont pas identique
+	// Met a jour le nombre de croisement du graphe
+	bool croisementBestOfBoth(Graphe& originalGraphe1, Graphe& originalGraphe2, bool useRand) {
+		int nbNoeudATraiter = originalGraphe1._noeuds.size() - originalGraphe1.nbNoeudEnCommun(originalGraphe2);
+		if (nbNoeudATraiter == 0) {
+			copyFromGraphe(originalGraphe1);
+			return false;
+		}
+		Graphe graphe1, graphe2;
+		graphe1.copyFromGraphe(originalGraphe1);
+		graphe2.copyFromGraphe(originalGraphe2);
+		Graphe* currentGraphe, * otherGraphe;
+
+		std::vector<int> nodeToUpdate;
+		std::vector<int> nodeToRelocate;
+		nodeToUpdate.resize(originalGraphe1.maxVoisin);
+		nodeToRelocate.resize(originalGraphe1.maxVoisin);
+		while (nbNoeudATraiter > 0) {
+			int bestNodeId = -1;
+			int meilleurScore;
+			int nbRencontre = 0;
+			int numberOfNodeToUpdate=0;
+			int numberOfNodeToRelocate = 0;
+
+			//Trouve le meilleur noeud du graphe en cours d'analyse
+			for (int i = 0; i < _noeuds.size(); ++i) {
+				if (!_noeuds[i].estPlace()) {
+					int nodeScore = graphe1._noeuds[i].score;
+					if (bestNodeId == -1 || nodeScore < meilleurScore) {
+						bestNodeId = i;
+						meilleurScore = nodeScore;
+						nbRencontre = 1;
+						if (currentGraphe != &graphe1) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
+					}
+					else if (meilleurScore == nodeScore) {
+						++nbRencontre;
+						if (generateRand(nbRencontre) == 1) {
+							bestNodeId = i;
+						}
+					}
+				}
+			}
+			for (int i = 0; i < _noeuds.size(); ++i) {
+				if (!_noeuds[i].estPlace()) {
+					int nodeScore = graphe2._noeuds[i].score;
+					if (bestNodeId == -1 || nodeScore < meilleurScore) {
+						bestNodeId = i;
+						meilleurScore = nodeScore;
+						nbRencontre = 1;
+						if (currentGraphe != &graphe2) { currentGraphe = &graphe2; otherGraphe = &graphe1; }
+					}
+					else if (meilleurScore == nodeScore) {
+						++nbRencontre;
+						if (generateRand(nbRencontre) == 1) {
+							bestNodeId = i;
+						}
+					}
+				}
+			}
+
+			int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
+			_noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+			if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
+				--nbNoeudATraiter;
+				int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+				nodeToUpdate[numberOfNodeToUpdate] = bestNodeId;
+				numberOfNodeToUpdate++;
+				otherGraphe->changeUpdateValue(bestNodeId);
+				if (oldNodeId != -1) {
+					nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+					numberOfNodeToRelocate++;
+					otherGraphe->changeUpdateValue(oldNodeId);
+				}
+			}
+			//Place tout les voisins du point choisis
+			for (int i=0;i<currentGraphe->_noeuds[bestNodeId].voisins.size();i++) {
+				int idNodeVoisin = currentGraphe->_noeuds[bestNodeId].voisins[i]->getId();
+				if (!_noeuds[idNodeVoisin].estPlace()) {
+					if (currentGraphe->_noeuds[idNodeVoisin].getEmplacement() == nullptr) {
+						bestEmplacementId = getMeilleurEmplacement(_noeuds[idNodeVoisin]);
+					}
+					else {
+						bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
+					}
+					_noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+					if (graphe1._noeuds[idNodeVoisin].estPlace() && graphe2._noeuds[idNodeVoisin].estPlace()) {
+						if (!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin])) {
+							--nbNoeudATraiter;
+							int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+							nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
+							numberOfNodeToUpdate++;
+							otherGraphe->changeUpdateValue(idNodeVoisin);
+							if (oldNodeId != -1) {
+								nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+								numberOfNodeToRelocate++;
+								otherGraphe->changeUpdateValue(oldNodeId);
+							}
+						}
+					}
+					else {
+						--nbNoeudATraiter;
+					}
+				}
+			}
+			if (useRand) {
+				otherGraphe->completePlacementAleatoire();
+			}
+			else {
+				otherGraphe->completeBasicGlouton();
+			}
+			for (int i=0;i<numberOfNodeToUpdate;i++) {
+				otherGraphe->updateNodeScore(nodeToUpdate[i]);
+			}
+			//Si les lieux coincident les noeuds ne sont plus à traiter
+			for (int i = 0; i < numberOfNodeToRelocate; ++i) {
+				otherGraphe->updateNodeScore(nodeToRelocate[i]);
+				if (graphe1._noeuds[nodeToRelocate[i]].compare(&graphe2._noeuds[nodeToRelocate[i]])) {
+					--nbNoeudATraiter;
+				}
+			}
+		}
+		nombreCroisement = otherGraphe->nombreCroisement;
+		_noeuds.swap(graphe1._noeuds);
+		_liens.swap(graphe1._liens);
+		_emplacementsPossibles.swap(graphe1._emplacementsPossibles);
+		isNombreCroisementUpdated = true;
+		return true;
 	}
 	
 	// Effectue un croisement entre deux parents en séparant le graphe en deux parties
@@ -2301,6 +2545,17 @@ public:
 		return total;
 	}
 
+	// Ne met pas a jour le nombre de croisement du graphe
+	long getNbCroisementArray() {
+		long total = 0;
+		for (int i=0;i<_liens.size();i++) {
+			total += _liens[i].intersections.size();
+			total += _liens[i].intersectionsIll.size() * PENALITE_MAX;
+			total += _liens[i].intersectionsIllSelf.size() * PENALITE_MAX_SELF;
+		}
+		return total/2;
+	}
+
 	// Renvoie le nombre de noeud non place
 	int nbNoeudNonPlace() {
 		int total = _noeuds.size();
@@ -2364,7 +2619,18 @@ public:
 		isNombreCroisementUpdated = true;
 		for (int i=0;i<_noeuds.size();i++) {
 			_noeuds[i].score = getScoreCroisementNodeFromArrays(i);
+			int nombreVoisin = _noeuds[i]._aretes.size();
+			if (nombreVoisin > maxVoisin) {
+				maxVoisin = nombreVoisin;
+			}
 		}
+	}
+
+	// Vide les sets contenant les intersections, utile uniquement pour l'affichage openGL
+	void clearSetAreteInter() {
+		areteInter.clear();
+		areteIll.clear();
+		areteIllSelf.clear();
 	}
 
 	bool operator < (const Graphe& G) const {

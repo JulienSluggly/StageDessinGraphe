@@ -31,7 +31,7 @@ int main() {
 	string nomFichierSlots = "1-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
-	string fileGraphSlots = chemin + "combined/exemple1.json";
+	string fileGraphSlots = chemin + "combined/exemple3.json";
 	readFromJsonGraph(G, fileGraph);
 	readFromJsonSlots(G, fileSlots);
 	//readFromJsonGraphAndSlot(G,fileGraphSlots);
@@ -41,7 +41,7 @@ int main() {
 
 
 	auto start = std::chrono::system_clock::now();
-	G.loadCopy(grapheGenetique(10,1,fileGraph,fileSlots,false,false,3));
+	G.loadCopy(grapheGenetique(100,50,fileGraph,fileSlots,false,false,3));
 	//G.placementFixe();
 	//G.initGraphAndNodeScoresAndCrossings();
 	//G.debugScoreNoeudV2();

@@ -42,6 +42,7 @@ bool show_noeud_illegal = false;
 bool recalc_illegal = false;
 bool debugInfo = false;
 bool debugInter = false;
+bool debugAllInfo = false;
 bool previsionRecuit = false;
 bool stepRecuitSimule = false;
 bool stepSetup = false;
@@ -133,6 +134,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			debugInter = true;
 			break;
 		case GLFW_KEY_F3:
+			debugAllInfo = true;
 			break;
 		case GLFW_KEY_F4:
 			previsionRecuit = true;
@@ -344,8 +346,8 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				}
 			}
 			else {
-				std::cout << "Score Parent1: " << parent1.nombreCroisement << "&" << parent1.getNbCroisementConst() << std::endl;
-				std::cout << "Score Parent2: " << parent2.nombreCroisement << "&" << parent2.getNbCroisementConst()<< std::endl;
+				std::cout << "Score Parent1: " << parent1.nombreCroisement << "&" << parent1.getNbCroisementConst() << "&" << parent1.getNbCroisementArray() << std::endl;
+				std::cout << "Score Parent2: " << parent2.nombreCroisement << "&" << parent2.getNbCroisementConst() << "&" << parent2.getNbCroisementArray() <<std::endl;
 				//std::cout << "Score Enfant: " << enfant.nombreCroisement<< "&" << enfant.getNbCroisementConst() << std::endl;
 			}
 			affiche_score = false;
@@ -370,7 +372,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			show_nb_intersection = false;
 		}
 		else if (move_current_left) {
-			G.areteIll.clear();
+			G.clearSetAreteInter();
 			int numPos = G._noeuds[selectedNode].getEmplacement()->getId();
 			for (int i = numPos - 1; i >= 0; i--) {
 				if (G._emplacementsPossibles[i].estDisponible()) {
@@ -381,7 +383,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			move_current_left = false;
 		}
 		else if (move_current_right) {
-			G.areteIll.clear();
+			G.clearSetAreteInter();
 			int numPos = G._noeuds[selectedNode].getEmplacement()->getId();
 			for (int i = numPos + 1; i < G._emplacementsPossibles.size(); i++) {
 				if (G._emplacementsPossibles[i].estDisponible()) {
@@ -392,7 +394,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			move_current_right = false;
 		}
 		else if (make_swap) {
-			G.areteIll.clear();
+			G.clearSetAreteInter();
 			if (G._noeuds[selectedNode].getEmplacement()->getId() != selectedEmplacement) {
 				int oldEmplacement = G._noeuds[selectedNode].getEmplacement()->getId();
 				if (G._emplacementsPossibles[selectedEmplacement].estDisponible()) {
@@ -405,6 +407,19 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			}
 			make_swap = false;
 		}
+		else if (debugAllInfo) {
+			if (display_genetic) {
+				parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
+				parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
+			}
+			else {
+				G.afficherInfo();
+				G.afficherNoeuds();
+				G.afficherLiens();
+				G.afficherEmplacement();
+			}
+			debugAllInfo = false;
+		}
 		else if (debugInfo) {
 			if (display_genetic) {
 				//parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
@@ -414,6 +429,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				//enfant.afficherInfo(); enfant.afficherEmplacement(); enfant.afficherLiens(); enfant.afficherNoeuds();
 			}
 			else {
+				G.afficherInfo();
 				G.afficherNoeuds();
 				G.afficherLiens();
 				G.afficherEmplacement();
@@ -464,9 +480,12 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			changeWindowNormal = false;
 		}
 		else if (stepGenetic) {
-			if (nbNoeudATraiter > 0) {
-				//enfant.stepCroisementVoisinageFrom(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
-				enfant.stepCroisementVoisinageScore(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
+			if (display_genetic) {
+				if (nbNoeudATraiter > 0) {
+					enfant.stepCroisementVoisinageFrom(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
+					//enfant.stepCroisementVoisinageScore(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
+					std::cout << "NNT: " << nbNoeudATraiter << std::endl;
+				}
 			}
 			stepGenetic = false;
 		}
@@ -537,15 +556,22 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				glEnd();
 			}
 			if (show_noeud_illegal && !recalc_illegal) {
-				for (auto a : G.areteInter) {
+				for (auto &a : G.areteInter) {
 					glColor3f(1.0f, 0.0f, 0.0f);
 					glBegin(GL_LINE_STRIP);
 					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
 					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
 					glEnd();
 				}
-				for (auto a : G.areteIll) {
+				for (auto &a : G.areteIll) {
 					glColor3f(1.0f, 0.0f, 1.0f);
+					glBegin(GL_LINE_STRIP);
+					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
+					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
+					glEnd();
+				}
+				for (auto &a : G.areteIllSelf) {
+					glColor3f(1.0f, 0.2f, 0.6f);
 					glBegin(GL_LINE_STRIP);
 					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
 					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
@@ -575,8 +601,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				glVertex2d(G._emplacementsPossibles[selectedEmplacement].getX(), G._emplacementsPossibles[selectedEmplacement].getY());
 			}
 			if (recalc_illegal) {
-				G.areteIll.clear();
-				G.areteInter.clear();
+				G.clearSetAreteInter();
 				for (int i = 0; i < G._noeuds.size(); i++) {
 					G.getScoreCroisementNode(i);
 				}
