@@ -65,11 +65,13 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 	readFromJsonGraph(graphes[0], nomGraphe);
 	readFromJsonSlots(graphes[0], nomSlot);
 	for (int i = 1; i < population; ++i) {
+		graphes[i].nomGraphe = "Graphe" + std::to_string(i);
 		graphes[i].copyFromGraphe(graphes[0]);
 		graphes[i].placementAleatoire();
 		if (modeCroisement != 3) { graphes[i].getNbCroisement(); }
 		else { graphes[i].initGraphAndNodeScoresAndCrossings(); }
 	}
+	graphes[0].nomGraphe = "Graphe0";
 	graphes[0].placementAleatoire();
 	if (modeCroisement != 3) { graphes[0].getNbCroisement(); }
 	else { graphes[0].initGraphAndNodeScoresAndCrossings(); }

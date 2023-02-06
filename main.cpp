@@ -31,11 +31,20 @@ int main() {
 	string nomFichierSlots = "1-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
+	string fileGraphSlots = chemin + "combined/exemple1.json";
 	readFromJsonGraph(G, fileGraph);
 	readFromJsonSlots(G, fileSlots);
+	//readFromJsonGraphAndSlot(G,fileGraphSlots);
+
+	//srand(static_cast<unsigned int>(time(NULL)));
+	srand(0);
+
 
 	auto start = std::chrono::system_clock::now();
 	G.loadCopy(grapheGenetique(10,1,fileGraph,fileSlots,false,false,3));
+	//G.placementFixe();
+	//G.initGraphAndNodeScoresAndCrossings();
+	//G.debugScoreNoeudV2();
 	//G.placementAleatoire();
 	//G.afficherNoeudSeul();
 	//G.afficherAreteDouble();
@@ -63,7 +72,6 @@ int main() {
 
 	// OpenGL
 	bool useOpenGL = true;
-	srand(static_cast<unsigned int>(time(NULL)));
 	if (useOpenGL) {
 		int maxX = G.gridWidth, maxY = G.gridHeight;
 		std::cout << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;

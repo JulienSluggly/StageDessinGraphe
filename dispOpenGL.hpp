@@ -41,6 +41,7 @@ bool make_swap = false;
 bool show_noeud_illegal = false;
 bool recalc_illegal = false;
 bool debugInfo = false;
+bool debugInter = false;
 bool previsionRecuit = false;
 bool stepRecuitSimule = false;
 bool stepSetup = false;
@@ -49,7 +50,7 @@ int stepNbCrois;
 // Copie du graphe en cours
 std::vector<int> graphCopy;
 // Parents pour affichage genetique
-Graphe parent1, parent2, enfant;
+Graphe parent1("parent1"), parent2("parent2"), enfant("enfant");
 int nbNoeudATraiter, currentGrapheNumber=0;
 
 void error_callback(int error, const char* description) {
@@ -129,6 +130,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			debugInfo = true;
 			break;
 		case GLFW_KEY_F2:
+			debugInter = true;
 			break;
 		case GLFW_KEY_F3:
 			break;
@@ -288,33 +290,63 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			}
 		}
 		else if (randomReset) {
-			G.clearNodeEmplacement();
-			G.placementAleatoire();
+			if (display_genetic) {
+				parent1.clearNodeEmplacement();
+				parent2.clearNodeEmplacement();
+				enfant.clearNodeEmplacement();
+				parent1.placementAleatoire();
+				parent2.placementAleatoire();
+				parent1.initGraphAndNodeScoresAndCrossings();
+				parent2.initGraphAndNodeScoresAndCrossings();
+				nbNoeudATraiter = parent1._noeuds.size() - parent1.nbNoeudEnCommun(parent2);
+			}
+			else {
+				G.clearNodeEmplacement();
+				G.placementAleatoire();
+			}
 			randomReset = false;
 		}
 		else if (gloutonReset) {
-			G.clearNodeEmplacement();
-			G.gloutonRevisite();
-			std::cout << "Nb Croisement: " << G.getNbCroisement() << std::endl;
+			if (display_genetic) {
+				parent1.clearNodeEmplacement();
+				parent2.clearNodeEmplacement();
+				enfant.clearNodeEmplacement();
+				parent1.gloutonRevisite();
+				parent2.gloutonRevisite();
+				parent1.initGraphAndNodeScoresAndCrossings();
+				parent2.initGraphAndNodeScoresAndCrossings();
+				nbNoeudATraiter = parent1._noeuds.size() - parent1.nbNoeudEnCommun(parent2);
+			}
+			else {
+				G.clearNodeEmplacement();
+				G.gloutonRevisite();
+			}
 			gloutonReset = false;
 		}
 		else if (affiche_score) {
-			std::cout << "Selected Node: " << selectedNode << " Selected Emplacement: " << selectedEmplacement << std::endl;
-			std::cout << "Nb Intersection: " << G.getNbCroisement() << std::endl;
-			std::cout << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
-			if (show_selected_emplacement) {
-				if (!G._emplacementsPossibles[selectedEmplacement].estDisponible()) {
-					int swapId = G._emplacementsPossibles[selectedEmplacement]._noeud->getId();
-					std::cout << "Selected emplacement score: " << G.getScoreCroisementNode(swapId) << std::endl;
-					int score = G.getScoreCroisementNode(selectedNode);
-					score += G.getScoreCroisementNode(swapId, selectedNode);
-					std::cout << "Score before swap: " << score << std::endl;
-					G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
-					score = G.getScoreCroisementNode(selectedNode);
-					score += G.getScoreCroisementNode(swapId, selectedNode);
-					std::cout << "Score after swap: " << score << std::endl;
-					G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
+			if (!display_genetic) {
+				std::cout << "Selected Node: " << selectedNode << " Selected Emplacement: " << selectedEmplacement << std::endl;
+				std::cout << "Nb Intersection: " << G.getNbCroisement() << std::endl;
+				std::cout << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
+				if (show_selected_emplacement) {
+					if (!G._emplacementsPossibles[selectedEmplacement].estDisponible()) {
+						int swapId = G._emplacementsPossibles[selectedEmplacement]._noeud->getId();
+						std::cout << "Selected emplacement score: " << G.getScoreCroisementNode(swapId) << std::endl;
+						int score = G.getScoreCroisementNode(selectedNode);
+						score += G.getScoreCroisementNode(swapId, selectedNode);
+						std::cout << "Score before swap: " << score << std::endl;
+						G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
+						score = G.getScoreCroisementNode(selectedNode);
+						score += G.getScoreCroisementNode(swapId, selectedNode);
+						std::cout << "Score after swap: " << score << std::endl;
+						G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
+					}
 				}
+			}
+			else {
+				std::cout << "Score Parent1: " << parent1.nombreCroisement << "&" << parent1.getNbCroisementConst() << std::endl;
+				std::cout << "Score Parent2: " << parent2.nombreCroisement << "&" << parent2.getNbCroisementConst()<< std::endl;
+				//std::cout << "Score Enfant: " << enfant.nombreCroisement<< "&" << enfant.getNbCroisementConst() << std::endl;
 			}
 			affiche_score = false;
 		}
@@ -375,8 +407,10 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 		}
 		else if (debugInfo) {
 			if (display_genetic) {
-				parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
-				parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
+				//parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
+				//parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
+				parent1.afficherNoeuds();
+				parent2.afficherNoeuds();
 				//enfant.afficherInfo(); enfant.afficherEmplacement(); enfant.afficherLiens(); enfant.afficherNoeuds();
 			}
 			else {
@@ -385,6 +419,17 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				G.afficherEmplacement();
 			}
 			debugInfo = false;
+		}
+		else if (debugInter) {
+			if (display_genetic) {
+				parent1.debugScoreNoeudV2();
+				parent2.debugScoreNoeudV2();
+				//enfant.debugScoreNoeudV2();
+			}
+			else {
+				G.debugScoreNoeudV2();
+			}
+			debugInter = false;
 		}
 		else if (previsionRecuit) {
 			G.tempsCalculRecuitSimule();
@@ -400,8 +445,12 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				enfant.clearNodeEmplacement();
 				nbNoeudATraiter = parent1._noeuds.size() - parent1.nbNoeudEnCommun(parent2);
 				isGeneticSetUp = true;
+				parent1.initGraphAndNodeScoresAndCrossings();
+				parent2.initGraphAndNodeScoresAndCrossings();
 				std::cout << "Genetic set up:\n" << "File Parent1: " << nomFichierParent1 << "\nFile Parent2: " << nomFichierParent2 << "\nNNT: " << nbNoeudATraiter << std::endl;
-				std::cout << "Score parent1: " << parent1.getNbCroisement() << " Score parent2: " << parent2.getNbCroisement() << std::endl;
+				std::cout << "Score parent1: " << parent1.nombreCroisement << " Score parent2: " << parent2.nombreCroisement << std::endl;
+				parent1.debugScoreNoeudV2();
+				parent2.debugScoreNoeudV2();
 				//parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
 				//parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
 			}
@@ -416,7 +465,8 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 		}
 		else if (stepGenetic) {
 			if (nbNoeudATraiter > 0) {
-				enfant.stepCroisementVoisinageFrom(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
+				//enfant.stepCroisementVoisinageFrom(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
+				enfant.stepCroisementVoisinageScore(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
 			}
 			stepGenetic = false;
 		}
