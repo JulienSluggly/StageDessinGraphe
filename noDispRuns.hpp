@@ -30,15 +30,15 @@ void readOldFiles(Graphe& G) {
 }
 
 void allRunsSingleThread() {
-	std::unordered_map<string, std::vector<string>> mapGraphSlots;
-	//std::vector<string> methodesPlacement = { "Aleatoire", "Glouton", "Glouton Revisite", "Glouton Gravite", "Glouton Voisin", "OGDF" };
-	std::vector<string> methodesPlacement = { "OGDF" };
-	//std::vector<string> methodesAlgo = { "Recuit Simule",  "Recuit Simule Delay",  "Recuit Simule Tournoi Binaire",  "Recuit Simule Tournoi Multiple",  "Best Deplacement" };
-	std::vector<string> methodesAlgo;
-	for (int i = 1; i <= 6; i++) {
-		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots"} });
+	std::map<string, std::vector<string>> mapGraphSlots;
+	std::vector<string> methodesPlacement = { "Aleatoire" };
+	//std::vector<string> methodesPlacement = { "OGDF" };
+	std::vector<string> methodesAlgo = { "Recuit Simule",  "Recuit Simule Score",  "Genetique Score",  "Genetique Score Recuit" };
+	std::vector<bool> useScore = { false, true, true, true };
+	for (int i = 1; i <= 12; i++) {
+		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 	}
-	int nbRuns = 10;
+	int nbRuns = 1;
 	std::cout << "Starting all run logs, nb run: " << nbRuns << std::endl;
 	Graphe G;
 	for (auto key : mapGraphSlots) {
@@ -46,19 +46,16 @@ void allRunsSingleThread() {
 			std::cout << "-----------------------------------------" << std::endl;
 			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
 			G.clearGraphe();
-			string fileGraph = "D:/The World/Cours/M2S1/ProjetDessinGraphe/GitHub/ProjetDessinDeGraphe/exemple/Graphe/" + key.first + ".json";
-			string fileSlots = "D:/The World/Cours/M2S1/ProjetDessinGraphe/GitHub/ProjetDessinDeGraphe/exemple/Slots/" + key.second[i] + ".json";
+			string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
+			string fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
 			readFromJsonGraph(G, fileGraph);
 			readFromJsonSlots(G, fileSlots);
 			string nomFichierLog = key.first;
 			for (int j = 0; j < methodesPlacement.size(); j++) {
 				std::cout << "--------------------------" << std::endl;
-				std::cout << "Graphe: " << key.first << " Slots: " << key.second[i] << std::endl;
-				std::cout << "Placement: " << methodesPlacement[j] << " Algo: Aucun" << std::endl;
-				generateCSV(nbRuns, methodesPlacement[j], "Aucun", nomFichierLog, G);
 				for (int k = 0; k < methodesAlgo.size(); k++) {
 					std::cout << "Placement: " << methodesPlacement[j] << " Algo: " << methodesAlgo[k] << std::endl;
-					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], nomFichierLog, G);
+					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], nomFichierLog, G, fileGraph, fileSlots, useScore[k]);
 				}
 			}
 		}
@@ -117,6 +114,85 @@ void allRunsLogged() {
 		}
 		std::cout << "Thread: " << tid << " done." << std::endl;
 	}
+}
+
+// Multithreading sur un seul graphe pour differentes methodes
+void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSingleFile=false) {
+	int nthreads, tid;
+	int nbExec = 2;
+	std::vector<string> methodesPlacement = { "Aleatoire", "Aucun" };
+	std::vector<string> methodesAlgo = { "Recuit Simule", "Genetique Score" };
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid < nbExec) {
+			Graphe G;
+			if (!useSingleFile) {
+				readFromJsonGraph(G, fileGraph);
+				readFromJsonSlots(G, fileSlots);
+			}
+			else { 
+				readFromJsonGraphAndSlot(G,fileGraph);
+			}
+			if (tid == 0) {
+				printf("Number max of threads working on training data: %d\n", nthreads);
+			}
+			string nomFichierLog = "Graph-" + std::to_string(tid);
+			//generateCSV(1, methodesPlacement[tid], methodesAlgo[tid], nomFichierLog, G, fileGraph, fileSlots, true);
+		}
+		std::cout << "Thread: " << tid << " done." << std::endl;
+	}
+}
+
+void performanceTest() {
+
+	// Vecteur d'id melange
+	std::vector<int> shuffledIdVec;
+	for (int i=0;i<5000;i++) {
+		shuffledIdVec.push_back(i);
+	}
+	auto rng = std::default_random_engine {};
+	std::shuffle(std::begin(shuffledIdVec), std::end(shuffledIdVec), rng);
+
+	// Vecteur d'id melange
+	std::vector<int> shuffledIdVec2;
+	for (int i=0;i<5000;i++) {
+		shuffledIdVec2.push_back(i);
+	}
+	std::shuffle(std::begin(shuffledIdVec2), std::end(shuffledIdVec2), rng);
+
+	// Vecteur d'id genere au random
+	std::vector<int> randomIdVec;
+	for (int i=0;i<30000;i++) {
+		randomIdVec.push_back(generateRand(4999));
+	}
+
+	// Partie unordered set
+	auto start = std::chrono::system_clock::now();
+	std::unordered_set<int> nodeUSet;
+	for (int i=0;i<5000;i++) {
+		nodeUSet.insert(shuffledIdVec[i]);
+	}
+	auto s1 = std::chrono::system_clock::now();
+	for (int i=0;i<30000;i++) {
+		nodeUSet.count(randomIdVec[i]);
+	}
+	auto s2 = std::chrono::system_clock::now();
+	for (int i=0;i<5000;i++) {
+			nodeUSet.erase(shuffledIdVec2[i]);
+	}
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> totalTime = end - start;
+	std::chrono::duration<double> insertTime = s1-start;
+	std::chrono::duration<double> findTime = s2-s1;
+	std::chrono::duration<double> eraseTime = end-s2;
+	std::cout << "Insert: " << insertTime.count() << std::endl;
+	std::cout << "Find: " << findTime.count() << std::endl;
+	std::cout << "Erase: " << eraseTime.count() << std::endl;
+	std::cout << "Total: " << totalTime.count() << std::endl;
+	// Partie Vector
+	std::vector<int> nodeVec;
 }
 
 #endif

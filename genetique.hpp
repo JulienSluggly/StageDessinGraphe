@@ -97,9 +97,9 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 		std::cout << graphes[i].nombreCroisement << " ";
 	}
 	std::cout << "]" << std::endl;
-	//for (int i = 0; i<graphes.size();i++) {
-	//	graphes[i].debugEverything();
-	//}
+	for (int i = 0; i<graphes.size();i++) {
+		graphes[i].debugEverything();
+	}
 	std::cout << "Debut Croisement Genetique." << std::endl;
 	bool noChange = false;
 	while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
@@ -132,7 +132,10 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 				numberOfNoChange++;
 			}
 			if (useRecuit) { // Le recuit met le nombre de croisement à jour.
-				graphes[i].recuitSimule(0.99, 100.0);
+				if (modeCroisement == 0)
+					graphes[i].recuitSimule(0.99, 100.0);
+				else
+					graphes[i].recuitSimuleScore(0.99,100.0);
 			}
 			else if (!graphes[i].isNombreCroisementUpdated){ // Si le nombre de croisement n'est pas à jour, on le recalcule.
 				graphes[i].getNbCroisement();
@@ -152,9 +155,9 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 			std::cout << graphes[i].nombreCroisement << " ";
 		}
 		std::cout << "]" << std::endl;
-		//for (int i = 0; i<graphes.size();i++) {
-		//	graphes[i].debugEverything();
-		//}
+		for (int i = 0; i<graphes.size();i++) {
+			graphes[i].debugEverything();
+		}
 	}
 
 	return graphes[0].saveCopy();

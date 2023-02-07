@@ -438,12 +438,12 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 		}
 		else if (debugInter) {
 			if (display_genetic) {
-				parent1.debugScoreNoeudV2();
-				parent2.debugScoreNoeudV2();
-				//enfant.debugScoreNoeudV2();
+				parent1.debugScoreNoeud();
+				parent2.debugScoreNoeud();
+				//enfant.debugScoreNoeud();
 			}
 			else {
-				G.debugScoreNoeudV2();
+				G.debugScoreNoeud();
 			}
 			debugInter = false;
 		}
@@ -465,8 +465,8 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 				parent2.initGraphAndNodeScoresAndCrossings();
 				std::cout << "Genetic set up:\n" << "File Parent1: " << nomFichierParent1 << "\nFile Parent2: " << nomFichierParent2 << "\nNNT: " << nbNoeudATraiter << std::endl;
 				std::cout << "Score parent1: " << parent1.nombreCroisement << " Score parent2: " << parent2.nombreCroisement << std::endl;
-				parent1.debugScoreNoeudV2();
-				parent2.debugScoreNoeudV2();
+				parent1.debugScoreNoeud();
+				parent2.debugScoreNoeud();
 				//parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
 				//parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
 			}

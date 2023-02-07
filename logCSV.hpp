@@ -11,7 +11,7 @@
 #include "genetique.hpp"
 #include <climits>
 
-void generateCSV(int nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None") {
+void generateCSV(int nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", bool updateScore = false) {
 	double moyenneCroisement = 0, medianCroisement;
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0;
@@ -19,7 +19,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 	std::vector<int> croisementVector(nbEssay);
 	std::vector<double> tempExecVector(nbEssay);
 	bool saveResult = true;
-	for (int i = 0; i < nbEssay; ++i)
+	for (int i = 1; i <= nbEssay; ++i)
 	{
 		saveResult = true;
 		std::cout << "Current Execution: " << i << "\n";
@@ -35,9 +35,14 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 			return;
 		}
 
+		if (updateScore) {
+			G.initGraphAndNodeScoresAndCrossings();
+		}
+
 		if (methodeName == "Aucun" || G.estPlace()) {
 
 			if (methodeAlgoName == "Recuit Simule") G.recuitSimule();
+			else if (methodeAlgoName == "Recuit Simule Score") G.recuitSimuleScore();
 			else if (methodeAlgoName == "Recuit Simule Delay") G.recuitSimule(0.99999,100.0,10);
 			else if (methodeAlgoName == "Recuit Simule TBN") G.recuitSimule(0.99999,100.0,1,1);
 			else if (methodeAlgoName == "Recuit Simule TMN") G.recuitSimule(0.99999,100.0,1,2);
@@ -52,8 +57,10 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 			else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 			else if (methodeAlgoName == "Genetique Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true));
 			else if (methodeAlgoName == "Genetique Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, true, true));
-			else if (methodeAlgoName == "Genetique No Recuit") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false));
-			else if (methodeAlgoName == "Genetique No Recuit Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false, true));
+			else if (methodeAlgoName == "Genetique") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false));
+			else if (methodeAlgoName == "Genetique Random") G.loadCopy(grapheGenetique(100, 10, fileGraph, fileSlots, false, true));
+			else if (methodeAlgoName == "Genetique Score") G.loadCopy(grapheGenetique(100,20,fileGraph,fileSlots,false,false,3));
+			else if (methodeAlgoName == "Genetique Score Recuit") G.loadCopy(grapheGenetique(100,20,fileGraph,fileSlots,true,false,3));
 			else if (methodeAlgoName != "Aucun") {
 				std::cout << "ERROR Aucun algo " << methodeAlgoName << " trouve !";
 				return;
@@ -62,7 +69,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 
 			auto end = std::chrono::system_clock::now();
 			std::chrono::duration<double> secondsTotal = end - start;
-			croisementVector[i] = G.getNbCroisement();
+			croisementVector[i] = G.getNbCroisementConst();
 			tempExecVector[i] = secondsTotal.count();
 			if (G.hasIllegalCrossing()) {
 				nbSolutionIllegale++;
