@@ -28,6 +28,8 @@ public:
 	// Attention cette variable n'est pas forcément à jour!
 	long nombreCroisement = -1;
 	bool isNombreCroisementUpdated = false;
+	bool isNodeScoreUpdated = false;
+	bool isIntersectionVectorUpdated = false;
 
 	// Nombre maximum de voisin d'un noeud dans le graphe.
 	int maxVoisin = -1;
@@ -278,19 +280,51 @@ public:
 		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 	}
 
-	void debugScoreGraphe(bool display=true, std::string nom = "") {
+	void debugScoreGraphe(bool display=true, bool useArray = false, std::string nom = "") {
 		if (display) { 
 			std::cout << "-----------------------------------------------" << std::endl;
 			std::cout << "Affichage DEBUG Score Graphe: " << nomGraphe << " " << nom << std::endl;
 		}
+		bool scoreFaux = true;
 		long scoreReel = getNbCroisementConst();
-		long scoreArray = getNbCroisementArray();
-		if ((nombreCroisement != scoreReel)||(nombreCroisement != scoreArray)) {
-			std::cout << "Croisement: " << nombreCroisement << " reel: " << scoreReel << " array: " << scoreArray << std::endl;
-			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+		if (useArray) {
+			long scoreArray = getNbCroisementArray();
+			if ((nombreCroisement != scoreReel)||(nombreCroisement != scoreArray)) {
+				std::cout << "Croisement: " << nombreCroisement << " reel: " << scoreReel << " array: " << scoreArray << std::endl;
+				if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+				scoreFaux = false;
+			}
 		}
 		else {
+			if (nombreCroisement != scoreReel) {
+				std::cout << "Croisement: " << nombreCroisement << " reel: " << scoreReel << std::endl;
+				if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+				scoreFaux = false;
+			}
+		}
+		if (scoreFaux) {
 			if (display) { std::cout << "Score Correct" << std::endl; }
+		}
+		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+	}
+
+	void debugNoeudNonPlace(bool display=true, std::string nom = "") {
+		if (display) {
+			std::cout << "-----------------------------------------------" << std::endl;
+			std::cout << "Affichage DEBUG Noeud non place: " << nomGraphe << " " << nom << std::endl;
+		}
+		long nbFail = 0;
+		for (int i = 0; i < _noeuds.size(); i++) {
+			if (_noeuds[i].getEmplacement() == nullptr) {
+				std::cout << "Noeud: " << i << std::endl;
+				nbFail++;
+			}
+		}
+		if (nbFail == 0) {
+			if (display) { std::cout << "Aucun" << std::endl; }
+		}
+		else {
+			if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
 		}
 		if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 	}
@@ -299,11 +333,19 @@ public:
 		afficherAreteDouble(false);
 		afficherNoeudDouble(false);
 		afficherNoeudSeul(false);
+		debugNoeudNonPlace(false);
 		debugDesyncNoeudEmplacement(false);
-		if (isNombreCroisementUpdated) {
+		if (isNodeScoreUpdated) {
 			debugScoreNoeud(false);
+		}
+		if (isNombreCroisementUpdated) {
+			if (isIntersectionVectorUpdated)
+				debugScoreGraphe(false,true);
+			else
+				debugScoreGraphe(false);
+		}
+		if (isIntersectionVectorUpdated) {
 			debugInterArrays(false);
-			debugScoreGraphe(false);
 		}
 	}
 
@@ -386,6 +428,8 @@ public:
 			_noeuds[i].clearEmplacement();
 		}
 		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	// Place les noeuds aleatoirement sur les emplacements disponibles.
@@ -400,6 +444,8 @@ public:
 			_noeuds[i].setEmplacement(&_emplacementsPossibles[emplacementId]);
 		}
 		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	// Place les noeuds sur l'emplacement de meme ID
@@ -410,6 +456,8 @@ public:
 			_noeuds[i].setEmplacement(&_emplacementsPossibles[i]);
 		}
 		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	// Place un noeud aleatoirement sur un emplacement disponible.
@@ -421,6 +469,8 @@ public:
 		}
 		_noeuds[idNoeud].setEmplacement(&_emplacementsPossibles[emplacementId]);
 		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	// Indique si le graphe contient une intersection illegale.
@@ -784,6 +834,8 @@ public:
 		loadCopy(bestResult);
 		nombreCroisement = bestCroisement;
 		isNombreCroisementUpdated = true;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 		if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
 	}
 
@@ -930,6 +982,9 @@ public:
 			t *= cool;
 		}
 		copyFromGraphe(bestResult);
+		isNombreCroisementUpdated = true;
+		isNodeScoreUpdated = true;
+		isIntersectionVectorUpdated = true;
 	}
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
@@ -994,6 +1049,8 @@ public:
 		} while (bestImprove < 0);
 		nombreCroisement = nbIntersection;
 		isNombreCroisementUpdated = true;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 		if (DEBUG_GRAPHE) std::cout << "Meilleur resultat de l'algo meilleur deplacement: " << nbIntersection << std::endl;
 	}
 
@@ -1204,6 +1261,9 @@ public:
 			}
 			_noeuds[randomId].setEmplacement(&_emplacementsPossibles[bestEmpId]);
 		}
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	// Algorithme glouton
@@ -1301,7 +1361,9 @@ public:
 			}
 
 		}
-
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	void gloutonRevisiteGravite()
@@ -1370,7 +1432,9 @@ public:
 			}
 
 		}
-
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	void gloutonRevisiteVoisin()
@@ -1439,7 +1503,9 @@ public:
 			}
 
 		}
-
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	void completeBasicGlouton() {
@@ -1473,6 +1539,9 @@ public:
 			meilleurNoeud->setEmplacement(&_emplacementsPossibles[getMeilleurEmplacement(*meilleurNoeud)]);
 			nbNode--;
 		}
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	void completeBasicGloutonScore(std::vector<int>& vecNode, int tailleMax) {
@@ -1513,6 +1582,9 @@ public:
 			int meilleurEmplacement = getMeilleurEmplacementScore(_noeuds[vecNode[bestNodeId]]);
 			_noeuds[vecNode[bestNodeId]].setEmplacement(&_emplacementsPossibles[meilleurEmplacement]);
 		}
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	void completePlacementAleatoire()
@@ -1528,6 +1600,9 @@ public:
 				_noeuds[i].setEmplacement(&_emplacementsPossibles[emplacementId]);
 			}
 		}
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	void completePlacementAleatoireScore(std::vector<int>& vecNode, int tailleMax) {
@@ -1538,6 +1613,9 @@ public:
 			}
 			_noeuds[vecNode[i]].setEmplacement(&_emplacementsPossibles[emplacementId]);
 		}
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 	}
 
 	// Indique s'il reste au moin un emplacement disponible
@@ -1664,14 +1742,6 @@ public:
 		_liens.clear();
 	}
 
-	// Indique si une valeur est dans un vecteur ou non
-	bool isInVector(std::vector<int>& vectorInt, int x) {
-		for (int i = 0; i < vectorInt.size(); i++) {
-			if (vectorInt[i] == x) return true;
-		}
-		return false;
-	}
-
 	// Vide les vecteurs du graphe et effectue une copie du contenu des vecteur du graphe en parametre
 	void copyFromGraphe(Graphe& graphe) {
 		_emplacementsPossibles.clear();
@@ -1706,6 +1776,8 @@ public:
 		}
 		nombreCroisement = graphe.nombreCroisement;
 		isNombreCroisementUpdated = graphe.isNombreCroisementUpdated;
+		isNodeScoreUpdated = graphe.isNodeScoreUpdated;
+		isIntersectionVectorUpdated = graphe.isIntersectionVectorUpdated;
 		maxVoisin = graphe.maxVoisin;
 	}
 
@@ -1764,16 +1836,20 @@ public:
 		}
 		for (int i=0;i<G._noeuds[nodeIndex]._aretes.size()-1;i++) {
 			int index = G._noeuds[nodeIndex]._aretes[i];
-			for (int j=i+1;j<G._noeuds[nodeIndex]._aretes.size();j++) {
-				int index2 = G._noeuds[nodeIndex]._aretes[j];
-				Noeud* nodeNotInCommon = G._liens[index2].nodeNotInCommon(&G._liens[index]);
-				if (surSegment(G._liens[index], *nodeNotInCommon)) {
-					score += PENALITE_MAX_SELF;
-				}
-				else {
-					nodeNotInCommon = G._liens[index].nodeNotInCommon(&G._liens[index2]);
-					if (surSegment(G._liens[index2], *nodeNotInCommon)) {
-						score += PENALITE_MAX_SELF;
+			if (G._liens[index].estPlace()) {
+				for (int j=i+1;j<G._noeuds[nodeIndex]._aretes.size();j++) {
+					int index2 = G._noeuds[nodeIndex]._aretes[j];
+					if (G._liens[index2].estPlace()) {
+						Noeud* nodeNotInCommon = G._liens[index2].nodeNotInCommon(&G._liens[index]);
+						if (surSegment(G._liens[index], *nodeNotInCommon)) {
+							score += PENALITE_MAX_SELF;
+						}
+						else {
+							nodeNotInCommon = G._liens[index].nodeNotInCommon(&G._liens[index2]);
+							if (surSegment(G._liens[index2], *nodeNotInCommon)) {
+								score += PENALITE_MAX_SELF;
+							}
+						}
 					}
 				}
 			}
@@ -1982,6 +2058,8 @@ public:
 		graphe1.loadCopy(saveGraphe1);
 		graphe2.loadCopy(saveGraphe2);
 		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 		return true;
 	}
 
@@ -2321,6 +2399,8 @@ public:
 		_liens.swap(graphe1._liens);
 		_emplacementsPossibles.swap(graphe1._emplacementsPossibles);
 		isNombreCroisementUpdated = true;
+		isNodeScoreUpdated = true;
+		isIntersectionVectorUpdated = true;
 		return true;
 	}
 
@@ -2557,6 +2637,8 @@ public:
 		_liens.swap(graphe1._liens);
 		_emplacementsPossibles.swap(graphe1._emplacementsPossibles);
 		isNombreCroisementUpdated = true;
+		isNodeScoreUpdated = true;
+		isIntersectionVectorUpdated = true;
 		return true;
 	}
 	
@@ -2674,6 +2756,8 @@ public:
 		graphe1.loadCopy(saveGraphe1);
 		graphe2.loadCopy(saveGraphe2);
 		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 		return true;
 	}
 
@@ -2736,22 +2820,24 @@ public:
 		graphe1.loadCopy(saveGraphe1);
 		graphe2.loadCopy(saveGraphe2);
 		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 		return true;
 	}
 
 	// Effectue le croisement entre deux parents,
 	// On selectionne un noeud en alternant de parent, celui qui creer le moin d'intersection si le place chez l'enfant
 	// Renvoie vrai si les deux parents ne sont pas identique
-	// Met a jour le nombre de croisement du graphe
+	// Ne met pas a jour le nombre de croisement du graphe et des noeuds
 	bool croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGraphe2, bool useRand) {
-		std::vector<int> commonNodeVec, otherNodeVec;
-		originalGraphe1.separateNodesInCommon(originalGraphe2, commonNodeVec, otherNodeVec);
+		std::vector<int> commonNodeVec, otherNodeVec, indexNodeInOtherVec;
+		isNombreCroisementUpdated = false;
+		originalGraphe1.separateNodesInCommon(originalGraphe2, commonNodeVec, otherNodeVec, indexNodeInOtherVec);
 		int nbNoeudATraiter = otherNodeVec.size();
 		if (nbNoeudATraiter == 0) {
 			copyFromGraphe(originalGraphe1);
 			return false;
 		}
-
 		std::vector<int> activeEdges; // Contient les id des aretes actives chez l'enfant
 		for (int i=0;i<commonNodeVec.size();i++) { // On place les noeuds communs et on active les aretes placées
 			_noeuds[commonNodeVec[i]].setEmplacement(&_emplacementsPossibles[originalGraphe1._noeuds[commonNodeVec[i]].getEmplacement()->_id]);
@@ -2760,7 +2846,6 @@ public:
 					activeEdges.push_back(areteId);
 			}
 		}
-
 		Graphe graphe1, graphe2;
 		graphe1.copyFromGraphe(originalGraphe1);
 		graphe2.copyFromGraphe(originalGraphe2);
@@ -2775,47 +2860,51 @@ public:
 			long bestScore;
 			int bestNbVoisinsPlace = -1;
 			int bestNbVoisin = -1;
+			int bestNodeIndexInVec = -1;
 			int nbRencontre = 0;
-
 			for (int i=0;i<nbNoeudATraiter;i++) {
-				if (_emplacementsPossibles[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
-					int nodeNbVoisinsPlace = 0;
-					for (const int& areteId : _noeuds[otherNodeVec[i]]._aretes) {
-						if (_liens[areteId].unPlace()) { nodeNbVoisinsPlace++; }
-					}
-					int nodeNbVoisins = _noeuds[otherNodeVec[i]]._aretes.size();
-					if (nodeNbVoisinsPlace > bestNbVoisinsPlace) {
-						bestNodeId = otherNodeVec[i];
-						bestNbVoisinsPlace = nodeNbVoisinsPlace;
-						bestNbVoisin = nodeNbVoisins;
-						bestScore = -1;
-						nbRencontre = 0;
-					}
-					else if (nodeNbVoisinsPlace == bestNbVoisinsPlace) {
-						if (bestScore == -1) {
-							bestScore = getNodeScoreEnfant(*currentGraphe, activeEdges,bestNodeId);
+				if (currentGraphe->_noeuds[otherNodeVec[i]].estPlace()) {
+					if (_emplacementsPossibles[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
+						int nodeNbVoisinsPlace = 0;
+						for (const int& areteId : _noeuds[otherNodeVec[i]]._aretes) {
+							if (_liens[areteId].unPlace()) { nodeNbVoisinsPlace++; }
 						}
-						long nodeScore = getNodeScoreEnfant(*currentGraphe, activeEdges,otherNodeVec[i]);
-						if (nodeScore < bestScore) {
+						int nodeNbVoisins = _noeuds[otherNodeVec[i]]._aretes.size();
+						if (nodeNbVoisinsPlace > bestNbVoisinsPlace) {
 							bestNodeId = otherNodeVec[i];
 							bestNbVoisinsPlace = nodeNbVoisinsPlace;
 							bestNbVoisin = nodeNbVoisins;
-							bestScore = nodeScore;
+							bestScore = -1;
+							bestNodeIndexInVec = i;
 							nbRencontre = 0;
 						}
-						else if (nodeScore == bestScore) {
-							if (nodeNbVoisins > bestNbVoisin) {
+						else if (nodeNbVoisinsPlace == bestNbVoisinsPlace) {
+							if (bestScore == -1) {
+								bestScore = getNodeScoreEnfant(*currentGraphe, activeEdges,bestNodeId);
+							}
+							long nodeScore = getNodeScoreEnfant(*currentGraphe, activeEdges,otherNodeVec[i]);
+							if (nodeScore < bestScore) {
 								bestNodeId = otherNodeVec[i];
 								bestNbVoisinsPlace = nodeNbVoisinsPlace;
 								bestNbVoisin = nodeNbVoisins;
 								bestScore = nodeScore;
+								bestNodeIndexInVec = i;
 								nbRencontre = 0;
 							}
- 						}
+							else if (nodeScore == bestScore) {
+								if (nodeNbVoisins > bestNbVoisin) {
+									bestNodeId = otherNodeVec[i];
+									bestNbVoisinsPlace = nodeNbVoisinsPlace;
+									bestNbVoisin = nodeNbVoisins;
+									bestScore = nodeScore;
+									bestNodeIndexInVec = i;
+									nbRencontre = 0;
+								}
+							}
+						}
 					}
 				}
 			}
-
 			if (bestNodeId != -1) {
 				int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
 				_noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
@@ -2823,15 +2912,17 @@ public:
 					if (_liens[areteId].estPlace())
 						activeEdges.push_back(areteId);
 				}
-				if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
-					--nbNoeudATraiter;
-					int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
-					if (oldNodeId != -1) {
-						if (!areVoisin(bestNodeId,oldNodeId)) {
-							if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
-								nbNoeudATraiter--;
-								nodeToRelocate.push_back(oldNodeId);
-							}
+				--nbNoeudATraiter;
+				otherNodeVec[bestNodeIndexInVec] = otherNodeVec[nbNoeudATraiter];
+				indexNodeInOtherVec[otherNodeVec[bestNodeIndexInVec]] = bestNodeIndexInVec;
+				int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+				if (oldNodeId != -1) {
+					if (!areVoisin(bestNodeId,oldNodeId)) {
+						if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
+							nbNoeudATraiter--;
+							nodeToRelocate.push_back(oldNodeId);
+							otherNodeVec[indexNodeInOtherVec[oldNodeId]] = otherNodeVec[nbNoeudATraiter];
+							indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[oldNodeId];
 						}
 					}
 				}
@@ -2846,29 +2937,32 @@ public:
 								if (_liens[areteId].estPlace())
 									activeEdges.push_back(areteId);
 							}
-							if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
-								--nbNoeudATraiter;
-								int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
-								if (oldNodeId != -1) {
-									if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
-										nodeToRelocate.push_back(oldNodeId);
-										nbNoeudATraiter--;
-									}
+							--nbNoeudATraiter;
+							otherNodeVec[indexNodeInOtherVec[idNodeVoisin]] = otherNodeVec[nbNoeudATraiter];
+							indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[idNodeVoisin];
+							int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+							if (oldNodeId != -1) {
+								if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
+									nodeToRelocate.push_back(oldNodeId);
+									nbNoeudATraiter--;
+									otherNodeVec[indexNodeInOtherVec[oldNodeId]] = otherNodeVec[nbNoeudATraiter];
+									indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[oldNodeId];
 								}
 							}
 						}
 						else {
 							if (!otherGraphe->_noeuds[idNodeVoisin].estPlace()) {
-								if (std::find(nodeToRelocate.begin(),nodeToRelocate.end(),bestNodeId) == nodeToRelocate.end()) {
+								if (std::find(nodeToRelocate.begin(),nodeToRelocate.end(),idNodeVoisin) == nodeToRelocate.end()) {
 									nodeToRelocate.push_back(idNodeVoisin);
 									nbNoeudATraiter--;
+									otherNodeVec[indexNodeInOtherVec[idNodeVoisin]] = otherNodeVec[nbNoeudATraiter];
+									indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[idNodeVoisin];
 								}
 							}
 						}
 					}
 				}
 			}
-
 			//Change le parent choisis 
 			if (currentGrapheNumber == 0) {
 				currentGraphe = &graphe2;
@@ -2883,7 +2977,9 @@ public:
 		}
 		int tailleMax = nodeToRelocate.size();
 		completeBasicGloutonScore(nodeToRelocate,tailleMax);
-		initGraphAndNodeScoresAndCrossings();
+		isNombreCroisementUpdated = false;
+		isNodeScoreUpdated = false;
+		isIntersectionVectorUpdated = false;
 		return true;
 	}
 	
@@ -2911,12 +3007,16 @@ public:
 	}
 
 	// Modifie le vecteur de noeuds en commun et le vecteur de noeud non commun en parametre
-	void separateNodesInCommon(Graphe &G, std::vector<int>& commonNodeVec, std::vector<int>& otherNodeVec) {
+	void separateNodesInCommon(Graphe &G, std::vector<int>& commonNodeVec, std::vector<int>& otherNodeVec, std::vector<int>& indexNodeInOtherVec) {
 		for (int i=0; i<_noeuds.size();i++) {
-			if (_noeuds[i].getEmplacement()->_id == G._noeuds[i].getEmplacement()->_id)
+			if (_noeuds[i].getEmplacement()->_id == G._noeuds[i].getEmplacement()->_id) {
 				commonNodeVec.push_back(i);
-			else
+				indexNodeInOtherVec.push_back(-1);
+			}
+			else {
+				indexNodeInOtherVec.push_back(otherNodeVec.size());
 				otherNodeVec.push_back(i);
+			}
 		}
 	}
 
@@ -3035,6 +3135,8 @@ public:
 		}
 		nombreCroisement = total;
 		isNombreCroisementUpdated = true;
+		isNodeScoreUpdated = true;
+		isIntersectionVectorUpdated = true;
 		for (int i=0;i<_noeuds.size();i++) {
 			_noeuds[i].score = getScoreCroisementNodeFromArrays(i);
 			int nombreVoisin = _noeuds[i]._aretes.size();

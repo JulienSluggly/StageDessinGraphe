@@ -27,6 +27,14 @@ int generateRand(int n) {
     return dis(gen);
 }
 
+// Indique si une valeur est dans un vecteur ou non
+bool isInVector(std::vector<int>& vectorInt, int x) {
+    for (int i = 0; i < vectorInt.size(); i++) {
+        if (vectorInt[i] == x) return true;
+    }
+    return false;
+}
+
 bool comparePtrEmplacement(Emplacement* a, Emplacement* b) { return (a->getX() < b->getX()); }
 
 #endif

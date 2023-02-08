@@ -60,6 +60,8 @@ int perfectGraphe(std::vector<Graphe>& graphes)
 // useRand indique si l'on doit utiliser l'algorithme aléatoire plutôt que le glouton pour le replacage des noeuds lors du croisement
 // modeCroisement indique quel algorithme de croisement utiliser 0=Voisinage, 1=HalfParent, 2=Aléatoire, 3=VoisinageV2
 std::vector<int> grapheGenetique(int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit=false, bool useRand=false, int modeCroisement=0) {
+	std::vector<int> methodeNonScore = { 0, 1, 2, 5 };
+	bool modeNonScore = isInVector(methodeNonScore, modeCroisement);
 	std::vector<Graphe> graphes;
 	graphes.resize(population);
 	readFromJsonGraph(graphes[0], nomGraphe);
@@ -68,11 +70,21 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 		graphes[i].nomGraphe = "Graphe" + std::to_string(i);
 		graphes[i].copyFromGraphe(graphes[0]);
 		graphes[i].placementAleatoire();
-		graphes[i].initGraphAndNodeScoresAndCrossings();
+		if (modeNonScore) {
+			graphes[i].getNbCroisement();
+		}
+		else {
+			graphes[i].initGraphAndNodeScoresAndCrossings();
+		}
 	}
 	graphes[0].nomGraphe = "Graphe0";
 	graphes[0].placementAleatoire();
-	graphes[0].initGraphAndNodeScoresAndCrossings();
+	if (modeNonScore) {
+		graphes[0].getNbCroisement();
+	}
+	else {
+		graphes[0].initGraphAndNodeScoresAndCrossings();
+	}
 	// Vecteur pour le mode half parent
 	std::vector<int> sortedEmpId;
 	if (modeCroisement == 1) {
@@ -97,9 +109,9 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 		std::cout << graphes[i].nombreCroisement << " ";
 	}
 	std::cout << "]" << std::endl;
-	for (int i = 0; i<graphes.size();i++) {
-		graphes[i].debugEverything();
-	}
+	//for (int i = 0; i<graphes.size();i++) {
+	//	graphes[i].debugEverything();
+	//}
 	std::cout << "Debut Croisement Genetique." << std::endl;
 	bool noChange = false;
 	while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
@@ -135,7 +147,7 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 				numberOfNoChange++;
 			}
 			if (useRecuit) { // Le recuit met le nombre de croisement à jour.
-				if (modeCroisement == 0)
+				if (modeNonScore)
 					graphes[i].recuitSimule(0.99, 100.0);
 				else
 					graphes[i].recuitSimuleScore(0.99,100.0);
@@ -158,9 +170,9 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 			std::cout << graphes[i].nombreCroisement << " ";
 		}
 		std::cout << "]" << std::endl;
-		for (int i = 0; i<graphes.size();i++) {
-			graphes[i].debugEverything();
-		}
+		//for (int i = 0; i<graphes.size();i++) {
+		//	graphes[i].debugEverything();
+		//}
 	}
 
 	return graphes[0].saveCopy();

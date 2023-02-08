@@ -26,8 +26,8 @@ int main() {
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-3-input";
-	string nomFichierSlots = "3-input-slots";
+	string nomFichierGraph = "graph-6-input";
+	string nomFichierSlots = "6-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	string fileGraphSlots = chemin + "combined/exemple3.json";
@@ -38,13 +38,8 @@ int main() {
 	srand(static_cast<unsigned int>(time(NULL)));
 	//srand(0);
 
-
-	specificGraphMulti(fileGraph, fileSlots);
-	
-	return 0;
-
 	auto start = std::chrono::system_clock::now();
-	G.loadCopy(grapheGenetique(100,10,fileGraph,fileSlots,true,false,5));
+	G.loadCopy(grapheGenetique(100,100,fileGraph,fileSlots,false,false,5));
 	//G.placementFixe();
 	//G.placementAleatoire();
 	//G.initGraphAndNodeScoresAndCrossings();
