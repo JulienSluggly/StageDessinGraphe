@@ -128,6 +128,9 @@ std::vector<int> grapheGenetique(int population, int maxIteration, const std::st
 			else if (modeCroisement == 4) {
 				result = graphes[i].croisementBestOfBoth(graphes[grapheID1], graphes[grapheID2], useRand);
 			}
+			else if (modeCroisement == 5) {
+				result = graphes[i].croisementEnfantScore(graphes[grapheID1], graphes[grapheID2], useRand);
+			}
 			if (!result) {
 				numberOfNoChange++;
 			}

@@ -21,13 +21,13 @@ using namespace std;
 
 int main() {
 	//allRunsLogged();
-	allRunsSingleThread();
-	return 0;
+	//performanceTest();
+	//return 0;
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-6-input";
-	string nomFichierSlots = "6-input-slots";
+	string nomFichierGraph = "graph-3-input";
+	string nomFichierSlots = "3-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	string fileGraphSlots = chemin + "combined/exemple3.json";
@@ -44,11 +44,11 @@ int main() {
 	return 0;
 
 	auto start = std::chrono::system_clock::now();
-	//G.loadCopy(grapheGenetique(100,100,fileGraph,fileSlots,true,false,3));
+	G.loadCopy(grapheGenetique(100,10,fileGraph,fileSlots,true,false,5));
 	//G.placementFixe();
-	G.placementAleatoire();
+	//G.placementAleatoire();
 	//G.initGraphAndNodeScoresAndCrossings();
-	G.recuitSimule();
+	//G.recuitSimule();
 
 	//ogdfRun(G);
 	//return 0;

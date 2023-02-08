@@ -146,51 +146,70 @@ void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSi
 }
 
 void performanceTest() {
+	int nombreMax = 100;
 
-	// Vecteur d'id melange
-	std::vector<int> shuffledIdVec;
-	for (int i=0;i<5000;i++) {
-		shuffledIdVec.push_back(i);
-	}
-	auto rng = std::default_random_engine {};
-	std::shuffle(std::begin(shuffledIdVec), std::end(shuffledIdVec), rng);
+	for (int n=1;n<nombreMax;n++) {
 
-	// Vecteur d'id melange
-	std::vector<int> shuffledIdVec2;
-	for (int i=0;i<5000;i++) {
-		shuffledIdVec2.push_back(i);
-	}
-	std::shuffle(std::begin(shuffledIdVec2), std::end(shuffledIdVec2), rng);
+		// Vecteur d'id melange
+		std::vector<int> shuffledIdVec;
+		for (int i=0;i<5000*n;i++) {
+			shuffledIdVec.push_back(i);
+		}
+		auto rng = std::default_random_engine {};
+		std::shuffle(std::begin(shuffledIdVec), std::end(shuffledIdVec), rng);
 
-	// Vecteur d'id genere au random
-	std::vector<int> randomIdVec;
-	for (int i=0;i<30000;i++) {
-		randomIdVec.push_back(generateRand(4999));
-	}
+		// Vecteur d'id melange
+		std::vector<int> shuffledIdVec2;
+		for (int i=0;i<5000*n;i++) {
+			shuffledIdVec2.push_back(i);
+		}
+		std::shuffle(std::begin(shuffledIdVec2), std::end(shuffledIdVec2), rng);
 
-	// Partie unordered set
-	auto start = std::chrono::system_clock::now();
-	std::unordered_set<int> nodeUSet;
-	for (int i=0;i<5000;i++) {
-		nodeUSet.insert(shuffledIdVec[i]);
+		// Vecteur d'id genere au random
+		std::vector<int> randomIdVec;
+		for (int i=0;i<30000;i++) {
+			randomIdVec.push_back(generateRand((5000*n)-1));
+		}
+
+
+		// Partie unordered set
+		int nombreElem = n*50;
+		std::cout << "Nombre element: " << nombreElem << std::endl;
+		auto start = std::chrono::system_clock::now();
+		std::unordered_set<int> nodeUSet;
+		for (int i=0;i<nombreElem;i++) {
+			nodeUSet.insert(shuffledIdVec[i]);
+		}
+		auto s1 = std::chrono::system_clock::now();
+		for (int i=0;i<30000;i++) {
+			nodeUSet.count(randomIdVec[i]);
+		}
+		auto s2 = std::chrono::system_clock::now();
+		for (int i=0;i<nombreElem;i++) {
+				nodeUSet.erase(shuffledIdVec2[i]);
+		}
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> totalTime = end - start;
+		std::chrono::duration<double> insertTime = s1-start;
+		std::chrono::duration<double> findTime = s2-s1;
+		std::chrono::duration<double> eraseTime = end-s2;
+		std::cout << "Insert: " << insertTime.count() << "s.\n";
+		std::cout << "Find: " << findTime.count() << "s.\n";
+		std::cout << "Erase: " << eraseTime.count() << "s.\n";
+		std::cout << "Total: " << totalTime.count() << "s.\n";
+		std::cout << "-----------------------------------------------\n";
+
+		string nomFichier = chemin + "/resultats/perfUSet.csv";
+		std::ofstream resultats(nomFichier, std::ios_base::app);
+
+		resultats << std::fixed;
+		resultats << std::setprecision(7) << nombreElem << ","
+			<< insertTime.count() << ","
+			<< eraseTime.count() << ","
+			<< findTime.count() << ","
+			<< totalTime.count() << "\n";
+		resultats.close();
 	}
-	auto s1 = std::chrono::system_clock::now();
-	for (int i=0;i<30000;i++) {
-		nodeUSet.count(randomIdVec[i]);
-	}
-	auto s2 = std::chrono::system_clock::now();
-	for (int i=0;i<5000;i++) {
-			nodeUSet.erase(shuffledIdVec2[i]);
-	}
-	auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> totalTime = end - start;
-	std::chrono::duration<double> insertTime = s1-start;
-	std::chrono::duration<double> findTime = s2-s1;
-	std::chrono::duration<double> eraseTime = end-s2;
-	std::cout << "Insert: " << insertTime.count() << std::endl;
-	std::cout << "Find: " << findTime.count() << std::endl;
-	std::cout << "Erase: " << eraseTime.count() << std::endl;
-	std::cout << "Total: " << totalTime.count() << std::endl;
 	// Partie Vector
 	std::vector<int> nodeVec;
 }

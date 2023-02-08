@@ -110,7 +110,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 			medianCroisement = (nbCroisement1 + nbCroisement2) / 2.0;
 		}
 
-		string nomFichier = "./resultats/" + nomGraphe + ".csv";
+		string nomFichier = chemin + "/resultats/" + nomGraphe + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 
 		resultats << std::fixed;
