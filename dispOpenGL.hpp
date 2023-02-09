@@ -4,7 +4,6 @@
 #include <GLFW/glfw3.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
-#include <GL/glu.h>
 #include <stdio.h>
 #include "jsonIO.hpp"
 #include <random>
@@ -272,10 +271,12 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 		else if (startRecuit) {
 			std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
 			auto start = std::chrono::system_clock::now();
-			G.recuitSimule();
+			double timeBest;
+			G.recuitSimule(timeBest);
 			auto end = std::chrono::system_clock::now();
 			std::chrono::duration<double> secondsTotal = end - start;
 			std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+			std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
 			std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
 			startRecuit = false;
 		}

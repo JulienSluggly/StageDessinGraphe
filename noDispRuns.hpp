@@ -30,18 +30,18 @@ void readOldFiles(Graphe& G) {
 }
 
 void allRunsSingleThread() {
-	std::map<string, std::vector<string>> mapGraphSlots;
+	fillMap(); fillVectorGenetique(); fillVectorScore();
+	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<string> methodesPlacement = { "Aleatoire" };
 	//std::vector<string> methodesPlacement = { "OGDF" };
-	std::vector<string> methodesAlgo = { "Recuit Simule",  "Recuit Simule Score",  "Genetique Score",  "Genetique Score Recuit" };
-	std::vector<bool> useScore = { false, true, true, true };
+	std::vector<string> methodesAlgo = { "Recuit Simule",  "Recuit Simule Score", "Genetique", "Genetique Score" };
 	for (int i = 1; i <= 12; i++) {
-		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
+		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 	}
 	int nbRuns = 1;
 	std::cout << "Starting all run logs, nb run: " << nbRuns << std::endl;
 	Graphe G;
-	for (auto key : mapGraphSlots) {
+	for (auto &key : mapGraphSlots) {
 		for (int i = 0; i < key.second.size(); i++) {
 			std::cout << "-----------------------------------------" << std::endl;
 			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
@@ -55,7 +55,7 @@ void allRunsSingleThread() {
 				std::cout << "--------------------------" << std::endl;
 				for (int k = 0; k < methodesAlgo.size(); k++) {
 					std::cout << "Placement: " << methodesPlacement[j] << " Algo: " << methodesAlgo[k] << std::endl;
-					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], nomFichierLog, G, fileGraph, fileSlots, useScore[k]);
+					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], nomFichierLog, G, fileGraph, fileSlots);
 				}
 			}
 		}

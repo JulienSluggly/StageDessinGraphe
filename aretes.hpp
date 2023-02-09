@@ -59,6 +59,14 @@ public:
 		return (_noeud1->getEmplacement() != nullptr || _noeud2->getEmplacement() != nullptr);
 	}
 
+	// Vide les sets d'intersections
+	void clearIntersectionsVector() {
+		intersections.clear();
+		intersectionsIll.clear();
+		intersectionsIllSelf.clear();
+		isUpdated = false;
+	}
+
 };
 
 #endif

@@ -426,7 +426,12 @@ public:
 	void clearNodeEmplacement() {
 		for (int i = 0; i < _noeuds.size(); i++) {
 			_noeuds[i].clearEmplacement();
+			_noeuds[i].score = -1;
 		}
+		for (int i = 0;i < _liens.size();i++) {
+			_liens[i].clearIntersectionsVector();
+		}
+		nombreCroisement = -1;
 		isNombreCroisementUpdated = false;
 		isNodeScoreUpdated = false;
 		isIntersectionVectorUpdated = false;
@@ -761,7 +766,9 @@ public:
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimule(double cool = 0.99999, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0) {
+	void recuitSimule(double &timeBest, double cool = 0.99999, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0) {
+		auto start = std::chrono::system_clock::now();
+		auto end = start;
 		std::vector<int> bestResult = saveCopy();
 		long nbCroisement;
 		if (isNombreCroisementUpdated) {
@@ -811,6 +818,7 @@ public:
 					if (nbCroisement < bestCroisement) {
 						bestCroisement = nbCroisement;
 						bestResult = saveCopy();
+						end = std::chrono::system_clock::now();
 					}
 					if (DEBUG_GRAPHE) std::cout << "Graphe nnode: " << _noeuds.size() << " best score: " << nbCroisement << " iter: " << iter << " t: " << t << std::endl;
 				}
@@ -836,6 +844,8 @@ public:
 		isNombreCroisementUpdated = true;
 		isNodeScoreUpdated = false;
 		isIntersectionVectorUpdated = false;
+		std::chrono::duration<double> secondsTotal = end - start;
+		timeBest = secondsTotal.count();
 		if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
 	}
 
@@ -899,11 +909,11 @@ public:
 
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimule(int iter = 10, double cool = 0.99999, double coolt = 0.99, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0) {
+	void rerecuitSimule(double &timeBest, int iter = 10, double cool = 0.99999, double coolt = 0.99, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0) {
 		if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
 		for (int i = 0; i < iter; i++) {
 			if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << std::endl;
-			recuitSimule(cool, t, delay, modeNoeud, modeEmplacement);
+			recuitSimule(timeBest, cool, t, delay, modeNoeud, modeEmplacement);
 			t *= coolt;
 		}
 	}
@@ -912,7 +922,9 @@ public:
 	// Met à jour le score du graphe et des noeuds
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimuleScore(double cool = 0.99999, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0) {
+	void recuitSimuleScore(double &timeBest, double cool = 0.99999, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0) {
+		auto start = std::chrono::system_clock::now();
+		auto end = start;
 		Graphe bestResult;
 		bestResult.copyFromGraphe(*this);
 		long nbCroisement = nombreCroisement;
@@ -958,6 +970,7 @@ public:
 					if (nbCroisement < bestCroisement) {
 						bestCroisement = nbCroisement;
 						bestResult.copyFromGraphe(*this);
+						end = std::chrono::system_clock::now();
 					}
 				}
 				else {
@@ -985,6 +998,8 @@ public:
 		isNombreCroisementUpdated = true;
 		isNodeScoreUpdated = true;
 		isIntersectionVectorUpdated = true;
+		std::chrono::duration<double> secondsTotal = end - start;
+		timeBest = secondsTotal.count();
 	}
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
@@ -1964,14 +1979,12 @@ public:
 		else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
 
 		std::vector<int> nodeToRelocate;
-		nodeToRelocate.resize(graphe1.maxVoisin+1);
-
+		nodeToRelocate.resize(graphe1._noeuds.size());
 		while (nbNoeudATraiter > 0) {
 			int bestNodeId = -1;
 			int meilleurScore;
 			int nbRencontre = 0;
 			int numberOfNodeToRelocate = 0;
-
 			//Trouve le meilleur noeud du graphe en cours d'analyse
 			for (int i = 0; i < _noeuds.size(); ++i) {
 				if (!_noeuds[i].estPlace()) {
@@ -1989,7 +2002,6 @@ public:
 					}
 				}
 			}
-
 			int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
 			_noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
 			if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
@@ -2051,7 +2063,6 @@ public:
 				currentGrapheNumber = 0;
 			}
 		}
-
 		_noeuds.swap(graphe1._noeuds);
 		_liens.swap(graphe1._liens);
 		_emplacementsPossibles.swap(graphe1._emplacementsPossibles);
@@ -2166,9 +2177,7 @@ public:
 
 	// Recalcule les intersections d'une arete et met a jour sa liste d'intersection uniquement
 	void recalculateInterArray(int idArray) {
-		_liens[idArray].intersections.clear();
-		_liens[idArray].intersectionsIll.clear();
-		_liens[idArray].intersectionsIllSelf.clear();
+		_liens[idArray].clearIntersectionsVector();
 		for (int i = 0; i < _liens.size(); ++i) {
 			if (i != idArray) {
 				if (!(_liens[idArray].contains(_liens[i].getNoeud1()) || _liens[idArray].contains(_liens[i].getNoeud2()))) {
@@ -3089,9 +3098,7 @@ public:
 	void initGraphAndNodeScoresAndCrossings() {
 		long total = 0;
 		for (int i=0;i<_liens.size();i++) {
-			_liens[i].intersections.clear();
-			_liens[i].intersectionsIll.clear();
-			_liens[i].intersectionsIllSelf.clear();
+			_liens[i].clearIntersectionsVector();
 			_liens[i].isUpdated = true;
 		}
 		for (int i = 0; i < _liens.size() - 1; ++i) {

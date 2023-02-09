@@ -11,7 +11,7 @@ using nlohmann::json;
 bool DEBUG_JSON = true;
 
 // ----- CREATION D'UN Graph A PARTIR D'UN FICHIER JSON -----
-// Precondition: Les id des noeuds sont ordonn�es et commencent par 0
+// Precondition: Les id des noeuds sont ordonnees et commencent par 0
 void readFromJsonGraph(Graphe& G, string input) {
 	if (DEBUG_JSON) std::cout << "Fichier Graphe: " << input << std::endl;
 	std::ifstream inp(input);
