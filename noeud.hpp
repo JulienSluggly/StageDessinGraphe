@@ -2,6 +2,7 @@
 #define NOEUD_HPP
 
 #include "emplacement.hpp"
+#include <vector>
 
 class Noeud {
 public:

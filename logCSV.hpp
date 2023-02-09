@@ -2,12 +2,13 @@
 #define LOGCSV_HPP
 
 #include <vector>
+#include <unordered_map>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <chrono>
+#include <iomanip>
 #include "ogdfFunctions.hpp"
-#include "genetique.hpp"
 #include <omp.h>
 #include <climits>
 
@@ -96,14 +97,14 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		else if (methodeAlgoName == "Recuit Simule TMN TBE") G.recuitSimule(tempsBest,0.99999, 100, 1, 2, 1);
 		else if (methodeAlgoName == "Recuit Simule TMNE") G.recuitSimule(tempsBest,0.99999, 100, 1, 2, 2);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
-		else if (methodeAlgoName == "Genetique Recuit") G.loadCopy(grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true));
-		else if (methodeAlgoName == "Genetique Recuit Random") G.loadCopy(grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true));
-		else if (methodeAlgoName == "Genetique") G.loadCopy(grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots));
-		else if (methodeAlgoName == "Genetique Random") G.loadCopy(grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, false, true));
-		else if (methodeAlgoName == "Genetique Score") G.loadCopy(grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,false,false,3));
-		else if (methodeAlgoName == "Genetique Score Recuit") G.loadCopy(grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,true,false,3));
-		else if (methodeAlgoName == "Genetique Enfant") G.loadCopy(grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,false,false,5));
-		else if (methodeAlgoName == "Genetique Enfant Recuit") G.loadCopy(grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,true,false,5));
+		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
+		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
+		else if (methodeAlgoName == "Genetique") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots);
+		else if (methodeAlgoName == "Genetique Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, false, true);
+		else if (methodeAlgoName == "Genetique Score") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,false,false,3);
+		else if (methodeAlgoName == "Genetique Score Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,true,false,3);
+		else if (methodeAlgoName == "Genetique Enfant") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,false,false,5);
+		else if (methodeAlgoName == "Genetique Enfant Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,true,false,5);
 		else if (methodeAlgoName != "Aucun") {
 			std::cout << "ERROR Aucun algo " << methodeAlgoName << " trouve !";
 			return;
@@ -138,7 +139,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		lastIterationMoyenne = moyenneVector(lastIterationVector,nbEssay);
 		
 
-		string nomFichier = chemin + "/resultats/" + nomGraphe + ".csv";
+		std::string nomFichier = chemin + "/resultats/" + nomGraphe + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 		std::streampos position = resultats.tellp();
 		if (position == 0) {

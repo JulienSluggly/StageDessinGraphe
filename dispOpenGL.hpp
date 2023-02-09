@@ -5,9 +5,9 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <stdio.h>
-#include "jsonIO.hpp"
 #include <random>
 #include "personnel.hpp"
+#include "graphe.hpp"
 
 bool printRaccourcis = false;
 
@@ -454,11 +454,11 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 		}
 		else if (changeWindowGenetic) {
 			if (!isGeneticSetUp) {
-				string nomFichierParent1 = chemin + "combined/" + "cgraph-1" + ".json";
-				string nomFichierParent2 = chemin + "combined/" + "cgraph-2" + ".json";
-				readFromJsonGraphAndSlot(parent1,nomFichierParent1);
-				readFromJsonGraphAndSlot(parent2,nomFichierParent2);
-				readFromJsonGraphAndSlot(enfant,nomFichierParent1);
+				std::string nomFichierParent1 = chemin + "combined/" + "cgraph-1" + ".json";
+				std::string nomFichierParent2 = chemin + "combined/" + "cgraph-2" + ".json";
+				parent1.readFromJsonGraphAndSlot(nomFichierParent1);
+				parent2.readFromJsonGraphAndSlot(nomFichierParent2);
+				enfant.readFromJsonGraphAndSlot(nomFichierParent1);
 				enfant.clearNodeEmplacement();
 				nbNoeudATraiter = parent1._noeuds.size() - parent1.nbNoeudEnCommun(parent2);
 				isGeneticSetUp = true;

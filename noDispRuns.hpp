@@ -2,16 +2,18 @@
 #define NODISPRUN_HPP
 
 #include <string>
+#include <fstream>
+#include "graphe.hpp"
 #include "logCSV.hpp"
 #include "personnel.hpp"
 
 void readOldFiles(Graphe& G) {
-	string nomFichierGraph = "auto21-6";
-	string nomFichier = "D:/The World/Cours/M2S1/ProjetDessinGraphe/GitHub/ProjetDessinDeGraphe/automatique/" + nomFichierGraph + ".json";
+	std::string nomFichierGraph = "auto21-6";
+	std::string nomFichier = "D:/The World/Cours/M2S1/ProjetDessinGraphe/GitHub/ProjetDessinDeGraphe/automatique/" + nomFichierGraph + ".json";
 	//string nomFichier = "D:/The World/Cours/M2S1/ProjetDessinGraphe/GitHub/ProjetDessinDeGraphe/2019/" + nomFichierGraph + ".json";
-	std::vector<int> tmpvec = readFromJsonOldGraph(nomFichier, G);
-	string nomFichierSlots = nomFichierGraph + "-slots.json";
-	string nomFichierGrapheSave = "graph-" + nomFichierGraph + ".json";
+	std::vector<int> tmpvec = G.readFromJsonOldGraph(nomFichier);
+	std::string nomFichierSlots = nomFichierGraph + "-slots.json";
+	std::string nomFichierGrapheSave = "graph-" + nomFichierGraph + ".json";
 	bool save = false;
 	if (save) {
 		bool savex2 = false;
@@ -24,7 +26,7 @@ void readOldFiles(Graphe& G) {
 			G.generateMoreEmplacement(3);
 			nomFichierSlots = "3X-" + nomFichierSlots;
 		}
-		writeToJsonSlots(G, nomFichierSlots);
+		G.writeToJsonSlots(nomFichierSlots);
 		//writeToJsonGraph(G, nomFichierGrapheSave);
 	}
 }
@@ -32,9 +34,9 @@ void readOldFiles(Graphe& G) {
 void allRunsSingleThread() {
 	fillMap(); fillVectorGenetique(); fillVectorScore();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
-	std::vector<string> methodesPlacement = { "Aleatoire" };
+	std::vector<std::string> methodesPlacement = { "Aleatoire" };
 	//std::vector<string> methodesPlacement = { "OGDF" };
-	std::vector<string> methodesAlgo = { "Recuit Simule",  "Recuit Simule Score", "Genetique", "Genetique Score" };
+	std::vector<std::string> methodesAlgo = { "Recuit Simule",  "Recuit Simule Score", "Genetique", "Genetique Score" };
 	for (int i = 1; i <= 12; i++) {
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 	}
@@ -46,11 +48,11 @@ void allRunsSingleThread() {
 			std::cout << "-----------------------------------------" << std::endl;
 			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
 			G.clearGraphe();
-			string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
-			string fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
-			readFromJsonGraph(G, fileGraph);
-			readFromJsonSlots(G, fileSlots);
-			string nomFichierLog = key.first;
+			std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
+			std::string fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
+			G.readFromJsonGraph(fileGraph);
+			G.readFromJsonSlots(fileSlots);
+			std::string nomFichierLog = key.first;
 			for (int j = 0; j < methodesPlacement.size(); j++) {
 				std::cout << "--------------------------" << std::endl;
 				for (int k = 0; k < methodesAlgo.size(); k++) {
@@ -64,10 +66,10 @@ void allRunsSingleThread() {
 
 // Multithreadé
 void allRunsLogged() {
-	std::unordered_map<string, std::vector<string>> mapGraphSlots;
+	std::unordered_map<std::string, std::vector<std::string>> mapGraphSlots;
 	//std::vector<string> methodesPlacement = { "Aleatoire", "Glouton", "Glouton Revisite", "Glouton Gravite", "Glouton Voisin", "OGDF"};
-	std::vector<string> methodesPlacement = { "Aucun"};
-	std::vector<string> methodesAlgo = { "Genetique No Recuit Random", "Genetique Recuit Random","Genetique No Recuit","Genetique Recuit"};
+	std::vector<std::string> methodesPlacement = { "Aucun"};
+	std::vector<std::string> methodesAlgo = { "Genetique No Recuit Random", "Genetique Recuit Random","Genetique No Recuit","Genetique Recuit"};
 	//std::vector<int> runMethodesAlgo = { 5, 1, 5, 5, 5,5, 1, 5, 5,5, 1, 5, 5 };
 	std::vector<int> runMethodesAlgo = { 5,5,5,5 };
 	//std::vector<string> methodesAlgo;
@@ -93,11 +95,11 @@ void allRunsLogged() {
 					if (tid == 0) std::cout << "-----------------------------------------" << std::endl;
 					if (tid == 0) std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
 					G.clearGraphe();
-					string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
-					string fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
-					readFromJsonGraph(G, fileGraph);
-					readFromJsonSlots(G, fileSlots);
-					string nomFichierLog = key.first;
+					std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
+					std::string fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
+					G.readFromJsonGraph(fileGraph);
+					G.readFromJsonSlots(fileSlots);
+					std::string nomFichierLog = key.first;
 					for (int j = 0; j < methodesPlacement.size(); j++) {
 						if (tid == 0) std::cout << "--------------------------" << std::endl;
 						if (tid == 0) std::cout << "Graphe: " << key.first << " Slots: " << key.second[i] << std::endl;
@@ -120,8 +122,8 @@ void allRunsLogged() {
 void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSingleFile=false) {
 	int nthreads, tid;
 	int nbExec = 2;
-	std::vector<string> methodesPlacement = { "Aleatoire", "Aucun" };
-	std::vector<string> methodesAlgo = { "Recuit Simule", "Genetique Score" };
+	std::vector<std::string> methodesPlacement = { "Aleatoire", "Aucun" };
+	std::vector<std::string> methodesAlgo = { "Recuit Simule", "Genetique Score" };
 #pragma omp parallel private(tid)
 	{
 		tid = ::omp_get_thread_num();
@@ -129,16 +131,16 @@ void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSi
 		if (tid < nbExec) {
 			Graphe G;
 			if (!useSingleFile) {
-				readFromJsonGraph(G, fileGraph);
-				readFromJsonSlots(G, fileSlots);
+				G.readFromJsonGraph(fileGraph);
+				G.readFromJsonSlots(fileSlots);
 			}
 			else { 
-				readFromJsonGraphAndSlot(G,fileGraph);
+				G.readFromJsonGraphAndSlot(fileGraph);
 			}
 			if (tid == 0) {
 				printf("Number max of threads working on training data: %d\n", nthreads);
 			}
-			string nomFichierLog = "Graph-" + std::to_string(tid);
+			std::string nomFichierLog = "Graph-" + std::to_string(tid);
 			//generateCSV(1, methodesPlacement[tid], methodesAlgo[tid], nomFichierLog, G, fileGraph, fileSlots, true);
 		}
 		std::cout << "Thread: " << tid << " done." << std::endl;
@@ -199,7 +201,7 @@ void performanceTest() {
 		std::cout << "Total: " << totalTime.count() << "s.\n";
 		std::cout << "-----------------------------------------------\n";
 
-		string nomFichier = chemin + "/resultats/perfUSet.csv";
+		std::string nomFichier = chemin + "/resultats/perfUSet.csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 
 		resultats << std::fixed;
