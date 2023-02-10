@@ -30,7 +30,6 @@ bool isInVector(std::vector<int>& vectorInt, int x) {
     return false;
 }
 
-// Indique si une valeur est dans un vecteur ou non
 bool isInVector(std::vector<std::string>& vectorString, std::string x) {
     if (std::find(vectorString.begin(),vectorString.end(),x) != vectorString.end())
         return true;

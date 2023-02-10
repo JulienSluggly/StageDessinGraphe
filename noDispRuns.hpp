@@ -31,12 +31,44 @@ void readOldFiles(Graphe& G) {
 	}
 }
 
+void customRecuit() {
+	std::string nomFichierGraph = "graph-10-input";
+	std::string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
+	Graphe G;
+	G.readFromJsonGraph(fileGraph);
+	G.generateGrid(1000,1000);
+	std::vector<std::vector<int>> totalRuns;
+	totalRuns.push_back({0,2});
+	totalRuns.push_back({0,3});
+	totalRuns.push_back({0,4});
+	totalRuns.push_back({0,5});
+	totalRuns.push_back({0,6});
+	totalRuns.push_back({0,7});
+	totalRuns.push_back({0,8});
+	totalRuns.push_back({0,9});
+	totalRuns.push_back({0,10});
+	totalRuns.push_back({1,5});
+	totalRuns.push_back({1,10});
+	totalRuns.push_back({1,15});
+	totalRuns.push_back({1,20});
+	totalRuns.push_back({1,25});
+	totalRuns.push_back({1,30});
+	totalRuns.push_back({2,1});
+	totalRuns.push_back({2,2});
+	totalRuns.push_back({2,3});
+	totalRuns.push_back({2,4});
+	totalRuns.push_back({2,5});
+	for (int i=0;i<totalRuns.size();i++) {
+		generateCSV(10,"Aleatoire","Recuit Simule TME Custom","graph-10-input",G,"","",totalRuns[i]);
+	}
+}
+
 void allRunsSingleThread() {
 	fillMap(); fillVectorGenetique(); fillVectorScore();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire" };
 	//std::vector<string> methodesPlacement = { "OGDF" };
-	std::vector<std::string> methodesAlgo = { "Recuit Simule",  "Recuit Simule Score", "Genetique", "Genetique Score" };
+	std::vector<std::string> methodesAlgo = { "Recuit Simule TME", "Genetique Score", "Genetique Enfant" };
 	for (int i = 1; i <= 12; i++) {
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 	}

@@ -247,7 +247,7 @@ long Graphe::getScoreCroisementNode(int nodeIndex) {
 }
 
 // Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
-int Graphe::getScoreCroisementNode(int nodeIndex, int swapIndex) {
+long Graphe::getScoreCroisementNode(int nodeIndex, int swapIndex) {
     long score = 0;
     std::vector<int> indexPasse;
     for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {

@@ -23,6 +23,11 @@ public:
 	int gridHeight = 10;
 	int gridWidth = 10;
 
+	int compteurSwap = 0;
+	int compteurDeplacement = 0;
+	int compteurSwapE = 0;
+	int compteurDeplacementE = 0;
+
 	// Attention cette variable n'est pas forcément à jour!
 	long nombreCroisement = -1;
 	bool isNombreCroisementUpdated = false;
@@ -32,8 +37,8 @@ public:
 	// Nombre maximum de voisin d'un noeud dans le graphe.
 	int maxVoisin = -1;
 
-	bool DEBUG_GRAPHE = true;
-	bool DEBUG_OPENGL = true;
+	bool DEBUG_GRAPHE = false;
+	bool DEBUG_OPENGL = false;
 
 	std::string nomGraphe = "Graphe";
 
@@ -119,13 +124,15 @@ public:
 	int selectionNoeud(int modeNoeud, int t, bool isScoreUpdated=false);
 
 	// Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
-	int selectionEmplacement(int modeEmplacement, int nodeId, int t);
+	int selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<int> = {}, int iter=-1);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
 	void recuitSimule(double &timeBest, double cool = 0.99999, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
+
+	void recuitSimuleCustom(double &timeBest, double cool = 0.99999, double t= 100.0, int delay=1, int modeNoeud=0, int modeEmplacement=0, std::vector<int> customParam={}) ;
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe si elle etait a jour avant.
@@ -230,7 +237,7 @@ public:
 	long getScoreCroisementNode(int nodeIndex);
 
 	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
-	int getScoreCroisementNode(int nodeIndex, int swapIndex);
+	long getScoreCroisementNode(int nodeIndex, int swapIndex);
 
 	// Effectue le croisement entre deux parents,
 	// Renvoie vrai si les deux parents ne sont pas identique
