@@ -111,6 +111,19 @@ void Graphe::generateMoreEmplacement(int n) {
     }
 }
 
+// Creer la grille d'emplacement de taille gridHeight*gridWidth
+void Graphe::generateGrid(int gridW, int gridH) {
+    clearNodeEmplacement();
+    _emplacementsPossibles.clear();
+    for (int i=0;i<gridH;i++) {
+        for (int j=0;j<gridW;j++) {
+            _emplacementsPossibles.push_back(Emplacement(Point(i,j), _emplacementsPossibles.size()));
+        }
+    }
+    gridWidth = gridW;
+    gridHeight = gridH;
+}
+
 // Ajoute _noeud.size() emplacement par défaut ou n emplacement 
 // Si le nombre d'emplacement est laissé à -1, on génere dans une grille de taille _noeud.size()*_noeud.size()
 void Graphe::generateEmplacements(int n) {
@@ -218,6 +231,8 @@ void Graphe::copyFromGraphe(Graphe& graphe) {
     isNodeScoreUpdated = graphe.isNodeScoreUpdated;
     isIntersectionVectorUpdated = graphe.isIntersectionVectorUpdated;
     maxVoisin = graphe.maxVoisin;
+    gridHeight = graphe.gridHeight;
+    gridWidth = graphe.gridWidth;
 }
 
 // Nombre de noeuds du même ID placé aux mêmes emplacements.

@@ -227,9 +227,7 @@ void Graphe::recuitSimule(double &timeBest, double cool, double t, int delay, in
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     for (int iter = 0; t > 0.0001 && nbCroisement > 0; iter++) {
-        //if (iter % 100000 == 0) {
-            //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
-        //}
+        //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
         for (int del = 0; del < delay; del++) {
             int nodeId = selectionNoeud(modeNoeud, t);
             int slotId = selectionEmplacement(modeEmplacement, nodeId, t);
@@ -263,8 +261,8 @@ void Graphe::recuitSimule(double &timeBest, double cool, double t, int delay, in
                     bestCroisement = nbCroisement;
                     bestResult = saveCopy();
                     end = std::chrono::system_clock::now();
+                    if (DEBUG_GRAPHE) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
                 }
-                if (DEBUG_GRAPHE) std::cout << "Graphe nnode: " << _noeuds.size() << " best score: " << nbCroisement << " iter: " << iter << " t: " << t << std::endl;
             }
             else {
                 double randDouble = generateDoubleRand(1.0);

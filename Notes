@@ -22,3 +22,6 @@ Structure arete:
 unordered_set:
     faire une courbe du temps de calcul en fonction du nombre d'operation
     faire plus de tests avec des moyennes
+
+Graphe general:
+    Compteur de nombre d'illegal et changer sa valeur

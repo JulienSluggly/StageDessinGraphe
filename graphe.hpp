@@ -32,7 +32,7 @@ public:
 	// Nombre maximum de voisin d'un noeud dans le graphe.
 	int maxVoisin = -1;
 
-	bool DEBUG_GRAPHE = false;
+	bool DEBUG_GRAPHE = true;
 	bool DEBUG_OPENGL = true;
 
 	std::string nomGraphe = "Graphe";
@@ -55,6 +55,8 @@ public:
 
 	void afficherNoeudDouble(bool display=true, std::string nom = "");
 
+	void afficherEmplacementDouble(bool display=true, std::string nom = "");
+
 	void debugDesyncNoeudEmplacement(bool display=true, std::string nom = "");
 
 	void debugScoreNoeud(bool display=true, std::string nom = "");
@@ -65,7 +67,7 @@ public:
 
 	void debugNoeudNonPlace(bool display=true, std::string nom = "");
 
-	void debugEverything();
+	void debugEverything(bool displayOther=false, bool displaySelf=false);
 
 	// Fait une estimation du temps requis pour effectuer un recuit simule complet
 	void tempsCalculRecuitSimule(double cool = 0.99999, double t = 100, int mode = 0);
@@ -344,6 +346,9 @@ public:
 	// useRand indique si l'on doit utiliser l'algorithme aléatoire plutôt que le glouton pour le replacage des noeuds lors du croisement
 	// modeCroisement indique quel algorithme de croisement utiliser 0=Voisinage, 1=HalfParent, 2=Aléatoire, 3=VoisinageV2
 	void grapheGenetique(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit=false, bool useRand=false, int modeCroisement=0);
+
+	// Creer la grille d'emplacement de taille gridHeight*gridWidth
+	void generateGrid(int gridWidth, int gridHeight);
 
 };
 

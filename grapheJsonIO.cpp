@@ -163,13 +163,18 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 		exit(1);
 	}
 
+	bool areNodePlaced = true;
+	if ((j["nodes"][0]["x"] == j["nodes"][1]["x"])&&(j["nodes"][0]["y"] == j["nodes"][0]["y"])) {
+		areNodePlaced = false;
+	}
+
 	int nodeNumber = static_cast<int>(j["nodes"].size());
 	int x, y;
 	for (int i = 0; i < nodeNumber; i++) {
 		_noeuds.push_back(Noeud(i));
 		x = j["nodes"][i]["x"];
 		y = j["nodes"][i]["y"];
-		_emplacementsPossibles.push_back(Emplacement(Point(x, y), i));
+		if (areNodePlaced) { _emplacementsPossibles.push_back(Emplacement(Point(x, y), i)); }
 	}
 
 	int edgeNumber = static_cast<int>(j["edges"].size());
@@ -188,7 +193,7 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 				tmpVec.push_back(id2);
 				tmpVec.push_back(id2);
 				_noeuds.push_back(Noeud(index));
-				_emplacementsPossibles.push_back(Emplacement(Point(x, y), index));
+				if (areNodePlaced) { _emplacementsPossibles.push_back(Emplacement(Point(x, y), index)); }
 				//G._liens.push_back(Aretes(&G._noeuds[id1], &G._noeuds[id2], nbArete));
 				nbArete++;
 				id1 = id2;

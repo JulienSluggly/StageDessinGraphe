@@ -21,14 +21,14 @@ void fillMap() {
 	mapGraphPopGen["graph-2-input"] = std::pair<int,int>(1000,1000);
 	mapGraphPopGen["graph-3-input"] = std::pair<int,int>(1000,1000);
 	mapGraphPopGen["graph-4-input"] = std::pair<int,int>(1000,1000);
-	mapGraphPopGen["graph-5-input"] = std::pair<int,int>(1000,1000);
-	mapGraphPopGen["graph-6-input"] = std::pair<int,int>(1000,1000);
-	mapGraphPopGen["graph-7-input"] = std::pair<int,int>(1000,1000);
-	mapGraphPopGen["graph-8-input"] = std::pair<int,int>(1000,1000);
-	mapGraphPopGen["graph-9-input"] = std::pair<int,int>(1000,1000);
-	mapGraphPopGen["graph-10-input"] = std::pair<int,int>(1000,1000);
-	mapGraphPopGen["graph-11-input"] = std::pair<int,int>(1000,1000);
-	mapGraphPopGen["graph-12-input"] = std::pair<int,int>(1000,1000);
+	mapGraphPopGen["graph-5-input"] = std::pair<int,int>(1000,200);
+	mapGraphPopGen["graph-6-input"] = std::pair<int,int>(500,100);
+	mapGraphPopGen["graph-7-input"] = std::pair<int,int>(750,100);
+	mapGraphPopGen["graph-8-input"] = std::pair<int,int>(70,100);
+	mapGraphPopGen["graph-9-input"] = std::pair<int,int>(70,100);
+	mapGraphPopGen["graph-10-input"] = std::pair<int,int>(20,50);
+	mapGraphPopGen["graph-11-input"] = std::pair<int,int>(10,30);
+	mapGraphPopGen["graph-12-input"] = std::pair<int,int>(10,30);
 }
 
 void fillVectorScore() {

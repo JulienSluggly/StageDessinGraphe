@@ -18,31 +18,42 @@
 using namespace std;
 
 int main() {
-	allRunsSingleThread();
-	return 0;
-
-	Graphe G;
-	
-	string nomFichierGraph = "graph-1-input";
-	string nomFichierSlots = "1-input-slots";
-	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
-	string fileGraphSlots = chemin + "combined/exemple3.json";
-	G.readFromJsonGraph(fileGraph);
-	G.readFromJsonSlots(fileSlots);
-	//readFromJsonGraphAndSlot(G,fileGraphSlots);
 
 	srand(static_cast<unsigned int>(time(NULL)));
 	//srand(0);
+
+	//allRunsSingleThread();
+	//return 0;
+
+	Graphe G;
+	
+	string nomFichierGraph = "auto21-13";
+	string nomFichierSlots = "auto21-13";
+	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
+	//string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
+	string fileSlots = chemin + "automatique/" + nomFichierSlots + ".json";
+	string fileGraphSlots = chemin + "combined/exemple3.json";
+	//G.readFromJsonGraph(fileGraph);
+	//G.generateGrid(32,32);
+	//G.readFromJsonSlots(fileSlots);
+	G.readFromJsonOldGraph(fileSlots);
+	G.generateGrid(3000,3000);
+	//readFromJsonGraphAndSlot(G,fileGraphSlots);
 
 	//G.testFunc(0);
 
 	auto start = std::chrono::system_clock::now();
 	double timeBest = -1; int lastIteration = -1; int bestIteration = -1;
-	G.grapheGenetique(timeBest,bestIteration,lastIteration,1000,1000,fileGraph,fileSlots,false,false,5);
-	//G.placementFixe();
-	//G.placementAleatoire();
+	//G.grapheGenetique(timeBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
+
+	G.placementAleatoire();
+
 	//G.initGraphAndNodeScoresAndCrossings();
+	G.afficherInfo();
+
+	G.recuitSimule(timeBest,0.99999,100.0,1,0,0);
+
+	
 	//G.recuitSimuleScore(timeBest);
 
 	//ogdfRun(G);
@@ -58,7 +69,7 @@ int main() {
 	std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
 	std::cout << "Setup complete!" << std::endl;
 
-	G.debugEverything();
+	G.debugEverything(false,true);
 
 	// OpenGL
 	bool useOpenGL = true;
