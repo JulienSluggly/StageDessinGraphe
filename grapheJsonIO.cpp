@@ -53,7 +53,7 @@ void Graphe::readFromJsonSlots(std::string input) {
 	for (int i = 0; i < slotsNumber; i++) {
 		x = j["slots"][i]["x"];
 		y = j["slots"][i]["y"];
-		_emplacementsPossibles.push_back(Emplacement(Point(x,y), i));
+		_emplacementsPossibles.push_back(Emplacement(x,y,i));
 		if (x > gridWidth) { gridWidth = x; }
 		if (y > gridHeight) { gridHeight = y; }
 	}
@@ -82,7 +82,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	for (int i = 0; i < slotsNumber; i++) {
 		x = j["slots"][i]["x"];
 		y = j["slots"][i]["y"];
-		_emplacementsPossibles.push_back(Emplacement(Point(x,y), i));
+		_emplacementsPossibles.push_back(Emplacement(x,y,i));
 		if (x > gridWidth) { gridWidth = x; }
 		if (y > gridHeight) { gridHeight = y; }
 	}
@@ -174,7 +174,7 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 		_noeuds.push_back(Noeud(i));
 		x = j["nodes"][i]["x"];
 		y = j["nodes"][i]["y"];
-		if (areNodePlaced) { _emplacementsPossibles.push_back(Emplacement(Point(x, y), i)); }
+		if (areNodePlaced) { _emplacementsPossibles.push_back(Emplacement(x,y,i)); }
 	}
 
 	int edgeNumber = static_cast<int>(j["edges"].size());
@@ -193,15 +193,13 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 				tmpVec.push_back(id2);
 				tmpVec.push_back(id2);
 				_noeuds.push_back(Noeud(index));
-				if (areNodePlaced) { _emplacementsPossibles.push_back(Emplacement(Point(x, y), index)); }
-				//G._liens.push_back(Aretes(&G._noeuds[id1], &G._noeuds[id2], nbArete));
+				if (areNodePlaced) { _emplacementsPossibles.push_back(Emplacement(x,y,index)); }
 				nbArete++;
 				id1 = id2;
 			}
 		}
 		id2 = j["edges"][i]["target"];
 		tmpVec.push_back(id2);
-		//G._liens.push_back(Aretes(&G._noeuds[id1], &G._noeuds[id2], nbArete));
 	}
 	for (int i = 0; i < tmpVec.size(); i += 2) {
 		_liens.push_back(Aretes(&_noeuds[tmpVec[i]], &_noeuds[tmpVec[i + 1]], i / 2));

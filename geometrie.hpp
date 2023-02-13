@@ -1,7 +1,6 @@
 #ifndef GEOMETRIE_HPP
 #define GEOMETRIE_HPP
 #include "aretes.hpp"
-#include "point.hpp"
 
 //renvoie 1,2,3 ou 4 si lpoint t est 1: en haut � droite, 2: en haut � gauche, 3: en bas � gauche, 4: en bas � droite du point s
 //on consid�re s != t
@@ -16,7 +15,7 @@ int aGaucheInt(int sx, int sy, int tx, int ty, int cx, int cy);
 // Renvoie vrai si c est dans le rectangle form� par st
 bool dansRectangle(int sx,int sy,int tx,int ty,int cx,int cy);
 
-bool dansRectangle(const Point& corner1, const Point& corner2, const Point& point);
+bool dansRectangle(Emplacement* corner1, Emplacement* corner2, Emplacement* point);
 
 bool dansRectangle(const Noeud &noeud1, const Noeud &noeud2, const Noeud &noeud);
 
@@ -25,7 +24,7 @@ bool dansRectangle(const Aretes &aretes, const Noeud &noeud);
 // Renvoie vrai si c est sur le segment st
 bool surSegment(int sx, int sy, int tx, int ty, int cx, int cy);
 
-bool surSegment(const Point& s, const Point& t, const Point& c);
+bool surSegment(Emplacement* s, Emplacement* t, Emplacement* c);
 
 bool surSegment(const Aretes& lien, const Noeud& noeud);
 

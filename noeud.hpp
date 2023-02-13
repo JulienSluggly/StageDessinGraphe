@@ -37,7 +37,6 @@ public:
 	}
 	int getX()  const { return _emplacement->getX(); }
 	int getY()  const { return _emplacement->getY(); }
-	Point getPosition() const { return _emplacement->getPosition(); }
 	// Indique si deux noeuds ont les mêmes coordonnées
 	bool compare(const Noeud* noeud) const {
 		return ((getX() == noeud->getX()) && (getY() == noeud->getY()));

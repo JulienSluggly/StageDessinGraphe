@@ -212,7 +212,7 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
             nbTirage = ((100 - t) / customParam[1]) + 1;
         }
         else if (customParam[0] == 2) {
-            nbTirage = (iter % 100000) + customParam[1];
+            nbTirage = (iter / 100000) + customParam[1];
         }
         slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
     }
@@ -332,7 +332,9 @@ void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, int del
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     for (int iter = 0; t > 0.0001 && nbCroisement > 0; iter++) {
-        //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
+        //if (iter % 20000 == 0) {
+        //    std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
+        //}
         for (int del = 0; del < delay; del++) {
             int nodeId = selectionNoeud(modeNoeud, t);
             int slotId = selectionEmplacement(modeEmplacement, nodeId, t,customParam,iter);

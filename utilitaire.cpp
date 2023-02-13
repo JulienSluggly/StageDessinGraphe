@@ -79,3 +79,15 @@ int lowestInVector(std::vector<int> &vec) {
 }
 
 bool comparePtrEmplacement(Emplacement* a, Emplacement* b) { return (a->getX() < b->getX()); }
+
+bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b) {
+    if (a->getX() == b->getX()) {
+        return (a->getY() < b->getY());
+    }
+    return (a->getX() < b->getX());
+}
+
+void createTriangulation(std::vector<Emplacement*>& vec){
+    std::vector<Emplacement*> vecteurEmplacement = vec;
+    std::sort(vecteurEmplacement.begin(), vecteurEmplacement.end(), comparePtrEmplacementTri);
+}

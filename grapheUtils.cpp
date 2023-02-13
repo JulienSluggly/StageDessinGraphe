@@ -106,7 +106,7 @@ void Graphe::generateMoreEmplacement(int n) {
                 y = generateRand(gridHeight);
             } while (marque[y][x]);
             marque[y][x] = true;
-            _emplacementsPossibles.push_back(Emplacement(Point(x, y), _emplacementsPossibles.size()));
+            _emplacementsPossibles.push_back(Emplacement(x,y,_emplacementsPossibles.size()));
         }
     }
 }
@@ -117,7 +117,7 @@ void Graphe::generateGrid(int gridW, int gridH) {
     _emplacementsPossibles.clear();
     for (int i=0;i<gridH;i++) {
         for (int j=0;j<gridW;j++) {
-            _emplacementsPossibles.push_back(Emplacement(Point(i,j), _emplacementsPossibles.size()));
+            _emplacementsPossibles.push_back(Emplacement(i,j,_emplacementsPossibles.size()));
         }
     }
     gridWidth = gridW;
@@ -158,7 +158,7 @@ void Graphe::generateEmplacements(int n) {
             y = generateRand(gridHeight);
         } while (marque[y][x]);
         marque[y][x] = true;
-        _emplacementsPossibles.push_back(Emplacement(Point(x, y), _emplacementsPossibles.size()));
+        _emplacementsPossibles.push_back(Emplacement(x,y,_emplacementsPossibles.size()));
     }
 
 }
@@ -200,7 +200,7 @@ void Graphe::copyFromGraphe(Graphe& graphe) {
     _noeuds.clear();
     _liens.clear();
     for (int i = 0; i < graphe._emplacementsPossibles.size(); ++i) {
-        _emplacementsPossibles.push_back(Emplacement(Point(graphe._emplacementsPossibles[i].getX(), graphe._emplacementsPossibles[i].getY()), i));
+        _emplacementsPossibles.push_back(Emplacement(graphe._emplacementsPossibles[i].getX(),graphe._emplacementsPossibles[i].getY(),i));
     }
     for (int i = 0; i < graphe._noeuds.size(); ++i) {
         _noeuds.push_back(Noeud(i));

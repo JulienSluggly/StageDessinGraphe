@@ -44,16 +44,16 @@ void Graphe::placementNoeudAleatoire(int idNoeud) {
 }
 
 // Selectionne les emplacements disponibles a egale distance d'un point et en renvoie un aleatoirement.
-Emplacement* Graphe::getEmplacementPlusProche(const Point& origin) {
+Emplacement* Graphe::getEmplacementPlusProche(std::pair<int,int>& origin) {
     Emplacement* meilleurEmplacement = &_emplacementsPossibles[generateRand(_emplacementsPossibles.size() - 1)];
     while (!meilleurEmplacement->estDisponible()) {
         meilleurEmplacement = &_emplacementsPossibles[(meilleurEmplacement->getId() + 1) % _emplacementsPossibles.size()];
     }
-    int meilleurDistance = meilleurEmplacement->getPosition().distance(origin);
+    int meilleurDistance = meilleurEmplacement->distance(origin);
     int nbRencontre = 0;
     for (int i = 0; i < _emplacementsPossibles.size(); ++i) {
         if (_emplacementsPossibles[i].estDisponible() && i != meilleurEmplacement->getId()) {
-            int distanceActuel = _emplacementsPossibles[i].getPosition().distance(origin);
+            int distanceActuel = _emplacementsPossibles[i].distance(origin);
             if (meilleurDistance > distanceActuel) {
                 meilleurEmplacement = &_emplacementsPossibles[i];
                 meilleurDistance = distanceActuel;
@@ -75,11 +75,11 @@ Emplacement* Graphe::getEmplacementPlusProche(const Point& origin) {
 // Selectionne les emplacements different de l'emplacement en parametre a egale distance de celui ci et en renvoie un aleatoirement.
 Emplacement* Graphe::getEmplacementPlusProche(Emplacement* origin) {
     Emplacement* meilleurEmplacement = &_emplacementsPossibles[0];
-    int meilleurDistance = meilleurEmplacement->getPosition().distance(origin->getPosition());
+    int meilleurDistance = meilleurEmplacement->distance(origin);
     int nbRencontre = 0;
     for (int i = 1; i < _emplacementsPossibles.size(); ++i) {
         if (origin->getId() != _emplacementsPossibles[i].getId()) {
-            int distanceActuel = _emplacementsPossibles[i].getPosition().distance(origin->getPosition());
+            int distanceActuel = _emplacementsPossibles[i].distance(origin);
             if (distanceActuel < meilleurDistance) {
                 meilleurEmplacement = &_emplacementsPossibles[i];
                 meilleurDistance = distanceActuel;
@@ -97,17 +97,17 @@ Emplacement* Graphe::getEmplacementPlusProche(Emplacement* origin) {
 }
 
 // Retourne le centre de gravite des emplacements.
-Point Graphe::getCentreGravite() {
+std::pair<int,int> Graphe::getCentreGravite() {
     double totalX = 0.0, totalY = 0.0;
     for (int i=0;i<_emplacementsPossibles.size();i++) {
         totalX += _emplacementsPossibles[i].getX();
         totalY += _emplacementsPossibles[i].getY();
     }
-    return Point(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
+    return std::pair<int,int>(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
 }
 
 // Retourne le centre de gravite des noeuds place
-Point Graphe::getCentreGraviteNoeudPlaces() {
+std::pair<int,int> Graphe::getCentreGraviteNoeudPlaces() {
     double totalX = 0.0, totalY = 0.0;
     for (int i=0;i<_noeuds.size();i++) {
         if (_noeuds[i].estPlace()){
@@ -115,11 +115,11 @@ Point Graphe::getCentreGraviteNoeudPlaces() {
             totalY += _noeuds[i].getY();
         }
     }
-    return Point(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
+    return std::pair<int,int>(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
 }
 
 // Retourne le centre de gravite des voisins place d'un noeud.
-Point Graphe::getCentreGraviteVoisin(Noeud* noeud) {
+std::pair<int,int> Graphe::getCentreGraviteVoisin(Noeud* noeud) {
     double totalX = 0.0, totalY = 0.0;
     for (int i=0;i<noeud->voisins.size();i++) {
         if (noeud->voisins[i]->estPlace()) {
@@ -127,7 +127,7 @@ Point Graphe::getCentreGraviteVoisin(Noeud* noeud) {
             totalY += noeud->voisins[i]->getY();
         }
     }
-    return Point(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
+    return std::pair<int,int>(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
 }
 
 // Renvoie l'id du meilleur emplacement disponible
@@ -194,7 +194,7 @@ int Graphe::getMeilleurEmplacementScore(Noeud& meilleurNoeud) {
 }
 
 // Renvoie le meilleur emplacement disponible
-int Graphe::getMeilleurEmplacementGravite(Noeud* meilleurNoeud, Point gravite) {
+int Graphe::getMeilleurEmplacementGravite(Noeud* meilleurNoeud, std::pair<int,int>& gravite) {
     Emplacement* oldEmplacement = meilleurNoeud->getEmplacement();
     int nbRencontre = 0;
     int bestId = -1;
@@ -207,10 +207,10 @@ int Graphe::getMeilleurEmplacementGravite(Noeud* meilleurNoeud, Point gravite) {
             if (newScore < bestScore) {
                 bestScore = newScore;
                 bestId = i;
-                bestDistance = _emplacementsPossibles[bestId].getPosition().distance(gravite);
+                bestDistance = _emplacementsPossibles[bestId].distance(gravite);
             }
             else if (newScore == bestScore) {
-                long newDistance = _emplacementsPossibles[i].getPosition().distance(gravite);
+                long newDistance = _emplacementsPossibles[i].distance(gravite);
                 if (newDistance < bestDistance) {
                     bestScore = newScore;
                     bestId = i;
@@ -278,7 +278,7 @@ void Graphe::gloutonRevisite() {
         }
     }
 
-    Point centreGravite = getCentreGravite();
+    std::pair<int,int> centreGravite = getCentreGravite();
     _noeuds[idNoeud].setEmplacement(getEmplacementPlusProche(centreGravite));
 
     while (!estPlace())
@@ -379,7 +379,7 @@ void Graphe::gloutonRevisiteGravite()
         }
     }
 
-    Point centreGravite = getCentreGravite();
+    std::pair<int,int> centreGravite = getCentreGravite();
     _noeuds[idNoeud].setEmplacement(getEmplacementPlusProche(centreGravite));
 
     while (!estPlace())
@@ -450,7 +450,7 @@ void Graphe::gloutonRevisiteVoisin()
         }
     }
 
-    Point centreGravite = getCentreGravite();
+    std::pair<int,int> centreGravite = getCentreGravite();
     _noeuds[idNoeud].setEmplacement(getEmplacementPlusProche(centreGravite));
 
     while (!estPlace())

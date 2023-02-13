@@ -50,25 +50,25 @@ bool seCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) 
 	return true;
 }
 
-bool seCroisent(const Point &p, const Point &q, const Point &r, const Point &s)
+bool seCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *s)
 {
-	return seCroisent(p.getX(), p.getY(), q.getX(), q.getY(), r.getX(), r.getY(), s.getX(), s.getY());
+	return seCroisent(p->getX(), p->getY(), q->getX(), q->getY(), r->getX(), r->getY(), s->getX(), s->getY());
 }
 
 bool seCroisent(const Aretes &aretes1, const Aretes &aretes2)
 {
-	return seCroisent(aretes1.getNoeud1()->getEmplacement()->getPosition(), aretes1.getNoeud2()->getEmplacement()->getPosition(), aretes2.getNoeud1()->getEmplacement()->getPosition(), aretes2.getNoeud2()->getEmplacement()->getPosition());
+	return seCroisent(aretes1.getNoeud1()->getEmplacement(), aretes1.getNoeud2()->getEmplacement(), aretes2.getNoeud1()->getEmplacement(), aretes2.getNoeud2()->getEmplacement());
 }
 
 //Pas sur du nom
-double calculNormalisation(const Point &p1, const Point &p2)
+double calculNormalisation(Emplacement *p1, Emplacement *p2)
 {
-	double y1 = p1.getY(), y2 = p2.getY();
-	double x1 = p1.getX(), x2 = p2.getX();
+	double y1 = p1->getY(), y2 = p2->getY();
+	double x1 = p1->getX(), x2 = p2->getX();
 	return (y2 - y1) / (x2 - x1);
 }
 
-bool sontAlignes(const Point& p1, const Point& p2, const Point& p3)
+bool sontAlignes(Emplacement* p1, Emplacement* p2, Emplacement* p3)
 {
 	return calculNormalisation(p1, p3) == calculNormalisation(p1, p2)
 		&& calculNormalisation(p2, p3) == calculNormalisation(p1, p2);

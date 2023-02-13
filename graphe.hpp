@@ -4,6 +4,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <utility>
 #include "utilitaire.hpp"
 #include "aretes.hpp"
 #include "noeud.hpp"
@@ -154,19 +155,19 @@ public:
 	void bestDeplacement();
 
 	// Selectionne les emplacements disponibles a egale distance d'un point et en renvoie un aleatoirement.
-	Emplacement* getEmplacementPlusProche(const Point& origin);
+	Emplacement* getEmplacementPlusProche(std::pair<int,int>& origin);
 
 	// Selectionne les emplacements different de l'emplacement en parametre a egale distance de celui ci et en renvoie un aleatoirement.
 	Emplacement* getEmplacementPlusProche(Emplacement* origin);
 
 	// Retourne le centre de gravite des emplacements.
-	Point getCentreGravite();
+	std::pair<int,int> getCentreGravite();
 
 	// Retourne le centre de gravite des noeuds place
-	Point getCentreGraviteNoeudPlaces();
+	std::pair<int,int> getCentreGraviteNoeudPlaces();
 
 	// Retourne le centre de gravite des voisins place d'un noeud.
-	Point getCentreGraviteVoisin(Noeud* noeud);
+	std::pair<int,int> getCentreGraviteVoisin(Noeud* noeud);
 
 	// Renvoie l'id du meilleur emplacement disponible
 	// Le noeud passé en argument ne doit pas être placé
@@ -177,7 +178,7 @@ public:
 	int getMeilleurEmplacementScore(Noeud& meilleurNoeud);
 
 	// Renvoie le meilleur emplacement disponible
-	int getMeilleurEmplacementGravite(Noeud* meilleurNoeud, Point gravite);
+	int getMeilleurEmplacementGravite(Noeud* meilleurNoeud, std::pair<int,int>& gravite);
 
 	// Ancien algorithme glouton non optimisé mais fonctionnel.
 	void glouton();

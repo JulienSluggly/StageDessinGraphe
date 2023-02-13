@@ -20,9 +20,9 @@ int main() {
 
 	srand(static_cast<unsigned int>(time(NULL)));
 	//srand(0);
-	customRecuit();
-	allRunsSingleThread();
-	return 0;
+	//customRecuit();
+	//allRunsSingleThread();
+	//return 0;
 
 	Graphe G;
 	
@@ -36,7 +36,7 @@ int main() {
 	string fileOldGraph = chemin + "automatique/auto21-13.json";
 	G.readFromJsonGraph(fileGraph);
 	G.generateGrid(1000,1000);
-	//G.readFromJsonSlots(fileSlots);
+	// G.readFromJsonSlots(fileSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
 	//G.generateGrid(3000,3000);

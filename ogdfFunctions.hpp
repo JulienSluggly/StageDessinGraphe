@@ -79,8 +79,8 @@ int ogdfPlacementAuPlusProche(Graphe& G) {
 	if (ratio2 > ratio) { ratio = ratio2; }
 	if (ratio > 1) {
 		for (int i = 0; i < G._emplacementsPossibles.size(); i++) {
-			G._emplacementsPossibles[i]._position._x *= ratio;
-			G._emplacementsPossibles[i]._position._y *= ratio;
+			G._emplacementsPossibles[i]._x *= ratio;
+			G._emplacementsPossibles[i]._y *= ratio;
 		}
 	}
 	else {
@@ -127,7 +127,7 @@ int ogdfReverse(Graphe &G) {
 	for (auto n : ogdfG.nodes) {
 		int x = ogdfGL.x(n);
 		int y = ogdfGL.y(n);
-		G._emplacementsPossibles.push_back(Emplacement(Point(x, y),i));
+		G._emplacementsPossibles.push_back(Emplacement(x,y,i));
 		if (x > G.gridWidth) { G.gridWidth = x; }
 		if (y > G.gridHeight) { G.gridHeight = y; }
 		i++;
