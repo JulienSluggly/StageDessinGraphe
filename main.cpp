@@ -13,16 +13,13 @@
 #include "personnel.hpp"
 #include "ogdfFunctions.hpp"
 #include "logCSV.hpp"
+#include "utilitaire.hpp"
 
 using namespace std;
 
 int main() {
-
-	srand(static_cast<unsigned int>(time(NULL)));
-	//srand(0);
-	//customRecuit();
-	//allRunsSingleThread();
-	//return 0;
+	allRunsSingleThread();
+	return 0;
 
 	Graphe G;
 	
@@ -42,15 +39,18 @@ int main() {
 	//G.generateGrid(3000,3000);
 	//readFromJsonGraphAndSlot(G,fileGraphSlots);
 
+	std::cout << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double timeBest = -1; int lastIteration = -1; int bestIteration = -1;
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 
+	//G.triangulationDelaunay();
 	G.placementAleatoire();
+	G.recuitSimuleCustom(timeBest,0.99999, 100.0, 1, 0, 3, {1,15});
 
 	//G.initGraphAndNodeScoresAndCrossings();
 
-	G.recuitSimule(timeBest,0.99999,100.0,1,0,2);
+	//G.recuitSimule(timeBest,0.99999,100.0,1,0,2);
 
 	
 	//G.recuitSimuleScore(timeBest);

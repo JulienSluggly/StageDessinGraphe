@@ -4,6 +4,50 @@
 using std::min;
 using std::max;
 
+int area2(int ax, int ay, int bx, int by, int cx, int cy) {
+	return (bx-ax)*(cy-ay)-(cx-ax)*(by-ay);
+}
+
+bool left(int ax, int ay, int bx, int by, int cx, int cy) {
+	return area2(ax,ay,bx,by,cx,cy) > 0;
+}
+
+bool leftOn(int ax,int ay, int bx, int by, int cx, int cy) {
+	return area2(ax,ay,bx,by,cx,cy) >= 0;
+}
+
+bool collinear(int ax,int ay,int bx, int by, int cx, int cy) {
+	return area2(ax,ay,bx,by,cx,cy) == 0;
+}
+
+bool xorBool(bool x, bool y) {
+	return !x ^ !y;
+}
+
+bool intersectProp(int ax, int ay, int bx, int by, int cx, int cy,int dx,int dy) {
+	if (collinear(ax,ay,bx,by,cx,cy)||collinear(ax,ay,bx,by,dx,dy)||collinear(cx,cy,dx,dy,ax,ay)||collinear(cx,cy,dx,dy,bx,by))
+		return false;
+	return xorBool(left(ax,ay,bx,by,cx,cy),left(ax,ay,bx,by,dx,dy))&&xorBool(left(cx,cy,dx,dy,ax,ay),left(cx,cy,dx,dy,bx,by));
+}
+
+bool between(int ax,int ay,int bx, int by, int cx, int cy) {
+	if (!collinear(ax,ay,bx,by,cx,cy))
+		return false;
+	if (ax != bx)
+		return ((ax <= cx)&&(cx <= bx))||((ax >= cx)&&(cx >= bx));
+	else
+		return ((ay <= cy)&&(cy <= by)||((ay >= cy)&&(cy >= by)));
+}
+
+bool seCroisent(int ax, int ay,int bx,int by,int cx,int cy,int dx,int dy) {
+	if (intersectProp(ax,ay,bx,by,cx,cy,dx,dy))
+		return true;
+	else if (between(ax,ay,bx,by,cx,cy)||between(ax,ay,bx,by,dx,dy)||between(cx,cy,dx,dy,ax,ay)||between(cx,cy,dx,dy,bx,by))
+		return true;
+	return false;
+}
+
+/*
 //renvoie vrai si les segments [p,q] et [r,s] se croisent
 bool seCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) {
 
@@ -24,18 +68,7 @@ bool seCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) 
 		return false;
 	}
 
-	//R est a gauche, droite ou align� a [P;Q]
-	int ag1 = aGaucheInt(px, py, qx, qy, rx, ry);
-	//S est a gauche, droite ou align� a [P;Q]
-	int ag2 = aGaucheInt(px, py, qx, qy, sx, sy);
-	//P est a gauche, droite ou align� a [R;S]
-	int ag3 = aGaucheInt(rx, ry, sx, sy, px, py);
-	//Q est a gauche, droite ou align� a [R;S]
-	int ag4 = aGaucheInt(rx, ry, sx, sy, qx, qy);
-
-	//R et S sont du meme cote par rapport a PQ
-	//OU P et Q sont du meme cote par rapport a RS
-	if (ag1 * ag2 == 1 || ag3 * ag4 == 1) {
+	if (aGaucheInt(px, py, qx, qy, rx, ry) * aGaucheInt(px, py, qx, qy, sx, sy) == 1 || aGaucheInt(rx, ry, sx, sy, px, py) * aGaucheInt(rx, ry, sx, sy, qx, qy) == 1) {
 		return false;
 	}
 	//Il restetrois cas, SOIT
@@ -48,7 +81,7 @@ bool seCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) 
 	//deux points sont de cotes opposes par rapport a un segment
 	//les segments se croisent forcement
 	return true;
-}
+}*/
 
 bool seCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *s)
 {

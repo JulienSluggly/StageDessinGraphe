@@ -8,6 +8,7 @@
 #include "utilitaire.hpp"
 #include "aretes.hpp"
 #include "noeud.hpp"
+#include "carte.h"
 
 class Graphe {
 public:
@@ -18,6 +19,8 @@ public:
 	std::set<Aretes*> areteIll;
 	std::set<Aretes*> areteIllSelf;
 	std::set<Aretes*> areteInter;
+
+	Carte _c;
 
 	int PENALITE_MAX = 1000;
 	int PENALITE_MAX_SELF = 1001;
@@ -357,6 +360,9 @@ public:
 
 	// Creer la grille d'emplacement de taille gridHeight*gridWidth
 	void generateGrid(int gridWidth, int gridHeight);
+
+	// Creer une triangulation de delaunay des emplacements et peulple la carte _c
+	void triangulationDelaunay();
 
 };
 

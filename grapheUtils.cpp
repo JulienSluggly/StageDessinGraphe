@@ -1,7 +1,9 @@
 #include "graphe.hpp"
 #include "intersection.hpp"
 #include "geometrie.hpp"
+#include "triangulation.h"
 #include <iostream>
+#include <algorithm>
 
 Graphe::Graphe(std::string nom) {
     nomGraphe = nom;
@@ -307,4 +309,11 @@ int Graphe::getAreteFromTwoNodes(int nodeId1, int nodeId2) {
             return nodeAreteId;
     }
     return -1;
+}
+
+void Graphe::triangulationDelaunay() {
+    std::vector<Emplacement*> empPtrVec;
+    std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacementTri);
+    triangulation(empPtrVec,_c);
+    delaunay(_c);
 }

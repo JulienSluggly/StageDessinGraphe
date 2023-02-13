@@ -38,9 +38,9 @@ void customRecuit() {
 	G.readFromJsonGraph(fileGraph);
 	G.generateGrid(1000,1000);
 	std::vector<std::vector<int>> totalRuns;
-	totalRuns.push_back({2,1});
-	totalRuns.push_back({2,2});
-	totalRuns.push_back({2,3});
+	//totalRuns.push_back({2,1});
+	//totalRuns.push_back({2,2});
+	//totalRuns.push_back({2,3});
 	totalRuns.push_back({2,4});
 	totalRuns.push_back({2,5});
 	/*totalRuns.push_back({0,2});

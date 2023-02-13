@@ -5,20 +5,7 @@ using namespace std;
 
 
 // Destructeur
-Carte::~Carte()
-{
-	for (int i=0; i<d_tabDemiCote.size(); i++)
-		if (d_tabDemiCote[i]->d_sommet != nullptr)
-		{
-			delete d_tabDemiCote[i]->d_sommet;
-			DemiCote* dc = d_tabDemiCote[i];
-			do
-			{
-				dc->d_sommet = nullptr;
-				dc = dc->d_suivant;
-			}
-			while (dc != d_tabDemiCote[i]);
-		}
+Carte::~Carte() {
 	for (int i=0; i<d_tabDemiCote.size(); i++)
 		delete d_tabDemiCote[i];
 

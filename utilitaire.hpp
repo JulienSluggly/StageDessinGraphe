@@ -32,7 +32,4 @@ bool comparePtrEmplacement(Emplacement* a, Emplacement* b);
 // Fonction de sort par x et y
 bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b);
 
-// creer une triangulation des emplacements
-void createTriangulation(std::vector<Emplacement*>& vec);
-
 #endif
