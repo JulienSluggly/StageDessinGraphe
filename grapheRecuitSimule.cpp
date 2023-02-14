@@ -204,7 +204,7 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
     }
     else if (modeEmplacement == 3) {
-        int nbTirage;
+        /*int nbTirage;
         if (customParam[0] == 0) {
             nbTirage == customParam[1];
         }
@@ -213,7 +213,8 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         }
         else if (customParam[0] == 2) {
             nbTirage = (iter / 100000) + customParam[1];
-        }
+        }*/
+        int nbTirage = (iter / 100000) + 3;
         slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
     }
     return slotId;
@@ -275,7 +276,7 @@ void Graphe::recuitSimule(double &timeBest, double cool, double t, int delay, in
                     bestCroisement = nbCroisement;
                     bestResult = saveCopy();
                     end = std::chrono::system_clock::now();
-                    if (DEBUG_GRAPHE) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
                 }
             }
             else {
@@ -305,10 +306,10 @@ void Graphe::recuitSimule(double &timeBest, double cool, double t, int delay, in
     std::chrono::duration<double> secondsTotal = end - start;
     timeBest = secondsTotal.count();
     if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
-    if (DEBUG_GRAPHE) std::cout << "Nombre de swap: " << compteurSwap << std::endl;
-    if (DEBUG_GRAPHE) std::cout << "Nombre de deplacement: " << compteurDeplacement << std::endl;
-    if (DEBUG_GRAPHE) std::cout << "Nombre de swap effectue: " << compteurSwapE << std::endl;
-    if (DEBUG_GRAPHE) std::cout << "Nombre de deplacement effectue: " << compteurDeplacementE << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de swap: " << compteurSwap << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement: " << compteurDeplacement << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de swap effectue: " << compteurSwapE << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement effectue: " << compteurDeplacementE << std::endl;
 }
 
 // Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
@@ -328,10 +329,24 @@ void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, int del
     }
     long bestCroisement = nbCroisement;
     if (delay == -1) { // -1 on calcule le delay en fonction de la taille du graphe
-        delay = ceil((double)_noeuds.size() / 20.0) + 1;
+        if (customParam[0] == 3) {
+            delay = customParam[1];
+        }
+        else if (customParam[0] == 4) {
+            delay = ceil((double)_noeuds.size() / customParam[1]) + 1;
+        }
+        else {
+            delay = ceil((double)_noeuds.size() / 20.0) + 1;
+        }
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     for (int iter = 0; t > 0.0001 && nbCroisement > 0; iter++) {
+        if (customParam[1] == 5) {
+            delay = (iter / 100000) + customParam[1];
+        }
+        else if (customParam[1] == 6) {
+            delay = ((1381545-iter) / 100000) + customParam[1];
+        }
         //if (iter % 20000 == 0) {
         //    std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
         //}
@@ -369,7 +384,7 @@ void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, int del
                     bestCroisement = nbCroisement;
                     bestResult = saveCopy();
                     end = std::chrono::system_clock::now();
-                    if (DEBUG_GRAPHE) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
                 }
             }
             else {
@@ -399,10 +414,10 @@ void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, int del
     std::chrono::duration<double> secondsTotal = end - start;
     timeBest = secondsTotal.count();
     if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
-    if (DEBUG_GRAPHE) std::cout << "Nombre de swap: " << compteurSwap << std::endl;
-    if (DEBUG_GRAPHE) std::cout << "Nombre de deplacement: " << compteurDeplacement << std::endl;
-    if (DEBUG_GRAPHE) std::cout << "Nombre de swap effectue: " << compteurSwapE << std::endl;
-    if (DEBUG_GRAPHE) std::cout << "Nombre de deplacement effectue: " << compteurDeplacementE << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de swap: " << compteurSwap << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement: " << compteurDeplacement << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de swap effectue: " << compteurSwapE << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement effectue: " << compteurDeplacementE << std::endl;
 }
 
 // Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
@@ -466,12 +481,81 @@ void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeu
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
 void Graphe::rerecuitSimule(double &timeBest, int iter, double cool, double coolt, double t, int delay, int modeNoeud, int modeEmplacement) {
+    auto start = std::chrono::system_clock::now();
+    auto end = start;
     if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
-    for (int i = 0; i < iter; i++) {
-        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << std::endl;
-        recuitSimule(timeBest, cool, t, delay, modeNoeud, modeEmplacement);
+    int numberOfNoUpgrade = 0;
+    int maxIter = 2;
+    if (iter != -1) { maxIter = iter; }
+    long lastCroisement;
+    if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
+    else { lastCroisement = getNbCroisementConst(); }
+    int i=1;
+    double recuitTimeBest;
+    while (numberOfNoUpgrade < maxIter) {
+        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
+        recuitSimule(recuitTimeBest, cool, t, delay, modeNoeud, modeEmplacement);
         t *= coolt;
+        if (iter != -1) {
+            numberOfNoUpgrade++;
+        }
+        else {
+            long newCroisement;
+            if (isNombreCroisementUpdated) { newCroisement = nombreCroisement; }
+            else { newCroisement = getNbCroisementConst(); }
+            if (newCroisement == lastCroisement) {
+                numberOfNoUpgrade++;
+            }
+            else {
+                lastCroisement = newCroisement;
+                end = std::chrono::system_clock::now();
+                numberOfNoUpgrade = 0;
+            }
+        }
+        i++;
     }
+    std::chrono::duration<double> secondsTotal = end - start;
+    timeBest = secondsTotal.count();
+}
+
+// Applique le recuit simulé plusieurs fois
+// Met a jour le nombre de croisement du graphe.
+void Graphe::rerecuitSimuleCustom(double &timeBest, int iter, double cool, double coolt, double t, int delay, int modeNoeud, int modeEmplacement, std::vector<int> customParam) {
+    auto start = std::chrono::system_clock::now();
+    auto end = start;
+    if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
+    int numberOfNoUpgrade = 0;
+    int maxIter = 2;
+    if (iter != -1) { maxIter = iter; }
+    long lastCroisement;
+    if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
+    else { lastCroisement = getNbCroisementConst(); }
+    int i=1;
+    double recuitTimeBest;
+    while (numberOfNoUpgrade < maxIter) {
+        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
+        recuitSimuleCustom(recuitTimeBest, cool, t, delay, modeNoeud, modeEmplacement,customParam);
+        t *= coolt;
+        if (iter != -1) {
+            numberOfNoUpgrade++;
+        }
+        else {
+            long newCroisement;
+            if (isNombreCroisementUpdated) { newCroisement = nombreCroisement; }
+            else { newCroisement = getNbCroisementConst(); }
+            if (newCroisement == lastCroisement) {
+                numberOfNoUpgrade++;
+            }
+            else {
+                lastCroisement = newCroisement;
+                end = std::chrono::system_clock::now();
+                numberOfNoUpgrade = 0;
+            }
+        }
+        i++;
+    }
+    std::chrono::duration<double> secondsTotal = end - start;
+    timeBest = secondsTotal.count();
 }
 
 // Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection

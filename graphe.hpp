@@ -41,7 +41,8 @@ public:
 	// Nombre maximum de voisin d'un noeud dans le graphe.
 	int maxVoisin = -1;
 
-	bool DEBUG_GRAPHE = false;
+	bool DEBUG_GRAPHE = true;
+	bool DEBUG_PROGRESS = false;
 	bool DEBUG_OPENGL = false;
 
 	std::string nomGraphe = "Graphe";
@@ -144,7 +145,9 @@ public:
 
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimule(double &timeBest, int iter = 10, double cool = 0.99999, double coolt = 0.99, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
+	void rerecuitSimule(double &timeBest, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
+
+	void rerecuitSimuleCustom(double &timeBest, int iter=-1, double cool=0.99999, double coolt=0.99, double t=100.0, int delay=1, int modeNoeud=0, int modeEmplacement=0,std::vector<int> customParam={});
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour le score du graphe et des noeuds
@@ -359,7 +362,7 @@ public:
 	void grapheGenetique(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit=false, bool useRand=false, int modeCroisement=0);
 
 	// Creer la grille d'emplacement de taille gridHeight*gridWidth
-	void generateGrid(int gridWidth, int gridHeight);
+	void generateGrid(int gridWidth=-1, int gridHeight=-1);
 
 	// Creer une triangulation de delaunay des emplacements et peulple la carte _c
 	void triangulationDelaunay();

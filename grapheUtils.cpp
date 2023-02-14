@@ -117,6 +117,10 @@ void Graphe::generateMoreEmplacement(int n) {
 void Graphe::generateGrid(int gridW, int gridH) {
     clearNodeEmplacement();
     _emplacementsPossibles.clear();
+    if (gridW == -1 || gridH == -1) {
+        gridW = _noeuds.size()*2;
+        gridH = gridW;
+    }
     for (int i=0;i<gridH;i++) {
         for (int j=0;j<gridW;j++) {
             _emplacementsPossibles.push_back(Emplacement(i,j,_emplacementsPossibles.size()));

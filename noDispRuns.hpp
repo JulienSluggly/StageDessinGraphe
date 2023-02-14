@@ -38,28 +38,42 @@ void customRecuit() {
 	G.readFromJsonGraph(fileGraph);
 	G.generateGrid(1000,1000);
 	std::vector<std::vector<int>> totalRuns;
-	//totalRuns.push_back({2,1});
-	//totalRuns.push_back({2,2});
-	//totalRuns.push_back({2,3});
-	totalRuns.push_back({2,4});
-	totalRuns.push_back({2,5});
-	/*totalRuns.push_back({0,2});
-	totalRuns.push_back({0,3});
-	totalRuns.push_back({0,4});
-	totalRuns.push_back({0,5});
-	totalRuns.push_back({0,6});
-	totalRuns.push_back({0,7});
-	totalRuns.push_back({0,8});
-	totalRuns.push_back({0,9});
-	totalRuns.push_back({0,10});
-	totalRuns.push_back({1,5});
-	totalRuns.push_back({1,10});
-	totalRuns.push_back({1,15});
-	totalRuns.push_back({1,20});
-	totalRuns.push_back({1,25});
-	totalRuns.push_back({1,30});*/
+	totalRuns.push_back({3,2});
+	totalRuns.push_back({3,3});
+	totalRuns.push_back({3,4});
+	totalRuns.push_back({3,5});
+	totalRuns.push_back({3,6});
+	totalRuns.push_back({3,7});
+	totalRuns.push_back({3,8});
+	totalRuns.push_back({3,9});
+	totalRuns.push_back({3,10});
+
+	totalRuns.push_back({4,10});
+	totalRuns.push_back({4,15});
+	totalRuns.push_back({4,20});
+	totalRuns.push_back({4,25});
+	totalRuns.push_back({4,30});
+	totalRuns.push_back({4,35});
+	totalRuns.push_back({4,40});
+	totalRuns.push_back({4,45});
+	totalRuns.push_back({4,50});
+
+	totalRuns.push_back({5,1});
+	totalRuns.push_back({5,2});
+	totalRuns.push_back({5,3});
+	totalRuns.push_back({5,4});
+	totalRuns.push_back({5,5});
+
+	totalRuns.push_back({6,1});
+	totalRuns.push_back({6,2});
+	totalRuns.push_back({6,3});
+	totalRuns.push_back({6,4});
+	totalRuns.push_back({6,5});
 	for (int i=0;i<totalRuns.size();i++) {
-		generateCSV(10,"Aleatoire","Recuit Simule TME Custom","graph-10-input",G,"","",totalRuns[i]);
+		generateCSV(10,"Aleatoire","Recuit Simule Delay TME Custom","graph-10-input",G,"","",totalRuns[i]);
+	}
+	for (int i=0;i<totalRuns.size();i++) {
+		generateCSV(10,"Aleatoire","Rerecuit Simule Delay TME Custom","graph-10-input",G,"","",totalRuns[i]);
 	}
 }
 
@@ -68,11 +82,12 @@ void allRunsSingleThread() {
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire" };
 	//std::vector<string> methodesPlacement = { "OGDF" };
-	std::vector<std::string> methodesAlgo = { "Recuit Simule TME", "Genetique Score", "Genetique Enfant" };
-	for (int i = 1; i <= 12; i++) {
-		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
+	std::vector<std::string> methodesAlgo = { "Rerecuit Simule TME", "Recuit Simule Delay TME", "Rerecuit Simule Delay TME" };
+	for (int i = 1; i <= 10; i++) {
+		//mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
+		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
 	}
-	int nbRuns = 1;
+	int nbRuns = 4;
 	std::cout << "Starting all run logs, nb run: " << nbRuns << std::endl;
 	Graphe G;
 	for (auto &key : mapGraphSlots) {
@@ -81,9 +96,16 @@ void allRunsSingleThread() {
 			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
 			G.clearGraphe();
 			std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
-			std::string fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
 			G.readFromJsonGraph(fileGraph);
-			G.readFromJsonSlots(fileSlots);
+			std::string fileSlots;
+			if (key.second[i] != "GRID") {
+				fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
+				G.readFromJsonSlots(fileSlots);
+			}
+			else {
+				fileSlots = "GRID";
+				G.generateGrid();
+			}
 			std::string nomFichierLog = key.first;
 			for (int j = 0; j < methodesPlacement.size(); j++) {
 				std::cout << "--------------------------" << std::endl;

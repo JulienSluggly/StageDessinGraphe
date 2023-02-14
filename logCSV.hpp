@@ -91,12 +91,16 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		else if (methodeAlgoName == "Recuit Simule TBE") G.recuitSimule(tempsBest,0.99999, 100.0,1,0,1);
 		else if (methodeAlgoName == "Recuit Simule TME") G.recuitSimule(tempsBest,0.99999, 100.0,1,0,2);
 		else if (methodeAlgoName == "Recuit Simule Delay TBE") G.recuitSimule(tempsBest,0.99999, 100.0, 10, 0, 1);
-		else if (methodeAlgoName == "Recuit Simule Delay TME") G.recuitSimule(tempsBest,0.99999, 100.0, 10, 0, 2);
+		else if (methodeAlgoName == "Recuit Simule Delay TME") G.recuitSimule(tempsBest,0.99999, 100.0, -1, 0, 3);
 		else if (methodeAlgoName == "Recuit Simule TBNE") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 1, 1);
-		else if (methodeAlgoName == "Recuit Simule TBN TME") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 1, 2);
+		else if (methodeAlgoName == "Recuit Simule TBN TME") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 1, 3);
 		else if (methodeAlgoName == "Recuit Simule TMN TBE") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 2, 1);
 		else if (methodeAlgoName == "Recuit Simule TMNE") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 2, 2);
 		else if (methodeAlgoName == "Recuit Simule TME Custom") G.recuitSimuleCustom(tempsBest,0.99999, 100.0, 1, 0, 3, customParam);
+		else if (methodeAlgoName == "Recuit Simule Delay TME Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,-1,0,3,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,-1,0,3,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,1,0,3);
+		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,-1,0,3);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);

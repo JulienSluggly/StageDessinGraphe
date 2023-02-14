@@ -17,7 +17,12 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
     std::vector<Graphe> graphes;
     graphes.resize(population);
     graphes[0].readFromJsonGraph(nomGraphe);
-    graphes[0].readFromJsonSlots(nomSlot);
+    if (nomSlot != "GRID") {
+        graphes[0].readFromJsonSlots(nomSlot);
+    }
+    else {
+        graphes[0].generateGrid();
+    }
     //graphes[0].generateGrid(32,32);
     for (int i = 1; i < population; ++i) {
         graphes[i].nomGraphe = "Graphe" + std::to_string(i);
