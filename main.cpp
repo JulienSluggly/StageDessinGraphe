@@ -19,13 +19,13 @@ using namespace std;
 
 int main() {
 	//customRecuit();
-	allRunsSingleThread();
-	return 0;
+	//allRunsSingleThread();
+	//return 0;
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-10-input";
-	string nomFichierSlots = "10-input-slots";
+	string nomFichierGraph = "graph-2-input";
+	string nomFichierSlots = "2-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
@@ -33,8 +33,8 @@ int main() {
 	
 	string fileOldGraph = chemin + "automatique/auto21-13.json";
 	G.readFromJsonGraph(fileGraph);
-	G.generateGrid(1000,1000);
-	// G.readFromJsonSlots(fileSlots);
+	//G.generateGrid(1000,1000);
+	 G.readFromJsonSlots(fileSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
 	//G.generateGrid(3000,3000);
@@ -45,9 +45,9 @@ int main() {
 	double timeBest = -1; int lastIteration = -1; int bestIteration = -1;
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 
-	//G.triangulationDelaunay();
 	G.placementAleatoire();
-	G.recuitSimuleCustom(timeBest,0.99999, 100.0, 1, 0, 3, {1,15});
+	G.triangulationDelaunay();
+	//G.recuitSimuleCustom(timeBest,0.99999, 100.0, 1, 0, 3, {1,15});
 
 	//G.initGraphAndNodeScoresAndCrossings();
 
@@ -66,11 +66,11 @@ int main() {
 	if (timeBest != -1) std::cout << timeBest << "s meilleur resultat.\n";
 	if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
 	if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
-	std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
+	if (G.estPlace()) std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
 	std::cout << "Setup complete!" << std::endl;
 
 	G.afficherInfo();
-	G.debugEverything(false,false);
+	//G.debugEverything(false,false);
 
 	// OpenGL
 	bool useOpenGL = true;

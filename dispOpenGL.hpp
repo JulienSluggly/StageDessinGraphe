@@ -13,6 +13,7 @@ bool printRaccourcis = false;
 
 bool display_genetic = false;
 bool isGeneticSetUp = false;
+bool show_triangulation = false;
 bool stepGenetic = false;
 bool changeWindowGenetic = false;
 bool changeWindowNormal = false;
@@ -33,6 +34,7 @@ bool move_current_left = false;
 bool move_current_right = false;
 int selectedNode = 0;
 bool show_selected_emplacement = false;
+bool show_selected_node = false;
 int selectedEmplacement = 0;
 int maxNodeIndex = 0;
 int maxEmplacementIndex = 0;
@@ -44,6 +46,9 @@ bool debugInter = false;
 bool debugAllInfo = false;
 bool previsionRecuit = false;
 bool stepRecuitSimule = false;
+bool showEmplacement = true;
+bool showEdges = true;
+bool showNodes = true;
 bool stepSetup = false;
 double stepT;
 int stepNbCrois;
@@ -80,6 +85,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 				else {
 					if (selectedNode > 0) {
 						selectedNode--;
+						show_selected_node = true;
 					}
 				}
 			}
@@ -97,6 +103,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 				else {
 					if (selectedNode < maxNodeIndex) {
 						selectedNode++;
+						show_selected_node = true;
 					}
 				}
 			}
@@ -119,6 +126,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_5:
 			test_moyenne = true;
+			break;
+		case GLFW_KEY_8:
+			showEmplacement = !showEmplacement;
+			break;
+		case GLFW_KEY_9:
+			showEdges = !showEdges;
+			break;
+		case GLFW_KEY_0:
+			showNodes = !showNodes;
 			break;
 		case GLFW_KEY_KP_1:
 			startRecuit = true;
@@ -179,7 +195,91 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			show_noeud_illegal = !show_noeud_illegal;
 			recalc_illegal = true;
 			break;
+		case GLFW_KEY_T:
+			show_triangulation = !show_triangulation;
+			break;
 		}
+}
+
+void openGLShowEmplacement(Graphe& G) {
+	if (showEmplacement) {
+		glPointSize(7);
+		glBegin(GL_POINTS);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		for (int i = 0; i < G._emplacementsPossibles.size(); i++) {
+			glVertex2d(G._emplacementsPossibles[i].getX(), G._emplacementsPossibles[i].getY());
+		}
+		if (show_selected_emplacement) {
+			glColor3f(0.5f, 0.0f, 0.0f);
+			glVertex2d(G._emplacementsPossibles[selectedEmplacement].getX(), G._emplacementsPossibles[selectedEmplacement].getY());
+		}
+		glEnd();
+	}
+}
+
+void openGLShowNodes(Graphe& G) {
+	if (showNodes) {
+		glPointSize(7);
+		glBegin(GL_POINTS);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		for (int i = 0; i < G._noeuds.size(); i++) {
+			if (G._noeuds[i].estPlace()) {
+				glVertex2d(G._noeuds[i].getX(), G._noeuds[i].getY());
+			}
+		}
+		if (show_selected_node) {
+			if (G._noeuds[selectedNode].estPlace()) {
+				glColor3f(0.0f, 0.0f, 1.0f);
+				if (moving) {
+					glColor3f(0.0f, 0.5f, 0.0f);
+				}
+				glVertex2d(G._noeuds[selectedNode].getX(), G._noeuds[selectedNode].getY());
+			}
+		}
+		glEnd();
+	}
+}
+
+void openGLShowEdges(Graphe& G) {
+	if (showEdges) {
+		glColor3f(1.0f, 1.0f, 1.0f);
+		for (int i = 0; i < G._liens.size(); i++) {
+			if (G._liens[i].estPlace()) {
+				glBegin(GL_LINE_STRIP);
+				glVertex2d(G._liens[i].getNoeud1()->getX(), G._liens[i].getNoeud1()->getY());
+				glVertex2d(G._liens[i].getNoeud2()->getX(), G._liens[i].getNoeud2()->getY());
+				glEnd();
+			}
+		}
+	}
+}
+
+void openGLShowTriangulation(Graphe& G) {
+	if (show_triangulation) {
+		glColor3f(0.2f, 0.3f, 0.4f);
+		for (int i=0;i<G._c.nbDemiCote();i+=2) {
+			int x1 = G._c.demiCote(i)->sommet()->getX();
+			int y1 = G._c.demiCote(i)->sommet()->getY();
+			int x2 = G._c.demiCote(i)->oppose()->sommet()->getX();
+			int y2 = G._c.demiCote(i)->oppose()->sommet()->getY();
+			glBegin(GL_LINE_STRIP);
+			glVertex2d(x1, y1);
+			glVertex2d(x2, y2);
+			glEnd();
+		}
+	}
+}
+
+void openGLShowGrid(int gridWidth, int gridHeight) {
+	// affichage de la grille avec une marge de 1
+	glColor3f(0.0f, 1.0f, 0.0f);
+	glBegin(GL_LINE_STRIP);
+	glVertex2d(-1, -1);
+	glVertex2d(gridWidth + 1, -1);
+	glVertex2d(gridWidth + 1, gridHeight + 1);
+	glVertex2d(-1, gridHeight + 1);
+	glVertex2d(-1, -1);
+	glEnd();
 }
 
 void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
@@ -490,15 +590,7 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 			}
 			stepGenetic = false;
 		}
-		// affichage de la grille avec une marge de 1
-		glColor3f(0.0f, 1.0f, 0.0f);
-		glBegin(GL_LINE_STRIP);
-		glVertex2d(-1, -1);
-		glVertex2d(gridWidth + 1, -1);
-		glVertex2d(gridWidth + 1, gridHeight + 1);
-		glVertex2d(-1, gridHeight + 1);
-		glVertex2d(-1, -1);
-		glEnd();
+		openGLShowGrid(gridWidth,gridHeight);
 		if (display_genetic) {
 			// Affiche les slots du parent 1, parent 2 et enfant.
 			glPointSize(7);
@@ -549,13 +641,8 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 		else {
 			//afficher les edge
 			//glLineWidth(1.0f);
-			glColor3f(1.0f, 1.0f, 1.0f);
-			for (int i = 0; i < G._liens.size(); i++) {
-				glBegin(GL_LINE_STRIP);
-				glVertex2d(G._liens[i].getNoeud1()->getX(), G._liens[i].getNoeud1()->getY());
-				glVertex2d(G._liens[i].getNoeud2()->getX(), G._liens[i].getNoeud2()->getY());
-				glEnd();
-			}
+			openGLShowEdges(G);
+			openGLShowTriangulation(G);
 			if (show_noeud_illegal && !recalc_illegal) {
 				for (auto &a : G.areteInter) {
 					glColor3f(1.0f, 0.0f, 0.0f);
@@ -579,28 +666,8 @@ void dispOpenGL(Graphe& G, int gridWidth, int gridHeight, int maxX, int maxY) {
 					glEnd();
 				}
 			}
-			//afficher les slots
-			glPointSize(7);
-			glBegin(GL_POINTS);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			for (int i = 0; i < G._emplacementsPossibles.size(); i++) {
-				glVertex2d(G._emplacementsPossibles[i].getX(), G._emplacementsPossibles[i].getY());
-			}
-			//afficher les nodes
-			for (int i = 0; i < G._noeuds.size(); i++) {
-				glColor3f(1.0f, 0.0f, 0.0f);
-				if (selectedNode == i) {
-					glColor3f(0.0f, 0.0f, 1.0f);
-					if (moving) {
-						glColor3f(0.0f, 0.5f, 0.0f);
-					}
-				}
-				glVertex2d(G._noeuds[i].getX(), G._noeuds[i].getY());
-			}
-			if (show_selected_emplacement) {
-				glColor3f(0.5f, 0.0f, 0.0f);
-				glVertex2d(G._emplacementsPossibles[selectedEmplacement].getX(), G._emplacementsPossibles[selectedEmplacement].getY());
-			}
+			openGLShowEmplacement(G);
+			openGLShowNodes(G);
 			if (recalc_illegal) {
 				G.clearSetAreteInter();
 				for (int i = 0; i < G._noeuds.size(); i++) {

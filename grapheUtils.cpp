@@ -317,7 +317,11 @@ int Graphe::getAreteFromTwoNodes(int nodeId1, int nodeId2) {
 
 void Graphe::triangulationDelaunay() {
     std::vector<Emplacement*> empPtrVec;
+    for (int i=0;i<_emplacementsPossibles.size();i++) {
+        empPtrVec.push_back(&_emplacementsPossibles[i]);
+    }
     std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacementTri);
     triangulation(empPtrVec,_c);
     delaunay(_c);
+    isCarteSetUp = true;
 }

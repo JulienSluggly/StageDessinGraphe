@@ -37,6 +37,7 @@ public:
 	bool isNombreCroisementUpdated = false;
 	bool isNodeScoreUpdated = false;
 	bool isIntersectionVectorUpdated = false;
+	bool isCarteSetUp = false;
 
 	// Nombre maximum de voisin d'un noeud dans le graphe.
 	int maxVoisin = -1;
