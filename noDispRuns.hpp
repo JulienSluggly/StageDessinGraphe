@@ -82,7 +82,7 @@ void allRunsSingleThread() {
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire" };
 	//std::vector<string> methodesPlacement = { "OGDF" };
-	std::vector<std::string> methodesAlgo = { "Rerecuit Simule TME", "Recuit Simule Delay TME", "Rerecuit Simule Delay TME" };
+	std::vector<std::string> methodesAlgo = { "Rerecuit Simule TME", "Recuit Simule Delay TME", "Rerecuit Simule Delay TME", "Recuit Simule TRE", "Rerecuit Simule TRE" };
 	for (int i = 1; i <= 10; i++) {
 		//mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });

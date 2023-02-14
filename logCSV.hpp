@@ -14,6 +14,7 @@
 
 std::vector<std::string> methodeWithScore;
 std::vector<std::string> methodeGenetique;
+std::vector<std::string> methodeTriangulation;
 std::unordered_map<std::string,std::pair<int,int>> mapGraphPopGen;
 
 void fillMap() {
@@ -48,9 +49,15 @@ void fillVectorGenetique() {
 	methodeGenetique.push_back("Genetique Enfant Recuit");
 }
 
+void filleVectorTriangulation() {
+	methodeTriangulation.push_back("Recuit Simule TRE");
+	methodeTriangulation.push_back("Rerecuit Simule TRE");
+}
+
 void generateCSV(double nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<int> customParam={}) {
 	bool updateScore = isInVector(methodeWithScore,methodeAlgoName);
 	bool isGenetique = isInVector(methodeGenetique,methodeAlgoName);
+	bool needTriangulation = isInVector(methodeTriangulation,methodeAlgoName);
 	double moyenneCroisement = 0, medianCroisement;
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0;
@@ -82,6 +89,11 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		if (updateScore) {
 			G.initGraphAndNodeScoresAndCrossings();
 		}
+		if (needTriangulation) {
+			if (!G.isCarteSetUp) {
+				G.triangulationDelaunay();
+			}
+		}
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest);
 		else if (methodeAlgoName == "Recuit Simule Score") G.recuitSimuleScore(tempsBest);
@@ -101,6 +113,8 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,-1,0,3,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,1,0,3);
 		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,-1,0,3);
+		else if (methodeAlgoName == "Recuit Simule TRE") G.recuitSimule(tempsBest,0.99999, 100.0,1,0,4);
+		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,0.99999, 100.0,1,0,4);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);

@@ -19,13 +19,13 @@ using namespace std;
 
 int main() {
 	//customRecuit();
-	//allRunsSingleThread();
-	//return 0;
+	allRunsSingleThread();
+	return 0;
 
 	Graphe G;
 	
 	string nomFichierGraph = "graph-10-input";
-	string nomFichierSlots = "10-input-slots";
+	string nomFichierSlots = "2X-10-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
@@ -33,8 +33,8 @@ int main() {
 	
 	string fileOldGraph = chemin + "automatique/auto21-13.json";
 	G.readFromJsonGraph(fileGraph);
-	G.generateGrid(1000,1000);
-	//G.readFromJsonSlots(fileSlots);
+	//G.generateGrid(1000,1000);
+	G.readFromJsonSlots(fileSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
 	//G.generateGrid(3000,3000);
@@ -46,12 +46,12 @@ int main() {
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 
 	G.placementAleatoire();
-	G.triangulationDelaunay();
+	//G.triangulationDelaunay();
 	//G.recuitSimuleCustom(timeBest,0.99999, 100.0, 1, 0, 3, {1,15});
 
 	//G.initGraphAndNodeScoresAndCrossings();
 
-	G.recuitSimule(timeBest,0.99999,100.0,1,0,4);
+	G.recuitSimule(timeBest,0.99999,100.0,1,0,3);
 
 	
 	//G.recuitSimuleScore(timeBest);
