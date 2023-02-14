@@ -30,7 +30,8 @@ bool Graphe::hasIllegalCrossing() {
         for (int j = i + 1; j < _liens.size(); ++j) {
             //Aretes aretes1 = _liens[i], aretes2 = _liens[j];
             if (!(_liens[i].contains(_liens[j].getNoeud1()) || _liens[i].contains(_liens[j].getNoeud2()))) {
-                if (seCroisent(_liens[i], _liens[j])) {
+                bool isIllegal = false;
+                if (seCroisent(_liens[i], _liens[j],isIllegal)) {
                     if (surSegment(_liens[i], *_liens[j].getNoeud1()) || surSegment(_liens[i], *_liens[j].getNoeud2())) {
                         return true;
                     }
@@ -316,6 +317,7 @@ int Graphe::getAreteFromTwoNodes(int nodeId1, int nodeId2) {
 }
 
 void Graphe::triangulationDelaunay() {
+    std::cout << "Debut triangulation.\n";
     std::vector<Emplacement*> empPtrVec;
     for (int i=0;i<_emplacementsPossibles.size();i++) {
         empPtrVec.push_back(&_emplacementsPossibles[i]);
@@ -323,5 +325,12 @@ void Graphe::triangulationDelaunay() {
     std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacementTri);
     triangulation(empPtrVec,_c);
     delaunay(_c);
+    for (int i=0;i<_c.nbDemiCote();i+=2) {
+        Emplacement* e1 = _c.demiCote(i)->sommet();
+        Emplacement* e2 = _c.demiCote(i)->oppose()->sommet();
+        e1->voisinsDelaunay.push_back(e2->_id);
+        e2->voisinsDelaunay.push_back(e1->_id);
+    }
     isCarteSetUp = true;
+    std::cout << "Triangulation delaunay fini.\n";
 }

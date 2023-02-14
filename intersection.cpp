@@ -39,17 +39,64 @@ bool between(int ax,int ay,int bx, int by, int cx, int cy) {
 		return ((ay <= cy)&&(cy <= by)||((ay >= cy)&&(cy >= by)));
 }
 
-bool seCroisent(int ax, int ay,int bx,int by,int cx,int cy,int dx,int dy) {
+bool seCroisent(int ax, int ay,int bx,int by,int cx,int cy,int dx,int dy, bool& isIllegal) {
 	if (intersectProp(ax,ay,bx,by,cx,cy,dx,dy))
 		return true;
-	else if (between(ax,ay,bx,by,cx,cy)||between(ax,ay,bx,by,dx,dy)||between(cx,cy,dx,dy,ax,ay)||between(cx,cy,dx,dy,bx,by))
+	else if (between(ax,ay,bx,by,cx,cy)||between(ax,ay,bx,by,dx,dy)||between(cx,cy,dx,dy,ax,ay)||between(cx,cy,dx,dy,bx,by)) {
+		isIllegal = true;
 		return true;
+	}
 	return false;
 }
 
-/*
+bool seCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *s, bool& isIllegal)
+{
+	return seCroisent(p->getX(), p->getY(), q->getX(), q->getY(), r->getX(), r->getY(), s->getX(), s->getY(),isIllegal);
+}
+
+bool seCroisent(const Aretes &aretes1, const Aretes &aretes2, bool& isIllegal)
+{
+	return seCroisent(aretes1.getNoeud1()->getEmplacement(), aretes1.getNoeud2()->getEmplacement(), aretes2.getNoeud1()->getEmplacement(), aretes2.getNoeud2()->getEmplacement(),isIllegal);
+}
+
+//Pas sur du nom
+double calculNormalisation(Emplacement *p1, Emplacement *p2)
+{
+	double y1 = p1->getY(), y2 = p2->getY();
+	double x1 = p1->getX(), x2 = p2->getX();
+	return (y2 - y1) / (x2 - x1);
+}
+
+bool sontAlignes(Emplacement* p1, Emplacement* p2, Emplacement* p3)
+{
+	return calculNormalisation(p1, p3) == calculNormalisation(p1, p2)
+		&& calculNormalisation(p2, p3) == calculNormalisation(p1, p2);
+	//Seconde ligne n�cessaire ?
+}
+
+// Renvoie vrai si c est sur le segment ab
+bool surSegment(int ax, int ay, int bx, int by, int cx, int cy) {
+	if (!collinear(ax,ay,bx,by,cx,cy))
+		return false;
+	if (ax != bx)
+		return ((ax <= cx)&&(cx <= bx))||((ax >= cx)&&(cx >= bx));
+	else
+		return ((ay <= cy)&&(cy <= by)||((ay >= cy)&&(cy >= by)));
+}
+
+bool surSegment(Emplacement* s, Emplacement* t, Emplacement* c)
+{
+	return between(s->getX(), s->getY(), t->getX(), t->getY(), c->getX(), c->getY());
+}
+
+bool surSegment(const Aretes& lien, const Noeud& noeud)
+{
+	return surSegment(lien.getNoeud1()->getEmplacement(),
+		lien.getNoeud2()->getEmplacement(), noeud.getEmplacement());
+}
+
 //renvoie vrai si les segments [p,q] et [r,s] se croisent
-bool seCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) {
+bool oldSeCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) {
 
 	//[P;Q] est a l'ouest de [R;S]
 	if (max(px, qx) < min(rx, sx)) {
@@ -68,7 +115,18 @@ bool seCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) 
 		return false;
 	}
 
-	if (aGaucheInt(px, py, qx, qy, rx, ry) * aGaucheInt(px, py, qx, qy, sx, sy) == 1 || aGaucheInt(rx, ry, sx, sy, px, py) * aGaucheInt(rx, ry, sx, sy, qx, qy) == 1) {
+	//R est a gauche, droite ou aligné a [P;Q]
+	int ag1 = aGaucheInt(px, py, qx, qy, rx, ry);
+	//S est a gauche, droite ou aligné a [P;Q]
+	int ag2 = aGaucheInt(px, py, qx, qy, sx, sy);
+	//P est a gauche, droite ou aligné a [R;S]
+	int ag3 = aGaucheInt(rx, ry, sx, sy, px, py);
+	//Q est a gauche, droite ou aligné a [R;S]
+	int ag4 = aGaucheInt(rx, ry, sx, sy, qx, qy);
+
+	//R et S sont du meme cote par rapport a PQ
+	//OU P et Q sont du meme cote par rapport a RS
+	if (ag1 * ag2 == 1 || ag3 * ag4 == 1) {
 		return false;
 	}
 	//Il restetrois cas, SOIT
@@ -76,34 +134,19 @@ bool seCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) 
 	//SOIT
 	//les quatre points sont alignes
 	//SOIT
-	//il ne reste plus que les cas ou un produit est � 0 et l'autre � -1
+	//il ne reste plus que les cas ou un produit est à 0 et l'autre à -1
 	//trois points sont alignes
 	//deux points sont de cotes opposes par rapport a un segment
 	//les segments se croisent forcement
 	return true;
-}*/
-
-bool seCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *s)
-{
-	return seCroisent(p->getX(), p->getY(), q->getX(), q->getY(), r->getX(), r->getY(), s->getX(), s->getY());
 }
 
-bool seCroisent(const Aretes &aretes1, const Aretes &aretes2)
+bool oldSeCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *s)
 {
-	return seCroisent(aretes1.getNoeud1()->getEmplacement(), aretes1.getNoeud2()->getEmplacement(), aretes2.getNoeud1()->getEmplacement(), aretes2.getNoeud2()->getEmplacement());
+	return oldSeCroisent(p->getX(), p->getY(), q->getX(), q->getY(), r->getX(), r->getY(), s->getX(), s->getY());
 }
 
-//Pas sur du nom
-double calculNormalisation(Emplacement *p1, Emplacement *p2)
+bool oldSeCroisent(const Aretes &aretes1, const Aretes &aretes2)
 {
-	double y1 = p1->getY(), y2 = p2->getY();
-	double x1 = p1->getX(), x2 = p2->getX();
-	return (y2 - y1) / (x2 - x1);
-}
-
-bool sontAlignes(Emplacement* p1, Emplacement* p2, Emplacement* p3)
-{
-	return calculNormalisation(p1, p3) == calculNormalisation(p1, p2)
-		&& calculNormalisation(p2, p3) == calculNormalisation(p1, p2);
-	//Seconde ligne n�cessaire ?
+	return oldSeCroisent(aretes1.getNoeud1()->getEmplacement(), aretes1.getNoeud2()->getEmplacement(), aretes2.getNoeud1()->getEmplacement(), aretes2.getNoeud2()->getEmplacement());
 }

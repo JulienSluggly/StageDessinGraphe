@@ -24,8 +24,8 @@ int main() {
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-2-input";
-	string nomFichierSlots = "2-input-slots";
+	string nomFichierGraph = "graph-10-input";
+	string nomFichierSlots = "10-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
@@ -33,8 +33,8 @@ int main() {
 	
 	string fileOldGraph = chemin + "automatique/auto21-13.json";
 	G.readFromJsonGraph(fileGraph);
-	//G.generateGrid(1000,1000);
-	 G.readFromJsonSlots(fileSlots);
+	G.generateGrid(1000,1000);
+	//G.readFromJsonSlots(fileSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
 	//G.generateGrid(3000,3000);
@@ -51,7 +51,7 @@ int main() {
 
 	//G.initGraphAndNodeScoresAndCrossings();
 
-	//G.recuitSimule(timeBest,0.99999,100.0,1,0,2);
+	G.recuitSimule(timeBest,0.99999,100.0,1,0,4);
 
 	
 	//G.recuitSimuleScore(timeBest);
@@ -70,11 +70,12 @@ int main() {
 	std::cout << "Setup complete!" << std::endl;
 
 	G.afficherInfo();
-	//G.debugEverything(false,false);
+	G.debugEverything(false,false);
 
 	// OpenGL
 	bool useOpenGL = true;
 	if (useOpenGL) {
+		G.DEBUG_OPENGL = true;
 		int maxX = G.gridWidth, maxY = G.gridHeight;
 		std::cout << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;
 		dispOpenGL(G, G.gridWidth+1, G.gridHeight+1, maxX, maxY);

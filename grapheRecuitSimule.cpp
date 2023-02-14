@@ -171,6 +171,24 @@ int Graphe::selectionEmplacementTournoiMultiple(int n, int nodeId) {
     return randomEmpId;
 }
 
+int Graphe::selectionEmplacementTriangulation(int nodeId, int profondeur) {
+    Emplacement* depart = _noeuds[nodeId].getEmplacement();
+    Emplacement* arrive = depart;
+    for (int i=0;i<profondeur;i++) {
+        if (arrive->voisinsDelaunay.size() == 1) {
+            if (arrive->voisinsDelaunay[0] == depart->_id) {
+                return arrive->_id;
+            }
+        }
+        int randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
+        while (arrive->voisinsDelaunay[randomId] == depart->_id) {
+            randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
+        }
+        arrive = &_emplacementsPossibles[arrive->voisinsDelaunay[randomId]];
+    }
+    return arrive->_id;
+}
+
 // Effectue la selection du noeud en fonction de modeNoeud, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
 int Graphe::selectionNoeud(int modeNoeud, int t, bool isScoreUpdated) {
     int nodeId;
@@ -189,21 +207,25 @@ int Graphe::selectionNoeud(int modeNoeud, int t, bool isScoreUpdated) {
 // Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
 int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<int> customParam, int iter) {
     int slotId;
-    if (modeEmplacement == 0) {
+    switch (modeEmplacement) {
+    case 0: {
         slotId = generateRand(_emplacementsPossibles.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
         // on retire si on pioche le meme emplacement
         while (_noeuds[nodeId].getEmplacement()->getId() == slotId) {
             slotId = generateRand(_emplacementsPossibles.size() - 1);
         }
+        break;
     }
-    else if (modeEmplacement == 1) {
+    case 1: {
         slotId = selectionEmplacementTournoiBinaire(nodeId);
+        break;
     }
-    else if (modeEmplacement == 2) {
+    case 2: {
         int nbTirage = ((100 - t) / 15) + 1;
         slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
+        break;
     }
-    else if (modeEmplacement == 3) {
+    case 3: {
         /*int nbTirage;
         if (customParam[0] == 0) {
             nbTirage == customParam[1];
@@ -216,6 +238,12 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         }*/
         int nbTirage = (iter / 100000) + 3;
         slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
+        break;
+    }
+    case 4: {
+        slotId = selectionEmplacementTriangulation(nodeId);
+        break;
+    }
     }
     return slotId;
 }

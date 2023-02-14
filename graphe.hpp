@@ -78,6 +78,8 @@ public:
 
 	void debugNoeudNonPlace(bool display=true, std::string nom = "");
 
+	void debugOldCroisement(bool display=true, std::string nom = "");
+
 	void debugEverything(bool displayOther=false, bool displaySelf=false);
 
 	// Fait une estimation du temps requis pour effectuer un recuit simule complet
@@ -125,6 +127,8 @@ public:
 	// Selectionne n emplacements different entre eux et de celui du noeud, puis renvoie le plus proche du noeud.
 	// Le noeud doit etre place.
 	int selectionEmplacementTournoiMultiple(int n, int nodeId);
+
+	int selectionEmplacementTriangulation(int nodeId, int profondeur=1);
 
 	// Effectue la selection du noeud en fonction de modeNoeud, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
 	int selectionNoeud(int modeNoeud, int t, bool isScoreUpdated=false);
@@ -247,6 +251,8 @@ public:
 	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
 	long getScoreCroisementNode(int nodeIndex, int swapIndex);
 
+	void recalculateIllegalIntersections(int i);
+
 	// Effectue le croisement entre deux parents,
 	// Renvoie vrai si les deux parents ne sont pas identique
 	// Ne met pas à jour le nombre de croisement d'un graphe
@@ -304,6 +310,8 @@ public:
 	void separateNodesInCommon(Graphe &G, std::vector<int>& commonNodeVec, std::vector<int>& otherNodeVec, std::vector<int>& indexNodeInOtherVec);
 
 	long getNbCroisementConst() const;
+
+	long getNbCroisementOldMethodConst() const;
 
 	// Ne met pas a jour le nombre de croisement du graphe
 	long getNbCroisementArray();

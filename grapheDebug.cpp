@@ -308,6 +308,25 @@ void Graphe::debugNoeudNonPlace(bool display, std::string nom) {
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 }
 
+void Graphe::debugOldCroisement(bool display, std::string nom) {
+    if (display) { 
+        std::cout << "-----------------------------------------------" << std::endl;
+        std::cout << "Affichage DEBUG Score Methode Graphe: " << nomGraphe << " " << nom << std::endl;
+    }
+    bool scoreFaux = true;
+    long scoreActuel = getNbCroisementConst();
+    long scoreOld = getNbCroisementOldMethodConst();
+    if (scoreActuel != scoreOld) {
+        std::cout << "Actuel: " << scoreActuel << " old: " << scoreOld << std::endl;
+        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+        scoreFaux = false;
+    }
+    if (scoreFaux) {
+        if (display) { std::cout << "Score Correct" << std::endl; }
+    }
+    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+}
+
 void Graphe::debugEverything(bool displayOther, bool displaySelf) {
     if (displaySelf) { std::cout << "Debut debug arete double\n"; }
     afficherAreteDouble(displayOther);
@@ -321,6 +340,8 @@ void Graphe::debugEverything(bool displayOther, bool displaySelf) {
     debugNoeudNonPlace(displayOther);
     if (displaySelf) { std::cout << "Debut debug desync noeud emplacement\n"; }
     debugDesyncNoeudEmplacement(displayOther);
+    if (displaySelf) { std::cout << "Debut debug methode intersection\n"; }
+    debugOldCroisement(displayOther);
     if (isNodeScoreUpdated) {
         if (displaySelf) { std::cout << "Debut debug score noeud\n"; }
         debugScoreNoeud(displayOther);

@@ -22,11 +22,11 @@ bool dansRectangle(const Noeud &noeud1, const Noeud &noeud2, const Noeud &noeud)
 bool dansRectangle(const Aretes &aretes, const Noeud &noeud);
 
 // Renvoie vrai si c est sur le segment st
-bool surSegment(int sx, int sy, int tx, int ty, int cx, int cy);
+bool oldSurSegment(int sx, int sy, int tx, int ty, int cx, int cy);
 
-bool surSegment(Emplacement* s, Emplacement* t, Emplacement* c);
+bool oldSurSegment(Emplacement* s, Emplacement* t, Emplacement* c);
 
-bool surSegment(const Aretes& lien, const Noeud& noeud);
+bool oldSurSegment(const Aretes& lien, const Noeud& noeud);
 
 
 #endif

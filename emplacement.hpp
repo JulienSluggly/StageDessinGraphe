@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <utility>
+#include <vector>
 
 class Noeud;
 class DemiCote;
@@ -15,6 +16,9 @@ public:
 	int _id;
 	bool _estDisponible = true;
 	int _x, _y;
+
+	// Id des emplacements dans le tableau _emplacementsPossibles
+	std::vector<int> voisinsDelaunay;
 
 	Emplacement(int x, int y, int id) {
 		_x = x;

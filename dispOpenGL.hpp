@@ -28,7 +28,6 @@ int selectedEmplacement = 0;
 int maxNodeIndex = 0;
 int maxEmplacementIndex = 0;
 bool showIllegal = false;
-bool recalcIllegal = false;
 bool showEmplacement = true;
 bool showEdges = true;
 bool showNodes = true;
@@ -174,10 +173,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_I:
 			showIllegal = !showIllegal;
-			recalcIllegal = true;
+			keyPressFunctionNum = 18; singleKeyPress = true;
 			break;
 		case GLFW_KEY_T:
 			show_triangulation = !show_triangulation;
+			keyPressFunctionNum = 17; singleKeyPress = true;
 			break;
 		}
 }
@@ -332,7 +332,7 @@ void openGLShowTriangulation(Graphe& G) {
 	}
 }
 
-void openGLShowGrid(int gridWidth, int gridHeight) {
+void openGLShowGrid() {
 	// affichage de la grille avec une marge de 1
 	glColor3f(0.0f, 1.0f, 0.0f);
 	glBegin(GL_LINE_STRIP);
@@ -382,6 +382,8 @@ void openGLDisplay() {
 
 void openGLKeyPressFunction(Graphe& G) {
 	if (singleKeyPress) {
+		std::cout << "KeyPress: " << keyPressFunctionNum << std::endl;
+		bool recalcIllegal = false;
 		switch(keyPressFunctionNum) {
 		case 0: {// Save Graphe
 			G.writeToJsonGraph("currentGraphe.json");
@@ -602,6 +604,16 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
+		case 17: {// Triangulation
+			if (!G.isCarteSetUp) {
+				G.triangulationDelaunay();
+			}
+			break;
+		}
+		case 18: {// Recalc Illegal
+			recalcIllegal = true;
+			break;
+		}
 		default:{
 			std::cout << "No function found.\n";
 		}
@@ -609,7 +621,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		if (recalcIllegal) {
 			G.clearSetAreteInter();
 			for (int i = 0; i < G._noeuds.size(); i++) {
-				G.getScoreCroisementNode(i);
+				G.recalculateIllegalIntersections(i);
 			}
 			recalcIllegal = false;
 		}
@@ -618,8 +630,18 @@ void openGLKeyPressFunction(Graphe& G) {
 	}
 }
 
+void openGLShowEverything(Graphe& G) {
+	openGLShowGrid();
+	openGLShowEdges(G);
+	openGLShowTriangulation(G);
+	openGLShowEmplacement(G);
+	openGLShowNodes(G);
+}
+
 void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
 	gridWidth = w; gridHeight = h; initialGridWidth = gridWidth; initialGridHeight = gridHeight; maxX = mx; maxY = my;
+
+	if (G._emplacementsPossibles.size() >= (G._noeuds.size() * G._noeuds.size())/2) { showEmplacement = false; }
 
 	// Chrono pour le temps d'exec, utilise pour le stockage de donnee pour la creation de graphiques, a supprimer lors de vrai tests
 	auto start = std::chrono::system_clock::now();
@@ -661,15 +683,9 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-
 		openGLKeyPressFunction(G);
 
-		openGLShowGrid(gridWidth,gridHeight);
-
-		openGLShowEdges(G);
-		openGLShowTriangulation(G);
-		openGLShowEmplacement(G);
-		openGLShowNodes(G);
+		openGLShowEverything(G);
 
 		glEnd();
 		glfwSwapBuffers(window);

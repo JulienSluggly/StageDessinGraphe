@@ -54,17 +54,17 @@ bool dansRectangle(const Aretes &aretes, const Noeud &noeud)
 }
 
 // Renvoie vrai si c est sur le segment st
-bool surSegment(int sx, int sy, int tx, int ty, int cx, int cy) {
+bool oldSurSegment(int sx, int sy, int tx, int ty, int cx, int cy) {
 	return (dansRectangle(sx, sy, tx, ty, cx, cy) && (aGaucheInt(sx, sy, tx, ty, cx, cy) == 0));
 }
 
-bool surSegment(Emplacement* s, Emplacement* t, Emplacement* c)
+bool oldSurSegment(Emplacement* s, Emplacement* t, Emplacement* c)
 {
-	return surSegment(s->getX(), s->getY(), t->getX(), t->getY(), c->getX(), c->getY());
+	return oldSurSegment(s->getX(), s->getY(), t->getX(), t->getY(), c->getX(), c->getY());
 }
 
-bool surSegment(const Aretes& lien, const Noeud& noeud)
+bool oldSurSegment(const Aretes& lien, const Noeud& noeud)
 {
-	return surSegment(lien.getNoeud1()->getEmplacement(),
+	return oldSurSegment(lien.getNoeud1()->getEmplacement(),
 		lien.getNoeud2()->getEmplacement(), noeud.getEmplacement());
 }
