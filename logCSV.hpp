@@ -54,6 +54,13 @@ void filleVectorTriangulation() {
 	methodeTriangulation.push_back("Rerecuit Simule TRE");
 }
 
+void fillLogsVector() {
+	fillMap();
+	fillVectorScore();
+	fillVectorGenetique();
+	filleVectorTriangulation();
+}
+
 void generateCSV(double nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<int> customParam={}) {
 	bool updateScore = isInVector(methodeWithScore,methodeAlgoName);
 	bool isGenetique = isInVector(methodeGenetique,methodeAlgoName);

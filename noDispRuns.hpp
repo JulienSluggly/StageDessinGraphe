@@ -78,7 +78,7 @@ void customRecuit() {
 }
 
 void allRunsSingleThread() {
-	fillMap(); fillVectorGenetique(); fillVectorScore();
+	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire" };
 	//std::vector<string> methodesPlacement = { "OGDF" };
