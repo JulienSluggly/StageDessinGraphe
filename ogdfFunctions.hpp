@@ -9,6 +9,15 @@
 #include <ogdf/planarlayout/PlanarDrawLayout.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
+#include <ogdf/planarity/FixedEmbeddingInserter.h>
+#include <ogdf/planarity/MultiEdgeApproxInserter.h>
+#include <ogdf/planarity/VariableEmbeddingInserter.h>
+#include <ogdf/planarity/VariableEmbeddingInserterDyn.h>
+#include <ogdf/planarity/PlanarizerStarReinsertion.h>
+#include <ogdf/planarity/PlanarizerMixedInsertion.h>
+#include <ogdf/planarity/PlanarizerChordlessCycle.h>
+
+// Creer un graphe ogdf a partir d'un graphe placé ou non.
 void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph &ogdfG) {
 	int nodeNumber = G._noeuds.size();
 	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
@@ -22,6 +31,31 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph 
 			ogdfGL.x(nodeTab[i]) = 0;
 			ogdfGL.y(nodeTab[i]) = 0;
 		}
+		G._noeuds[i].ogdfId = nodeTab[i]->index();
+	}
+	for (int i = 0; i < G._liens.size(); i++) {
+		int id1 = G._liens[i].getNoeud1()->getId();
+		int id2 = G._liens[i].getNoeud2()->getId();
+		ogdfG.newEdge(nodeTab[id1], nodeTab[id2]);
+	}
+	delete[] nodeTab;
+}
+
+// Creer un graphe ogdf a partir d'un graphe placé ou non.
+void createOGDFGraphFromGraphe(Graphe &G, ogdf::GraphAttributes &ogdfGA, ogdf::Graph &ogdfG) {
+	int nodeNumber = G._noeuds.size();
+	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
+	for (int i = 0; i < nodeNumber; i++) {
+		nodeTab[i] = ogdfG.newNode();
+		if (G.estPlace()) {
+			ogdfGA.x(nodeTab[i]) = G._noeuds[i].getX();
+			ogdfGA.y(nodeTab[i]) = G._noeuds[i].getY();
+		}
+		else {
+			ogdfGA.x(nodeTab[i]) = 0;
+			ogdfGA.y(nodeTab[i]) = 0;
+		}
+		G._noeuds[i].ogdfId = nodeTab[i]->index();
 	}
 	for (int i = 0; i < G._liens.size(); i++) {
 		int id1 = G._liens[i].getNoeud1()->getId();
@@ -52,6 +86,7 @@ int planarizeMaxFace(ogdf::GridLayout& ogdfGL, ogdf::Graph& ogdfG) {
 	return 0;
 }
 
+// Planarize le graphe avec odgf et essaie de placer les noeuds au plus proche de ses emplacements possible par rapport au grpahe OGDF
 int ogdfPlacementAuPlusProche(Graphe& G) {
 	ogdf::Graph ogdfG;
 	ogdf::GridLayout ogdfGL{ ogdfG };
@@ -112,6 +147,7 @@ int ogdfPlacementAuPlusProche(Graphe& G) {
 	return 0;
 }
 
+// Remplace les emplacements du graphe par les emplacements trouvés par la planarizerMaxFace
 int ogdfReverse(Graphe &G) {
 	ogdf::Graph ogdfG;
 	ogdf::GridLayout ogdfGL{ ogdfG };
@@ -135,6 +171,63 @@ int ogdfReverse(Graphe &G) {
 	return 0;
 }
 
+void ogdfReverseNonPlanar(Graphe &G) {
+	G.clearNodeEmplacement();
+	G._emplacementsPossibles.clear();
+	ogdf::Graph ogdfG;
+	ogdf::GridLayout ogdfGL{ ogdfG };
+	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
+	ogdf::PlanRep pr(ogdfG);
+	//pr.initCC(0);
+	ogdf::SubgraphPlanarizer sp = ogdf::SubgraphPlanarizer();
+	int crossingNumber;
+	sp.setInserter(new ogdf::FixedEmbeddingInserter);
+	//sp.setInserter(new ogdf::MultiEdgeApproxInserter);
+	//sp.setInserter(new ogdf::VariableEmbeddingInserter);
+	//sp.setInserter(new ogdf::VariableEmbeddingInserterDyn);
+	sp.call(pr,0,crossingNumber);
+	std::cout << "Crossing Number: " << crossingNumber << std::endl;
+	for (int i=0;i<ogdfG.nodes.size();i++) {
+		ogdf::node n = pr.v(i);
+		int x = ogdfGL.x(n);
+		int y = ogdfGL.y(n);
+		G._emplacementsPossibles.push_back(Emplacement(x,y,i));
+		if (x > G.gridWidth) { G.gridWidth = x; }
+		if (y > G.gridHeight) { G.gridHeight = y; }
+	}
+	for (int i=0;i<G._noeuds.size();i++) {
+		ogdf::node n = pr.v(i);
+		G._noeuds[n->index()].setEmplacement(&G._emplacementsPossibles[i]);
+	}
+}
+
+void ogdfCrossingNumbers(std::vector<std::string> graphFiles) {
+	for (std::string &nomFichierGraph : graphFiles) {
+		std::string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
+		Graphe G;
+		G.readFromJsonGraph(fileGraph);
+		ogdf::Graph ogdfG;
+		ogdf::GridLayout ogdfGL{ ogdfG };
+		createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
+		ogdf::PlanRep pr(ogdfG);
+		ogdf::SubgraphPlanarizer sp = ogdf::SubgraphPlanarizer();
+		int crossingNumber;
+		sp.setInserter(new ogdf::FixedEmbeddingInserter);
+		sp.call(pr,0,crossingNumber);
+		std::cout << crossingNumber << std::endl;
+		sp.setInserter(new ogdf::MultiEdgeApproxInserter);
+		sp.call(pr,0,crossingNumber);
+		std::cout << crossingNumber << std::endl;
+		sp.setInserter(new ogdf::VariableEmbeddingInserter);
+		sp.call(pr,0,crossingNumber);
+		std::cout << crossingNumber << std::endl;
+		sp.setInserter(new ogdf::VariableEmbeddingInserterDyn);
+		sp.call(pr,0,crossingNumber);
+		std::cout << crossingNumber << std::endl;
+	}
+}
+
+// Fait différents test sur le graphe: connexité, biconnecté, genus, crossing number(SubGraphPlanarize)
 void ogdfRun(Graphe &G) {
 	ogdf::Graph ogdfG;
 	ogdf::GridLayout ogdfGL{ ogdfG };

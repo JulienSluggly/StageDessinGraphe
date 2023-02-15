@@ -49,7 +49,7 @@ void customRecuit() {
 			G.generateGrid();
 		}
 		std::vector<std::vector<int>> totalRuns;
-		/*totalRuns.push_back({3,2});
+		totalRuns.push_back({3,2});
 		totalRuns.push_back({3,3});
 		totalRuns.push_back({3,4});
 		totalRuns.push_back({3,5});
@@ -86,7 +86,7 @@ void customRecuit() {
 		for (int i=0;i<totalRuns.size();i++) {
 			generateCSV(10,"Aleatoire","Rerecuit Simule Delay TME Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
 		}
-		totalRuns.clear();*/
+		totalRuns.clear();
 		totalRuns.push_back({7,1});
 		totalRuns.push_back({7,2});
 		totalRuns.push_back({7,3});
@@ -97,11 +97,23 @@ void customRecuit() {
 		totalRuns.push_back({7,8});
 		totalRuns.push_back({7,9});
 		totalRuns.push_back({7,10});
+
+		totalRuns.push_back({8,1});
+		totalRuns.push_back({8,2});
+		totalRuns.push_back({8,3});
+		totalRuns.push_back({8,4});
+		totalRuns.push_back({8,5});
+
+		totalRuns.push_back({9,1});
+		totalRuns.push_back({9,2});
+		totalRuns.push_back({9,3});
+		totalRuns.push_back({9,4});
+		totalRuns.push_back({9,5});
 		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(2,"Aleatoire","Recuit Simule TRE Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
+			generateCSV(10,"Aleatoire","Recuit Simule TRE Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
 		}
 		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(2,"Aleatoire","Rerecuit Simule TRE Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
+			generateCSV(10,"Aleatoire","Rerecuit Simule TRE Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
 		}
 	}
 }

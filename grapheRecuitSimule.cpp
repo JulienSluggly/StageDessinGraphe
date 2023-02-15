@@ -257,6 +257,12 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
             if (customParam[0] == 7) {
                 profondeur = customParam[1];
             }
+            else if (customParam[0] == 8) {
+                profondeur = (iter / 100000) + customParam[1];
+            }
+            else if (customParam[0] == 9) {
+                profondeur = ((1381545-iter) / 100000) + customParam[1];
+            }
         }
         slotId = selectionEmplacementTriangulation(nodeId,profondeur);
         break;

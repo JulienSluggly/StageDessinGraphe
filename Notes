@@ -1,21 +1,3 @@
-Genetique avec modification parent:
-    Tous:
-        Tableau de noeuds a deplacer calculé au moment ou on calcule le nombre de noeud a traiter
-    ScoreEnfant:
-        On place tout les noeuds en commun
-        On choisi en alternant de parent, le noeud avec le plus de voisin placé
-        parmis ceux la on choisi celui qui effectue le moin de croisement chez l'enfant
-        parmis ceux la on choisi celui qui a le plus de voisin
-        on le place lui et ses voisins
-        on effectue le changement chez le deuxieme parent
-
-        Si un noeud ne peut pas etre placé car emplacement déja pris, on ne fait rien et on passe au prochain dans la liste
-        Si aucun noeud ne peut etre tiré alors on passe au prochain parent
-        Si aucun noeud ne peut etre tiré aussi alors on place les noeuds restant au glouton
-Genetique Sans modification parent:
-
-Delaunay pour avoir une autre méthode de placement dans le glouton.
-
 Structure arete:
     Liste de marque avec toutes les autres aretes
 

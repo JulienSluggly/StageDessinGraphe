@@ -17,6 +17,8 @@ public:
 	// Score d'intersection du noeud
 	// Attention ce score n'est pas toujours a jour!
 	long score = -1;
+
+	int ogdfId = -1;
 	
 	bool estPlace() const { return _emplacement != nullptr; }
 	Emplacement* getEmplacement()  const { return _emplacement; }

@@ -20,14 +20,14 @@ using namespace std;
 int main() {
 	//initSameSeed();
 	initRandomSeed();
-	customRecuit();
+	//customRecuit();
 	//allRunsSingleThread();
-	return 0;
+	//return 0;
 
 	Graphe G;
 	
 	string nomFichierGraph = "graph-10-input";
-	string nomFichierSlots = "2X-10-input-slots";
+	string nomFichierSlots = "10-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
@@ -37,6 +37,8 @@ int main() {
 	G.readFromJsonGraph(fileGraph);
 	//G.generateGrid();
 	//ogdfReverse(G);
+	ogdfCrossingNumbers({"graph-8-input"});
+	return 0;
 	G.readFromJsonSlots(fileSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
@@ -48,18 +50,19 @@ int main() {
 	double timeBest = -1; int lastIteration = -1; int bestIteration = -1;
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 
-	G.placementAleatoire();
-	G.triangulationDelaunay();
+	//G.placementAleatoire();
+	//G.triangulationDelaunay();
 	//G.recuitSimuleCustom(timeBest,0.99999, 100.0, 1, 0, 3, {1,15});
 
 	//G.initGraphAndNodeScoresAndCrossings();
 
-	G.recuitSimule(timeBest,0.99999,100.0,1,0,4);
+	//G.recuitSimule(timeBest,0.99999,100.0,1,0,4);
 
 	
 	//G.recuitSimuleScore(timeBest);
 
 	//ogdfRun(G);
+	ogdfReverseNonPlanar(G);
 	//return 0;
 	
 	//ogdfPlacementAuPlusProche(G);
@@ -74,7 +77,7 @@ int main() {
 	std::cout << "Setup complete!" << std::endl;
 
 	//G.afficherInfo();
-	G.debugEverything(false,false);
+	if (G.estPlace()) G.debugEverything(false,false);
 
 	// OpenGL
 	bool useOpenGL = true;
