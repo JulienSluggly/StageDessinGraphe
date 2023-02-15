@@ -199,6 +199,9 @@ void Graphe::clearGraphe() {
     isNodeScoreUpdated = false;
     isNombreCroisementUpdated = false;
     isIntersectionVectorUpdated = false;
+    isCarteSetUp = false;
+    nombreCroisement = -1;
+    maxVoisin = -1;
 }
 
 // Vide les vecteurs du graphe et effectue une copie du contenu des vecteur du graphe en parametre

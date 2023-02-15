@@ -32,48 +32,77 @@ void readOldFiles(Graphe& G) {
 }
 
 void customRecuit() {
+	fillLogsVector();
 	std::string nomFichierGraph = "graph-10-input";
 	std::string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	Graphe G;
-	G.readFromJsonGraph(fileGraph);
-	G.generateGrid(1000,1000);
-	std::vector<std::vector<int>> totalRuns;
-	totalRuns.push_back({3,2});
-	totalRuns.push_back({3,3});
-	totalRuns.push_back({3,4});
-	totalRuns.push_back({3,5});
-	totalRuns.push_back({3,6});
-	totalRuns.push_back({3,7});
-	totalRuns.push_back({3,8});
-	totalRuns.push_back({3,9});
-	totalRuns.push_back({3,10});
+	std::vector<std::string> slotFiles = { "10-input-slots", "2X-10-input-slots", "3X-10-input-slots", "GRID" };
+	for (auto &fileSlot : slotFiles) {
+		Graphe G;
+		G.readFromJsonGraph(fileGraph);
+		std::string slotFileUsed;
+		if (fileSlot != "GRID") {
+			slotFileUsed = chemin + "exemple/Slots/" + fileSlot + ".json";
+			G.readFromJsonSlots(slotFileUsed);
+		}
+		else {
+			slotFileUsed = "GRID";
+			G.generateGrid();
+		}
+		std::vector<std::vector<int>> totalRuns;
+		/*totalRuns.push_back({3,2});
+		totalRuns.push_back({3,3});
+		totalRuns.push_back({3,4});
+		totalRuns.push_back({3,5});
+		totalRuns.push_back({3,6});
+		totalRuns.push_back({3,7});
+		totalRuns.push_back({3,8});
+		totalRuns.push_back({3,9});
+		totalRuns.push_back({3,10});
 
-	totalRuns.push_back({4,10});
-	totalRuns.push_back({4,15});
-	totalRuns.push_back({4,20});
-	totalRuns.push_back({4,25});
-	totalRuns.push_back({4,30});
-	totalRuns.push_back({4,35});
-	totalRuns.push_back({4,40});
-	totalRuns.push_back({4,45});
-	totalRuns.push_back({4,50});
+		totalRuns.push_back({4,10});
+		totalRuns.push_back({4,15});
+		totalRuns.push_back({4,20});
+		totalRuns.push_back({4,25});
+		totalRuns.push_back({4,30});
+		totalRuns.push_back({4,35});
+		totalRuns.push_back({4,40});
+		totalRuns.push_back({4,45});
+		totalRuns.push_back({4,50});
 
-	totalRuns.push_back({5,1});
-	totalRuns.push_back({5,2});
-	totalRuns.push_back({5,3});
-	totalRuns.push_back({5,4});
-	totalRuns.push_back({5,5});
+		totalRuns.push_back({5,1});
+		totalRuns.push_back({5,2});
+		totalRuns.push_back({5,3});
+		totalRuns.push_back({5,4});
+		totalRuns.push_back({5,5});
 
-	totalRuns.push_back({6,1});
-	totalRuns.push_back({6,2});
-	totalRuns.push_back({6,3});
-	totalRuns.push_back({6,4});
-	totalRuns.push_back({6,5});
-	for (int i=0;i<totalRuns.size();i++) {
-		generateCSV(10,"Aleatoire","Recuit Simule Delay TME Custom","graph-10-input",G,"","",totalRuns[i]);
-	}
-	for (int i=0;i<totalRuns.size();i++) {
-		generateCSV(10,"Aleatoire","Rerecuit Simule Delay TME Custom","graph-10-input",G,"","",totalRuns[i]);
+		totalRuns.push_back({6,1});
+		totalRuns.push_back({6,2});
+		totalRuns.push_back({6,3});
+		totalRuns.push_back({6,4});
+		totalRuns.push_back({6,5});
+		for (int i=0;i<totalRuns.size();i++) {
+			generateCSV(10,"Aleatoire","Recuit Simule Delay TME Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
+		}
+		for (int i=0;i<totalRuns.size();i++) {
+			generateCSV(10,"Aleatoire","Rerecuit Simule Delay TME Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
+		}
+		totalRuns.clear();*/
+		totalRuns.push_back({7,1});
+		totalRuns.push_back({7,2});
+		totalRuns.push_back({7,3});
+		totalRuns.push_back({7,4});
+		totalRuns.push_back({7,5});
+		totalRuns.push_back({7,6});
+		totalRuns.push_back({7,7});
+		totalRuns.push_back({7,8});
+		totalRuns.push_back({7,9});
+		totalRuns.push_back({7,10});
+		for (int i=0;i<totalRuns.size();i++) {
+			generateCSV(2,"Aleatoire","Recuit Simule TRE Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
+		}
+		for (int i=0;i<totalRuns.size();i++) {
+			generateCSV(2,"Aleatoire","Rerecuit Simule TRE Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
+		}
 	}
 }
 
@@ -87,14 +116,14 @@ void allRunsSingleThread() {
 		//mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
 	}
-	int nbRuns = 4;
+	int nbRuns = 10;
 	std::cout << "Starting all run logs, nb run: " << nbRuns << std::endl;
-	Graphe G;
+	
 	for (auto &key : mapGraphSlots) {
 		for (int i = 0; i < key.second.size(); i++) {
 			std::cout << "-----------------------------------------" << std::endl;
 			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
-			G.clearGraphe();
+			Graphe G;
 			std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
 			G.readFromJsonGraph(fileGraph);
 			std::string fileSlots;

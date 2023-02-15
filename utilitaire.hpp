@@ -32,4 +32,8 @@ bool comparePtrEmplacement(Emplacement* a, Emplacement* b);
 // Fonction de sort par x et y
 bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b);
 
+void initSameSeed();
+
+void initRandomSeed();
+
 #endif

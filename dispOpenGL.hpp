@@ -34,7 +34,6 @@ bool showNodes = true;
 bool stepSetup = false;
 double stepT;
 int stepNbCrois;
-// Copie du graphe en cours
 std::vector<int> graphCopy;
 // Parents pour affichage genetique
 Graphe parent1("parent1"), parent2("parent2"), enfant("enfant");
@@ -256,6 +255,7 @@ void openGLShowNodes(Graphe& G) {
 
 void openGLShowEdges(Graphe& G) {
 	if (showEdges) {
+		glLineWidth(3.0f);
 		if (display_genetic) {
 			glColor3f(1.0f, 1.0f, 1.0f);
 			for (int i = 0; i < parent1._liens.size(); i++) {
@@ -318,6 +318,7 @@ void openGLShowEdges(Graphe& G) {
 
 void openGLShowTriangulation(Graphe& G) {
 	if (show_triangulation) {
+		glLineWidth(2.0f);
 		glColor3f(0.2f, 0.3f, 0.4f);
 		for (int i=0;i<G._c.nbDemiCote();i+=2) {
 			int x1 = G._c.demiCote(i)->sommet()->getX();
@@ -334,6 +335,7 @@ void openGLShowTriangulation(Graphe& G) {
 
 void openGLShowGrid() {
 	// affichage de la grille avec une marge de 1
+	glLineWidth(2.0f);
 	glColor3f(0.0f, 1.0f, 0.0f);
 	glBegin(GL_LINE_STRIP);
 	glVertex2d(-1, -1);

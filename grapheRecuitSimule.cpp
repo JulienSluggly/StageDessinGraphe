@@ -174,15 +174,26 @@ int Graphe::selectionEmplacementTournoiMultiple(int n, int nodeId) {
 int Graphe::selectionEmplacementTriangulation(int nodeId, int profondeur) {
     Emplacement* depart = _noeuds[nodeId].getEmplacement();
     Emplacement* arrive = depart;
+    int randomId;
     for (int i=0;i<profondeur;i++) {
-        if (arrive->voisinsDelaunay.size() == 1) {
-            if (arrive->voisinsDelaunay[0] == depart->_id) {
-                return arrive->_id;
+        if (i == profondeur - 1) {
+            if (arrive->voisinsDelaunay.size() == 1) {
+                if (arrive->voisinsDelaunay[0] == depart->_id) {
+                    return arrive->_id;
+                }
+            }
+            else {
+                randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
+                while (arrive->voisinsDelaunay[randomId] == depart->_id) {
+                    randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
+                }
             }
         }
-        int randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
-        while (arrive->voisinsDelaunay[randomId] == depart->_id) {
+        else {
             randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
+            while (arrive->voisinsDelaunay[randomId] == depart->_id) {
+                randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
+            }
         }
         arrive = &_emplacementsPossibles[arrive->voisinsDelaunay[randomId]];
     }
@@ -241,7 +252,13 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         break;
     }
     case 4: {
-        slotId = selectionEmplacementTriangulation(nodeId);
+        int profondeur = 1;
+        if (customParam.size() > 0) {
+            if (customParam[0] == 7) {
+                profondeur = customParam[1];
+            }
+        }
+        slotId = selectionEmplacementTriangulation(nodeId,profondeur);
         break;
     }
     }

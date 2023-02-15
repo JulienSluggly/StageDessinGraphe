@@ -18,8 +18,10 @@
 using namespace std;
 
 int main() {
-	//customRecuit();
-	allRunsSingleThread();
+	//initSameSeed();
+	initRandomSeed();
+	customRecuit();
+	//allRunsSingleThread();
 	return 0;
 
 	Graphe G;
@@ -33,7 +35,8 @@ int main() {
 	
 	string fileOldGraph = chemin + "automatique/auto21-13.json";
 	G.readFromJsonGraph(fileGraph);
-	//G.generateGrid(1000,1000);
+	//G.generateGrid();
+	//ogdfReverse(G);
 	G.readFromJsonSlots(fileSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
@@ -46,19 +49,20 @@ int main() {
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 
 	G.placementAleatoire();
-	//G.triangulationDelaunay();
+	G.triangulationDelaunay();
 	//G.recuitSimuleCustom(timeBest,0.99999, 100.0, 1, 0, 3, {1,15});
 
 	//G.initGraphAndNodeScoresAndCrossings();
 
-	G.recuitSimule(timeBest,0.99999,100.0,1,0,3);
+	G.recuitSimule(timeBest,0.99999,100.0,1,0,4);
 
 	
 	//G.recuitSimuleScore(timeBest);
 
 	//ogdfRun(G);
 	//return 0;
-	//ogdfReverse(G);
+	
+	//ogdfPlacementAuPlusProche(G);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotal = end - start;
@@ -69,7 +73,7 @@ int main() {
 	if (G.estPlace()) std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
 	std::cout << "Setup complete!" << std::endl;
 
-	G.afficherInfo();
+	//G.afficherInfo();
 	G.debugEverything(false,false);
 
 	// OpenGL
