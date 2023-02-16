@@ -20,14 +20,18 @@ using namespace std;
 int main() {
 	//initSameSeed();
 	initRandomSeed();
-	//customRecuit();
-	//allRunsSingleThread();
-	//return 0;
+	//std::vector<std::string> files = {"graph-1-input","graph-2-input","graph-3-input","graph-4-input","graph-5-input","graph-6-input","graph-7-input","graph-8-input","graph-9-input","graph-10-input","graph-11-input","graph-12-input"};
+	//std::vector<std::string> files = {"graph-1-input","graph-2-input","graph-3-input","graph-4-input","graph-5-input","graph-6-input","graph-7-input","graph-8-input","graph-10-input","graph-11-input","graph-12-input"};
+	//std::vector<std::string> files = {"graph-8-input"};
+	//ogdfCrossingNumbers(files);
+	customRecuit();
+	allRunsSingleThread();
+	return 0;
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-10-input";
-	string nomFichierSlots = "10-input-slots";
+	string nomFichierGraph = "graph-8-input";
+	string nomFichierSlots = "8-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
@@ -37,8 +41,8 @@ int main() {
 	G.readFromJsonGraph(fileGraph);
 	//G.generateGrid();
 	//ogdfReverse(G);
-	ogdfCrossingNumbers({"graph-8-input"});
-	return 0;
+	//ogdfCrossingNumbers({"graph-8-input"});
+	//return 0;
 	G.readFromJsonSlots(fileSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
@@ -52,17 +56,19 @@ int main() {
 
 	//G.placementAleatoire();
 	//G.triangulationDelaunay();
-	//G.recuitSimuleCustom(timeBest,0.99999, 100.0, 1, 0, 3, {1,15});
+	//G.recuitSimuleCustom(timeBest,0.99999, 100.0,0.0001, 1, 0, 3, {1,15});
 
 	//G.initGraphAndNodeScoresAndCrossings();
 
-	//G.recuitSimule(timeBest,0.99999,100.0,1,0,4);
+	//G.recuitSimule(timeBest,0.99999,100.0,0.0001,1,0,4);
+
+	ogdfReverseNonPlanar(G);
 
 	
 	//G.recuitSimuleScore(timeBest);
 
 	//ogdfRun(G);
-	ogdfReverseNonPlanar(G);
+	//ogdfReverseNonPlanar(G);
 	//return 0;
 	
 	//ogdfPlacementAuPlusProche(G);

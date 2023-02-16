@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iomanip>
 #include "ogdfFunctions.hpp"
+#include "personnel.hpp"
 #include <omp.h>
 #include <climits>
 
@@ -63,7 +64,7 @@ void fillLogsVector() {
 	fillVectorTriangulation();
 }
 
-void generateCSV(double nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<int> customParam={}) {
+void generateCSV(double nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<double> customParam={}, std::string tid="") {
 	bool updateScore = isInVector(methodeWithScore,methodeAlgoName);
 	bool isGenetique = isInVector(methodeGenetique,methodeAlgoName);
 	bool needTriangulation = isInVector(methodeTriangulation,methodeAlgoName);
@@ -106,26 +107,27 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest);
 		else if (methodeAlgoName == "Recuit Simule Score") G.recuitSimuleScore(tempsBest);
-		else if (methodeAlgoName == "Recuit Simule Delay") G.recuitSimule(tempsBest,0.99999,100.0,10);
-		else if (methodeAlgoName == "Recuit Simule TBN") G.recuitSimule(tempsBest,0.99999,100.0,1,1);
-		else if (methodeAlgoName == "Recuit Simule TMN") G.recuitSimule(tempsBest,0.99999,100.0,1,2);
-		else if (methodeAlgoName == "Recuit Simule TBE") G.recuitSimule(tempsBest,0.99999, 100.0,1,0,1);
-		else if (methodeAlgoName == "Recuit Simule TME") G.recuitSimule(tempsBest,0.99999, 100.0,1,0,2);
-		else if (methodeAlgoName == "Recuit Simule Delay TBE") G.recuitSimule(tempsBest,0.99999, 100.0, 10, 0, 1);
-		else if (methodeAlgoName == "Recuit Simule Delay TME") G.recuitSimule(tempsBest,0.99999, 100.0, -1, 0, 3);
-		else if (methodeAlgoName == "Recuit Simule TBNE") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 1, 1);
-		else if (methodeAlgoName == "Recuit Simule TBN TME") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 1, 3);
-		else if (methodeAlgoName == "Recuit Simule TMN TBE") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 2, 1);
-		else if (methodeAlgoName == "Recuit Simule TMNE") G.recuitSimule(tempsBest,0.99999, 100.0, 1, 2, 2);
-		else if (methodeAlgoName == "Recuit Simule TME Custom") G.recuitSimuleCustom(tempsBest,0.99999, 100.0, 1, 0, 3, customParam);
-		else if (methodeAlgoName == "Recuit Simule Delay TME Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,-1,0,3,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,-1,0,3,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,1,0,3);
-		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,-1,0,3);
-		else if (methodeAlgoName == "Recuit Simule TRE") G.recuitSimule(tempsBest,0.99999, 100.0,1,0,4);
-		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,1,0,4);
-		else if (methodeAlgoName == "Recuit Simule TRE Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,1,0,4,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule TRE Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,1,0,4,customParam);
+		else if (methodeAlgoName == "Recuit Simule Delay") G.recuitSimule(tempsBest,0.99999,100.0,0.0001,10);
+		else if (methodeAlgoName == "Recuit Simule TBN") G.recuitSimule(tempsBest,0.99999,100.0,0.0001,1,1);
+		else if (methodeAlgoName == "Recuit Simule TMN") G.recuitSimule(tempsBest,0.99999,100.0,0.0001,1,2);
+		else if (methodeAlgoName == "Recuit Simule TBE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,1);
+		else if (methodeAlgoName == "Recuit Simule TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,2);
+		else if (methodeAlgoName == "Recuit Simule Delay TBE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 10, 0, 1);
+		else if (methodeAlgoName == "Recuit Simule Delay TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, -1, 0, 3);
+		else if (methodeAlgoName == "Recuit Simule TBNE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 1, 1);
+		else if (methodeAlgoName == "Recuit Simule TBN TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 1, 3);
+		else if (methodeAlgoName == "Recuit Simule TMN TBE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 2, 1);
+		else if (methodeAlgoName == "Recuit Simule TMNE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 2, 2);
+		else if (methodeAlgoName == "Recuit Simule TME Custom") G.recuitSimuleCustom(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3, customParam);
+		else if (methodeAlgoName == "Recuit Simule Delay TME Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,-1,0,3,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,0.0001,-1,0,3,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,0.0001,1,0,3);
+		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,0.0001,-1,0,3);
+		else if (methodeAlgoName == "Recuit Simule TRE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,4);
+		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,0.0001,1,0,4);
+		else if (methodeAlgoName == "Recuit Simule TRE Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,1,0,4,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule TRE Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,0.0001,1,0,4,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule TME Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,0.0001,1,0,3,customParam);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
@@ -169,11 +171,11 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		lastIterationMoyenne = moyenneVector(lastIterationVector,nbEssay);
 		
 
-		std::string nomFichier = chemin + "/resultats/" + nomGraphe + ".csv";
+		std::string nomFichier = chemin + "/resultats/" + nomGraphe + tid + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 		std::streampos position = resultats.tellp();
 		if (position == 0) {
-			resultats << "MethodeUtilisee,AlgoDeplacement,NbRun,NbSlots,NbIllegal,BestCross,MoyCross,MedCross,MoyBest(s),MoyTotal(s),Population,MaxGen,MoyBestGen,MoyLastGen\n";
+			resultats << "MethodeUtilisee,AlgoDeplacement,NbRun,NbSlots,NbIllegal,BestCross,MoyCross,MedCross,MoyBest(s),MoyTotal(s),Population,MaxGen,MoyBestGen,MoyLastGen,Machine,CustomParams\n";
 		}
 
 		resultats << std::fixed;
@@ -189,11 +191,19 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		else { resultats << std::setprecision(1) << medianCroisement << ","; }
 		resultats << std::setprecision(7) << tempsBestMoyenne << "," << tempsExecMoyenne;
 		if (isGenetique) {
-			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne << "\n";
+			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
 		}
 		else {
-			resultats << "\n";
+			resultats << ",,,,";
 		}
+		resultats << "," << machine;
+		if (customParam.size() > 0) {
+			resultats << ",";
+			for (int j=0;j<customParam.size();j++) {
+				resultats << to_string(customParam[j]) << " ";
+			}
+		}
+		resultats << "\n";
 		resultats.close();
 	}
 }

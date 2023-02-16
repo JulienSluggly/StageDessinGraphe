@@ -17,6 +17,8 @@
 #include <ogdf/planarity/PlanarizerMixedInsertion.h>
 #include <ogdf/planarity/PlanarizerChordlessCycle.h>
 
+#include <fstream>
+
 // Creer un graphe ogdf a partir d'un graphe placé ou non.
 void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph &ogdfG) {
 	int nodeNumber = G._noeuds.size();
@@ -189,8 +191,9 @@ void ogdfReverseNonPlanar(Graphe &G) {
 	std::cout << "Crossing Number: " << crossingNumber << std::endl;
 	for (int i=0;i<ogdfG.nodes.size();i++) {
 		ogdf::node n = pr.v(i);
-		int x = ogdfGL.x(n);
-		int y = ogdfGL.y(n);
+		ogdf::node n2 = pr.copy(n);
+		int x = ogdfGL.x(n2);
+		int y = ogdfGL.y(n2);
 		G._emplacementsPossibles.push_back(Emplacement(x,y,i));
 		if (x > G.gridWidth) { G.gridWidth = x; }
 		if (y > G.gridHeight) { G.gridHeight = y; }
@@ -210,20 +213,58 @@ void ogdfCrossingNumbers(std::vector<std::string> graphFiles) {
 		ogdf::GridLayout ogdfGL{ ogdfG };
 		createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
 		ogdf::PlanRep pr(ogdfG);
-		ogdf::SubgraphPlanarizer sp = ogdf::SubgraphPlanarizer();
+		std::string nomFichier = chemin + "/resultats/" + nomFichierGraph + ".csv";
+		std::ofstream resultats(nomFichier, std::ios_base::app);
 		int crossingNumber;
+
+		/*
+		ogdf::SubgraphPlanarizer sp = ogdf::SubgraphPlanarizer();
+		sp.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
 		sp.setInserter(new ogdf::FixedEmbeddingInserter);
 		sp.call(pr,0,crossingNumber);
-		std::cout << crossingNumber << std::endl;
+		resultats << crossingNumber << std::endl;
 		sp.setInserter(new ogdf::MultiEdgeApproxInserter);
 		sp.call(pr,0,crossingNumber);
-		std::cout << crossingNumber << std::endl;
+		resultats << crossingNumber << std::endl;
 		sp.setInserter(new ogdf::VariableEmbeddingInserter);
 		sp.call(pr,0,crossingNumber);
-		std::cout << crossingNumber << std::endl;
+		resultats << crossingNumber << std::endl;
 		sp.setInserter(new ogdf::VariableEmbeddingInserterDyn);
 		sp.call(pr,0,crossingNumber);
-		std::cout << crossingNumber << std::endl;
+		resultats << crossingNumber << std::endl;
+
+		ogdf::PlanarizerChordlessCycle pcc = ogdf::PlanarizerChordlessCycle();
+		pcc.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+
+		ogdf::PlanarizerMixedInsertion pmi = ogdf::PlanarizerMixedInsertion();
+		pmi.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::Random);
+		pmi.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::HigherDegree);
+		pmi.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::LowerDegree);
+		pmi.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::HigherNonPlanarDegree);
+		pmi.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::LowerNonPlanarDegree);
+		pmi.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::BothEndpoints);
+		pmi.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+		*/
+		ogdf::PlanarizerStarReinsertion psr = ogdf::PlanarizerStarReinsertion();
+		psr.call(pr,0,crossingNumber);
+		resultats << crossingNumber << std::endl;
+
+		resultats.close();
 	}
 }
 

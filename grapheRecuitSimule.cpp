@@ -216,7 +216,7 @@ int Graphe::selectionNoeud(int modeNoeud, int t, bool isScoreUpdated) {
 }
 
 // Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
-int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<int> customParam, int iter) {
+int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<double> customParam, int iter) {
     int slotId;
     switch (modeEmplacement) {
     case 0: {
@@ -275,7 +275,7 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
 // Met à jour la variable nombreCroisement du graphe.
 // delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-void Graphe::recuitSimule(double &timeBest, double cool, double t, int delay, int modeNoeud, int modeEmplacement) {
+void Graphe::recuitSimule(double &timeBest, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement) {
     auto start = std::chrono::system_clock::now();
     auto end = start;
     std::vector<int> bestResult = saveCopy();
@@ -291,7 +291,7 @@ void Graphe::recuitSimule(double &timeBest, double cool, double t, int delay, in
         delay = ceil((double)_noeuds.size() / 20.0) + 1;
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
-    for (int iter = 0; t > 0.0001 && nbCroisement > 0; iter++) {
+    for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
         //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
         for (int del = 0; del < delay; del++) {
             int nodeId = selectionNoeud(modeNoeud, t);
@@ -367,7 +367,7 @@ void Graphe::recuitSimule(double &timeBest, double cool, double t, int delay, in
 // Met à jour la variable nombreCroisement du graphe.
 // delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, int delay, int modeNoeud, int modeEmplacement, std::vector<int> customParam) {
+void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
     auto start = std::chrono::system_clock::now();
     auto end = start;
     std::vector<int> bestResult = saveCopy();
@@ -387,11 +387,11 @@ void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, int del
             delay = ceil((double)_noeuds.size() / customParam[1]) + 1;
         }
         else {
-            delay = ceil((double)_noeuds.size() / 20.0) + 1;
+            delay = std::min((int)ceil((double)_noeuds.size() / 20.0) + 1,5);
         }
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
-    for (int iter = 0; t > 0.0001 && nbCroisement > 0; iter++) {
+    for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
         if (customParam[1] == 5) {
             delay = (iter / 100000) + customParam[1];
         }
@@ -531,7 +531,7 @@ void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeu
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimule(double &timeBest, int iter, double cool, double coolt, double t, int delay, int modeNoeud, int modeEmplacement) {
+void Graphe::rerecuitSimule(double &timeBest, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement) {
     auto start = std::chrono::system_clock::now();
     auto end = start;
     if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
@@ -545,7 +545,7 @@ void Graphe::rerecuitSimule(double &timeBest, int iter, double cool, double cool
     double recuitTimeBest;
     while (numberOfNoUpgrade < maxIter) {
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
-        recuitSimule(recuitTimeBest, cool, t, delay, modeNoeud, modeEmplacement);
+        recuitSimule(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement);
         t *= coolt;
         if (iter != -1) {
             numberOfNoUpgrade++;
@@ -571,7 +571,19 @@ void Graphe::rerecuitSimule(double &timeBest, int iter, double cool, double cool
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimuleCustom(double &timeBest, int iter, double cool, double coolt, double t, int delay, int modeNoeud, int modeEmplacement, std::vector<int> customParam) {
+void Graphe::rerecuitSimuleCustom(double &timeBest, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
+    if (customParam[0] == 8) {
+        t = customParam[1];
+    }
+    else if (customParam[0] == 9) {
+        cool = customParam[1];
+    }
+    else if (customParam[0] == 10) {
+        coolt = customParam[1];
+    }
+    else if (customParam[0] == 11) {
+        seuil = customParam[1];
+    }
     auto start = std::chrono::system_clock::now();
     auto end = start;
     if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
@@ -585,7 +597,7 @@ void Graphe::rerecuitSimuleCustom(double &timeBest, int iter, double cool, doubl
     double recuitTimeBest;
     while (numberOfNoUpgrade < maxIter) {
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
-        recuitSimuleCustom(recuitTimeBest, cool, t, delay, modeNoeud, modeEmplacement,customParam);
+        recuitSimuleCustom(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement,customParam);
         t *= coolt;
         if (iter != -1) {
             numberOfNoUpgrade++;
@@ -613,7 +625,7 @@ void Graphe::rerecuitSimuleCustom(double &timeBest, int iter, double cool, doubl
 // Met à jour le score du graphe et des noeuds
 // delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-void Graphe::recuitSimuleScore(double &timeBest, double cool, double t, int delay, int modeNoeud, int modeEmplacement) {
+void Graphe::recuitSimuleScore(double &timeBest, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement) {
     auto start = std::chrono::system_clock::now();
     auto end = start;
     Graphe bestResult;
@@ -623,7 +635,7 @@ void Graphe::recuitSimuleScore(double &timeBest, double cool, double t, int dela
     if (delay == -1) {
         delay = ceil((double)_noeuds.size() / 20.0) + 1;
     }
-    for (int iter = 0; t > 0.0001 && nbCroisement > 0; iter++) {
+    for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
         for (int del = 0; del < delay; del++) {
             int nodeId = selectionNoeud(modeNoeud, t, true);
             int slotId = selectionEmplacement(modeEmplacement, nodeId, t);

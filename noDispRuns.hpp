@@ -36,7 +36,16 @@ void customRecuit() {
 	std::string nomFichierGraph = "graph-10-input";
 	std::string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	std::vector<std::string> slotFiles = { "10-input-slots", "2X-10-input-slots", "3X-10-input-slots", "GRID" };
-	for (auto &fileSlot : slotFiles) {
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		std::string numThread = to_string(tid);
+		std::string fileSlot = slotFiles[tid];
 		Graphe G;
 		G.readFromJsonGraph(fileGraph);
 		std::string slotFileUsed;
@@ -48,72 +57,33 @@ void customRecuit() {
 			slotFileUsed = "GRID";
 			G.generateGrid();
 		}
-		std::vector<std::vector<int>> totalRuns;
-		totalRuns.push_back({3,2});
-		totalRuns.push_back({3,3});
-		totalRuns.push_back({3,4});
-		totalRuns.push_back({3,5});
-		totalRuns.push_back({3,6});
-		totalRuns.push_back({3,7});
-		totalRuns.push_back({3,8});
-		totalRuns.push_back({3,9});
-		totalRuns.push_back({3,10});
-
-		totalRuns.push_back({4,10});
-		totalRuns.push_back({4,15});
-		totalRuns.push_back({4,20});
-		totalRuns.push_back({4,25});
-		totalRuns.push_back({4,30});
-		totalRuns.push_back({4,35});
-		totalRuns.push_back({4,40});
-		totalRuns.push_back({4,45});
-		totalRuns.push_back({4,50});
-
-		totalRuns.push_back({5,1});
-		totalRuns.push_back({5,2});
-		totalRuns.push_back({5,3});
-		totalRuns.push_back({5,4});
-		totalRuns.push_back({5,5});
-
-		totalRuns.push_back({6,1});
-		totalRuns.push_back({6,2});
-		totalRuns.push_back({6,3});
-		totalRuns.push_back({6,4});
-		totalRuns.push_back({6,5});
-		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(10,"Aleatoire","Recuit Simule Delay TME Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
-		}
-		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(10,"Aleatoire","Rerecuit Simule Delay TME Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
-		}
-		totalRuns.clear();
-		totalRuns.push_back({7,1});
-		totalRuns.push_back({7,2});
-		totalRuns.push_back({7,3});
-		totalRuns.push_back({7,4});
-		totalRuns.push_back({7,5});
-		totalRuns.push_back({7,6});
-		totalRuns.push_back({7,7});
-		totalRuns.push_back({7,8});
-		totalRuns.push_back({7,9});
-		totalRuns.push_back({7,10});
-
+		std::vector<std::vector<double>> totalRuns;
 		totalRuns.push_back({8,1});
-		totalRuns.push_back({8,2});
-		totalRuns.push_back({8,3});
-		totalRuns.push_back({8,4});
-		totalRuns.push_back({8,5});
+		totalRuns.push_back({8,25});
+		totalRuns.push_back({8,50});
+		totalRuns.push_back({8,100});
+		totalRuns.push_back({8,150});
+		totalRuns.push_back({8,200});
 
-		totalRuns.push_back({9,1});
-		totalRuns.push_back({9,2});
-		totalRuns.push_back({9,3});
-		totalRuns.push_back({9,4});
-		totalRuns.push_back({9,5});
+		totalRuns.push_back({9,0.999999});
+		totalRuns.push_back({9,0.99999});
+		totalRuns.push_back({9,0.9999});
+		totalRuns.push_back({9,0.999});
+		totalRuns.push_back({9,0.99});
+
+		totalRuns.push_back({10,0.9});
+		totalRuns.push_back({10,0.99});
+		totalRuns.push_back({10,0.999});
+		totalRuns.push_back({10,0.9999});
+		totalRuns.push_back({10,0.99999});
+
+		totalRuns.push_back({11,0.01});
+		totalRuns.push_back({11,0.001});
+		totalRuns.push_back({11,0.0001});
+		totalRuns.push_back({11,0.00001});
+		totalRuns.push_back({11,0.000001});
 		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(10,"Aleatoire","Recuit Simule TRE Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
-		}
-		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(10,"Aleatoire","Rerecuit Simule TRE Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i]);
+			generateCSV(5,"Aleatoire","Rerecuit Simule TME Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i],numThread);
 		}
 	}
 }
@@ -128,7 +98,7 @@ void allRunsSingleThread() {
 		//mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
 	}
-	int nbRuns = 10;
+	int nbRuns = 5;
 	std::cout << "Starting all run logs, nb run: " << nbRuns << std::endl;
 	
 	for (auto &key : mapGraphSlots) {
