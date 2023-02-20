@@ -309,6 +309,168 @@ long Graphe::getScoreCroisementNode(int nodeIndex, int swapIndex) {
     return score;
 }
 
+// Calcule le score du noeud en parametre.
+long Graphe::getScoreCroisementNodeGrid(int nodeIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        std::vector<int>& vecId = _liens[index].vecIdCellules;
+        for (int j = 0; j < vecId.size(); ++j) {
+            if ((index != vecId[j]) && (!isInVector(indexPasse, vecId[j]))) {
+                if (!(_liens[index].contains(_liens[vecId[j]].getNoeud1()) || _liens[index].contains(_liens[vecId[j]].getNoeud2()))) {
+                    bool isIllegal = false;
+                    if (seCroisent(_liens[index], _liens[vecId[j]],isIllegal)) {
+                        if (isIllegal) {
+                            score += PENALITE_MAX;
+                        }
+                        else {
+                            score++;
+                        }
+                    }
+                }
+                else {
+                    Noeud* nodeNotInCommon = _liens[vecId[j]].nodeNotInCommon(&_liens[index]);
+                    if (surSegment(_liens[index], *nodeNotInCommon)) {
+                        score += PENALITE_MAX_SELF;
+                    }
+                    else {
+                        nodeNotInCommon = _liens[index].nodeNotInCommon(&_liens[vecId[j]]);
+                        if (surSegment(_liens[vecId[j]], *nodeNotInCommon)) {
+                            score += PENALITE_MAX_SELF;
+                        }
+                    }
+                }
+            }
+        }
+        indexPasse.push_back(index);
+    }
+    return score;
+}
+
+// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
+long Graphe::getScoreCroisementNodeGrid(int nodeIndex, int swapIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        if (!_liens[index].contains(swapIndex)) {
+            std::vector<int>& vecId = _liens[index].vecIdCellules;
+            for (int j = 0; j < vecId.size(); ++j) {
+                if ((index != vecId[j]) && (!isInVector(indexPasse, vecId[j]))) {
+                    if (!_liens[vecId[j]].contains(swapIndex)) {
+                        if (!(_liens[index].contains(_liens[vecId[j]].getNoeud1()) || _liens[index].contains(_liens[vecId[j]].getNoeud2()))) {
+                            bool isIllegal = false;
+                            if (seCroisent(_liens[index], _liens[vecId[j]],isIllegal)) {
+                                if (isIllegal) {
+                                    score += PENALITE_MAX;
+                                }
+                                else {
+                                    score++;
+                                }
+                            }
+                        }
+                        else {
+                            Noeud* nodeNotInCommon = _liens[vecId[j]].nodeNotInCommon(&_liens[index]);
+                            if (surSegment(_liens[index], *nodeNotInCommon)) {
+                                score += PENALITE_MAX_SELF;
+                            }
+                            else {
+                                nodeNotInCommon = _liens[index].nodeNotInCommon(&_liens[vecId[j]]);
+                                if (surSegment(_liens[vecId[j]], *nodeNotInCommon)) {
+                                    score += PENALITE_MAX_SELF;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        indexPasse.push_back(index);
+    }
+    return score;
+}
+
+// Calcule le score du noeud en parametre.
+long Graphe::getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecId,int nodeIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        for (int j = 0; j < vecId[i].size(); ++j) {
+            if ((index != vecId[i][j]) && (!isInVector(indexPasse, vecId[i][j]))) {
+                if (!(_liens[index].contains(_liens[vecId[i][j]].getNoeud1()) || _liens[index].contains(_liens[vecId[i][j]].getNoeud2()))) {
+                    bool isIllegal = false;
+                    if (seCroisent(_liens[index], _liens[vecId[i][j]],isIllegal)) {
+                        if (isIllegal) {
+                            score += PENALITE_MAX;
+                        }
+                        else {
+                            score++;
+                        }
+                    }
+                }
+                else {
+                    Noeud* nodeNotInCommon = _liens[vecId[i][j]].nodeNotInCommon(&_liens[index]);
+                    if (surSegment(_liens[index], *nodeNotInCommon)) {
+                        score += PENALITE_MAX_SELF;
+                    }
+                    else {
+                        nodeNotInCommon = _liens[index].nodeNotInCommon(&_liens[vecId[i][j]]);
+                        if (surSegment(_liens[vecId[i][j]], *nodeNotInCommon)) {
+                            score += PENALITE_MAX_SELF;
+                        }
+                    }
+                }
+            }
+        }
+        indexPasse.push_back(index);
+    }
+    return score;
+}
+
+// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
+long Graphe::getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecId, int nodeIndex, int swapIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        if (!_liens[index].contains(swapIndex)) {
+            for (int j = 0; j < vecId[i].size(); ++j) {
+                if ((index != vecId[i][j]) && (!isInVector(indexPasse, vecId[i][j]))) {
+                    if (!_liens[vecId[i][j]].contains(swapIndex)) {
+                        if (!(_liens[index].contains(_liens[vecId[i][j]].getNoeud1()) || _liens[index].contains(_liens[vecId[i][j]].getNoeud2()))) {
+                            bool isIllegal = false;
+                            if (seCroisent(_liens[index], _liens[vecId[i][j]],isIllegal)) {
+                                if (isIllegal) {
+                                    score += PENALITE_MAX;
+                                }
+                                else {
+                                    score++;
+                                }
+                            }
+                        }
+                        else {
+                            Noeud* nodeNotInCommon = _liens[vecId[i][j]].nodeNotInCommon(&_liens[index]);
+                            if (surSegment(_liens[index], *nodeNotInCommon)) {
+                                score += PENALITE_MAX_SELF;
+                            }
+                            else {
+                                nodeNotInCommon = _liens[index].nodeNotInCommon(&_liens[vecId[i][j]]);
+                                if (surSegment(_liens[vecId[i][j]], *nodeNotInCommon)) {
+                                    score += PENALITE_MAX_SELF;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        indexPasse.push_back(index);
+    }
+    return score;
+}
+
 // Indique aux aretes du noeuds que leur liste d'intersection n'est pas à jours.
 void Graphe::changeUpdateValue(int idNode) {
     for (int i=0;i<_noeuds[idNode]._aretes.size();i++) {

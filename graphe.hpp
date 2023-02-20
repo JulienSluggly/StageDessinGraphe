@@ -9,6 +9,7 @@
 #include "aretes.hpp"
 #include "noeud.hpp"
 #include "carte.h"
+#include "cellule.hpp"
 
 class Graphe {
 public:
@@ -21,6 +22,9 @@ public:
 	std::set<Aretes*> areteInter;
 
 	Carte _c;
+
+	std::vector<std::vector<Cellule>> grille;
+	std::vector<Cellule*> grillePtr;
 
 	int PENALITE_MAX = 1000;
 	int PENALITE_MAX_SELF = 1001;
@@ -42,7 +46,7 @@ public:
 	// Nombre maximum de voisin d'un noeud dans le graphe.
 	int maxVoisin = -1;
 
-	bool DEBUG_GRAPHE = true;
+	bool DEBUG_GRAPHE = false;
 	bool DEBUG_PROGRESS = false;
 	bool DEBUG_OPENGL = false;
 
@@ -53,6 +57,8 @@ public:
 	Graphe(std::string nom);
 
 	void afficherLiens(std::string nom = "");
+
+	void afficherLiensEmp(std::string nom = "");
 
 	void afficherNoeuds(std::string nom = "");
 
@@ -79,6 +85,10 @@ public:
 	void debugNoeudNonPlace(bool display=true, std::string nom = "");
 
 	void debugOldCroisement(bool display=true, std::string nom = "");
+
+	void debugDesyncEmplacementCell(bool display=true, std::string nom = "");
+
+	void debugDesyncAreteCell(bool display=true, std::string nom = "");
 
 	void debugEverything(bool displayOther=false, bool displaySelf=false);
 
@@ -251,6 +261,21 @@ public:
 	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
 	long getScoreCroisementNode(int nodeIndex, int swapIndex);
 
+	// Calcule le score du noeud en parametre. Utilise la grille
+	long getScoreCroisementNodeGrid(int nodeIndex);
+
+	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex. Utilise la grille
+	long getScoreCroisementNodeGrid(int nodeIndex, int swapIndex);
+
+	// Calcule le score du noeud en parametre. Utilise la grille
+	long getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecId,int nodeIndex);
+
+	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex. Utilise la grille
+	long getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecId, int nodeIndex, int swapIndex);
+
+	// Met a jour les vecteurs de la grille et des aretes
+	void applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int nodeIndex);
+
 	void recalculateIllegalIntersections(int i);
 
 	// Effectue le croisement entre deux parents,
@@ -375,6 +400,35 @@ public:
 
 	// Creer une triangulation de delaunay des emplacements et peulple la carte _c
 	void triangulationDelaunay();
+
+	// Remplie la grille de cellules, nombre de ligne et nombre de colones
+	void initGrille(int row=-1,int column=-1,bool decalleGrille=true);
+
+	// Enregistre les emplacements et les aretes dans la grille
+	void registerSlotsAndEdgesInGrid();
+
+	// Enregistre avec alignements d'emplacements
+	void registerSlotsAndEdgesInGridNoMove();
+
+	// Renvoie un entier indiquant la direction de l'arete noeud1 vers noeud2.
+	//0=R,1=TR,2=T,3=TL,4=L,5=BL,6=B,7=BR
+	int getDirectionArete(int idArete);
+
+	// Met a jour les cellules passée par l'arete areteId
+	void recalcAreteCellule(int areteId);
+
+	// Calcule le vecteur de cellule sans le mettre a jour
+	void calcAreteCelluleVec(std::vector<int>& vecInt,int areteId);
+
+	// Calcule le vecteur de vecteur de cellule sans le mettre a jour
+	void calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int nodeId);
+
+	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
+	// Met à jour la variable nombreCroisement du graphe, utilise la grille.
+	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
+	// modeNoeud et modeEmplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
+	void recuitSimuleGrid(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
+
 
 };
 

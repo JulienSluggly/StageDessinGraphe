@@ -13,7 +13,7 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
     std::vector<int> methodeNonScore = { 0, 1, 2, 5 };
     bool modeNonScore = isInVector(methodeNonScore, modeCroisement);
     bool DEBUG_GENETIQUE = false;
-    bool PRINT_RESULT = false;
+    bool PRINT_RESULT = true;
     std::vector<Graphe> graphes;
     graphes.resize(population);
     graphes[0].readFromJsonGraph(nomGraphe);

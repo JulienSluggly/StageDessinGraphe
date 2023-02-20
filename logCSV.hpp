@@ -75,8 +75,10 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 	std::vector<double> tempExecVector; std::vector<double> tempBestVector; std::vector<int> bestIterationVector; std::vector<int> lastIterationVector;
 	double tempsExecMoyenne = 0; double tempsBestMoyenne = 0; double bestIterationMoyenne = 0; double lastIterationMoyenne = 0;
 	bool saveResult = true;
+	auto totalStart = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotal = totalStart - totalStart;
 	int population, maxIteration;
-	for (int i = 1; i <= nbEssay; ++i) {
+	for (int i = 1; (i <= nbEssay||(nbEssay==-1&&secondsTotal.count() < 1800)); ++i) {
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
 		if (isGenetique) {
 			population = mapGraphPopGen[nomGraphe].first;
@@ -144,6 +146,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 
 		auto end = std::chrono::system_clock::now();
 		std::chrono::duration<double> secondsTotal = end - start;
+		secondsTotal = end - totalStart;
 		tempExecVector.push_back(secondsTotal.count());
 		tempBestVector.push_back(tempsBest);
 		bestIterationVector.push_back(bestIteration);
@@ -163,12 +166,12 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 	if (saveResult) {
 		sort(croisementVector.begin(), croisementVector.end());
 		meilleurCroisement = croisementVector[0];
-		moyenneCroisement = moyenneVector(croisementVector,nbEssay);
+		moyenneCroisement = moyenneVector(croisementVector);
 		medianCroisement = medianeVector(croisementVector);
-		tempsExecMoyenne = moyenneVector(tempExecVector,nbEssay);
-		tempsBestMoyenne = moyenneVector(tempBestVector,nbEssay);
-		bestIterationMoyenne = moyenneVector(bestIterationVector,nbEssay);
-		lastIterationMoyenne = moyenneVector(lastIterationVector,nbEssay);
+		tempsExecMoyenne = moyenneVector(tempExecVector);
+		tempsBestMoyenne = moyenneVector(tempBestVector);
+		bestIterationMoyenne = moyenneVector(bestIterationVector);
+		lastIterationMoyenne = moyenneVector(lastIterationVector);
 		
 
 		std::string nomFichier = chemin + "/resultats/" + nomGraphe + tid + ".csv";
@@ -181,7 +184,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		resultats << std::fixed;
 		resultats << methodeName << ","
 			<< methodeAlgoName << ","
-			<< std::setprecision(0) << nbEssay << ","
+			<< std::setprecision(0) << croisementVector.size() << ","
 			<< G._emplacementsPossibles.size() << ","
 			<< nbSolutionIllegale << ","
 			<< meilleurCroisement << ",";

@@ -28,6 +28,8 @@ public:
 	std::unordered_set<int> intersectionsIllSelf;
 	bool isUpdated = false;
 
+	std::vector<int> vecIdCellules; // Contient les id des cellules dans la grille du graphe
+
 	Noeud* getNoeud1()  const { return _noeud1; }
 	Noeud* getNoeud2()  const { return _noeud2; }
 

@@ -18,20 +18,23 @@
 using namespace std;
 
 int main() {
-	//initSameSeed();
-	initRandomSeed();
+	initSameSeed();
+	//initRandomSeed();
 	//std::vector<std::string> files = {"graph-1-input","graph-2-input","graph-3-input","graph-4-input","graph-5-input","graph-6-input","graph-7-input","graph-8-input","graph-9-input","graph-10-input","graph-11-input","graph-12-input"};
 	//std::vector<std::string> files = {"graph-1-input","graph-2-input","graph-3-input","graph-4-input","graph-5-input","graph-6-input","graph-7-input","graph-8-input","graph-10-input","graph-11-input","graph-12-input"};
-	//std::vector<std::string> files = {"graph-8-input"};
+	//std::vector<std::string> files = {"graph-10-input"};
 	//ogdfCrossingNumbers(files);
-	customRecuit();
-	allRunsSingleThread();
-	return 0;
+	//customRecuit();
+	//allRunsSingleThread();
+	//return 0;
+
+	//performanceTest();
+	//return 0;
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-8-input";
-	string nomFichierSlots = "8-input-slots";
+	string nomFichierGraph = "graph-2-input";
+	string nomFichierSlots = "2-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
@@ -40,9 +43,6 @@ int main() {
 	string fileOldGraph = chemin + "automatique/auto21-13.json";
 	G.readFromJsonGraph(fileGraph);
 	//G.generateGrid();
-	//ogdfReverse(G);
-	//ogdfCrossingNumbers({"graph-8-input"});
-	//return 0;
 	G.readFromJsonSlots(fileSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
@@ -51,18 +51,25 @@ int main() {
 
 	std::cout << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
-	double timeBest = -1; int lastIteration = -1; int bestIteration = -1;
+	double timeBest = -1; int bestIteration = -1; int lastIteration = -1; 
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
+	//G.grapheGenetique(timeBest,bestIteration,lastIteration,1000,1000,fileGraph,fileSlots,false,false,5);
 
-	//G.placementAleatoire();
-	//G.triangulationDelaunay();
+	G.placementAleatoire();
+	G.triangulationDelaunay();
+	G.initGrille();
+	G.registerSlotsAndEdgesInGrid();
+
+	G.recuitSimuleGrid(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);
+	//G.afficherEmplacement();
+	//G.afficherLiensEmp();
 	//G.recuitSimuleCustom(timeBest,0.99999, 100.0,0.0001, 1, 0, 3, {1,15});
 
 	//G.initGraphAndNodeScoresAndCrossings();
+	//G.afficherInfo();
+	//G.recuitSimuleCustom(timeBest,0.99999,100.0,0.0001,1,0,4,{7,5});
 
-	//G.recuitSimule(timeBest,0.99999,100.0,0.0001,1,0,4);
-
-	ogdfReverseNonPlanar(G);
+	///ogdfReverseNonPlanar(G);
 
 	
 	//G.recuitSimuleScore(timeBest);

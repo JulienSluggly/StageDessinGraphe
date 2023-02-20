@@ -19,11 +19,15 @@ bool display_genetic = false;
 bool isGeneticSetUp = false;
 bool show_triangulation = false;
 bool show_grid_size = true;
+bool show_cells = false;
 int currentZoom = 0;
 bool moving = false;
 int selectedNode = 0;
 bool show_selected_emplacement = false;
 bool show_selected_node = false;
+bool show_selected_cell = false;
+int selectedCellX = 0, selectedCellY=0;
+int maxCellX = 0, maxCellY = 0;
 int selectedEmplacement = 0;
 int maxNodeIndex = 0;
 int maxEmplacementIndex = 0;
@@ -59,6 +63,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					selectedEmplacement--;
 				}
 			}
+			else if (show_cells) {
+				if (selectedCellX > 0) {
+					selectedCellX--;
+					show_selected_cell = true;
+				}
+			}
 			else {
 				if (moving) {
 					keyPressFunctionNum = 9; singleKeyPress = true;
@@ -77,6 +87,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					selectedEmplacement++;
 				}
 			}
+			else if (show_cells) {
+				if (selectedCellX < maxCellX) {
+					selectedCellX++;
+					show_selected_cell = true;
+				}
+			}
 			else {
 				if (moving) {
 					keyPressFunctionNum = 10; singleKeyPress = true;
@@ -90,8 +106,20 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			}
 			break;
 		case GLFW_KEY_DOWN:
+			if (show_cells) {
+				if (selectedCellY > 0) {
+					selectedCellY--;
+					show_selected_cell = true;
+				}
+			}
 			break;
 		case GLFW_KEY_UP:
+			if (show_cells) {
+				if (selectedCellY < maxCellY) {
+					selectedCellY++;
+					show_selected_cell = true;
+				}
+			}
 			break;
 		case GLFW_KEY_1:
 			keyPressFunctionNum = 5; singleKeyPress = true;
@@ -149,6 +177,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_F7:
 			keyPressFunctionNum = 16; singleKeyPress = true;
 			break;
+		case GLFW_KEY_F8:
+			keyPressFunctionNum = 19; singleKeyPress = true;
+			break;
 		case GLFW_KEY_KP_ADD:
 			//if (currentZoom >= 30)
 			currentZoom = currentZoom - 30;
@@ -164,6 +195,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_E:
 			show_selected_emplacement = !show_selected_emplacement;
+			break;
+		case GLFW_KEY_G:
+			show_cells = !show_cells;
 			break;
 		case GLFW_KEY_S:
 			if (show_selected_emplacement) {
@@ -333,6 +367,53 @@ void openGLShowTriangulation(Graphe& G) {
 	}
 }
 
+void openGLShowCells(Graphe& G) {
+	if (show_cells) {
+		glLineWidth(2.0f);
+		glColor3f(0.8f, 0.7f, 0.6f);
+		for (int i=0;i<G.grille.size();i++) {
+			for (int j=0;j<G.grille[i].size();j++) {
+				int x1 = G.grille[i][j].getBottomRightX();
+				int y1 = G.grille[i][j].getBottomRightY();
+				int x2 = G.grille[i][j].getBottomLeftX();
+				int y2 = G.grille[i][j].getTopRightY();
+				glBegin(GL_LINE_STRIP);
+				glVertex2d(x1, y1);
+				glVertex2d(x2, y1);
+				glEnd();
+				glBegin(GL_LINE_STRIP);
+				glVertex2d(x1, y1);
+				glVertex2d(x1, y2);
+				glEnd();
+				if (j == 0) {
+					glBegin(GL_LINE_STRIP);
+					glVertex2d(x2, y1);
+					glVertex2d(x2, y2);
+					glEnd();
+				}
+				if (i == G.grille.size()-1) {
+					glBegin(GL_LINE_STRIP);
+					glVertex2d(x2, y2);
+					glVertex2d(x1, y2);
+					glEnd();
+				}
+			}
+		}
+		if (show_selected_cell) {
+			int x1 = G.grille[selectedCellY][selectedCellX].getTopLeftX();
+			int y1 = G.grille[selectedCellY][selectedCellX].getTopLeftY();
+			int x2 = G.grille[selectedCellY][selectedCellX].getBottomRightX();
+			int y2 = G.grille[selectedCellY][selectedCellX].getBottomRightY();
+			glBegin(GL_QUADS);
+			glVertex2f(x1, y1);
+			glVertex2f(x2, y1);
+			glVertex2f(x2, y2);
+			glVertex2f(x1, y2);
+			glEnd();
+		}
+	}
+}
+
 void openGLShowGrid() {
 	// affichage de la grille avec une marge de 1
 	glLineWidth(2.0f);
@@ -462,7 +543,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 7: {// Affiche score
 			if (!display_genetic) {
-				std::cout << "Selected Node: " << selectedNode << " Selected Emplacement: " << selectedEmplacement << std::endl;
+				std::cout << "Selected Node: " << selectedNode << " emplacement: " << G._noeuds[selectedNode].getEmplacement()->_id << " Selected Emplacement: " << selectedEmplacement << std::endl;
 				std::cout << "Nb Intersection: " << G.getNbCroisement() << std::endl;
 				std::cout << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
 				if (show_selected_emplacement) {
@@ -616,6 +697,18 @@ void openGLKeyPressFunction(Graphe& G) {
 			recalcIllegal = true;
 			break;
 		}
+		case 19: {// Affiche le contenu de la cellule (KEY:F8)
+			if (show_cells && show_selected_cell) {
+				std::cout << "Cellule: " << selectedCellY << " " << selectedCellX << " id: " << selectedCellY * G.grille[0].size() + selectedCellX << std::endl;
+				for (const int& id : G.grille[selectedCellY][selectedCellX].vecEmplacementId) {
+					std::cout << "	Emplacement: " << id << " Noeud: " << G._emplacementsPossibles[id]._noeud->_id << std::endl;
+				}
+				for (const int& id : G.grille[selectedCellY][selectedCellX].vecAreteId) {
+					std::cout << "	Arete: " << id << " N1: " << G._liens[id].getNoeud1()->_id << " N2: " << G._liens[id].getNoeud2()->_id << std::endl;
+				}
+			}
+			break;
+		}
 		default:{
 			std::cout << "No function found.\n";
 		}
@@ -634,10 +727,20 @@ void openGLKeyPressFunction(Graphe& G) {
 
 void openGLShowEverything(Graphe& G) {
 	openGLShowGrid();
+	openGLShowCells(G);
 	openGLShowEdges(G);
 	openGLShowTriangulation(G);
 	openGLShowEmplacement(G);
 	openGLShowNodes(G);
+}
+
+void openGLInitGlobalVariables(Graphe& G) {
+	maxNodeIndex = G._noeuds.size() - 1;
+	maxEmplacementIndex = G._emplacementsPossibles.size() - 1;
+	maxCellY = G.grille.size()-1;
+	if (maxCellY > 0) {
+		maxCellX = G.grille[0].size()-1;
+	}
 }
 
 void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
@@ -651,8 +754,7 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
 	// NB tour pour le stockage de donnee pour les graphiques, a supprimer lors de vrai executions
 	unsigned long long totalTurn = 0;
 	unsigned long long lastWrittenTurn = 0;
-	maxNodeIndex = G._noeuds.size() - 1;
-	maxEmplacementIndex = G._emplacementsPossibles.size() - 1;
+	openGLInitGlobalVariables(G);
 
 	openGLPrintRaccourcis();
 

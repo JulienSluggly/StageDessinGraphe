@@ -50,21 +50,21 @@ bool isInVector(std::vector<std::string>& vectorString, std::string x) {
     return false;
 }
 
-double moyenneVector(std::vector<int>& vec, int nbEssay) {
+double moyenneVector(std::vector<int>& vec) {
 	double moyenne = 0;
 	for (const int& elem : vec) {
 		moyenne += elem;
 	}
-	moyenne = moyenne / (double)nbEssay;
+	moyenne = moyenne / (double)vec.size();
 	return moyenne;
 }
 
-double moyenneVector(std::vector<double>& vec, int nbEssay) {
+double moyenneVector(std::vector<double>& vec) {
 	double moyenne = 0;
 	for (const double& elem : vec) {
 		moyenne += elem;
 	}
-	moyenne = moyenne / (double)nbEssay;
+	moyenne = moyenne / (double)vec.size();
 	return moyenne;
 }
 
@@ -99,4 +99,14 @@ bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b) {
         return (a->getY() < b->getY());
     }
     return (a->getX() < b->getX());
+}
+
+void removeFromVector(std::vector<int>& vec, int x) {
+    for (int i=0;i<vec.size();i++) {
+        if (vec[i] == x) {
+            vec[i] = vec[vec.size()-1];
+            vec.pop_back();
+            return;
+        }
+    }
 }

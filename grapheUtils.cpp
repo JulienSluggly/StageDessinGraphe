@@ -337,3 +337,513 @@ void Graphe::triangulationDelaunay() {
     isCarteSetUp = true;
     std::cout << "Triangulation delaunay fini.\n";
 }
+
+void Graphe::initGrille(int row,int column,bool decalleGrille) {
+    if (decalleGrille) {
+        for (int i=0;i<_emplacementsPossibles.size();i++) {
+            _emplacementsPossibles[i]._x = (_emplacementsPossibles[i]._x*2)+2;
+            _emplacementsPossibles[i]._y = (_emplacementsPossibles[i]._y*2)+2;
+        }
+        gridWidth = (gridWidth * 2) + 2;
+        gridHeight = (gridHeight * 2) + 2;
+    }
+    if (row == -1) { row = (int)ceil(sqrt(_noeuds.size())); }
+    if (column == -1) { column = row; }
+    int sizeColumn = ceil((double)gridWidth / (double)column);
+    if (sizeColumn % 2 == 1) { sizeColumn++; }
+    int sizeRow = ceil((double)gridHeight / (double)row);
+    if (sizeRow % 2 == 1) { sizeRow++; }
+    for (int y=0;y<row;y++) {
+        std::vector<Cellule> tmpVec;
+        for (int x=0;x<column;x++) {
+            int id = y*sizeColumn + x;
+            int x1 = x*sizeColumn + 1;
+            int x2 = x1+sizeColumn;
+            int y1 = y*sizeRow + 1;
+            int y2 = y1+sizeRow;
+            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1));
+        }
+        grille.push_back(tmpVec);
+    }
+
+    for (int i=0;i<grille.size();i++) {
+        for (int j=0;j<grille[0].size();j++) {
+            grillePtr.push_back(&grille[i][j]);
+        }
+    }
+
+}
+
+void Graphe::registerSlotsAndEdgesInGridNoMove() {
+    int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
+    int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
+    for (int i=0;i < _emplacementsPossibles.size();i++) {
+        int x = _emplacementsPossibles[i].getX();
+        int y = _emplacementsPossibles[i].getY();
+        double dnumX = (double)x/(double)sizeColumn;
+        double dnumY = (double)y/(double)sizeRow;
+        int numX = floor(dnumX);
+        int numY = floor(dnumY);
+
+        double epsilon = 0.00001;
+        int numX2 = floor(dnumX + epsilon);
+        int numY2 = floor(dnumY + epsilon);
+        if (numX2 == numX) { numX2 = floor(dnumX - epsilon); }
+        if (numY2 == numY) { numY2 = floor(dnumY - epsilon); }
+        int id;
+        if (numX2 != numX) { // Cas alligné sur segment vertical de la grille
+            if (numY2 != numY) { // Cas aligné sur intersection de la grille
+                if ((numY2 >= 0)&&(numY2 < grille.size())) { // Ajout numY2 & numX
+                    if (numX < grille[0].size()) {
+                        id = numY2 * grille[0].size() + numX;
+                        _emplacementsPossibles[i].vecIdCellules.push_back(id);
+                        grille[numY2][numX].vecEmplacementId.push_back(i);
+                    }
+                    if ((numX2 >= 0)&&(numX2 < grille[0].size())) { // Ajout numY2 et numX2
+                        id = numY2 * grille[0].size() + numX2;
+                        _emplacementsPossibles[i].vecIdCellules.push_back(id);
+                        grille[numY2][numX2].vecEmplacementId.push_back(i);
+                    }
+                }
+            }
+            if ((numX2 >= 0)&&(numX2 < grille[0].size())&&numY < grille.size()) { // Ajout numY et numX2
+                id = numY * grille[0].size() + numX2;
+                _emplacementsPossibles[i].vecIdCellules.push_back(id);
+                grille[numY][numX2].vecEmplacementId.push_back(i);
+            }
+        }
+        else if (numY2 != numY) { // Cas juste aligné sur segment horizontal de la grille
+            if ((numY2 >= 0)&&(numY2 < grille.size())&&numX < grille[0].size()) { // Ajout numY2 & numX
+                id = numY2 * grille[0].size() + numX;
+                _emplacementsPossibles[i].vecIdCellules.push_back(id);
+                grille[numY2][numX].vecEmplacementId.push_back(i);
+            }
+        }
+        // Ajout numY & numX
+        if (numY < grille.size() && numX < grille[0].size()) {
+            id = numY * grille[0].size() + numX;
+            _emplacementsPossibles[i].vecIdCellules.push_back(id);
+            grille[numY][numX].vecEmplacementId.push_back(i);
+        }
+    }
+
+    for (int i=0;i<_liens.size();i++) {
+        int direction = getDirectionArete(i);
+
+        // A faire si besoin
+    }
+}
+
+void Graphe::registerSlotsAndEdgesInGrid() {
+    std::cout << "Remplissage de la grille.\n";
+    int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
+    int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
+    for (int i=0;i < _emplacementsPossibles.size();i++) {
+        int x = _emplacementsPossibles[i].getX()-1;
+        int y = _emplacementsPossibles[i].getY()-1;
+        double dnumX = (double)x/(double)sizeColumn;
+        double dnumY = (double)y/(double)sizeRow;
+        int numX = floor(dnumX);
+        int numY = floor(dnumY);
+        int id = numY * grille[0].size() + numX;
+        _emplacementsPossibles[i].vecIdCellules.push_back(id);
+        grille[numY][numX].vecEmplacementId.push_back(i);
+    }
+
+    int nombreColonne = grille[0].size();
+    for (int i=0;i<_liens.size();i++) {
+        int n1X = _liens[i].getNoeud1()->getX();
+        int n1Y = _liens[i].getNoeud1()->getY();
+        int n2X = _liens[i].getNoeud2()->getX();
+        int n2Y = _liens[i].getNoeud2()->getY();
+        int direction = getDirectionArete(i);
+        int idCell = _liens[i].getNoeud1()->getEmplacement()->vecIdCellules[0];
+        int idCellArrive = _liens[i].getNoeud2()->getEmplacement()->vecIdCellules[0];
+        int idCellX = idCell % grille[0].size();
+        int idCellY = idCell / grille[0].size();
+        _liens[i].vecIdCellules.push_back(idCell);
+        grille[idCellY][idCellX].vecAreteId.push_back(i); 
+        while (idCell != idCellArrive) {
+            switch(direction) {
+                case 0:
+                    idCellX++;
+                    idCell++;
+                    break;
+                case 1: {
+                    int cellX = grillePtr[idCell]->getTopRightX();
+                    int cellY = grillePtr[idCell]->getTopRightY();
+                    int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                    if (alignement == 1) {
+                        idCellX++;
+                        idCell++;
+                    }
+                    else if (alignement == -1) {
+                        idCellY++;
+                        idCell += nombreColonne;
+                    }
+                    else {
+                        _liens[i].vecIdCellules.push_back(idCell+nombreColonne);
+                        grille[idCellY+1][idCellX].vecAreteId.push_back(i);
+                        _liens[i].vecIdCellules.push_back(idCell+1);
+                        grille[idCellY][idCellX+1].vecAreteId.push_back(i);
+                        idCell = idCell + nombreColonne + 1;
+                        idCellX++;
+                        idCellY++;
+                    }
+                    break;
+                }
+                case 2:
+                    idCellY++;
+                    idCell += nombreColonne;
+                    break;
+                case 3: {
+                    int cellX = grillePtr[idCell]->getTopLeftX();
+                    int cellY = grillePtr[idCell]->getTopLeftY();
+                    int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                    if (alignement == 1) {
+                        idCellY++;
+                        idCell += nombreColonne;
+                    }
+                    else if (alignement == -1) {
+                        idCellX--;
+                        idCell--;
+                    }
+                    else {
+                        _liens[i].vecIdCellules.push_back(idCell+nombreColonne);
+                        grille[idCellY+1][idCellX].vecAreteId.push_back(i);
+                        _liens[i].vecIdCellules.push_back(idCell-1);
+                        grille[idCellY][idCellX-1].vecAreteId.push_back(i);
+                        idCell = idCell + nombreColonne - 1;
+                        idCellX--;
+                        idCellY++;
+                    }
+                    break;
+                }
+                case 4:
+                    idCellX--;
+                    idCell--;
+                    break;
+                case 5: {
+                    int cellX = grillePtr[idCell]->getBottomLeftX();
+                    int cellY = grillePtr[idCell]->getBottomLeftY();
+                    int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                    if (alignement == 1) {
+                        idCellX--;
+                        idCell--;
+                    }
+                    else if (alignement == -1) {
+                        idCellY--;
+                        idCell -= nombreColonne;
+                    }
+                    else {
+                        _liens[i].vecIdCellules.push_back(idCell-nombreColonne);
+                        grille[idCellY-1][idCellX].vecAreteId.push_back(i);
+                        _liens[i].vecIdCellules.push_back(idCell-1);
+                        grille[idCellY][idCellX-1].vecAreteId.push_back(i);
+                        idCell = idCell - nombreColonne - 1;
+                        idCellX--;
+                        idCellY--;
+                    }
+                    break;
+                }
+                case 6:
+                    idCellY--;
+                    idCell -= grille[0].size();
+                    break;
+                case 7: {
+                    int cellX = grillePtr[idCell]->getBottomRightX();
+                    int cellY = grillePtr[idCell]->getBottomRightY();
+                    int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                    if (alignement == 1) {
+                        idCellY--;
+                        idCell -= nombreColonne;
+                    }
+                    else if (alignement == -1) {
+                        idCellX++;
+                        idCell++;
+                    }
+                    else {
+                        _liens[i].vecIdCellules.push_back(idCell-nombreColonne);
+                        grille[idCellY-1][idCellX].vecAreteId.push_back(i);
+                        _liens[i].vecIdCellules.push_back(idCell+1);
+                        grille[idCellY][idCellX+1].vecAreteId.push_back(i);
+                        idCell = idCell - nombreColonne + 1;
+                        idCellX++;
+                        idCellY--;
+                    }
+                    break;
+                }
+            }
+            _liens[i].vecIdCellules.push_back(idCell);
+            grille[idCellY][idCellX].vecAreteId.push_back(i);
+        }
+    }
+    std::cout << "Fin remplissage de la grille.\n";
+}
+
+int Graphe::getDirectionArete(int idArete) {
+    int x1 = _liens[idArete].getNoeud1()->getX();
+    int y1 = _liens[idArete].getNoeud1()->getY();
+
+    int x2 = _liens[idArete].getNoeud2()->getX();
+    int y2 = _liens[idArete].getNoeud2()->getY();
+    
+    if (x2 > x1) { // Dirigé vers la droite
+        if (y2 > y1) { // Dirigé en haut à droite
+            return 1;
+        }
+        else if (y2 < y1) { // Dirigé en bas à droite
+            return 7;
+        }
+        return 0; // Dirigé à droite
+    }
+    else if (x2 < x1) { // Dirigé vers la gauche
+        if (y2 > y1) {   // Dirigé en haut à gauche
+            return 3;
+        }
+        else if (y2 < y1) { // Dirigé en bas à gauche
+            return 5;
+        }
+        return 4; // Dirigé à gauche
+    }
+    else { // Dirigé verticalement
+        if (y2 > y1) { // Dirigé vers le haut
+            return 2;
+        }
+        return 6; // Dirigé vers le bas
+    }
+}
+
+void Graphe::recalcAreteCellule(int areteId) {
+    std::vector<int> vecCellId;
+    int n1X = _liens[areteId].getNoeud1()->getX();
+    int n1Y = _liens[areteId].getNoeud1()->getY();
+    int n2X = _liens[areteId].getNoeud2()->getX();
+    int n2Y = _liens[areteId].getNoeud2()->getY();
+    int direction = getDirectionArete(areteId);
+    int idCell = _liens[areteId].getNoeud1()->getEmplacement()->vecIdCellules[0];
+    int idCellArrive = _liens[areteId].getNoeud2()->getEmplacement()->vecIdCellules[0];
+    vecCellId.push_back(idCell);
+    int nombreColonne = grille[0].size();
+    while (idCell != idCellArrive) {
+        switch(direction) {
+            case 0:
+                idCell++;
+                break;
+            case 1: {
+                int cellX = grillePtr[idCell]->getTopRightX();
+                int cellY = grillePtr[idCell]->getTopRightY();
+                int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell++;
+                }
+                else if (alignement == -1) {
+                    idCell += nombreColonne;
+                }
+                else {
+                    vecCellId.push_back(idCell+nombreColonne);
+                    vecCellId.push_back(idCell+1);
+                    idCell = idCell + nombreColonne + 1;
+                }
+                break;
+            }
+            case 2:
+                idCell += nombreColonne;
+                break;
+            case 3: {
+                int cellX = grillePtr[idCell]->getTopLeftX();
+                int cellY = grillePtr[idCell]->getTopLeftY();
+                int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell += nombreColonne;
+                }
+                else if (alignement == -1) {
+                    idCell--;
+                }
+                else {
+                    vecCellId.push_back(idCell+nombreColonne);
+                    vecCellId.push_back(idCell-1);
+                    idCell = idCell + nombreColonne - 1;
+                }
+                break;
+            }
+            case 4:
+                idCell--;
+                break;
+            case 5: {
+                int cellX = grillePtr[idCell]->getBottomLeftX();
+                int cellY = grillePtr[idCell]->getBottomLeftY();
+                int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell--;
+                }
+                else if (alignement == -1) {
+                    idCell -= nombreColonne;
+                }
+                else {
+                    vecCellId.push_back(idCell-nombreColonne);
+                    vecCellId.push_back(idCell-1);
+                    idCell = idCell - nombreColonne - 1;
+                }
+                break;
+            }
+            case 6:
+                idCell -= grille[0].size();
+                break;
+            case 7: {
+                int cellX = grillePtr[idCell]->getBottomRightX();
+                int cellY = grillePtr[idCell]->getBottomRightY();
+                int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell -= nombreColonne;
+                }
+                else if (alignement == -1) {
+                    idCell++;
+                }
+                else {
+                    vecCellId.push_back(idCell-nombreColonne);
+                    vecCellId.push_back(idCell+1);
+                    idCell = idCell - nombreColonne + 1;
+                }
+                break;
+            }
+        }
+        vecCellId.push_back(idCell);
+    }
+    int sameUntil;
+    int minSize = min(vecCellId.size(),_liens[areteId].vecIdCellules.size());
+    for (sameUntil=0;((vecCellId[sameUntil]==_liens[areteId].vecIdCellules[sameUntil])&&(sameUntil<minSize));sameUntil++);
+    for (int i=sameUntil;i<_liens[areteId].vecIdCellules.size();i++) {
+        removeFromVector(grillePtr[_liens[areteId].vecIdCellules[i]]->vecAreteId,areteId);
+    }
+    for (int i=sameUntil;vecCellId.size();i++) {
+        if (!isInVector(grillePtr[vecCellId[i]]->vecAreteId,areteId)) {
+            grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
+        }
+    }
+    _liens[areteId].vecIdCellules.swap(vecCellId);
+}
+
+void Graphe::calcAreteCelluleVec(std::vector<int>& vecCellId, int areteId) {
+    int n1X = _liens[areteId].getNoeud1()->getX();
+    int n1Y = _liens[areteId].getNoeud1()->getY();
+    int n2X = _liens[areteId].getNoeud2()->getX();
+    int n2Y = _liens[areteId].getNoeud2()->getY();
+    int direction = getDirectionArete(areteId);
+    int idCell = _liens[areteId].getNoeud1()->getEmplacement()->vecIdCellules[0];
+    int idCellArrive = _liens[areteId].getNoeud2()->getEmplacement()->vecIdCellules[0];
+    vecCellId.push_back(idCell);
+    int nombreColonne = grille[0].size();
+    while (idCell != idCellArrive) {
+        switch(direction) {
+            case 0:
+                idCell++;
+                break;
+            case 1: {
+                int cellX = grillePtr[idCell]->getTopRightX();
+                int cellY = grillePtr[idCell]->getTopRightY();
+                int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell++;
+                }
+                else if (alignement == -1) {
+                    idCell += nombreColonne;
+                }
+                else {
+                    vecCellId.push_back(idCell+nombreColonne);
+                    vecCellId.push_back(idCell+1);
+                    idCell = idCell + nombreColonne + 1;
+                }
+                break;
+            }
+            case 2:
+                idCell += nombreColonne;
+                break;
+            case 3: {
+                int cellX = grillePtr[idCell]->getTopLeftX();
+                int cellY = grillePtr[idCell]->getTopLeftY();
+                int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell += nombreColonne;
+                }
+                else if (alignement == -1) {
+                    idCell--;
+                }
+                else {
+                    vecCellId.push_back(idCell+nombreColonne);
+                    vecCellId.push_back(idCell-1);
+                    idCell = idCell + nombreColonne - 1;
+                }
+                break;
+            }
+            case 4:
+                idCell--;
+                break;
+            case 5: {
+                int cellX = grillePtr[idCell]->getBottomLeftX();
+                int cellY = grillePtr[idCell]->getBottomLeftY();
+                int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell--;
+                }
+                else if (alignement == -1) {
+                    idCell -= nombreColonne;
+                }
+                else {
+                    vecCellId.push_back(idCell-nombreColonne);
+                    vecCellId.push_back(idCell-1);
+                    idCell = idCell - nombreColonne - 1;
+                }
+                break;
+            }
+            case 6:
+                idCell -= grille[0].size();
+                break;
+            case 7: {
+                int cellX = grillePtr[idCell]->getBottomRightX();
+                int cellY = grillePtr[idCell]->getBottomRightY();
+                int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell -= nombreColonne;
+                }
+                else if (alignement == -1) {
+                    idCell++;
+                }
+                else {
+                    vecCellId.push_back(idCell-nombreColonne);
+                    vecCellId.push_back(idCell+1);
+                    idCell = idCell - nombreColonne + 1;
+                }
+                break;
+            }
+        }
+        vecCellId.push_back(idCell);
+    }
+}
+
+void Graphe::calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int nodeId) {
+    for (int i=0;i<_noeuds[nodeId]._aretes.size();i++) {
+        std::vector<int> tmpVec;
+        calcAreteCelluleVec(tmpVec,_noeuds[nodeId]._aretes[i]);
+        vecVecInt.push_back(tmpVec);
+    }
+}
+
+void Graphe::applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int nodeIndex) {
+    for (int i=0;i<vecId.size();i++) {
+        std::vector<int>& vecCellId = vecId[i];
+        int areteId = _noeuds[nodeIndex]._aretes[i];
+        int sameUntil;
+        int minSize = min(vecCellId.size(),_liens[areteId].vecIdCellules.size());
+        for (sameUntil=0;((vecCellId[sameUntil]==_liens[areteId].vecIdCellules[sameUntil])&&(sameUntil<minSize));sameUntil++);
+        for (int i=sameUntil;i<_liens[areteId].vecIdCellules.size();i++) {
+            removeFromVector(grillePtr[_liens[areteId].vecIdCellules[i]]->vecAreteId,areteId);
+        }
+        for (int i=sameUntil;vecCellId.size();i++) {
+            if (!isInVector(grillePtr[vecCellId[i]]->vecAreteId,areteId)) {
+                grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
+            }
+        }
+        _liens[areteId].vecIdCellules.swap(vecCellId);
+    }
+}

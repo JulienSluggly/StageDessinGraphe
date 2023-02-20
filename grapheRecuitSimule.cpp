@@ -392,11 +392,13 @@ void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, double 
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
-        if (customParam[1] == 5) {
-            delay = (iter / 100000) + customParam[1];
-        }
-        else if (customParam[1] == 6) {
-            delay = ((1381545-iter) / 100000) + customParam[1];
+        if (customParam[0] == 3) {
+            if (customParam[1] == 5) {
+                delay = (iter / 100000) + customParam[1];
+            }
+            else if (customParam[1] == 6) {
+                delay = ((1381545-iter) / 100000) + customParam[1];
+            }
         }
         //if (iter % 20000 == 0) {
         //    std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
@@ -772,3 +774,102 @@ void Graphe::bestDeplacement() {
     if (DEBUG_GRAPHE) std::cout << "Meilleur resultat de l'algo meilleur deplacement: " << nbIntersection << std::endl;
 }
 
+// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
+// Met à jour la variable nombreCroisement du graphe.
+// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
+// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
+void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement) {
+    auto start = std::chrono::system_clock::now();
+    auto end = start;
+    std::vector<int> bestResult = saveCopy();
+    long nbCroisement;
+    if (isNombreCroisementUpdated) {
+        nbCroisement = nombreCroisement;
+    }
+    else {
+        nbCroisement = getNbCroisement();
+    }
+    long bestCroisement = nbCroisement;
+    if (delay == -1) { // -1 on calcule le delay en fonction de la taille du graphe
+        delay = ceil((double)_noeuds.size() / 20.0) + 1;
+    }
+    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
+        //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
+        for (int del = 0; del < delay; del++) {
+            int nodeId = selectionNoeud(modeNoeud, t);
+            int slotId = selectionEmplacement(modeEmplacement, nodeId, t);
+            int scoreNode;
+            bool swapped = false;
+            int idSwappedNode = -1;
+            Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
+            if (!_emplacementsPossibles[slotId].estDisponible()) {
+                idSwappedNode = _emplacementsPossibles[slotId]._noeud->getId();
+                scoreNode = getScoreCroisementNodeGrid(nodeId, idSwappedNode);
+                scoreNode += getScoreCroisementNodeGrid(idSwappedNode);
+                _noeuds[nodeId].swap(&_emplacementsPossibles[slotId]);
+                swapped = true;
+            }
+            else {
+                scoreNode = getScoreCroisementNodeGrid(nodeId);
+                _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
+            }
+            int newScoreNode;
+            std::vector<std::vector<int>> vecAreteCellule;
+            std::vector<std::vector<int>> vecAreteCelluleSwapped;
+            calculeNodeCelluleVec(vecAreteCellule,nodeId);
+            if (swapped) {
+                calculeNodeCelluleVec(vecAreteCelluleSwapped,idSwappedNode);
+                newScoreNode = getScoreCroisementNodeGrid(vecAreteCellule,nodeId, idSwappedNode);
+                newScoreNode += getScoreCroisementNodeGrid(vecAreteCelluleSwapped,idSwappedNode);
+            }
+            else {
+                newScoreNode = getScoreCroisementNodeGrid(vecAreteCellule,nodeId);
+            }
+            int improve = newScoreNode - scoreNode;
+            if (improve < 0) {
+                nbCroisement += improve;
+                if (nbCroisement < bestCroisement) {
+                    //if (swapped) { compteurSwapE++; } else { compteurDeplacementE++; }
+                    bestCroisement = nbCroisement;
+                    bestResult = saveCopy();
+                    end = std::chrono::system_clock::now();
+                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                }
+            }
+            else {
+                double randDouble = generateDoubleRand(1.0);
+                if (randDouble >= exp(-improve / t)) {
+                    if (swapped) {
+                        _noeuds[nodeId].swap(oldEmplacement);
+                    }
+                    else {
+                        _noeuds[nodeId].setEmplacement(oldEmplacement);
+                    }
+                }
+                else {
+                    nbCroisement += improve;
+                    applyNewAreteCelluleVec(vecAreteCellule,nodeId);
+                    if (swapped) {
+                        applyNewAreteCelluleVec(vecAreteCelluleSwapped,idSwappedNode);
+                    }
+                    //if (swapped) { compteurSwapE++; } else { compteurDeplacementE++; }
+                }
+            }
+            //if (swapped) { compteurSwap++; } else { compteurDeplacement++; }
+        }
+        t *= cool;
+    }
+    loadCopy(bestResult);
+    nombreCroisement = bestCroisement;
+    isNombreCroisementUpdated = true;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
+    std::chrono::duration<double> secondsTotal = end - start;
+    timeBest = secondsTotal.count();
+    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de swap: " << compteurSwap << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement: " << compteurDeplacement << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de swap effectue: " << compteurSwapE << std::endl;
+    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement effectue: " << compteurDeplacementE << std::endl;
+}

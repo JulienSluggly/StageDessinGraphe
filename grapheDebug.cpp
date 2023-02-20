@@ -14,6 +14,17 @@ void Graphe::afficherLiens(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
 }
 
+void Graphe::afficherLiensEmp(std::string nom) {
+    std::cout << "-----------------------------------------------" << std::endl;
+    std::cout << "Affichage DEBUG Aretes: " << nomGraphe << " " << nom << std::endl;
+    std::cout << "Nb Aretes: " << _liens.size() << std::endl;
+    for (int i = 0; i < _liens.size(); i++) {
+        std::cout << "id: " << _liens[i]._id << " idemp1: " << _liens[i].getNoeud1()->getEmplacement()->_id << " idemp2: " << _liens[i].getNoeud2()->getEmplacement()->_id;
+        std::cout << std::endl;
+    }
+    std::cout << "-----------------------------------------------" << std::endl;
+}
+
 void Graphe::afficherNoeuds(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
     std::cout << "Affichage DEBUG Noeuds: " << nomGraphe << " " << nom << std::endl;
@@ -327,6 +338,68 @@ void Graphe::debugOldCroisement(bool display, std::string nom) {
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
 }
 
+void Graphe::debugDesyncEmplacementCell(bool display, std::string nom) {
+    if (display) {
+        std::cout << "-----------------------------------------------" << std::endl;
+        std::cout << "Affichage DEBUG desync emplacement cellule: " << nomGraphe << " " << nom << std::endl;
+    }
+    long nbFail = 0;
+    for (int i = 0; i < _emplacementsPossibles.size(); i++) {
+        for (const int& id : _emplacementsPossibles[i].vecIdCellules) {
+            if (!isInVector(grillePtr[id]->vecEmplacementId,i)) {
+                std::cout << "Emplacement: " << i << " Cellule: " << id << std::endl;
+                nbFail++;
+            }
+        }
+    }
+    for (int i=0;i<grillePtr.size();i++) {
+        for (const int& id : grillePtr[i]->vecEmplacementId) {
+            if (!isInVector(_emplacementsPossibles[id].vecIdCellules,i)) {
+                std::cout << "Cellule: " << i << " Emplacement: " << id << std::endl;
+                nbFail++;
+            }
+        }
+    }
+    if (nbFail == 0) {
+        if (display) { std::cout << "Aucun" << std::endl; }
+    }
+    else {
+        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+    }
+    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+}
+
+void Graphe::debugDesyncAreteCell(bool display, std::string nom) {
+    if (display) {
+        std::cout << "-----------------------------------------------" << std::endl;
+        std::cout << "Affichage DEBUG desync emplacement cellule: " << nomGraphe << " " << nom << std::endl;
+    }
+    long nbFail = 0;
+    for (int i = 0; i < _liens.size(); i++) {
+        for (const int& id : _liens[i].vecIdCellules) {
+            if (!isInVector(grillePtr[id]->vecAreteId,i)) {
+                std::cout << "Arete: " << i << " Cellule: " << id << std::endl;
+                nbFail++;
+            }
+        }
+    }
+    for (int i=0;i<grillePtr.size();i++) {
+        for (const int& id : grillePtr[i]->vecAreteId) {
+            if (!isInVector(_liens[id].vecIdCellules,i)) {
+                std::cout << "Cellule: " << i << " Arete: " << id << std::endl;
+                nbFail++;
+            }
+        }
+    }
+    if (nbFail == 0) {
+        if (display) { std::cout << "Aucun" << std::endl; }
+    }
+    else {
+        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+    }
+    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+}
+
 void Graphe::debugEverything(bool displayOther, bool displaySelf) {
     if (displaySelf) { std::cout << "Debut debug arete double\n"; }
     afficherAreteDouble(displayOther);
@@ -359,6 +432,12 @@ void Graphe::debugEverything(bool displayOther, bool displaySelf) {
     if (isIntersectionVectorUpdated) {
         if (displaySelf) { std::cout << "Debut debug inter array\n"; }
         debugInterArrays(displayOther);
+    }
+    if (grille.size() > 0) {
+        if (displaySelf) { std::cout << "Debut debug desync emplacement cellule\n"; }
+        debugDesyncEmplacementCell(displayOther);
+        if (displaySelf) { std::cout << "Debut debug desync arete cellule\n"; }
+        debugDesyncAreteCell(displayOther);
     }
     if (displaySelf) { std::cout << "Debug fini\n"; }
 }

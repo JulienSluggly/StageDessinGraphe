@@ -20,6 +20,9 @@ public:
 	// Id des emplacements dans le tableau _emplacementsPossibles
 	std::vector<int> voisinsDelaunay;
 
+	// Id des cellules par rapport a la grille dans le graphe, max 4 cellules par emplacement
+	std::vector<int> vecIdCellules;
+
 	Emplacement(int x, int y, int id) {
 		_x = x;
 		_y = y;

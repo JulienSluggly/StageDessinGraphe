@@ -17,9 +17,12 @@ bool isInVector(std::vector<int>& vectorInt, int x);
 // Indique si une valeur est dans un vecteur ou non
 bool isInVector(std::vector<std::string>& vectorString, std::string x);
 
-double moyenneVector(std::vector<int>& vec, int nbEssay);
+// Enleve x du vecteur vectorInt
+void removeFromVector(std::vector<int>& vectorInt, int x);
 
-double moyenneVector(std::vector<double>& vec, int nbEssay);
+double moyenneVector(std::vector<int>& vec);
+
+double moyenneVector(std::vector<double>& vec);
 
 // Le vecteur doit etre trie avant l'appel de cette fonction
 long medianeVector(std::vector<int> &vec);

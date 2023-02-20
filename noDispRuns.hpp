@@ -58,32 +58,9 @@ void customRecuit() {
 			G.generateGrid();
 		}
 		std::vector<std::vector<double>> totalRuns;
-		totalRuns.push_back({8,1});
-		totalRuns.push_back({8,25});
-		totalRuns.push_back({8,50});
-		totalRuns.push_back({8,100});
-		totalRuns.push_back({8,150});
-		totalRuns.push_back({8,200});
-
 		totalRuns.push_back({9,0.999999});
-		totalRuns.push_back({9,0.99999});
-		totalRuns.push_back({9,0.9999});
-		totalRuns.push_back({9,0.999});
-		totalRuns.push_back({9,0.99});
-
-		totalRuns.push_back({10,0.9});
-		totalRuns.push_back({10,0.99});
-		totalRuns.push_back({10,0.999});
-		totalRuns.push_back({10,0.9999});
-		totalRuns.push_back({10,0.99999});
-
-		totalRuns.push_back({11,0.01});
-		totalRuns.push_back({11,0.001});
-		totalRuns.push_back({11,0.0001});
-		totalRuns.push_back({11,0.00001});
-		totalRuns.push_back({11,0.000001});
 		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(5,"Aleatoire","Rerecuit Simule TME Custom","graph-10-input",G,"",slotFileUsed,totalRuns[i],numThread);
+			generateCSV(5,"Aleatoire","Rerecuit Simule TME","graph-10-input",G,"",slotFileUsed,totalRuns[i],numThread);
 		}
 	}
 }
@@ -213,7 +190,7 @@ void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSi
 }
 
 void performanceTest() {
-	int nombreMax = 100;
+	int nombreMax = 1000;
 
 	for (int n=1;n<nombreMax;n++) {
 
@@ -277,6 +254,69 @@ void performanceTest() {
 			<< totalTime.count() << "\n";
 		resultats.close();
 	}
+	// Partie Vector
+	std::vector<int> nodeVec;
+}
+
+void performanceTest2() {
+		int nombreElem = 5000;
+		// Vecteur d'id melange
+		std::vector<int> shuffledIdVec;
+		for (int i=0;i<nombreElem;i++) {
+			shuffledIdVec.push_back(i);
+		}
+		auto rng = std::default_random_engine {};
+		std::shuffle(std::begin(shuffledIdVec), std::end(shuffledIdVec), rng);
+
+		// Vecteur d'id melange
+		std::vector<int> shuffledIdVec2;
+		for (int i=0;i<nombreElem;i++) {
+			shuffledIdVec2.push_back(i);
+		}
+		std::shuffle(std::begin(shuffledIdVec2), std::end(shuffledIdVec2), rng);
+
+		// Vecteur d'id genere au random
+		std::vector<int> randomIdVec;
+		for (int i=0;i<30000;i++) {
+			randomIdVec.push_back(generateRand((nombreElem*2)-1));
+		}
+
+
+		std::cout << "Nombre element: " << nombreElem << std::endl;
+		auto start = std::chrono::system_clock::now();
+		std::unordered_set<int> nodeUSet;
+		for (int i=0;i<nombreElem;i++) {
+			nodeUSet.insert(shuffledIdVec[i]);
+		}
+		auto s1 = std::chrono::system_clock::now();
+		for (int i=0;i<30000;i++) {
+			nodeUSet.count(randomIdVec[i]);
+		}
+		auto s2 = std::chrono::system_clock::now();
+		for (int i=0;i<nombreElem;i++) {
+				nodeUSet.erase(shuffledIdVec2[i]);
+		}
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> totalTime = end - start;
+		std::chrono::duration<double> insertTime = s1-start;
+		std::chrono::duration<double> findTime = s2-s1;
+		std::chrono::duration<double> eraseTime = end-s2;
+		std::cout << "Insert: " << insertTime.count() << "s.\n";
+		std::cout << "Find: " << findTime.count() << "s.\n";
+		std::cout << "Erase: " << eraseTime.count() << "s.\n";
+		std::cout << "Total: " << totalTime.count() << "s.\n";
+		std::cout << "-----------------------------------------------\n";
+
+		std::string nomFichier = chemin + "/resultats/perfUSet.csv";
+		std::ofstream resultats(nomFichier, std::ios_base::app);
+
+		resultats << std::fixed;
+		resultats << std::setprecision(7) << nombreElem << ","
+			<< insertTime.count() << ","
+			<< eraseTime.count() << ","
+			<< findTime.count() << ","
+			<< totalTime.count() << "\n";
+		resultats.close();
 	// Partie Vector
 	std::vector<int> nodeVec;
 }
