@@ -8,14 +8,16 @@
 #include <string>
 #include <chrono>
 #include <iomanip>
-#include "ogdfFunctions.hpp"
+//#include "ogdfFunctions.hpp"
 #include "personnel.hpp"
 #include <omp.h>
 #include <climits>
+#include <algorithm>
 
 std::vector<std::string> methodeWithScore;
 std::vector<std::string> methodeGenetique;
 std::vector<std::string> methodeTriangulation;
+std::vector<std::string> methodeGrille;
 std::unordered_map<std::string,std::pair<int,int>> mapGraphPopGen;
 
 void fillMap() {
@@ -57,17 +59,26 @@ void fillVectorTriangulation() {
 	methodeTriangulation.push_back("Rerecuit Simule TRE Custom");
 }
 
+void fillVectorGrille() {
+	methodeGrille.push_back("Recuit Simule Grille");
+	methodeGrille.push_back("Recuit Simule Grille TME");
+	methodeGrille.push_back("Rerecuit Simule Grille");
+	methodeGrille.push_back("Rerecuit Simule Grille TME");
+}
+
 void fillLogsVector() {
 	fillMap();
 	fillVectorScore();
 	fillVectorGenetique();
 	fillVectorTriangulation();
+	fillVectorGrille();
 }
 
-void generateCSV(double nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<double> customParam={}, std::string tid="") {
+void generateCSV(double nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<double> customParam={}, int tid=0) {
 	bool updateScore = isInVector(methodeWithScore,methodeAlgoName);
 	bool isGenetique = isInVector(methodeGenetique,methodeAlgoName);
 	bool needTriangulation = isInVector(methodeTriangulation,methodeAlgoName);
+	bool needGrille = isInVector(methodeGrille,methodeAlgoName);
 	double moyenneCroisement = 0, medianCroisement;
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0;
@@ -86,13 +97,13 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 			maxIteration = mapGraphPopGen[nomGraphe].second;
 		}
 		saveResult = true;
-		std::cout << "Current Execution: " << i << "\n";
+		printf("Tid: %d Current Execution: %d\n",tid,i);
 		auto start = std::chrono::system_clock::now();
 		if (methodeName == "Glouton") G.glouton();
 		else if (methodeName == "Glouton Revisite") G.gloutonRevisite();
 		else if (methodeName == "Glouton Gravite") G.gloutonRevisiteGravite();
 		else if (methodeName == "Glouton Voisin") G.gloutonRevisiteVoisin();
-		else if (methodeName == "OGDF") ogdfPlacementAuPlusProche(G);
+		//else if (methodeName == "OGDF") ogdfPlacementAuPlusProche(G);
 		else if (methodeName == "Aleatoire") G.placementAleatoire();
 		else if (methodeName != "Aucun") {
 			std::cout << "ERROR Aucune methode " << methodeName << " trouve !";
@@ -107,24 +118,19 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 				G.triangulationDelaunay();
 			}
 		}
+		if (needGrille) {
+			G.initGrille();
+			G.registerSlotsAndEdgesInGrid();
+		}
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest);
-		else if (methodeAlgoName == "Recuit Simule Score") G.recuitSimuleScore(tempsBest);
-		else if (methodeAlgoName == "Recuit Simule Delay") G.recuitSimule(tempsBest,0.99999,100.0,0.0001,10);
-		else if (methodeAlgoName == "Recuit Simule TBN") G.recuitSimule(tempsBest,0.99999,100.0,0.0001,1,1);
-		else if (methodeAlgoName == "Recuit Simule TMN") G.recuitSimule(tempsBest,0.99999,100.0,0.0001,1,2);
-		else if (methodeAlgoName == "Recuit Simule TBE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,1);
-		else if (methodeAlgoName == "Recuit Simule TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,2);
-		else if (methodeAlgoName == "Recuit Simule Delay TBE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 10, 0, 1);
-		else if (methodeAlgoName == "Recuit Simule Delay TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, -1, 0, 3);
-		else if (methodeAlgoName == "Recuit Simule TBNE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 1, 1);
-		else if (methodeAlgoName == "Recuit Simule TBN TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 1, 3);
-		else if (methodeAlgoName == "Recuit Simule TMN TBE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 2, 1);
-		else if (methodeAlgoName == "Recuit Simule TMNE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 2, 2);
+		else if (methodeAlgoName == "Recuit Simule TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,3);
+		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
+		else if (methodeAlgoName == "Recuit Simule Grille TME") G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001,1,0,3);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
 		else if (methodeAlgoName == "Recuit Simule TME Custom") G.recuitSimuleCustom(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3, customParam);
 		else if (methodeAlgoName == "Recuit Simule Delay TME Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,-1,0,3,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
 		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3);
 		else if (methodeAlgoName == "Recuit Simule TRE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,4);
 		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
@@ -165,7 +171,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 
 	}
 	if (saveResult) {
-		sort(croisementVector.begin(), croisementVector.end());
+		std::sort(croisementVector.begin(), croisementVector.end());
 		meilleurCroisement = croisementVector[0];
 		moyenneCroisement = moyenneVector(croisementVector);
 		medianCroisement = medianeVector(croisementVector);
@@ -175,7 +181,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		lastIterationMoyenne = moyenneVector(lastIterationVector);
 		
 
-		std::string nomFichier = chemin + "/resultats/" + nomGraphe + tid + ".csv";
+		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 		std::streampos position = resultats.tellp();
 		if (position == 0) {
@@ -197,7 +203,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		if (isGenetique) {
 			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
 		}
-		resultats << "," << nombreRecuit << "," << machine;
+		resultats << "," << nombreRecuit << "," << getTypeSeed() << "," << machine;
 		if (customParam.size() > 0) {
 			resultats << ",";
 			for (int j=0;j<customParam.size();j++) {

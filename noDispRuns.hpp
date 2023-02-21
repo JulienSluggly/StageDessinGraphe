@@ -44,23 +44,22 @@ void customRecuit() {
 		if (tid == 0) {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
-		std::string numThread = to_string(tid);
 		std::string fileSlot = slotFiles[tid];
-		Graphe G;
-		G.readFromJsonGraph(fileGraph);
 		std::string slotFileUsed;
-		if (fileSlot != "GRID") {
-			slotFileUsed = chemin + "exemple/Slots/" + fileSlot + ".json";
-			G.readFromJsonSlots(slotFileUsed);
-		}
-		else {
-			slotFileUsed = "GRID";
-			G.generateGrid();
-		}
 		std::vector<std::vector<double>> totalRuns;
 		totalRuns.push_back({9,0.999999});
 		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(10,"Aleatoire","Rerecuit Simule TME","graph-10-input",G,"",slotFileUsed,totalRuns[i],numThread);
+			Graphe G;
+			G.readFromJsonGraph(fileGraph);
+			if (fileSlot != "GRID") {
+				slotFileUsed = chemin + "exemple/Slots/" + fileSlot + ".json";
+				G.readFromJsonSlots(slotFileUsed);
+			}
+			else {
+				slotFileUsed = "GRID";
+				G.generateGrid();
+			}
+			generateCSV(10,"Aleatoire","Rerecuit Simule TME","graph-10-input",G,"",slotFileUsed,totalRuns[i],tid);
 		}
 	}
 }
@@ -82,22 +81,22 @@ void allRunsSingleThread() {
 		for (int i = 0; i < key.second.size(); i++) {
 			std::cout << "-----------------------------------------" << std::endl;
 			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
-			Graphe G;
 			std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
-			G.readFromJsonGraph(fileGraph);
 			std::string fileSlots;
-			if (key.second[i] != "GRID") {
-				fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
-				G.readFromJsonSlots(fileSlots);
-			}
-			else {
-				fileSlots = "GRID";
-				G.generateGrid();
-			}
 			std::string nomFichierLog = key.first;
 			for (int j = 0; j < methodesPlacement.size(); j++) {
 				std::cout << "--------------------------" << std::endl;
 				for (int k = 0; k < methodesAlgo.size(); k++) {
+					Graphe G(key.first);
+					G.readFromJsonGraph(fileGraph);
+					if (key.second[i] != "GRID") {
+						fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
+						G.readFromJsonSlots(fileSlots);
+					}
+					else {
+						fileSlots = "GRID";
+						G.generateGrid();
+					}
 					std::cout << "Placement: " << methodesPlacement[j] << " Algo: " << methodesAlgo[k] << std::endl;
 					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], nomFichierLog, G, fileGraph, fileSlots);
 				}
@@ -108,21 +107,18 @@ void allRunsSingleThread() {
 
 // Multithreadé
 void allRunsLogged() {
+	fillLogsVector();
 	std::unordered_map<std::string, std::vector<std::string>> mapGraphSlots;
-	//std::vector<string> methodesPlacement = { "Aleatoire", "Glouton", "Glouton Revisite", "Glouton Gravite", "Glouton Voisin", "OGDF"};
-	std::vector<std::string> methodesPlacement = { "Aucun"};
-	std::vector<std::string> methodesAlgo = { "Genetique No Recuit Random", "Genetique Recuit Random","Genetique No Recuit","Genetique Recuit"};
-	//std::vector<int> runMethodesAlgo = { 5, 1, 5, 5, 5,5, 1, 5, 5,5, 1, 5, 5 };
-	std::vector<int> runMethodesAlgo = { 5,5,5,5 };
-	//std::vector<string> methodesAlgo;
+	std::vector<std::string> methodesPlacement = { "Aleatoire"};
+	std::vector<std::string> methodesAlgo = { "Recuit Simule TME", "Recuit Simule Grille TME","Rerecuit Simule TME","Rerecuit Simule Grille TME"};
+	std::vector<int> runMethodesAlgo = { 1,1,1,1 };
 	for (int i = 1; i <= 12; i++) {
-		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots"} });
+		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"} });
 	}
 	std::cout << "Starting all run logs." << std::endl;
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
-		Graphe G;
 		int indexKey = 0;
 		tid = ::omp_get_thread_num();
 		nthreads = ::omp_get_num_threads();
@@ -134,29 +130,29 @@ void allRunsLogged() {
 		for (auto key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int i = 0; i < key.second.size(); i++) {
-					if (tid == 0) std::cout << "-----------------------------------------" << std::endl;
-					if (tid == 0) std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
-					G.clearGraphe();
 					std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
-					std::string fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
-					G.readFromJsonGraph(fileGraph);
-					G.readFromJsonSlots(fileSlots);
+					std::string fileSlots;
 					std::string nomFichierLog = key.first;
 					for (int j = 0; j < methodesPlacement.size(); j++) {
-						if (tid == 0) std::cout << "--------------------------" << std::endl;
-						if (tid == 0) std::cout << "Graphe: " << key.first << " Slots: " << key.second[i] << std::endl;
-						if (tid == 0) std::cout << "Placement: " << methodesPlacement[j] << " Algo: Aucun" << std::endl;
-						//generateCSV(1, methodesPlacement[j], "Aucun", nomFichierLog, G);
 						for (int k = 0; k < methodesAlgo.size(); k++) {
-							if (tid == 0) std::cout << "Placement: " << methodesPlacement[j] << " Algo: " << methodesAlgo[k] << std::endl;
-							generateCSV(runMethodesAlgo[k], methodesPlacement[j], methodesAlgo[k], nomFichierLog, G, fileGraph, fileSlots);
+							Graphe G(key.first);
+							G.readFromJsonGraph(fileGraph);
+							if (key.second[i] != "GRID") {
+								fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
+								G.readFromJsonSlots(fileSlots);
+							}
+							else {
+								fileSlots = "GRID";
+								G.generateGrid();
+							}
+							generateCSV(runMethodesAlgo[k], methodesPlacement[j], methodesAlgo[k], nomFichierLog, G, fileGraph, fileSlots,{},tid);
 						}
 					}
 				}
 			}
 			indexKey++;
 		}
-		std::cout << "Thread: " << tid << " done." << std::endl;
+		printf("Thread: %d done.\n",tid);
 	}
 }
 

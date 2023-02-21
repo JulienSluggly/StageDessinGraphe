@@ -17,7 +17,20 @@ void Graphe::clearNodeEmplacement() {
     }
     for (int i = 0;i < _liens.size();i++) {
         _liens[i].clearIntersectionsVector();
+        _liens[i].vecIdCellules.clear();
     }
+    for (int i=0;i<_emplacementsPossibles.size();i++) {
+        _emplacementsPossibles[i].vecIdCellules.clear();
+    }
+    for (int i=0;i<grillePtr.size();i++) {
+        grillePtr[i]->vecAreteId.clear();
+        grillePtr[i]->vecEmplacementId.clear();
+    }
+    grillePtr.clear();
+    for (int i=0;i<grille.size();i++) {
+        grille[i].clear();
+    }
+    grille.clear();
     nombreCroisement = -1;
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -196,6 +209,7 @@ void Graphe::clearGraphe() {
     _noeuds.clear();
     _emplacementsPossibles.clear();
     _liens.clear();
+    grille.clear();
     isNodeScoreUpdated = false;
     isNombreCroisementUpdated = false;
     isIntersectionVectorUpdated = false;
@@ -435,7 +449,7 @@ void Graphe::registerSlotsAndEdgesInGridNoMove() {
 }
 
 void Graphe::registerSlotsAndEdgesInGrid() {
-    std::cout << "Remplissage de la grille.\n";
+    if (DEBUG_GRAPHE) std::cout << "Remplissage de la grille.\n";
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
     for (int i=0;i < _emplacementsPossibles.size();i++) {
@@ -578,7 +592,7 @@ void Graphe::registerSlotsAndEdgesInGrid() {
             grille[idCellY][idCellX].vecAreteId.push_back(i);
         }
     }
-    std::cout << "Fin remplissage de la grille.\n";
+    if (DEBUG_GRAPHE) std::cout << "Fin remplissage de la grille.\n";
 }
 
 int Graphe::getDirectionArete(int idArete) {

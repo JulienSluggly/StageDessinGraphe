@@ -39,4 +39,6 @@ void initSameSeed();
 
 void initRandomSeed();
 
+std::string getTypeSeed();
+
 #endif

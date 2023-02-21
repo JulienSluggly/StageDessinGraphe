@@ -11,19 +11,11 @@ using std::max;
 std::random_device rd;
 std::mt19937 *gen;
 
+std::string typeSeed;
+
 //std::random_device rd;  // Will be used to obtain a seed for the random number engine
 //std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
 //std::mt19937 gen(0); // Standard mersenne_twister_engine seeded with rd()
-
-void initSameSeed() {
-    std::cout << "---------- SEED FIXE: 0 ----------\n";
-    gen = new std::mt19937(0);
-}
-
-void initRandomSeed() {
-    std::cout << "---------- SEED RANDOM ----------\n";
-    gen = new std::mt19937(rd());
-}
 
 // Retourne une valeur réelle comprise dans [0.0,n[
 double generateDoubleRand(double n) {
@@ -35,6 +27,22 @@ double generateDoubleRand(double n) {
 int generateRand(int n) {
     std::uniform_int_distribution<> dis(0, n);
     return dis(*gen);
+}
+
+void initSameSeed() {
+    std::cout << "---------- SEED FIXE: 0 ----------\n";
+    typeSeed = "FIXE";
+    gen = new std::mt19937(0);
+}
+
+void initRandomSeed() {
+    std::cout << "---------- SEED RANDOM ----------\n";
+    typeSeed = "RANDOM";
+    gen = new std::mt19937(rd());
+}
+
+std::string getTypeSeed() {
+    return typeSeed;
 }
 
 // Indique si une valeur est dans un vecteur ou non

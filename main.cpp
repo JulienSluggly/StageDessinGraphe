@@ -26,6 +26,7 @@ int main() {
 	//ogdfCrossingNumbers(files);
 	//customRecuit();
 	//allRunsSingleThread();
+	//allRunsLogged();
 	//return 0;
 
 	//performanceTest();
@@ -56,11 +57,12 @@ int main() {
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,1000,1000,fileGraph,fileSlots,false,false,5);
 
 	G.placementAleatoire();
-	G.triangulationDelaunay();
+	//G.triangulationDelaunay();
 	G.initGrille();
 	G.registerSlotsAndEdgesInGrid();
 
 	G.recuitSimuleGrid(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);
+	//G.rerecuitSimuleGrid(timeBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
 	//G.recuitSimule(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);
 	//G.afficherEmplacement();
 	//G.afficherLiensEmp();
@@ -87,6 +89,7 @@ int main() {
 	if (timeBest != -1) std::cout << timeBest << "s meilleur resultat.\n";
 	if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
 	if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
+	if (nombreRecuit != -1) std::cout << "Nombre de recuit: " << nombreRecuit << "\n";
 	if (G.estPlace()) std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
 	std::cout << "Setup complete!" << std::endl;
 

@@ -144,19 +144,19 @@ public:
 	int selectionNoeud(int modeNoeud, int t, bool isScoreUpdated=false);
 
 	// Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
-	int selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<double> = {}, int iter=-1);
+	int selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<double>& customParam, int iter);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimule(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
+	void recuitSimule(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0,std::vector<double> customParam = {});
 
 	void recuitSimuleCustom(double &timeBest, double cool = 0.99999, double t= 100.0, double seuil = 0.0001, int delay=1, int modeNoeud=0, int modeEmplacement=0, std::vector<double> customParam={}) ;
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe si elle etait a jour avant.
-	void stepRecuitSimule(double& t, int& nbCrois, double cool = 0.99999, int modeNoeud = 0, int modeEmplacement = 0);
+	void stepRecuitSimule(double& t, int& nbCrois, double cool = 0.99999, int modeNoeud = 0, int modeEmplacement = 0,std::vector<double> customParam = {});
 
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
@@ -168,7 +168,17 @@ public:
 	// Met à jour le score du graphe et des noeuds
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimuleScore(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
+	void recuitSimuleScore(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0,std::vector<double> customParam = {});
+
+	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
+	// Met à jour la variable nombreCroisement du graphe, utilise la grille.
+	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
+	// modeNoeud et modeEmplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
+	void recuitSimuleGrid(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0,std::vector<double> customParam = {});
+
+	// Applique le recuit simulé grille plusieurs fois
+	// Met a jour le nombre de croisement du graphe.
+	void rerecuitSimuleGrid(double &timeBest, int &nombreRecuit, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
 	// On parcoure tout les noeuds et on teste chaque deplacement possible et on effectue le meilleur s'il ameliore le score. (O(n²*e))
@@ -425,13 +435,6 @@ public:
 
 	// Calcule le vecteur de vecteur de cellule sans le mettre a jour
 	void calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int nodeId);
-
-	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
-	// Met à jour la variable nombreCroisement du graphe, utilise la grille.
-	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
-	// modeNoeud et modeEmplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimuleGrid(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
-
 
 };
 
