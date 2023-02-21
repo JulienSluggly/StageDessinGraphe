@@ -33,8 +33,8 @@ int main() {
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-2-input";
-	string nomFichierSlots = "2-input-slots";
+	string nomFichierGraph = "graph-10-input";
+	string nomFichierSlots = "10-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
