@@ -62,16 +62,71 @@ void customRecuit() {
 			generateCSV(10,"Aleatoire","Rerecuit Simule TME","graph-10-input",G,"",slotFileUsed,totalRuns[i],tid);
 		}
 	}
+	printf("All Threads done.");
+}
+
+void customRecuitAllRuns() {
+	fillLogsVector();
+	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
+	for (int i = 1; i <= 12; i++) {
+		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
+	}
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		int indexKey = 0;
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		for (auto &key : mapGraphSlots) {
+			if (tid == (indexKey % nthreads)) {
+				for (int numSlot = 0; numSlot < key.second.size(); numSlot++) {
+					std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
+					std::string fileSlots;
+					std::vector<std::vector<double>> totalRuns;
+					totalRuns.push_back({10,1});
+					totalRuns.push_back({11,1});
+					totalRuns.push_back({10,0.5});
+					totalRuns.push_back({11,0.5});
+					totalRuns.push_back({10,1.5});
+					totalRuns.push_back({11,1.5});
+					totalRuns.push_back({10,0.8});
+					totalRuns.push_back({11,0.8});
+					totalRuns.push_back({10,1.2});
+					totalRuns.push_back({11,1.2});
+					totalRuns.push_back({10,2});
+					totalRuns.push_back({11,2});
+					std::string nomFichierLog = key.first;
+					for (int i=0;i<totalRuns.size();i++) {
+						Graphe G;
+						G.readFromJsonGraph(fileGraph);
+						if (key.second[numSlot] != "GRID") {
+							fileSlots = chemin + "exemple/Slots/" + key.second[numSlot] + ".json";
+							G.readFromJsonSlots(fileSlots);
+						}
+						else {
+							fileSlots = "GRID";
+							G.generateGrid();
+						}
+						generateCSV(1,"Aleatoire","Recuit Simule Grille TME",nomFichierLog,G,fileGraph,fileSlots,totalRuns[i],tid);
+					}
+				}
+			}
+			indexKey++;
+		}
+		printf("Thread: %d done.\n",tid);
+	}
+	printf("All Threads done.");
 }
 
 void allRunsSingleThread() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire" };
-	//std::vector<string> methodesPlacement = { "OGDF" };
-	std::vector<std::string> methodesAlgo = { "Rerecuit Simule TME", "Recuit Simule Delay TME", "Rerecuit Simule Delay TME", "Recuit Simule TRE", "Rerecuit Simule TRE" };
+	std::vector<std::string> methodesAlgo = { "Rerecuit Simule TME" };
 	for (int i = 1; i <= 10; i++) {
-		//mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
 	}
 	int nbRuns = 5;
@@ -154,6 +209,7 @@ void allRunsLogged() {
 		}
 		printf("Thread: %d done.\n",tid);
 	}
+	printf("All Threads done.");
 }
 
 // Multithreading sur un seul graphe pour differentes methodes
@@ -183,6 +239,7 @@ void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSi
 		}
 		std::cout << "Thread: " << tid << " done." << std::endl;
 	}
+	printf("All Threads done.");
 }
 
 void performanceTest() {

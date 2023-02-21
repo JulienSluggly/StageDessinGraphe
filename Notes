@@ -1,17 +1,4 @@
 Structure arete:
     Liste de marque avec toutes les autres aretes
 
-unordered_set:
-    faire une courbe du temps de calcul en fonction du nombre d'operation
-    faire plus de tests avec des moyennes
-
-Graphe general:
-    Compteur de nombre d'illegal et changer sa valeur
-
-Score graphe-12-input ???
-
 Moyenne sur les crossing number?
-
-Faire test sur parametre temperature, refroidissement
-
-tester srand et rand

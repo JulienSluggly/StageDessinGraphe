@@ -27,15 +27,16 @@ int main() {
 	//customRecuit();
 	//allRunsSingleThread();
 	//allRunsLogged();
-	//return 0;
+	customRecuitAllRuns();
+	return 0;
 
 	//performanceTest();
 	//return 0;
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-10-input";
-	string nomFichierSlots = "10-input-slots";
+	string nomFichierGraph = "graph-12-input";
+	string nomFichierSlots = "12-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
@@ -58,7 +59,10 @@ int main() {
 
 	G.placementAleatoire();
 	//G.triangulationDelaunay();
-	G.initGrille();
+	//G.initGrille();
+	int row = (int)(ceil(sqrt(G._noeuds.size())));
+	std::cout << "Nb Cell: " << row*row << std::endl;
+	G.initGrille(row,row);
 	G.registerSlotsAndEdgesInGrid();
 
 	G.recuitSimuleGrid(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);

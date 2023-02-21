@@ -1,1 +1,31 @@
-graphe 10 input:
+graphe 10 input: Nombre de cellule: n -> nombre de noeud
+n: 55s - 57s
+n²: 191s
+(rn/2)²: 67s
+(rn*2)²: 55s
+(rn*1.5)²: 53s
+(rn*1.2)²: 53s
+
+n -> nombre d'arete
+n: 53s
+(rn/2)²: 64s
+
+graphe 8 input: Nombre de cellule: n -> nombre de noeud
+n: 129s
+n²:
+(rn/2)²: 182s
+(rn*2)²:
+(rn*1.5)²:
+(rn*1.2)²:
+
+n -> nombre d'arete
+n: 120s
+(rn/2)²: 136s
+(rn*2)²: 124s
+(rn*1.5)²: 122s 1089c
+(rn*1.2)²: 119s 676c
+(rn*0.8)²: 122s 289c
+
+graphe 12 input:
+nliens 494s 4096c
+nnoeud 532s 2500c

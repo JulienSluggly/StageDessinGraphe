@@ -91,6 +91,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 	int population, maxIteration;
 	int nombreRecuit = 0;
 	for (int i = 1; (i <= nbEssay||(nbEssay==-1&&secondsTotal.count() < 1800)); ++i) {
+		G.clearNodeEmplacement();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
 		if (isGenetique) {
 			population = mapGraphPopGen[nomGraphe].first;
@@ -119,8 +120,28 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 			}
 		}
 		if (needGrille) {
-			G.initGrille();
-			G.registerSlotsAndEdgesInGrid();
+			if (customParam.size() > 0) {
+				if (customParam[0] == 10) {
+					int row = (int)(ceil(sqrt(G._noeuds.size()))*customParam[1]);
+					row = max(1,row);
+					G.initGrille(row,row);
+					G.registerSlotsAndEdgesInGrid();
+				}
+				else if (customParam[0] == 11) {
+					int row = (int)(ceil(sqrt(G._liens.size()))*customParam[1]);
+					row = max(1,row);
+					G.initGrille(row,row);
+					G.registerSlotsAndEdgesInGrid();
+				}
+				else {
+					G.initGrille();
+					G.registerSlotsAndEdgesInGrid();
+				}
+			}
+			else {
+				G.initGrille();
+				G.registerSlotsAndEdgesInGrid();
+			}
 		}
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest);
@@ -167,8 +188,6 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		if (G.hasIllegalCrossing()) {
 			nbSolutionIllegale++;
 		}
-		G.clearNodeEmplacement();
-
 	}
 	if (saveResult) {
 		std::sort(croisementVector.begin(), croisementVector.end());
@@ -209,6 +228,9 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 			for (int j=0;j<customParam.size();j++) {
 				resultats << to_string(customParam[j]) << " ";
 			}
+		}
+		if (needGrille) {
+			resultats << "," << G.grillePtr.size();
 		}
 		resultats << "\n";
 		resultats.close();
