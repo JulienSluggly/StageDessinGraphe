@@ -710,18 +710,24 @@ void Graphe::recalcAreteCellule(int areteId) {
         }
         vecCellId.push_back(idCell);
     }
-    int sameUntil;
+    int sameUntil=0;
     int minSize = min(vecCellId.size(),_liens[areteId].vecIdCellules.size());
-    for (sameUntil=0;((vecCellId[sameUntil]==_liens[areteId].vecIdCellules[sameUntil])&&(sameUntil<minSize));sameUntil++);
+    for (;((sameUntil<minSize)&&(vecCellId[sameUntil]==_liens[areteId].vecIdCellules[sameUntil]));sameUntil++);
     for (int i=sameUntil;i<_liens[areteId].vecIdCellules.size();i++) {
         removeFromVector(grillePtr[_liens[areteId].vecIdCellules[i]]->vecAreteId,areteId);
     }
-    for (int i=sameUntil;vecCellId.size();i++) {
+    for (int i=sameUntil;i<vecCellId.size();i++) {
         if (!isInVector(grillePtr[vecCellId[i]]->vecAreteId,areteId)) {
             grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
         }
     }
     _liens[areteId].vecIdCellules.swap(vecCellId);
+}
+
+void Graphe::recalcNodeCellule(int nodeId) {
+    for (const int& areteId : _noeuds[nodeId]._aretes) {
+        recalcAreteCellule(areteId);
+    }
 }
 
 void Graphe::calcAreteCelluleVec(std::vector<int>& vecCellId, int areteId) {
@@ -830,16 +836,16 @@ void Graphe::calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int
 }
 
 void Graphe::applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int nodeIndex) {
-    for (int i=0;i<vecId.size();i++) {
-        std::vector<int>& vecCellId = vecId[i];
-        int areteId = _noeuds[nodeIndex]._aretes[i];
+    for (int numArete=0;numArete<vecId.size();numArete++) {
+        std::vector<int>& vecCellId = vecId[numArete];
+        int areteId = _noeuds[nodeIndex]._aretes[numArete];
         int sameUntil;
         int minSize = min(vecCellId.size(),_liens[areteId].vecIdCellules.size());
-        for (sameUntil=0;((vecCellId[sameUntil]==_liens[areteId].vecIdCellules[sameUntil])&&(sameUntil<minSize));sameUntil++);
+        for (sameUntil=0;((sameUntil<minSize)&&(vecCellId[sameUntil]==_liens[areteId].vecIdCellules[sameUntil]));sameUntil++);
         for (int i=sameUntil;i<_liens[areteId].vecIdCellules.size();i++) {
             removeFromVector(grillePtr[_liens[areteId].vecIdCellules[i]]->vecAreteId,areteId);
         }
-        for (int i=sameUntil;vecCellId.size();i++) {
+        for (int i=sameUntil;i<vecCellId.size();i++) {
             if (!isInVector(grillePtr[vecCellId[i]]->vecAreteId,areteId)) {
                 grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
             }

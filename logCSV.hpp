@@ -78,6 +78,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotal = totalStart - totalStart;
 	int population, maxIteration;
+	int nombreRecuit = 0;
 	for (int i = 1; (i <= nbEssay||(nbEssay==-1&&secondsTotal.count() < 1800)); ++i) {
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
 		if (isGenetique) {
@@ -122,14 +123,14 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		else if (methodeAlgoName == "Recuit Simule TMNE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 2, 2);
 		else if (methodeAlgoName == "Recuit Simule TME Custom") G.recuitSimuleCustom(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3, customParam);
 		else if (methodeAlgoName == "Recuit Simule Delay TME Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,-1,0,3,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,0.0001,-1,0,3,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,0.0001,1,0,3);
-		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,0.0001,-1,0,3);
+		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
+		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3);
 		else if (methodeAlgoName == "Recuit Simule TRE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,4);
-		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,-1,0.99999,0.99,100.0,0.0001,1,0,4);
+		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
 		else if (methodeAlgoName == "Recuit Simule TRE Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,1,0,4,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule TRE Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,0.0001,1,0,4,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule TME Custom") G.rerecuitSimuleCustom(tempsBest,-1,0.99999,0.99,100.0,0.0001,1,0,3,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule TRE Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3,customParam);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
@@ -196,10 +197,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		if (isGenetique) {
 			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
 		}
-		else {
-			resultats << ",,,,";
-		}
-		resultats << "," << machine;
+		resultats << "," << nombreRecuit << "," << machine;
 		if (customParam.size() > 0) {
 			resultats << ",";
 			for (int j=0;j<customParam.size();j++) {

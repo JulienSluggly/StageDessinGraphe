@@ -27,7 +27,7 @@ void Graphe::tempsCalculRecuitSimule(double cool, double t, int mode) {
         while (_noeuds[randomId].getEmplacement()->getId() == randomEmpId) {
             randomEmpId = generateRand(_emplacementsPossibles.size() - 1);
         }
-        int scoreNode;
+        long scoreNode;
         bool swapped = false;
         int idSwappedNode = -1;
         Emplacement* oldEmplacement = _noeuds[randomId].getEmplacement();
@@ -42,7 +42,7 @@ void Graphe::tempsCalculRecuitSimule(double cool, double t, int mode) {
             scoreNode = getScoreCroisementNode(randomId);
             _noeuds[randomId].setEmplacement(&_emplacementsPossibles[randomEmpId]);
         }
-        int newScoreNode;
+        long newScoreNode;
         if (swapped) {
             newScoreNode = getScoreCroisementNode(randomId, idSwappedNode);
             newScoreNode += getScoreCroisementNode(idSwappedNode);
@@ -98,7 +98,7 @@ int Graphe::selectionNoeudTournoiBinaire(bool isScoreUpdated) {
 // Selectionne n noeuds et retourne celui avec le score le plus faible. (le moin d'intersection)
 int Graphe::selectionNoeudTournoiMultiple(int n, bool isScoreUpdated) {
     int randomId = generateRand(_noeuds.size() - 1);
-    int scoreMeilleur;
+    long scoreMeilleur;
     if (isScoreUpdated)
         scoreMeilleur = _noeuds[randomId].score;
     else
@@ -109,7 +109,7 @@ int Graphe::selectionNoeudTournoiMultiple(int n, bool isScoreUpdated) {
             do {
                 randomId2 = generateRand(_noeuds.size() - 1);
             } while (randomId2 == randomId);
-            int scoreId2;
+            long scoreId2;
             if (isScoreUpdated)
                 scoreId2 = _noeuds[randomId2].score;
             else
@@ -296,7 +296,7 @@ void Graphe::recuitSimule(double &timeBest, double cool, double t, double seuil,
         for (int del = 0; del < delay; del++) {
             int nodeId = selectionNoeud(modeNoeud, t);
             int slotId = selectionEmplacement(modeEmplacement, nodeId, t);
-            int scoreNode;
+            long scoreNode;
             bool swapped = false;
             int idSwappedNode = -1;
             Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
@@ -311,7 +311,7 @@ void Graphe::recuitSimule(double &timeBest, double cool, double t, double seuil,
                 scoreNode = getScoreCroisementNode(nodeId);
                 _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
             }
-            int newScoreNode;
+            long newScoreNode;
             if (swapped) {
                 newScoreNode = getScoreCroisementNode(nodeId, idSwappedNode);
                 newScoreNode += getScoreCroisementNode(idSwappedNode);
@@ -406,7 +406,7 @@ void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, double 
         for (int del = 0; del < delay; del++) {
             int nodeId = selectionNoeud(modeNoeud, t);
             int slotId = selectionEmplacement(modeEmplacement, nodeId, t,customParam,iter);
-            int scoreNode;
+            long scoreNode;
             bool swapped = false;
             int idSwappedNode = -1;
             Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
@@ -421,7 +421,7 @@ void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, double 
                 scoreNode = getScoreCroisementNode(nodeId);
                 _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
             }
-            int newScoreNode;
+            long newScoreNode;
             if (swapped) {
                 newScoreNode = getScoreCroisementNode(nodeId, idSwappedNode);
                 newScoreNode += getScoreCroisementNode(idSwappedNode);
@@ -481,7 +481,7 @@ void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeu
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     int randomId = selectionNoeud(modeNoeud, t);
     int randomEmpId = selectionEmplacement(modeEmplacement, randomId, t);
-    int scoreNode;
+    long scoreNode;
     bool swapped = false;
     int idSwappedNode = -1;
     Emplacement* oldEmplacement = _noeuds[randomId].getEmplacement();
@@ -496,7 +496,7 @@ void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeu
         scoreNode = getScoreCroisementNode(randomId);
         _noeuds[randomId].setEmplacement(&_emplacementsPossibles[randomEmpId]);
     }
-    int newScoreNode;
+    long newScoreNode;
     if (swapped) {
         newScoreNode = getScoreCroisementNode(randomId, idSwappedNode);
         newScoreNode += getScoreCroisementNode(idSwappedNode);
@@ -533,7 +533,7 @@ void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeu
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimule(double &timeBest, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement) {
+void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement) {
     auto start = std::chrono::system_clock::now();
     auto end = start;
     if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
@@ -548,6 +548,7 @@ void Graphe::rerecuitSimule(double &timeBest, int iter, double cool, double cool
     while (numberOfNoUpgrade < maxIter) {
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         recuitSimule(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement);
+        nombreRecuit++;
         t *= coolt;
         if (iter != -1) {
             numberOfNoUpgrade++;
@@ -573,7 +574,7 @@ void Graphe::rerecuitSimule(double &timeBest, int iter, double cool, double cool
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimuleCustom(double &timeBest, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
+void Graphe::rerecuitSimuleCustom(double &timeBest, int& nombreRecuit, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
     if (customParam[0] == 8) {
         t = customParam[1];
     }
@@ -600,6 +601,7 @@ void Graphe::rerecuitSimuleCustom(double &timeBest, int iter, double cool, doubl
     while (numberOfNoUpgrade < maxIter) {
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         recuitSimuleCustom(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement,customParam);
+        nombreRecuit++;
         t *= coolt;
         if (iter != -1) {
             numberOfNoUpgrade++;
@@ -641,7 +643,7 @@ void Graphe::recuitSimuleScore(double &timeBest, double cool, double t, double s
         for (int del = 0; del < delay; del++) {
             int nodeId = selectionNoeud(modeNoeud, t, true);
             int slotId = selectionEmplacement(modeEmplacement, nodeId, t);
-            int scoreNode;
+            long scoreNode;
             bool swapped = false;
             int idSwappedNode = -1;
             Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
@@ -661,7 +663,7 @@ void Graphe::recuitSimuleScore(double &timeBest, double cool, double t, double s
                 changeUpdateValue(nodeId);
             }
             updateNodeScore(nodeId);
-            int newScoreNode;
+            long newScoreNode;
             if (swapped) {
                 newScoreNode = getNodeLinkedScore(nodeId, idSwappedNode);
                 newScoreNode += _noeuds[idSwappedNode].score;
@@ -725,7 +727,8 @@ void Graphe::bestDeplacement() {
         for (int i = 0; i < _noeuds.size(); i++) {
             for (int j = 0; j < _emplacementsPossibles.size(); j++) {
                 if (_noeuds[i].getEmplacement()->getId() != j) {
-                    int score, newScore, swappedId;
+                    long score, newScore;
+                    int swappedId;
                     bool swapped = false;
                     Emplacement* oldEmplacement = _noeuds[i].getEmplacement();
                     if (_emplacementsPossibles[j].estDisponible()) {
@@ -795,18 +798,33 @@ void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double se
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
-        //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
+        std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
         for (int del = 0; del < delay; del++) {
             int nodeId = selectionNoeud(modeNoeud, t);
             int slotId = selectionEmplacement(modeEmplacement, nodeId, t);
-            int scoreNode;
+            long scoreNode;
             bool swapped = false;
             int idSwappedNode = -1;
             Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
+            std::cout << nodeId << " e: " << _noeuds[nodeId].getEmplacement()->_id << " slot: " << slotId << std::endl;
             if (!_emplacementsPossibles[slotId].estDisponible()) {
                 idSwappedNode = _emplacementsPossibles[slotId]._noeud->getId();
                 scoreNode = getScoreCroisementNodeGrid(nodeId, idSwappedNode);
+                long tmpScore = getScoreCroisementNode(nodeId,idSwappedNode);
+                std::vector<std::vector<int>> vecAreteCelluleTMP;
+                calculeNodeCelluleVec(vecAreteCelluleTMP,nodeId);
+                long tmpScoreGrid2 = getScoreCroisementNodeGrid(vecAreteCelluleTMP,nodeId, idSwappedNode);
+                std::cout << "BEFORE TmpScore1: " << tmpScore << std::endl;
+                std::cout << "BEFORE GridScore1: " << scoreNode << std::endl;
+                std::cout << "BEFORE TMPGridScore1: " << tmpScoreGrid2 << std::endl;
                 scoreNode += getScoreCroisementNodeGrid(idSwappedNode);
+                tmpScore += getScoreCroisementNode(idSwappedNode);
+                std::vector<std::vector<int>> vecAreteCelluleTMP2;
+                calculeNodeCelluleVec(vecAreteCelluleTMP2,idSwappedNode);
+                tmpScoreGrid2 += getScoreCroisementNodeGrid(vecAreteCelluleTMP2,idSwappedNode);
+                std::cout << "BEFORE TmpScore2: " << tmpScore << std::endl;
+                std::cout << "BEFORE GridScore2: " << scoreNode << std::endl;
+                std::cout << "BEFORE TMPGridScore2: " << tmpScoreGrid2 << std::endl;
                 _noeuds[nodeId].swap(&_emplacementsPossibles[slotId]);
                 swapped = true;
             }
@@ -814,23 +832,34 @@ void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double se
                 scoreNode = getScoreCroisementNodeGrid(nodeId);
                 _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
             }
-            int newScoreNode;
-            std::vector<std::vector<int>> vecAreteCellule;
-            std::vector<std::vector<int>> vecAreteCelluleSwapped;
-            calculeNodeCelluleVec(vecAreteCellule,nodeId);
+            long newScoreNode;
+            //std::vector<std::vector<int>> vecAreteCellule;
+            //std::vector<std::vector<int>> vecAreteCelluleSwapped;
+            //calculeNodeCelluleVec(vecAreteCellule,nodeId);
+            recalcNodeCellule(nodeId);
             if (swapped) {
-                calculeNodeCelluleVec(vecAreteCelluleSwapped,idSwappedNode);
-                newScoreNode = getScoreCroisementNodeGrid(vecAreteCellule,nodeId, idSwappedNode);
-                newScoreNode += getScoreCroisementNodeGrid(vecAreteCelluleSwapped,idSwappedNode);
+                recalcNodeCellule(idSwappedNode);
+                //calculeNodeCelluleVec(vecAreteCelluleSwapped,idSwappedNode);
+                //newScoreNode = getScoreCroisementNodeGrid(vecAreteCellule,nodeId, idSwappedNode);
+                newScoreNode = getScoreCroisementNodeGrid(nodeId, idSwappedNode);
+                long tmpScore = getScoreCroisementNode(nodeId,idSwappedNode);
+                std::cout << "AFTER TmpScore1: " << tmpScore << std::endl;
+                std::cout << "AFTER GridScore1: " << scoreNode << std::endl;
+                //newScoreNode += getScoreCroisementNodeGrid(vecAreteCelluleSwapped,idSwappedNode);
+                newScoreNode += getScoreCroisementNodeGrid(idSwappedNode);
+                tmpScore += getScoreCroisementNode(idSwappedNode);
+                std::cout << "AFTER TmpScore2: " << tmpScore << std::endl;
+                std::cout << "AFTER GridScore2: " << scoreNode << std::endl;
+                return;
             }
             else {
-                newScoreNode = getScoreCroisementNodeGrid(vecAreteCellule,nodeId);
+                //newScoreNode = getScoreCroisementNodeGrid(vecAreteCellule,nodeId);
+                newScoreNode = getScoreCroisementNodeGrid(nodeId);
             }
             int improve = newScoreNode - scoreNode;
             if (improve < 0) {
                 nbCroisement += improve;
                 if (nbCroisement < bestCroisement) {
-                    //if (swapped) { compteurSwapE++; } else { compteurDeplacementE++; }
                     bestCroisement = nbCroisement;
                     bestResult = saveCopy();
                     end = std::chrono::system_clock::now();
@@ -849,14 +878,14 @@ void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double se
                 }
                 else {
                     nbCroisement += improve;
-                    applyNewAreteCelluleVec(vecAreteCellule,nodeId);
+                    recalcNodeCellule(nodeId);
+                    //applyNewAreteCelluleVec(vecAreteCellule,nodeId);
                     if (swapped) {
-                        applyNewAreteCelluleVec(vecAreteCelluleSwapped,idSwappedNode);
+                        recalcNodeCellule(idSwappedNode);
+                        //applyNewAreteCelluleVec(vecAreteCelluleSwapped,idSwappedNode);
                     }
-                    //if (swapped) { compteurSwapE++; } else { compteurDeplacementE++; }
                 }
             }
-            //if (swapped) { compteurSwap++; } else { compteurDeplacement++; }
         }
         t *= cool;
     }

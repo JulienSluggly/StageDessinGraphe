@@ -60,7 +60,7 @@ void customRecuit() {
 		std::vector<std::vector<double>> totalRuns;
 		totalRuns.push_back({9,0.999999});
 		for (int i=0;i<totalRuns.size();i++) {
-			generateCSV(5,"Aleatoire","Rerecuit Simule TME","graph-10-input",G,"",slotFileUsed,totalRuns[i],numThread);
+			generateCSV(10,"Aleatoire","Rerecuit Simule TME","graph-10-input",G,"",slotFileUsed,totalRuns[i],numThread);
 		}
 	}
 }

@@ -51,7 +51,7 @@ int main() {
 
 	std::cout << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
-	double timeBest = -1; int bestIteration = -1; int lastIteration = -1; 
+	double timeBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(timeBest,bestIteration,lastIteration,1000,1000,fileGraph,fileSlots,false,false,5);
 
@@ -61,6 +61,7 @@ int main() {
 	G.registerSlotsAndEdgesInGrid();
 
 	G.recuitSimuleGrid(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);
+	//G.recuitSimule(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);
 	//G.afficherEmplacement();
 	//G.afficherLiensEmp();
 	//G.recuitSimuleCustom(timeBest,0.99999, 100.0,0.0001, 1, 0, 3, {1,15});

@@ -160,9 +160,9 @@ public:
 
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimule(double &timeBest, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
+	void rerecuitSimule(double &timeBest, int &nombreRecuit, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
 
-	void rerecuitSimuleCustom(double &timeBest, int iter=-1, double cool=0.99999, double coolt=0.99, double t=100.0, double seuil = 0.0001, int delay=1, int modeNoeud=0, int modeEmplacement=0,std::vector<double> customParam={});
+	void rerecuitSimuleCustom(double &timeBest, int &nombreRecuit, int iter=-1, double cool=0.99999, double coolt=0.99, double t=100.0, double seuil = 0.0001, int delay=1, int modeNoeud=0, int modeEmplacement=0,std::vector<double> customParam={});
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour le score du graphe et des noeuds
@@ -416,6 +416,9 @@ public:
 
 	// Met a jour les cellules passée par l'arete areteId
 	void recalcAreteCellule(int areteId);
+
+	// Met a jour les aretes du noeud dans les cellules
+	void recalcNodeCellule(int nodeId);
 
 	// Calcule le vecteur de cellule sans le mettre a jour
 	void calcAreteCelluleVec(std::vector<int>& vecInt,int areteId);
