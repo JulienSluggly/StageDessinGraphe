@@ -43,4 +43,6 @@ void resetSeed(int numThread);
 
 std::string getTypeSeed();
 
+int nombreIterationRecuit(double t,double cool,double seuil);
+
 #endif

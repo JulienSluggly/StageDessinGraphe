@@ -334,7 +334,7 @@ int Graphe::getAreteFromTwoNodes(int nodeId1, int nodeId2) {
 }
 
 void Graphe::triangulationDelaunay() {
-    std::cout << "Debut triangulation.\n";
+    if (DEBUG_GRAPHE) std::cout << "Debut triangulation.\n";
     std::vector<Emplacement*> empPtrVec;
     for (int i=0;i<_emplacementsPossibles.size();i++) {
         empPtrVec.push_back(&_emplacementsPossibles[i]);
@@ -349,7 +349,7 @@ void Graphe::triangulationDelaunay() {
         e2->voisinsDelaunay.push_back(e1->_id);
     }
     isCarteSetUp = true;
-    std::cout << "Triangulation delaunay fini.\n";
+    if (DEBUG_GRAPHE) std::cout << "Triangulation delaunay fini.\n";
 }
 
 void Graphe::reinitGrille() {
@@ -371,7 +371,7 @@ void Graphe::initGrille(int row,int column,bool decalleGrille) {
         gridWidth = (gridWidth * 2) + 2;
         gridHeight = (gridHeight * 2) + 2;
     }
-    if (row == -1) { row = (int)ceil(sqrt(_noeuds.size())); }
+    if (row == -1) { row = (int)ceil(sqrt(_liens.size())*1.5); }
     if (column == -1) { column = row; }
     int sizeColumn = ceil((double)gridWidth / (double)column);
     if (sizeColumn % 2 == 1) { sizeColumn++; }

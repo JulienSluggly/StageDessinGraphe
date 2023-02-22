@@ -252,7 +252,7 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         break;
     }
     case 4: {
-        int profondeur = 1;
+        int profondeur = (iter / 100000) + 10;
         if (customParam.size() > 0) {
             if (customParam[0] == 7) {
                 profondeur = customParam[1];

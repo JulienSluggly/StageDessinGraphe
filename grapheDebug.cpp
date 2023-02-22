@@ -405,8 +405,10 @@ void Graphe::debugEverything(bool displayOther, bool displaySelf) {
     afficherAreteDouble(displayOther);
     if (displaySelf) { std::cout << "Debut debug noeud double\n"; }
     afficherNoeudDouble(displayOther);
-    //if (displaySelf) { std::cout << "Debut debug emplacement double\n"; }
-    //afficherEmplacementDouble(displayOther);
+    if (_emplacementsPossibles.size() < ((_noeuds.size()*_noeuds.size())/2)) {
+        if (displaySelf) { std::cout << "Debut debug emplacement double\n"; }
+        afficherEmplacementDouble(displayOther);
+    }
     if (displaySelf) { std::cout << "Debut debug noeud seul\n"; }
     afficherNoeudSeul(displayOther);
     if (displaySelf) { std::cout << "Debut debug noeud non place\n"; }

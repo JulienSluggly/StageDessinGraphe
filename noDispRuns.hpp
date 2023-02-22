@@ -31,6 +31,24 @@ void readOldFiles(Graphe& G) {
 	}
 }
 
+void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pairGraphSlots, int nbRun, std::string methodePlacement, std::string methodeAlgo,std::vector<double> customParam, int tid) {
+	for (int i = 0; i < pairGraphSlots.second.size(); i++) {
+		std::string fileGraph = chemin + "exemple/Graphe/" + pairGraphSlots.first + ".json";
+		std::string fileSlots;
+		Graphe G(pairGraphSlots.first);
+		G.readFromJsonGraph(fileGraph);
+		if (pairGraphSlots.second[i] != "GRID") {
+			fileSlots = chemin + "exemple/Slots/" + pairGraphSlots.second[i] + ".json";
+			G.readFromJsonSlots(fileSlots);
+		}
+		else {
+			fileSlots = "GRID";
+			G.generateGrid();
+		}
+		generateCSV(nbRun, methodePlacement, methodeAlgo, pairGraphSlots.first, G, fileGraph, fileSlots,customParam,tid);
+	}
+}
+
 void customRecuit() {
 	fillLogsVector();
 	std::string nomFichierGraph = "graph-10-input";
@@ -165,7 +183,7 @@ void allRunsLogged() {
 	fillLogsVector();
 	std::unordered_map<std::string, std::vector<std::string>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire"};
-	std::vector<std::string> methodesAlgo = { "Recuit Simule TME", "Recuit Simule Grille TME","Rerecuit Simule TME","Rerecuit Simule Grille TME"};
+	std::vector<std::string> methodesAlgo = { "Rerecuit Simule Grille Best"};
 	std::vector<int> runMethodesAlgo = { 1,1,1,1 };
 	for (int i = 1; i <= 12; i++) {
 		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"} });
@@ -204,6 +222,38 @@ void allRunsLogged() {
 						}
 					}
 				}
+			}
+			indexKey++;
+		}
+		printf("Thread: %d done.\n",tid);
+	}
+	printf("All Threads done.\n");
+}
+
+void allRunsBySlots() {
+	fillLogsVector();
+	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
+	for (int i = 1; i <= 12; i++) {
+		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
+	}
+	std::cout << "Starting all run logs." << std::endl;
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		int indexKey = 0;
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		int chunk = std::ceil((double)mapGraphSlots.size() / (double)nthreads);
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+			printf("Chunk size: %d\n", chunk);
+		}
+		for (auto& key : mapGraphSlots) {
+			if (tid == (indexKey % nthreads)) {
+				startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TME",{},tid);
+				startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TRE",{},tid);
+				startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille Best",{},tid);
+				startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille Best TRE",{},tid);
 			}
 			indexKey++;
 		}

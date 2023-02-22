@@ -57,6 +57,8 @@ void fillVectorTriangulation() {
 	methodeTriangulation.push_back("Rerecuit Simule TRE");
 	methodeTriangulation.push_back("Recuit Simule TRE Custom");
 	methodeTriangulation.push_back("Rerecuit Simule TRE Custom");
+	methodeTriangulation.push_back("Rerecuit Simule Grille Best TRE");
+	methodeTriangulation.push_back("Rerecuit Simule Grille TRE");
 }
 
 void fillVectorGrille() {
@@ -64,6 +66,9 @@ void fillVectorGrille() {
 	methodeGrille.push_back("Recuit Simule Grille TME");
 	methodeGrille.push_back("Rerecuit Simule Grille");
 	methodeGrille.push_back("Rerecuit Simule Grille TME");
+	methodeGrille.push_back("Rerecuit Simule Grille TRE");
+	methodeGrille.push_back("Rerecuit Simule Grille Best");
+	methodeGrille.push_back("Rerecuit Simule Grille Best TRE");
 }
 
 void fillLogsVector() {
@@ -100,10 +105,10 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		}
 		saveResult = true;
 		if (customParam.size() > 1) {
-			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),customParam[0],customParam[1],secondsTotalExec.count());
+			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacementsPossibles.size(),customParam[0],customParam[1],secondsTotalExec.count());
 		}
 		else {
-			printf("Tid: %d | Iter: %d Max: %d | %s | %s | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),secondsTotalExec.count());
+			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacementsPossibles.size(),secondsTotalExec.count());
 		}
 		auto start = std::chrono::system_clock::now();
 		if (methodeName == "Glouton") G.glouton();
@@ -113,7 +118,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		//else if (methodeName == "OGDF") ogdfPlacementAuPlusProche(G);
 		else if (methodeName == "Aleatoire") G.placementAleatoire();
 		else if (methodeName != "Aucun") {
-			std::cout << "ERROR Aucune methode " << methodeName << " trouve !";
+			std::cout << "ERROR Aucune methode " << methodeName << " trouve !\n";
 			return;
 		}
 
@@ -151,16 +156,20 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		}
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest);
+		else if (methodeAlgoName == "Rerecuit Simule Grille Best") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,3);
+		else if (methodeAlgoName == "Rerecuit Simule Grille Best TRE") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,4);
 		else if (methodeAlgoName == "Recuit Simule TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,3);
 		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
+		else if (methodeAlgoName == "Recuit Simule TRE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,4);
+		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
 		else if (methodeAlgoName == "Recuit Simule Grille TME") G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001,1,0,3);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
+		else if (methodeAlgoName == "Recuit Simule Grille TRE") G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001,1,0,4);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TRE") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
 		else if (methodeAlgoName == "Recuit Simule TME Custom") G.recuitSimuleCustom(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3, customParam);
 		else if (methodeAlgoName == "Recuit Simule Delay TME Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,-1,0,3,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3);
-		else if (methodeAlgoName == "Recuit Simule TRE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,4);
-		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
 		else if (methodeAlgoName == "Recuit Simule TRE Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,1,0,4,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule TRE Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3,customParam);
@@ -174,7 +183,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		else if (methodeAlgoName == "Genetique Enfant") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,false,false,5);
 		else if (methodeAlgoName == "Genetique Enfant Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population,maxIteration,fileGraph,fileSlots,true,false,5);
 		else if (methodeAlgoName != "Aucun") {
-			std::cout << "ERROR Aucun algo " << methodeAlgoName << " trouve !";
+			std::cout << "ERROR Aucun algo " << methodeAlgoName << " trouve !\n";
 			return;
 		}
 

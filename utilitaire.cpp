@@ -142,3 +142,7 @@ void removeFromVector(std::vector<int>& vec, int x) {
         }
     }
 }
+
+int nombreIterationRecuit(double t,double cool,double seuil) {
+    return (int)(((log(seuil/t)))/(log(cool)));
+}
