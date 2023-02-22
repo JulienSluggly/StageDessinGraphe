@@ -14,7 +14,6 @@
 #include "ogdfFunctions.hpp"
 #include "logCSV.hpp"
 #include "utilitaire.hpp"
-#include <unistd.h>
 
 using namespace std;
 
@@ -28,16 +27,16 @@ int main() {
 	//customRecuit();
 	//allRunsSingleThread();
 	//allRunsLogged();
-	customRecuitAllRuns();
-	return 0;
+	//customRecuitAllRuns();
+	//return 0;
 
 	//performanceTest();
 	//return 0;
 
 	Graphe G;
 	
-	string nomFichierGraph = "graph-12-input";
-	string nomFichierSlots = "12-input-slots";
+	string nomFichierGraph = "graph-4-input";
+	string nomFichierSlots = "4-input-slots";
 	string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
 	
@@ -66,8 +65,8 @@ int main() {
 	G.initGrille(row,row);
 	G.registerSlotsAndEdgesInGrid();
 
-	G.recuitSimuleGrid(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);
-	//G.rerecuitSimuleGrid(timeBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
+	//G.recuitSimuleGrid(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);
+	G.rerecuitSimuleGrid(timeBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
 	//G.recuitSimule(timeBest,0.99999, 100.0,0.0001, 1, 0, 3);
 	//G.afficherEmplacement();
 	//G.afficherLiensEmp();
@@ -94,7 +93,7 @@ int main() {
 	if (timeBest != -1) std::cout << timeBest << "s meilleur resultat.\n";
 	if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
 	if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
-	if (nombreRecuit != -1) std::cout << "Nombre de recuit: " << nombreRecuit << "\n";
+	if (nombreRecuit != -1) std::cout << "Nombre de rechauffe: " << nombreRecuit << "\n";
 	if (G.estPlace()) std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
 	std::cout << "Setup complete!" << std::endl;
 

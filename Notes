@@ -2,5 +2,3 @@ Structure arete:
     Liste de marque avec toutes les autres aretes
 
 Moyenne sur les crossing number?
-
-Probleme de faux resultats dans les logs avec multithreading?

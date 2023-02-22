@@ -414,8 +414,14 @@ public:
 	// Remplie la grille de cellules, nombre de ligne et nombre de colones
 	void initGrille(int row=-1,int column=-1,bool decalleGrille=true);
 
+	// Supprime la grille courante et la reinitialise
+	void reinitGrille();
+
 	// Enregistre les emplacements et les aretes dans la grille
 	void registerSlotsAndEdgesInGrid();
+
+	// Enregistre les aretes dans la grille
+	void registerEdgesInGrid();
 
 	// Enregistre avec alignements d'emplacements
 	void registerSlotsAndEdgesInGridNoMove();

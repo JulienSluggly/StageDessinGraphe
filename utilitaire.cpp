@@ -9,7 +9,7 @@ using std::min;
 using std::max;
 
 std::vector<std::mt19937*> genVector;
-thread_local int numGen=-1;
+thread_local int numGen=0;
 
 bool isSeedRandom;
 int seed;

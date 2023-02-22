@@ -885,6 +885,7 @@ void Graphe::rerecuitSimuleGrid(double &timeBest,int &nombreRecuit, int iter, do
     int i=1;
     double recuitTimeBest;
     while (numberOfNoUpgrade < maxIter) {
+        if (i>1) { reinitGrille(); }
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         recuitSimuleGrid(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement);
         nombreRecuit++;

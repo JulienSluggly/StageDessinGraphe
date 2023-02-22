@@ -352,6 +352,16 @@ void Graphe::triangulationDelaunay() {
     std::cout << "Triangulation delaunay fini.\n";
 }
 
+void Graphe::reinitGrille() {
+    for (int i=0;i<grillePtr.size();i++) {
+        grillePtr[i]->vecAreteId.clear();
+    }
+    for (int i=0;i<_liens.size();i++) {
+        _liens[i].vecIdCellules.clear();
+    }
+    registerEdgesInGrid();
+}
+
 void Graphe::initGrille(int row,int column,bool decalleGrille) {
     if (decalleGrille) {
         for (int i=0;i<_emplacementsPossibles.size();i++) {
@@ -388,6 +398,7 @@ void Graphe::initGrille(int row,int column,bool decalleGrille) {
 
 }
 
+// Pas utilisé
 void Graphe::registerSlotsAndEdgesInGridNoMove() {
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
@@ -463,7 +474,11 @@ void Graphe::registerSlotsAndEdgesInGrid() {
         _emplacementsPossibles[i].vecIdCellules.push_back(id);
         grille[numY][numX].vecEmplacementId.push_back(i);
     }
+    registerEdgesInGrid();
+    if (DEBUG_GRAPHE) std::cout << "Fin remplissage de la grille.\n";
+}
 
+void Graphe::registerEdgesInGrid() {
     int nombreColonne = grille[0].size();
     for (int i=0;i<_liens.size();i++) {
         int n1X = _liens[i].getNoeud1()->getX();
@@ -592,7 +607,6 @@ void Graphe::registerSlotsAndEdgesInGrid() {
             grille[idCellY][idCellX].vecAreteId.push_back(i);
         }
     }
-    if (DEBUG_GRAPHE) std::cout << "Fin remplissage de la grille.\n";
 }
 
 int Graphe::getDirectionArete(int idArete) {

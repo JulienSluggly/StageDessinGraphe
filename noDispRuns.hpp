@@ -110,7 +110,7 @@ void customRecuitAllRuns() {
 							fileSlots = "GRID";
 							G.generateGrid();
 						}
-						generateCSV(1,"Aleatoire","Recuit Simule Grille TME",nomFichierLog,G,fileGraph,fileSlots,totalRuns[i],tid);
+						generateCSV(2,"Aleatoire","Recuit Simule Grille TME",nomFichierLog,G,fileGraph,fileSlots,totalRuns[i],tid);
 					}
 				}
 			}

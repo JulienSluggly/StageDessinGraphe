@@ -74,7 +74,7 @@ void fillLogsVector() {
 	fillVectorGrille();
 }
 
-void generateCSV(double nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<double> customParam={}, int tid=0) {
+void generateCSV(int nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<double> customParam={}, int tid=0) {
 	bool updateScore = isInVector(methodeWithScore,methodeAlgoName);
 	bool isGenetique = isInVector(methodeGenetique,methodeAlgoName);
 	bool needTriangulation = isInVector(methodeTriangulation,methodeAlgoName);
@@ -86,11 +86,11 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 	std::vector<double> tempExecVector; std::vector<double> tempBestVector; std::vector<int> bestIterationVector; std::vector<int> lastIterationVector;
 	double tempsExecMoyenne = 0; double tempsBestMoyenne = 0; double bestIterationMoyenne = 0; double lastIterationMoyenne = 0;
 	bool saveResult = true;
-	auto totalStart = std::chrono::system_clock::now();
-	std::chrono::duration<double> secondsTotal = totalStart - totalStart;
 	int population, maxIteration;
 	int nombreRecuit = 0;
-	for (int i = 1; (i <= nbEssay||(nbEssay==-1&&secondsTotal.count() < 1800)); ++i) {
+	auto totalStart = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
+	for (int i = 1; (i <= nbEssay||(nbEssay==-1&&secondsTotalExec.count() < 1800)); ++i) {
 		resetSeed(tid);
 		G.clearNodeEmplacement();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
@@ -99,7 +99,12 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 			maxIteration = mapGraphPopGen[nomGraphe].second;
 		}
 		saveResult = true;
-		printf("Tid: %d Current Execution: %d\n",tid,i);
+		if (customParam.size() > 1) {
+			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),customParam[0],customParam[1],secondsTotalExec.count());
+		}
+		else {
+			printf("Tid: %d | Iter: %d Max: %d | %s | %s | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),secondsTotalExec.count());
+		}
 		auto start = std::chrono::system_clock::now();
 		if (methodeName == "Glouton") G.glouton();
 		else if (methodeName == "Glouton Revisite") G.gloutonRevisite();
@@ -175,7 +180,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 
 		auto end = std::chrono::system_clock::now();
 		std::chrono::duration<double> secondsTotal = end - start;
-		secondsTotal = end - totalStart;
+		secondsTotalExec = end - totalStart;
 		tempExecVector.push_back(secondsTotal.count());
 		tempBestVector.push_back(tempsBest);
 		bestIterationVector.push_back(bestIteration);
