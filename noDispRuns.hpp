@@ -62,7 +62,7 @@ void customRecuit() {
 			generateCSV(10,"Aleatoire","Rerecuit Simule TME","graph-10-input",G,"",slotFileUsed,totalRuns[i],tid);
 		}
 	}
-	printf("All Threads done.");
+	printf("All Threads done.\n");
 }
 
 void customRecuitAllRuns() {
@@ -118,7 +118,7 @@ void customRecuitAllRuns() {
 		}
 		printf("Thread: %d done.\n",tid);
 	}
-	printf("All Threads done.");
+	printf("All Threads done.\n");
 }
 
 void allRunsSingleThread() {
@@ -209,7 +209,7 @@ void allRunsLogged() {
 		}
 		printf("Thread: %d done.\n",tid);
 	}
-	printf("All Threads done.");
+	printf("All Threads done.\n");
 }
 
 // Multithreading sur un seul graphe pour differentes methodes
@@ -239,7 +239,7 @@ void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSi
 		}
 		std::cout << "Thread: " << tid << " done." << std::endl;
 	}
-	printf("All Threads done.");
+	printf("All Threads done.\n");
 }
 
 void performanceTest() {

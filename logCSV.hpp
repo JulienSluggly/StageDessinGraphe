@@ -91,6 +91,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 	int population, maxIteration;
 	int nombreRecuit = 0;
 	for (int i = 1; (i <= nbEssay||(nbEssay==-1&&secondsTotal.count() < 1800)); ++i) {
+		resetSeed(tid);
 		G.clearNodeEmplacement();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
 		if (isGenetique) {
@@ -204,7 +205,7 @@ void generateCSV(double nbEssay, const std::string& methodeName, const std::stri
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 		std::streampos position = resultats.tellp();
 		if (position == 0) {
-			resultats << "MethodeUtilisee,AlgoDeplacement,NbRun,NbSlots,NbIllegal,BestCross,MoyCross,MedCross,MoyBest(s),MoyTotal(s),Population,MaxGen,MoyBestGen,MoyLastGen,Machine,CustomParams\n";
+			//resultats << "MethodeUtilisee,AlgoDeplacement,NbRun,NbSlots,NbIllegal,BestCross,MoyCross,MedCross,MoyBest(s),MoyTotal(s),Population,MaxGen,MoyBestGen,MoyLastGen,Machine,CustomParams\n";
 		}
 
 		resultats << std::fixed;

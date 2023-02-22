@@ -3,13 +3,16 @@
 #include <algorithm>
 #include "emplacement.hpp"
 #include <iostream>
-
+#include <omp.h>
 
 using std::min;
 using std::max;
 
-std::random_device rd;
-std::mt19937 *gen;
+std::vector<std::mt19937*> genVector;
+thread_local int numGen=-1;
+
+bool isSeedRandom;
+int seed;
 
 std::string typeSeed;
 
@@ -20,25 +23,46 @@ std::string typeSeed;
 // Retourne une valeur réelle comprise dans [0.0,n[
 double generateDoubleRand(double n) {
     std::uniform_real_distribution<> dis(0.0, n);
-    return dis(*gen);
+    return dis(*genVector[numGen]);
 }
 
 // Retourne une valeur entiere comprise dans [0,n]
 int generateRand(int n) {
     std::uniform_int_distribution<> dis(0, n);
-    return dis(*gen);
+    return dis(*genVector[numGen]);
 }
 
-void initSameSeed() {
+void initSameSeed(int n) {
     std::cout << "---------- SEED FIXE: 0 ----------\n";
     typeSeed = "FIXE";
-    gen = new std::mt19937(0);
+    isSeedRandom = false;
+    seed = n;
+    int maxThread = omp_get_max_threads();
+    for (int i=0;i<maxThread;i++) {
+        genVector.push_back(new std::mt19937(n));
+    }
 }
 
 void initRandomSeed() {
     std::cout << "---------- SEED RANDOM ----------\n";
     typeSeed = "RANDOM";
-    gen = new std::mt19937(rd());
+    isSeedRandom = true;
+    int maxThread = omp_get_max_threads();
+    for (int i=0;i<maxThread;i++) {
+        std::random_device rd;
+        genVector.push_back(new std::mt19937(rd()));
+    }
+}
+
+void resetSeed(int numThread) {
+    numGen = numThread;
+    if (isSeedRandom) {
+        std::random_device rd;
+        genVector[numThread] = new std::mt19937(rd());
+    }
+    else {
+        genVector[numThread] = new std::mt19937(seed);
+    }
 }
 
 std::string getTypeSeed() {

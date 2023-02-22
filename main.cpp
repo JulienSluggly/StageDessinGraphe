@@ -14,6 +14,7 @@
 #include "ogdfFunctions.hpp"
 #include "logCSV.hpp"
 #include "utilitaire.hpp"
+#include <unistd.h>
 
 using namespace std;
 
