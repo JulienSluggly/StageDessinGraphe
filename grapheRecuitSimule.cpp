@@ -872,7 +872,7 @@ void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double se
 
 // Applique le recuit simulé grid plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimuleGrid(double &timeBest,int &nombreRecuit, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement) {
+void Graphe::rerecuitSimuleGrid(double &timeBest,int &nombreRecuit, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
     auto start = std::chrono::system_clock::now();
     auto end = start;
     if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
@@ -887,7 +887,7 @@ void Graphe::rerecuitSimuleGrid(double &timeBest,int &nombreRecuit, int iter, do
     while (numberOfNoUpgrade < maxIter) {
         if (i>1) { reinitGrille(); }
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
-        recuitSimuleGrid(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement);
+        recuitSimuleGrid(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement, customParam);
         nombreRecuit++;
         t *= coolt;
         if (iter != -1) {

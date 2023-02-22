@@ -2,8 +2,8 @@
 #define PERSO_HPP
 #include <string>
 
-std::string chemin = "/home/uha/Documents/DessinGrapheCmake/src/";
-std::string cheminGitHub = "";
-std::string machine = "Ubuntu UHA";
+extern std::string chemin;
+extern std::string cheminGitHub;
+extern std::string machine;
 
 #endif

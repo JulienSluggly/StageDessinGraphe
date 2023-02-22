@@ -881,3 +881,16 @@ void Graphe::applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int n
         _liens[areteId].vecIdCellules.swap(vecCellId);
     }
 }
+
+void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
+    std::string pathGraph = chemin + "exemple/Graphe/" + fileGraphe + ".json";
+    std::string pathSlot;
+    readFromJsonGraph(pathGraph);
+    if (fileSlot != "GRID") {
+        pathSlot = chemin + "exemple/Slots/" + fileSlot + ".json";
+        readFromJsonSlots(pathSlot);
+    }
+    else {
+        generateGrid();
+    }
+}

@@ -59,6 +59,8 @@ void fillVectorTriangulation() {
 	methodeTriangulation.push_back("Rerecuit Simule TRE Custom");
 	methodeTriangulation.push_back("Rerecuit Simule Grille Best TRE");
 	methodeTriangulation.push_back("Rerecuit Simule Grille TRE");
+	methodeTriangulation.push_back("Rerecuit Simule Grille TRE Custom");
+	methodeTriangulation.push_back("Recuit Simule Grille TRE Custom");
 }
 
 void fillVectorGrille() {
@@ -69,6 +71,8 @@ void fillVectorGrille() {
 	methodeGrille.push_back("Rerecuit Simule Grille TRE");
 	methodeGrille.push_back("Rerecuit Simule Grille Best");
 	methodeGrille.push_back("Rerecuit Simule Grille Best TRE");
+	methodeGrille.push_back("Rerecuit Simule Grille TRE Custom");
+	methodeGrille.push_back("Recuit Simule Grille TRE Custom");
 }
 
 void fillLogsVector() {
@@ -79,12 +83,12 @@ void fillLogsVector() {
 	fillVectorGrille();
 }
 
-void generateCSV(int nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, Graphe& G, std::string fileGraph="None", std::string fileSlots="None", std::vector<double> customParam={}, int tid=0) {
+void generateCSV(int nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, std::string fileGraph, std::string fileSlots, std::vector<double> customParam={}, int tid=0) {
 	bool updateScore = isInVector(methodeWithScore,methodeAlgoName);
 	bool isGenetique = isInVector(methodeGenetique,methodeAlgoName);
 	bool needTriangulation = isInVector(methodeTriangulation,methodeAlgoName);
 	bool needGrille = isInVector(methodeGrille,methodeAlgoName);
-	double moyenneCroisement = 0, medianCroisement;
+	double moyenneCroisement, medianCroisement;
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0;
 	std::vector<int> croisementVector;
@@ -92,12 +96,13 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 	double tempsExecMoyenne = 0; double tempsBestMoyenne = 0; double bestIterationMoyenne = 0; double lastIterationMoyenne = 0;
 	bool saveResult = true;
 	int population, maxIteration;
-	int nombreRecuit = 0;
+	int nombreRecuit = 0, nombreSlots, nombreCellule;
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
 	for (int i = 1; (i <= nbEssay||(nbEssay==-1&&secondsTotalExec.count() < 1800)); ++i) {
 		resetSeed(tid);
-		G.clearNodeEmplacement();
+		Graphe G;
+		G.setupGraphe(fileGraph,fileSlots);
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
 		if (isGenetique) {
 			population = mapGraphPopGen[nomGraphe].first;
@@ -121,14 +126,11 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 			std::cout << "ERROR Aucune methode " << methodeName << " trouve !\n";
 			return;
 		}
-
 		if (updateScore) {
 			G.initGraphAndNodeScoresAndCrossings();
 		}
 		if (needTriangulation) {
-			if (!G.isCarteSetUp) {
-				G.triangulationDelaunay();
-			}
+			G.triangulationDelaunay();
 		}
 		if (needGrille) {
 			if (customParam.size() > 0) {
@@ -171,6 +173,8 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3);
 		else if (methodeAlgoName == "Recuit Simule TRE Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,1,0,4,customParam);
+		else if (methodeAlgoName == "Recuit Simule Grille TRE Custom") G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 4, customParam);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TRE Custom") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule TRE Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3,customParam);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
@@ -194,6 +198,8 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		tempBestVector.push_back(tempsBest);
 		bestIterationVector.push_back(bestIteration);
 		lastIterationVector.push_back(lastIteration);
+		nombreSlots = G._emplacementsPossibles.size();
+		nombreCellule = G.grillePtr.size();
 		if (G.isNombreCroisementUpdated) {
 			croisementVector.push_back(G.nombreCroisement);
 		}
@@ -203,6 +209,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		if (G.hasIllegalCrossing()) {
 			nbSolutionIllegale++;
 		}
+		G.debugEverything();
 	}
 	if (saveResult) {
 		std::sort(croisementVector.begin(), croisementVector.end());
@@ -213,7 +220,6 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		tempsBestMoyenne = moyenneVector(tempBestVector);
 		bestIterationMoyenne = moyenneVector(bestIterationVector);
 		lastIterationMoyenne = moyenneVector(lastIterationVector);
-		
 
 		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
@@ -226,7 +232,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		resultats << methodeName << ","
 			<< methodeAlgoName << ","
 			<< std::setprecision(0) << croisementVector.size() << ","
-			<< G._emplacementsPossibles.size() << ","
+			<< nombreSlots << ","
 			<< nbSolutionIllegale << ","
 			<< meilleurCroisement << ",";
 		if (moyenneCroisement > 100) { resultats << std::setprecision(0) << moyenneCroisement << ","; }
@@ -245,7 +251,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 			}
 		}
 		if (needGrille) {
-			resultats << "," << G.grillePtr.size();
+			resultats << "," << nombreCellule;
 		}
 		resultats << "\n";
 		resultats.close();

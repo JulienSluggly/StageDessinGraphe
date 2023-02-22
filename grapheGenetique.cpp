@@ -16,13 +16,7 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
     bool PRINT_RESULT = true;
     std::vector<Graphe> graphes;
     graphes.resize(population);
-    graphes[0].readFromJsonGraph(nomGraphe);
-    if (nomSlot != "GRID") {
-        graphes[0].readFromJsonSlots(nomSlot);
-    }
-    else {
-        graphes[0].generateGrid();
-    }
+    graphes[0].setupGraphe(nomGraphe,nomSlot);
     //graphes[0].generateGrid(32,32);
     for (int i = 1; i < population; ++i) {
         graphes[i].nomGraphe = "Graphe" + std::to_string(i);
@@ -162,7 +156,7 @@ bool Graphe::croisementVoisinageScore(Graphe& originalGraphe1, Graphe& originalG
     Graphe graphe1, graphe2;
     graphe1.copyFromGraphe(originalGraphe1);
     graphe2.copyFromGraphe(originalGraphe2);
-    Graphe* currentGraphe, * otherGraphe;
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     int currentGrapheNumber = generateRand(1);
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
     else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
@@ -283,7 +277,7 @@ void Graphe::stepCroisementVoisinageScore(Graphe& graphe1, Graphe& graphe2, bool
     if (nbNoeudATraiter == 0) {
         return;
     }
-    Graphe* currentGraphe, * otherGraphe;
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
     else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
 
@@ -397,7 +391,7 @@ bool Graphe::croisementBestOfBoth(Graphe& originalGraphe1, Graphe& originalGraph
     Graphe graphe1, graphe2;
     graphe1.copyFromGraphe(originalGraphe1);
     graphe2.copyFromGraphe(originalGraphe2);
-    Graphe* currentGraphe, * otherGraphe;
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
 
     std::vector<int> nodeToUpdate;
     std::vector<int> nodeToRelocate;
@@ -530,7 +524,7 @@ bool Graphe::croisementHalfParent(Graphe& graphe1, Graphe& graphe2, std::vector<
     std::vector<int> saveGraphe2 = graphe2.saveCopy();
     int startVec2 = sortedEmpId.size() / 2;
 
-    Graphe* currentGraphe, * otherGraphe;
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     int currentGrapheNumber = generateRand(1);
     int startVec, endVec;
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; startVec = 0; endVec = startVec2; }
@@ -646,7 +640,7 @@ bool Graphe::croisementAleatoire(Graphe& graphe1, Graphe& graphe2, bool useRand)
     std::vector<int> saveGraphe1 = graphe1.saveCopy();
     std::vector<int> saveGraphe2 = graphe2.saveCopy();
 
-    Graphe* currentGraphe, * otherGraphe;
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     int currentGrapheNumber = generateRand(1);
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
     else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
@@ -723,7 +717,7 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
     Graphe graphe1, graphe2;
     graphe1.copyFromGraphe(originalGraphe1);
     graphe2.copyFromGraphe(originalGraphe2);
-    Graphe* currentGraphe, * otherGraphe;
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     int currentGrapheNumber = generateRand(1);
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
     else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
@@ -869,7 +863,7 @@ bool Graphe::croisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool useR
     }
     std::vector<int> saveGraphe1 = graphe1.saveCopy();
     std::vector<int> saveGraphe2 = graphe2.saveCopy();
-    Graphe* currentGraphe, * otherGraphe;
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     int currentGrapheNumber = generateRand(1);
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
     else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
@@ -977,7 +971,7 @@ void Graphe::stepCroisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool 
         return;
     }
 
-    Graphe* currentGraphe, * otherGraphe;
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
     else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
 

@@ -37,6 +37,7 @@ void initSameSeed(int n) {
     typeSeed = "FIXE";
     isSeedRandom = false;
     seed = n;
+    genVector.clear();
     int maxThread = omp_get_max_threads();
     for (int i=0;i<maxThread;i++) {
         genVector.push_back(new std::mt19937(n));
@@ -47,6 +48,7 @@ void initRandomSeed() {
     std::cout << "---------- SEED RANDOM ----------\n";
     typeSeed = "RANDOM";
     isSeedRandom = true;
+    genVector.clear();
     int maxThread = omp_get_max_threads();
     for (int i=0;i<maxThread;i++) {
         std::random_device rd;
@@ -83,16 +85,16 @@ bool isInVector(std::vector<std::string>& vectorString, std::string x) {
 }
 
 double moyenneVector(std::vector<int>& vec) {
-	double moyenne = 0;
+	double moyenne = 0.0;
 	for (const int& elem : vec) {
-		moyenne += elem;
+		moyenne += (double)elem;
 	}
 	moyenne = moyenne / (double)vec.size();
 	return moyenne;
 }
 
 double moyenneVector(std::vector<double>& vec) {
-	double moyenne = 0;
+	double moyenne = 0.0;
 	for (const double& elem : vec) {
 		moyenne += elem;
 	}

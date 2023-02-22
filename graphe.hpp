@@ -10,6 +10,7 @@
 #include "noeud.hpp"
 #include "carte.h"
 #include "cellule.hpp"
+#include "personnel.hpp"
 
 class Graphe {
 public:
@@ -178,7 +179,7 @@ public:
 
 	// Applique le recuit simulé grille plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimuleGrid(double &timeBest, int &nombreRecuit, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
+	void rerecuitSimuleGrid(double &timeBest, int &nombreRecuit, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0, std::vector<double> customParam = {});
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
 	// On parcoure tout les noeuds et on teste chaque deplacement possible et on effectue le meilleur s'il ameliore le score. (O(n²*e))
@@ -441,6 +442,8 @@ public:
 
 	// Calcule le vecteur de vecteur de cellule sans le mettre a jour
 	void calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int nodeId);
+
+	void setupGraphe(std::string fileGraphe, std::string fileSlot);
 
 };
 

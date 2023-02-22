@@ -33,52 +33,43 @@ void readOldFiles(Graphe& G) {
 
 void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pairGraphSlots, int nbRun, std::string methodePlacement, std::string methodeAlgo,std::vector<double> customParam, int tid) {
 	for (int i = 0; i < pairGraphSlots.second.size(); i++) {
-		std::string fileGraph = chemin + "exemple/Graphe/" + pairGraphSlots.first + ".json";
-		std::string fileSlots;
-		Graphe G(pairGraphSlots.first);
-		G.readFromJsonGraph(fileGraph);
-		if (pairGraphSlots.second[i] != "GRID") {
-			fileSlots = chemin + "exemple/Slots/" + pairGraphSlots.second[i] + ".json";
-			G.readFromJsonSlots(fileSlots);
-		}
-		else {
-			fileSlots = "GRID";
-			G.generateGrid();
-		}
-		generateCSV(nbRun, methodePlacement, methodeAlgo, pairGraphSlots.first, G, fileGraph, fileSlots,customParam,tid);
+		generateCSV(nbRun, methodePlacement, methodeAlgo, pairGraphSlots.first, pairGraphSlots.first, pairGraphSlots.second[i],customParam,tid);
 	}
 }
 
 void customRecuit() {
 	fillLogsVector();
 	std::string nomFichierGraph = "graph-10-input";
-	std::string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	std::vector<std::string> slotFiles = { "10-input-slots", "2X-10-input-slots", "3X-10-input-slots", "GRID" };
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
 		tid = ::omp_get_thread_num();
 		nthreads = ::omp_get_num_threads();
-		if (tid == 0) {
-			printf("Number of threads working on training data: %d\n", nthreads);
-		}
-		std::string fileSlot = slotFiles[tid];
-		std::string slotFileUsed;
-		std::vector<std::vector<double>> totalRuns;
-		totalRuns.push_back({9,0.999999});
-		for (int i=0;i<totalRuns.size();i++) {
-			Graphe G;
-			G.readFromJsonGraph(fileGraph);
-			if (fileSlot != "GRID") {
-				slotFileUsed = chemin + "exemple/Slots/" + fileSlot + ".json";
-				G.readFromJsonSlots(slotFileUsed);
+		if (tid < slotFiles.size()) {
+		//if (tid < 1) {
+			if (tid == 0) {
+				printf("Number of threads working on training data: %d\n", nthreads);
 			}
-			else {
-				slotFileUsed = "GRID";
-				G.generateGrid();
+			std::vector<std::vector<double>> totalRuns;
+			totalRuns.push_back({8,3});
+			totalRuns.push_back({8,4});
+			totalRuns.push_back({8,5});
+			totalRuns.push_back({8,6});
+			totalRuns.push_back({8,7});
+			totalRuns.push_back({8,8});
+			totalRuns.push_back({8,9});
+			totalRuns.push_back({8,10});
+			totalRuns.push_back({8,11});
+			totalRuns.push_back({8,12});
+			totalRuns.push_back({8,13});
+			totalRuns.push_back({8,14});
+			totalRuns.push_back({8,15});
+			for (int i=0;i<totalRuns.size();i++) {
+				generateCSV(10,"Aleatoire","Recuit Simule Grille TRE Custom","graph-10-input",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
 			}
-			generateCSV(10,"Aleatoire","Rerecuit Simule TME","graph-10-input",G,"",slotFileUsed,totalRuns[i],tid);
 		}
+		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
 }
@@ -101,8 +92,6 @@ void customRecuitAllRuns() {
 		for (auto &key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int numSlot = 0; numSlot < key.second.size(); numSlot++) {
-					std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
-					std::string fileSlots;
 					std::vector<std::vector<double>> totalRuns;
 					totalRuns.push_back({10,1});
 					totalRuns.push_back({11,1});
@@ -118,17 +107,7 @@ void customRecuitAllRuns() {
 					totalRuns.push_back({11,2});
 					std::string nomFichierLog = key.first;
 					for (int i=0;i<totalRuns.size();i++) {
-						Graphe G;
-						G.readFromJsonGraph(fileGraph);
-						if (key.second[numSlot] != "GRID") {
-							fileSlots = chemin + "exemple/Slots/" + key.second[numSlot] + ".json";
-							G.readFromJsonSlots(fileSlots);
-						}
-						else {
-							fileSlots = "GRID";
-							G.generateGrid();
-						}
-						generateCSV(2,"Aleatoire","Recuit Simule Grille TME",nomFichierLog,G,fileGraph,fileSlots,totalRuns[i],tid);
+						generateCSV(2,"Aleatoire","Recuit Simule Grille TME",nomFichierLog,key.first,key.second[numSlot],totalRuns[i],tid);
 					}
 				}
 			}
@@ -154,24 +133,11 @@ void allRunsSingleThread() {
 		for (int i = 0; i < key.second.size(); i++) {
 			std::cout << "-----------------------------------------" << std::endl;
 			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
-			std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
-			std::string fileSlots;
-			std::string nomFichierLog = key.first;
 			for (int j = 0; j < methodesPlacement.size(); j++) {
 				std::cout << "--------------------------" << std::endl;
 				for (int k = 0; k < methodesAlgo.size(); k++) {
-					Graphe G(key.first);
-					G.readFromJsonGraph(fileGraph);
-					if (key.second[i] != "GRID") {
-						fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
-						G.readFromJsonSlots(fileSlots);
-					}
-					else {
-						fileSlots = "GRID";
-						G.generateGrid();
-					}
 					std::cout << "Placement: " << methodesPlacement[j] << " Algo: " << methodesAlgo[k] << std::endl;
-					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], nomFichierLog, G, fileGraph, fileSlots);
+					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], key.first, key.first, key.second[i]);
 				}
 			}
 		}
@@ -203,22 +169,9 @@ void allRunsLogged() {
 		for (auto key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int i = 0; i < key.second.size(); i++) {
-					std::string fileGraph = chemin + "exemple/Graphe/" + key.first + ".json";
-					std::string fileSlots;
-					std::string nomFichierLog = key.first;
 					for (int j = 0; j < methodesPlacement.size(); j++) {
 						for (int k = 0; k < methodesAlgo.size(); k++) {
-							Graphe G(key.first);
-							G.readFromJsonGraph(fileGraph);
-							if (key.second[i] != "GRID") {
-								fileSlots = chemin + "exemple/Slots/" + key.second[i] + ".json";
-								G.readFromJsonSlots(fileSlots);
-							}
-							else {
-								fileSlots = "GRID";
-								G.generateGrid();
-							}
-							generateCSV(runMethodesAlgo[k], methodesPlacement[j], methodesAlgo[k], nomFichierLog, G, fileGraph, fileSlots,{},tid);
+							generateCSV(runMethodesAlgo[k], methodesPlacement[j], methodesAlgo[k], key.first, key.first, key.second[i],{},tid);
 						}
 					}
 				}
