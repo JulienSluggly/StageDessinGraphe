@@ -8,19 +8,17 @@
 // useRand indique si l'on doit utiliser l'algorithme aléatoire plutôt que le glouton pour le replacage des noeuds lors du croisement
 // modeCroisement indique quel algorithme de croisement utiliser 0=Voisinage, 1=HalfParent, 2=Aléatoire, 3=VoisinageV2
 void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit, bool useRand, int modeCroisement) {
-    auto start = std::chrono::system_clock::now();
-    auto end = start;
-    std::vector<int> methodeNonScore = { 0, 1, 2, 5 };
+    auto start = std::chrono::system_clock::now(); auto end = start;
+    std::vector<int> methodeNonScore = { 0, 1, 2, 5 }; std::vector<int> methodeGrille = { 6 };
     bool modeNonScore = isInVector(methodeNonScore, modeCroisement);
-    bool DEBUG_GENETIQUE = false;
-    bool PRINT_RESULT = true;
+    bool useGrille = isInVector(methodeGrille,modeCroisement);
+    bool DEBUG_GENETIQUE = false, PRINT_RESULT = true;;
     std::vector<Graphe> graphes;
     graphes.resize(population);
     graphes[0].setupGraphe(nomGraphe,nomSlot);
-    //graphes[0].generateGrid(32,32);
-    for (int i = 1; i < population; ++i) {
+    for (int i = 0; i < population; ++i) {
         graphes[i].nomGraphe = "Graphe" + std::to_string(i);
-        graphes[i].copyFromGraphe(graphes[0]);
+        if (i > 0) { graphes[i].copyFromGrapheGenetique(graphes[0]); }
         graphes[i].placementAleatoire();
         if (modeNonScore) {
             graphes[i].getNbCroisement();
@@ -28,45 +26,20 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
         else {
             graphes[i].initGraphAndNodeScoresAndCrossings();
         }
+        if (useGrille) { graphes[i].initGrille(); graphes[i].registerSlotsAndEdgesInGrid(); }
     }
-    graphes[0].nomGraphe = "Graphe0";
-    graphes[0].placementAleatoire();
-    if (modeNonScore) {
-        graphes[0].getNbCroisement();
-    }
-    else {
-        graphes[0].initGraphAndNodeScoresAndCrossings();
-    }
-    // Vecteur pour le mode half parent
-    std::vector<int> sortedEmpId;
-    if (modeCroisement == 1) {
-        std::vector<Emplacement*> empPtrVec;
-        empPtrVec.resize(graphes[0]._emplacementsPossibles.size());
-        for (int i = 0; i < graphes[0]._emplacementsPossibles.size(); i++) {
-            empPtrVec[i] = &graphes[0]._emplacementsPossibles[i];
-        }
-        // Tri des emplacements pas la coord X
-        std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacement);
-        sortedEmpId.resize(empPtrVec.size());
-        for (int i=0;i<empPtrVec.size();i++) {
-            sortedEmpId[i] = empPtrVec[i]->getId();
-        }
-    }
+    std::vector<int> sortedEmpId; // Vecteur pour le mode half parent
+    if (modeCroisement == 1) { getSortedEmpVecFromGraphe(sortedEmpId,graphes[0]); }
     sort(graphes.begin(), graphes.end());
     int currentIteration = 0; bestIteration = 0;
     long bestCrossingResult = graphes[0].nombreCroisement;
     if (PRINT_RESULT) {
-        std::cout << bestCrossingResult << " Meilleur debut genetique\n";
-        std::cout << "[";
-        for (int i = 0; i<10;i++) {
-            std::cout << graphes[i].nombreCroisement << " ";
-        }
+        std::cout << bestCrossingResult << " Meilleur debut genetique\n[";
+        for (int i = 0; i<10;i++) { std::cout << graphes[i].nombreCroisement << " "; }
         std::cout << "]" << std::endl;
     }
     if (DEBUG_GENETIQUE) {
-        for (int i = 0; i<graphes.size();i++) {
-            graphes[i].debugEverything();
-        }
+        for (int i = 0; i<graphes.size();i++) { graphes[i].debugEverything(); }
     }
     if (PRINT_RESULT) { std::cout << "Debut Croisement Genetique." << std::endl; }
     bool noChange = false;
@@ -77,38 +50,20 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
             int grapheID1, grapheID2;
             grapheID1 = generateRand(population/2 - 1);
             grapheID2 = generateRand(population/2 - 1);
-            while (grapheID2 == grapheID1) {
-                grapheID2 = generateRand(population/2 - 1);
-            }
+            while (grapheID2 == grapheID1) { grapheID2 = generateRand(population/2 - 1); }
             bool result;
-            if (modeCroisement == 0) {
-                result = graphes[i].croisementVoisinageFrom(graphes[grapheID1], graphes[grapheID2], useRand);
-            }
-            else if (modeCroisement == 1) {
-                result = graphes[i].croisementHalfParent(graphes[grapheID1], graphes[grapheID2], sortedEmpId, useRand);
-            }
-            else if (modeCroisement == 2) {
-                result = graphes[i].croisementAleatoire(graphes[grapheID1], graphes[grapheID2], useRand);
-            }
-            else if (modeCroisement == 3) {
-                result = graphes[i].croisementVoisinageScore(graphes[grapheID1], graphes[grapheID2], useRand);
-            }
-            else if (modeCroisement == 4) {
-                result = graphes[i].croisementBestOfBoth(graphes[grapheID1], graphes[grapheID2], useRand);
-            }
-            else if (modeCroisement == 5) {
-                result = graphes[i].croisementEnfantScore(graphes[grapheID1], graphes[grapheID2], useRand);
-            }
-            if (!result) {
-                numberOfNoChange++;
-            }
+            if (modeCroisement == 0) result = graphes[i].croisementVoisinageFrom(graphes[grapheID1], graphes[grapheID2], useRand);
+            else if (modeCroisement == 1) result = graphes[i].croisementHalfParent(graphes[grapheID1], graphes[grapheID2], sortedEmpId, useRand);
+            else if (modeCroisement == 2) result = graphes[i].croisementAleatoire(graphes[grapheID1], graphes[grapheID2], useRand);
+            else if (modeCroisement == 3) result = graphes[i].croisementVoisinageScore(graphes[grapheID1], graphes[grapheID2], useRand);
+            else if (modeCroisement == 4) result = graphes[i].croisementBestOfBoth(graphes[grapheID1], graphes[grapheID2], useRand);
+            else if (modeCroisement == 5) result = graphes[i].croisementEnfantScore(graphes[grapheID1], graphes[grapheID2], useRand);
+            else if (modeCroisement == 6) result = graphes[i].croisementEnfantScoreGrille(graphes[grapheID1], graphes[grapheID2], useRand);
+            if (!result) { numberOfNoChange++; }
             if (useRecuit) { // Le recuit met le nombre de croisement à jour.
                 double tb;
-                if (modeNonScore) {
-                    graphes[i].recuitSimule(tb,0.99, 100.0);
-                }
-                else
-                    graphes[i].recuitSimuleScore(tb,0.99,100.0);
+                if (useGrille) graphes[i].recuitSimuleGrid(tb,0.99,100.0,0.0001,1,0,3);
+                else graphes[i].recuitSimule(tb,0.99, 100.0,0.0001,1,0,3);
             }
             else if (!graphes[i].isNombreCroisementUpdated){ // Si le nombre de croisement n'est pas à jour, on le recalcule.
                 graphes[i].getNbCroisement();
@@ -125,17 +80,14 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
         ++currentIteration;
         sort(graphes.begin(), graphes.end());
         if (PRINT_RESULT) {
-            std::cout << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " Number of no Change: " << numberOfNoChange <<"\n";
-            std::cout << "[";
+            std::cout << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " Number of no Change: " << numberOfNoChange <<"\n[";
             for (int i = 0; i<10;i++) {
                 std::cout << graphes[i].nombreCroisement << " ";
             }
             std::cout << "]" << std::endl;
         }
         if (DEBUG_GENETIQUE) {
-            for (int i = 0; i<graphes.size();i++) {
-                graphes[i].debugEverything();
-            }
+            for (int i = 0; i<graphes.size();i++) { graphes[i].debugEverything(); }
         }
     }
     std::chrono::duration<double> secondsTotal = end - start;
@@ -710,8 +662,9 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
     for (int i=0;i<commonNodeVec.size();i++) { // On place les noeuds communs et on active les aretes placées
         _noeuds[commonNodeVec[i]].setEmplacement(&_emplacementsPossibles[originalGraphe1._noeuds[commonNodeVec[i]].getEmplacement()->_id]);
         for (const int& areteId : _noeuds[commonNodeVec[i]]._aretes) {
-            if (_liens[areteId].estPlace())
+            if (_liens[areteId].estPlace()) {
                 activeEdges.push_back(areteId);
+            }
         }
     }
     Graphe graphe1, graphe2;
@@ -1056,4 +1009,165 @@ void Graphe::stepCroisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool 
     if (nbNoeudATraiter == 0) {
         loadCopy(graphe1.saveCopy());
     }
+}
+
+// Effectue le croisement entre deux parents,
+// On selectionne un noeud en alternant de parent, celui qui creer le moin d'intersection si le place chez l'enfant
+// Renvoie vrai si les deux parents ne sont pas identique
+// Ne met pas a jour le nombre de croisement du graphe et des noeuds
+bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& originalGraphe2, bool useRand) {
+    std::vector<int> commonNodeVec, otherNodeVec, indexNodeInOtherVec;
+    isNombreCroisementUpdated = false;
+    originalGraphe1.separateNodesInCommon(originalGraphe2, commonNodeVec, otherNodeVec, indexNodeInOtherVec);
+    int nbNoeudATraiter = otherNodeVec.size();
+    if (nbNoeudATraiter == 0) {
+        copyFromGraphe(originalGraphe1);
+        return false;
+    }
+    clearGrille();
+    for (int i=0;i<commonNodeVec.size();i++) { // On place les noeuds communs et on active les aretes placées
+        _noeuds[commonNodeVec[i]].setEmplacement(&_emplacementsPossibles[originalGraphe1._noeuds[commonNodeVec[i]].getEmplacement()->_id]);
+        for (const int& areteId : _noeuds[commonNodeVec[i]]._aretes) {
+            if (_liens[areteId].estPlace()) {
+                initAreteCellule(areteId);
+            }
+        }
+    }
+    Graphe graphe1, graphe2;
+    graphe1.copyFromGraphe(originalGraphe1);
+    graphe2.copyFromGraphe(originalGraphe2);
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
+    int currentGrapheNumber = generateRand(1);
+    if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
+    else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
+
+    std::vector<int> nodeToRelocate;
+    while (nbNoeudATraiter > 0) {
+        int bestNodeId = -1;
+        long bestScore;
+        int bestNbVoisinsPlace = -1;
+        int bestNbVoisin = -1;
+        int bestNodeIndexInVec = -1;
+        int nbRencontre = 0;
+        for (int i=0;i<nbNoeudATraiter;i++) {
+            if (currentGraphe->_noeuds[otherNodeVec[i]].estPlace()) {
+                if (_emplacementsPossibles[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
+                    int nodeNbVoisinsPlace = 0;
+                    for (const int& areteId : _noeuds[otherNodeVec[i]]._aretes) {
+                        if (_liens[areteId].unPlace()) { nodeNbVoisinsPlace++; }
+                    }
+                    int nodeNbVoisins = _noeuds[otherNodeVec[i]]._aretes.size();
+                    if (nodeNbVoisinsPlace > bestNbVoisinsPlace) {
+                        bestNodeId = otherNodeVec[i];
+                        bestNbVoisinsPlace = nodeNbVoisinsPlace;
+                        bestNbVoisin = nodeNbVoisins;
+                        bestScore = -1;
+                        bestNodeIndexInVec = i;
+                        nbRencontre = 0;
+                    }
+                    else if (nodeNbVoisinsPlace == bestNbVoisinsPlace) {
+                        if (bestScore == -1) {
+                            bestScore = getNodeScoreEnfantGrille(*currentGraphe,bestNodeId);
+                        }
+                        long nodeScore = getNodeScoreEnfantGrille(*currentGraphe,otherNodeVec[i]);
+                        if (nodeScore < bestScore) {
+                            bestNodeId = otherNodeVec[i];
+                            bestNbVoisinsPlace = nodeNbVoisinsPlace;
+                            bestNbVoisin = nodeNbVoisins;
+                            bestScore = nodeScore;
+                            bestNodeIndexInVec = i;
+                            nbRencontre = 0;
+                        }
+                        else if (nodeScore == bestScore) {
+                            if (nodeNbVoisins > bestNbVoisin) {
+                                bestNodeId = otherNodeVec[i];
+                                bestNbVoisinsPlace = nodeNbVoisinsPlace;
+                                bestNbVoisin = nodeNbVoisins;
+                                bestScore = nodeScore;
+                                bestNodeIndexInVec = i;
+                                nbRencontre = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (bestNodeId != -1) {
+            int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
+            _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+            for (const int& areteId : _noeuds[bestNodeId]._aretes) {
+                if (_liens[areteId].estPlace()) {
+                    initAreteCellule(areteId);
+                }
+            }
+            --nbNoeudATraiter;
+            otherNodeVec[bestNodeIndexInVec] = otherNodeVec[nbNoeudATraiter];
+            indexNodeInOtherVec[otherNodeVec[bestNodeIndexInVec]] = bestNodeIndexInVec;
+            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+            if (oldNodeId != -1) {
+                if (!areVoisin(bestNodeId,oldNodeId)) {
+                    if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
+                        nbNoeudATraiter--;
+                        nodeToRelocate.push_back(oldNodeId);
+                        otherNodeVec[indexNodeInOtherVec[oldNodeId]] = otherNodeVec[nbNoeudATraiter];
+                        indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[oldNodeId];
+                    }
+                }
+            }
+            //Place tout les voisins du point choisis
+            for (int i=0;i<currentGraphe->_noeuds[bestNodeId].voisins.size();i++) {
+                int idNodeVoisin = currentGraphe->_noeuds[bestNodeId].voisins[i]->getId();
+                if (!_noeuds[idNodeVoisin].estPlace()) {
+                    if (currentGraphe->_noeuds[idNodeVoisin].estPlace()) {
+                        bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
+                        _noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+                        for (const int& areteId : _noeuds[idNodeVoisin]._aretes) {
+                            if (_liens[areteId].estPlace()) {
+                                initAreteCellule(areteId);
+                            }
+                        }
+                        --nbNoeudATraiter;
+                        otherNodeVec[indexNodeInOtherVec[idNodeVoisin]] = otherNodeVec[nbNoeudATraiter];
+                        indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[idNodeVoisin];
+                        int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+                        if (oldNodeId != -1) {
+                            if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
+                                nodeToRelocate.push_back(oldNodeId);
+                                nbNoeudATraiter--;
+                                otherNodeVec[indexNodeInOtherVec[oldNodeId]] = otherNodeVec[nbNoeudATraiter];
+                                indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[oldNodeId];
+                            }
+                        }
+                    }
+                    else {
+                        if (!otherGraphe->_noeuds[idNodeVoisin].estPlace()) {
+                            if (std::find(nodeToRelocate.begin(),nodeToRelocate.end(),idNodeVoisin) == nodeToRelocate.end()) {
+                                nodeToRelocate.push_back(idNodeVoisin);
+                                nbNoeudATraiter--;
+                                otherNodeVec[indexNodeInOtherVec[idNodeVoisin]] = otherNodeVec[nbNoeudATraiter];
+                                indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[idNodeVoisin];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //Change le parent choisis 
+        if (currentGrapheNumber == 0) {
+            currentGraphe = &graphe2;
+            otherGraphe = &graphe1;
+            currentGrapheNumber = 1;
+        }
+        else {
+            currentGraphe = &graphe1;
+            otherGraphe = &graphe2;
+            currentGrapheNumber = 0;
+        }
+    }
+    int tailleMax = nodeToRelocate.size();
+    completeBasicGloutonScoreGrille(nodeToRelocate,tailleMax);
+    isNombreCroisementUpdated = false;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
+    return true;
 }

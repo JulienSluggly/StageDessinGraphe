@@ -226,6 +226,8 @@ public:
 
 	void completeBasicGloutonScore(std::vector<int>& vecNode, int tailleMax);
 
+	void completeBasicGloutonScoreGrille(std::vector<int>& vecNode, int tailleMax);
+
 	void completePlacementAleatoire();
 
 	void completePlacementAleatoireScore(std::vector<int>& vecNode, int tailleMax);
@@ -260,11 +262,20 @@ public:
 	// Vide les vecteurs du graphe et effectue une copie du contenu des vecteur du graphe en parametre
 	void copyFromGraphe(Graphe& graphe);
 
+	// Vide les vecteurs du graphe et effectue une copie du contenu des vecteur du graphe en parametre
+	void copyFromGrapheGenetique(Graphe& graphe);
+
+	// Recupere un vecteur d'emplacement trié par x et y
+	void getSortedEmpVecFromGraphe(std::vector<int>& sortedIdVec, Graphe& G);
+	
 	// Calcule le score du noeud en fonction de ses vecteur d'intersections
 	long getScoreCroisementNodeFromArrays(int nodeIndex);
 
 	// Calcule le score de l'enfant en fonction des aretes passées dans areteVec
 	long getNodeScoreEnfant(Graphe& G, std::vector<int>& areteVec, int nodeIndex);
+
+	// Calcule le score de l'enfant en fonction de la grille chez l'enfant
+	long getNodeScoreEnfantGrille(Graphe& G, int nodeIndex);
 
 	// Calcule le score du noeud en parametre.
 	long getScoreCroisementNode(int nodeIndex);
@@ -334,6 +345,8 @@ public:
 	// Renvoie vrai si les deux parents ne sont pas identique
 	// Ne met pas a jour le nombre de croisement du graphe et des noeuds
 	bool croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGraphe2, bool useRand);
+	
+	bool croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& originalGraphe2, bool useRand);
 	
 	// Nombre de noeuds du même ID placé aux mêmes emplacements.
 	int nbNoeudEnCommun(const Graphe& graphe);
@@ -418,6 +431,9 @@ public:
 	// Supprime la grille courante et la reinitialise
 	void reinitGrille();
 
+	// Vide la grille courante
+	void clearGrille();
+
 	// Enregistre les emplacements et les aretes dans la grille
 	void registerSlotsAndEdgesInGrid();
 
@@ -436,6 +452,12 @@ public:
 
 	// Met a jour les aretes du noeud dans les cellules
 	void recalcNodeCellule(int nodeId);
+
+	// Ajoute les id dans les cellules et dans l'arete
+	void initAreteCellule(int areteId);
+
+	// Ajoute les id dans les cellules et dans les aretes du noeuds
+	void initNodeCellule(int nodeId);
 
 	// Calcule le vecteur de cellule sans le mettre a jour
 	void calcAreteCelluleVec(std::vector<int>& vecInt,int areteId);

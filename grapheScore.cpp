@@ -230,6 +230,71 @@ long Graphe::getNodeScoreEnfant(Graphe& G, std::vector<int>& areteVec, int nodeI
     return score;
 }
 
+// Calcule le score de l'enfant en fonction des aretes passées dans areteVec
+long Graphe::getNodeScoreEnfantGrille(Graphe& G, int nodeIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < G._noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = G._noeuds[nodeIndex]._aretes[i];
+        if (G._liens[index].estPlace()) {
+            std::vector<int> indexPasseCellule;
+            for (int j = 0; j < _liens[index].vecIdCellules.size(); ++j) {
+                std::vector<int>& vecId = grillePtr[_liens[index].vecIdCellules[j]]->vecAreteId;
+                for (int k=0; k < vecId.size();k++) {
+                    if ((index != vecId[k]) && (!isInVector(indexPasse, vecId[k]) && (!isInVector(indexPasseCellule,vecId[k])))) {
+                        if (!(G._liens[index].contains(_liens[vecId[k]].getNoeud1()) || G._liens[index].contains(_liens[vecId[k]].getNoeud2()))) {
+                            bool isIllegal = false;
+                            if (seCroisent(G._liens[index], _liens[vecId[k]],isIllegal)) {
+                                if (isIllegal) {
+                                    score += PENALITE_MAX;
+                                }
+                                else {
+                                    score++;
+                                }
+                            }
+                        }
+                        else {
+                            Noeud* nodeNotInCommon = _liens[vecId[k]].nodeNotInCommon(&G._liens[index]);
+                            if (surSegment(G._liens[index], *nodeNotInCommon)) {
+                                score += PENALITE_MAX_SELF;
+                            }
+                            else {
+                                nodeNotInCommon = G._liens[index].nodeNotInCommon(&_liens[vecId[k]]);
+                                if (surSegment(_liens[vecId[k]], *nodeNotInCommon)) {
+                                    score += PENALITE_MAX_SELF;
+                                }
+                            }
+                        }
+                        indexPasseCellule.push_back(vecId[k]);
+                    }
+                }
+            }
+            indexPasse.push_back(index);
+        }
+    }
+    for (int i=0;i<G._noeuds[nodeIndex]._aretes.size()-1;i++) {
+        int index = G._noeuds[nodeIndex]._aretes[i];
+        if (G._liens[index].estPlace()) {
+            for (int j=i+1;j<G._noeuds[nodeIndex]._aretes.size();j++) {
+                int index2 = G._noeuds[nodeIndex]._aretes[j];
+                if (G._liens[index2].estPlace()) {
+                    Noeud* nodeNotInCommon = G._liens[index2].nodeNotInCommon(&G._liens[index]);
+                    if (surSegment(G._liens[index], *nodeNotInCommon)) {
+                        score += PENALITE_MAX_SELF;
+                    }
+                    else {
+                        nodeNotInCommon = G._liens[index].nodeNotInCommon(&G._liens[index2]);
+                        if (surSegment(G._liens[index2], *nodeNotInCommon)) {
+                            score += PENALITE_MAX_SELF;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return score;
+}
+
 // Calcule le score du noeud en parametre.
 long Graphe::getScoreCroisementNode(int nodeIndex) {
     long score = 0;

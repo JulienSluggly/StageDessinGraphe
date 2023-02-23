@@ -99,7 +99,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 	int nombreRecuit = 0, nombreSlots, nombreCellule;
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
-	for (int i = 1; (i <= nbEssay||(nbEssay==-1&&secondsTotalExec.count() < 1800)); ++i) {
+	for (int i = 1; (((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600)); ++i) {
 		resetSeed(tid);
 		Graphe G;
 		G.setupGraphe(fileGraph,fileSlots);
@@ -244,10 +244,10 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
 		}
 		resultats << "," << nombreRecuit << "," << getTypeSeed() << "," << machine;
-		if (customParam.size() > 0) {
-			resultats << ",";
-			for (int j=0;j<customParam.size();j++) {
-				resultats << to_string(customParam[j]) << " ";
+		if (customParam.size() > 1) {
+			resultats << "," << std::setprecision(1) << customParam[0] << " " << std::setprecision(2) << customParam[1];
+			for (int j=2;j<customParam.size();j++) {
+				resultats << " " << to_string(customParam[j]) << " ";
 			}
 		}
 		if (needGrille) {

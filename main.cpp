@@ -22,29 +22,25 @@ int main() {
 	//std::vector<std::string> files = {"graph-10-input"};
 	//ogdfCrossingNumbers(files);
 	initRandomSeed();
-	customRecuit();
+	//customRecuit();
 	//allRunsSingleThread();
 	//allRunsLogged();
-	initSameSeed();
-	customRecuitAllRuns();
+	//initSameSeed();
+	//customRecuitAllRuns();
 	//allRunsBySlots();
-	return 0;
+	//return 0;
 
 	//performanceTest();
 	//return 0;
 
 	Graphe G;
 	std::string nomFichierGraph = "graph-2-input";
-	std::string nomFichierSlots = "3X-2-input-slots";
-	std::string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	std::string fileSlots = chemin + "exemple/Slots/" + nomFichierSlots + ".json";
+	std::string nomFichierSlots = "2X-2-input-slots";
 	
 	std::string fileGraphSlots = chemin + "combined/exemple3.json";
-	
 	std::string fileOldGraph = chemin + "automatique/auto21-13.json";
-	G.readFromJsonGraph(fileGraph);
-	//G.generateGrid();
-	G.readFromJsonSlots(fileSlots);
+
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
 	//G.generateGrid(3000,3000);
@@ -55,12 +51,13 @@ int main() {
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
-	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,1000,1000,fileGraph,fileSlots,false,false,5);
+	G.grapheGenetique(tempsBest,bestIteration,lastIteration,1000,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	G.placementAleatoire();
-	G.triangulationDelaunay();
-	G.initGrille();
-	G.registerSlotsAndEdgesInGrid();
+	
+	//G.placementAleatoire();
+	//G.triangulationDelaunay();
+	//G.initGrille();
+	//G.registerSlotsAndEdgesInGrid();
 
 	//G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,3);

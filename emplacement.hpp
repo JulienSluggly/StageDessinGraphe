@@ -21,7 +21,7 @@ public:
 	std::vector<int> voisinsDelaunay;
 
 	// Id des cellules par rapport a la grille dans le graphe, max 4 cellules par emplacement
-	std::vector<int> vecIdCellules;
+	int idCellule = -1;
 
 	Emplacement(int x, int y, int id) {
 		_x = x;

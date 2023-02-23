@@ -345,16 +345,15 @@ void Graphe::debugDesyncEmplacementCell(bool display, std::string nom) {
     }
     long nbFail = 0;
     for (int i = 0; i < _emplacementsPossibles.size(); i++) {
-        for (const int& id : _emplacementsPossibles[i].vecIdCellules) {
-            if (!isInVector(grillePtr[id]->vecEmplacementId,i)) {
-                std::cout << "Emplacement: " << i << " Cellule: " << id << std::endl;
-                nbFail++;
-            }
+        int id = _emplacementsPossibles[i].idCellule;
+        if (!isInVector(grillePtr[id]->vecEmplacementId,i)) {
+            std::cout << "Emplacement: " << i << " Cellule: " << id << std::endl;
+            nbFail++;
         }
     }
     for (int i=0;i<grillePtr.size();i++) {
         for (const int& id : grillePtr[i]->vecEmplacementId) {
-            if (!isInVector(_emplacementsPossibles[id].vecIdCellules,i)) {
+            if (_emplacementsPossibles[id].idCellule != i) {
                 std::cout << "Cellule: " << i << " Emplacement: " << id << std::endl;
                 nbFail++;
             }

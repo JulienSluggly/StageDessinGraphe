@@ -576,6 +576,54 @@ void Graphe::completeBasicGloutonScore(std::vector<int>& vecNode, int tailleMax)
     isIntersectionVectorUpdated = false;
 }
 
+void Graphe::completeBasicGloutonScoreGrille(std::vector<int>& vecNode, int tailleMax) {
+    std::vector<bool> marque;
+    marque.resize(tailleMax);
+    for (int i=0;i<tailleMax;i++) {
+        int nbRencontre = 0;
+        int bestNbVoisinsPlaces = -1;
+        int bestNbVoisins = -1;
+        int bestNodeId = -1;
+        for (int j=0;j<tailleMax;j++) {
+            if (!marque[j]) {
+                int nodeNbVoisinsPlaces = _noeuds[vecNode[j]].getVoisinsPlaces();
+                if (nodeNbVoisinsPlaces > bestNbVoisinsPlaces) {
+                    bestNbVoisinsPlaces = nodeNbVoisinsPlaces;
+                    bestNbVoisins = _noeuds[vecNode[j]].voisins.size();
+                    bestNodeId = j;
+                }
+                else if (nodeNbVoisinsPlaces == bestNbVoisinsPlaces) {
+                    int nodeNbVoisins = _noeuds[vecNode[j]].voisins.size();
+                    if (nodeNbVoisins > bestNbVoisins) {
+                        bestNbVoisinsPlaces = nodeNbVoisinsPlaces;
+                        bestNbVoisins = _noeuds[vecNode[j]].voisins.size();
+                        bestNodeId = j;
+                    }
+                    else if (nodeNbVoisins == bestNbVoisins) {
+                        nbRencontre++;
+                        if (generateRand(nbRencontre) == 1) {
+                            bestNbVoisinsPlaces = nodeNbVoisinsPlaces;
+                            bestNbVoisins = _noeuds[vecNode[j]].voisins.size();
+                            bestNodeId = j;
+                        }
+                    }
+                }
+            }
+        }
+        marque[bestNodeId] = true;
+        int meilleurEmplacement = getMeilleurEmplacementScore(_noeuds[vecNode[bestNodeId]]);
+        _noeuds[vecNode[bestNodeId]].setEmplacement(&_emplacementsPossibles[meilleurEmplacement]);
+        for (const int& areteId : _noeuds[vecNode[bestNodeId]]._aretes) {
+            if (_liens[areteId].estPlace()) {
+                initAreteCellule(areteId);
+            }
+        }
+    }
+    isNombreCroisementUpdated = false;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
+}
+
 void Graphe::completePlacementAleatoire()
 {
     if (DEBUG_GRAPHE) std::cout << "Placement aleatoire" << std::endl;
