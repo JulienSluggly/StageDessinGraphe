@@ -21,11 +21,11 @@ int main() {
 	//std::vector<std::string> files = {"graph-1-input","graph-2-input","graph-3-input","graph-4-input","graph-5-input","graph-6-input","graph-7-input","graph-8-input","graph-10-input","graph-11-input","graph-12-input"};
 	//std::vector<std::string> files = {"graph-10-input"};
 	//ogdfCrossingNumbers(files);
-	initRandomSeed();
+	//initRandomSeed();
 	//customRecuit();
 	//allRunsSingleThread();
 	//allRunsLogged();
-	//initSameSeed();
+	initSameSeed();
 	//customRecuitAllRuns();
 	//allRunsBySlots();
 	//return 0;
@@ -34,8 +34,8 @@ int main() {
 	//return 0;
 
 	Graphe G;
-	std::string nomFichierGraph = "graph-2-input";
-	std::string nomFichierSlots = "2X-2-input-slots";
+	std::string nomFichierGraph = "graph-10-input";
+	std::string nomFichierSlots = "10-input-slots";
 	
 	std::string fileGraphSlots = chemin + "combined/exemple3.json";
 	std::string fileOldGraph = chemin + "automatique/auto21-13.json";

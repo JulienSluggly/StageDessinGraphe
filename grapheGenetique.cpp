@@ -1021,7 +1021,8 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
     originalGraphe1.separateNodesInCommon(originalGraphe2, commonNodeVec, otherNodeVec, indexNodeInOtherVec);
     int nbNoeudATraiter = otherNodeVec.size();
     if (nbNoeudATraiter == 0) {
-        copyFromGraphe(originalGraphe1);
+        copyNodesFromGraphe(originalGraphe1);
+        copyGrilleFromGraphe(originalGraphe1);
         return false;
     }
     clearGrille();
@@ -1040,7 +1041,6 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
     int currentGrapheNumber = generateRand(1);
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
     else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
-
     std::vector<int> nodeToRelocate;
     while (nbNoeudATraiter > 0) {
         int bestNodeId = -1;

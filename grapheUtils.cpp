@@ -19,18 +19,6 @@ void Graphe::clearNodeEmplacement() {
         _liens[i].clearIntersectionsVector();
         _liens[i].vecIdCellules.clear();
     }
-    for (int i=0;i<_emplacementsPossibles.size();i++) {
-        _emplacementsPossibles[i].idCellule = -1;
-    }
-    for (int i=0;i<grillePtr.size();i++) {
-        grillePtr[i]->vecAreteId.clear();
-        grillePtr[i]->vecEmplacementId.clear();
-    }
-    grillePtr.clear();
-    for (int i=0;i<grille.size();i++) {
-        grille[i].clear();
-    }
-    grille.clear();
     nombreCroisement = -1;
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -257,6 +245,32 @@ void Graphe::copyFromGraphe(Graphe& graphe) {
     maxVoisin = graphe.maxVoisin;
     gridHeight = graphe.gridHeight;
     gridWidth = graphe.gridWidth;
+}
+
+void Graphe::copyNodesFromGraphe(Graphe& graphe) {
+    clearNodeEmplacement();
+    for (int i = 0; i < graphe._noeuds.size();i++) {
+        _noeuds[i].score = graphe._noeuds[i].score;
+    }
+    for (int i = 0; i < graphe._noeuds.size(); ++i) {
+        if (graphe._noeuds[i].getEmplacement() != nullptr) {
+            int idEmplacement = graphe._noeuds[i].getEmplacement()->getId();
+            _noeuds[i].setEmplacement(&_emplacementsPossibles[idEmplacement]);
+        }
+    }
+    nombreCroisement = graphe.nombreCroisement;
+    isNombreCroisementUpdated = graphe.isNombreCroisementUpdated;
+    isNodeScoreUpdated = graphe.isNodeScoreUpdated;
+}
+
+void Graphe::copyGrilleFromGraphe(Graphe& graphe) {
+    clearGrille();
+    for (int i=0;i<graphe.grillePtr.size();i++) {
+        grillePtr[i]->vecAreteId = graphe.grillePtr[i]->vecAreteId;
+    }
+    for (int i=0;i<graphe._liens.size();i++) {
+        _liens[i].vecIdCellules = graphe._liens[i].vecIdCellules;
+    }
 }
 
 void Graphe::copyFromGrapheGenetique(Graphe& graphe) {
@@ -1020,7 +1034,7 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
     std::string pathGraph = chemin + "exemple/Graphe/" + fileGraphe + ".json";
     std::string pathSlot;
     readFromJsonGraph(pathGraph);
-    if (fileSlot != "GRID") {
+    if ((fileSlot != "GRID")&&(fileSlot != "Grid")) {
         pathSlot = chemin + "exemple/Slots/" + fileSlot + ".json";
         readFromJsonSlots(pathSlot);
     }

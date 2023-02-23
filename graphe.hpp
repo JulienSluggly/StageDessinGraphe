@@ -259,8 +259,14 @@ public:
 	// Vide tout les vecteurs du graphe
 	void clearGraphe();
 
+	// Ne vide pas le vecteur de noeud, copie l'emplacement et le score
+	void copyNodesFromGraphe(Graphe& graphe);
+
 	// Vide les vecteurs du graphe et effectue une copie du contenu des vecteur du graphe en parametre
 	void copyFromGraphe(Graphe& graphe);
+
+	// Vide tout les vecteurs et effectue une copies de tout les objets dans le graphe
+	void copyGrilleFromGraphe(Graphe& graphe);
 
 	// Vide les vecteurs du graphe et effectue une copie du contenu des vecteur du graphe en parametre
 	void copyFromGrapheGenetique(Graphe& graphe);
