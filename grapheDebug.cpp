@@ -57,27 +57,6 @@ void Graphe::afficherEmplacement(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
 }
 
-void Graphe::afficherNoeudSeul(bool display, std::string nom) {
-    if (display) {
-        std::cout << "-----------------------------------------------" << std::endl;
-        std::cout << "Affichage DEBUG Noeud Seul: " << nomGraphe << " " << nom << std::endl;
-    }
-    int nbNoeudSeul = 0;
-    for (int i = 0; i < _noeuds.size(); i++) {
-        if (_noeuds[i]._aretes.size() == 0) {
-            std::cout << "Noeud: " << i << std::endl;
-            nbNoeudSeul++;
-        }
-    }
-    if (nbNoeudSeul == 0) {
-        if (display) { std::cout << "Aucun" << std::endl; }
-    }
-    else {
-        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
-    }
-    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
-}
-
 void Graphe::afficherInfo(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
     std::cout << "Information sur le graphe: " << nomGraphe << " " << nom << std::endl;
@@ -88,7 +67,8 @@ void Graphe::afficherInfo(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
 }
 
-void Graphe::afficherAreteDouble(bool display, std::string nom) {
+int Graphe::afficherAreteDouble(bool display, std::string nom) {
+    int retour = 1;
     if (display) {
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG Arrete Double: " << nomGraphe << " " << nom << std::endl;
@@ -108,14 +88,17 @@ void Graphe::afficherAreteDouble(bool display, std::string nom) {
     }
     if (nbAreteDouble == 0) {
         if (display) { std::cout << "Aucune" << std::endl; }
+        retour=0;
     }
     else {
         if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
     }
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
 }
 
-void Graphe::afficherNoeudDouble(bool display, std::string nom) {
+int Graphe::afficherNoeudDouble(bool display, std::string nom) {
+    int retour = 2;
     if (display) {
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG Noeud Double: " << nomGraphe << " " << nom << std::endl;
@@ -137,14 +120,17 @@ void Graphe::afficherNoeudDouble(bool display, std::string nom) {
     }
     if (nbNoeudDouble == 0) {
         if (display) { std::cout << "Aucun" << std::endl; }
+        retour=0;
     }
     else {
         if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
     }
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
 }
 
-void Graphe::afficherEmplacementDouble(bool display, std::string nom) {
+int Graphe::afficherEmplacementDouble(bool display, std::string nom) {
+    int retour = 4;
     if (display) {
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG Emplacement Double: " << nomGraphe << " " << nom << std::endl;
@@ -160,14 +146,65 @@ void Graphe::afficherEmplacementDouble(bool display, std::string nom) {
     }
     if (nbEmplacementDouble == 0) {
         if (display) { std::cout << "Aucun" << std::endl; }
+        retour=0;
     }
     else {
         if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
     }
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
 }
 
-void Graphe::debugDesyncNoeudEmplacement(bool display, std::string nom) {
+int Graphe::afficherNoeudSeul(bool display, std::string nom) {
+    int retour = 10;
+    if (display) {
+        std::cout << "-----------------------------------------------" << std::endl;
+        std::cout << "Affichage DEBUG Noeud Seul: " << nomGraphe << " " << nom << std::endl;
+    }
+    int nbNoeudSeul = 0;
+    for (int i = 0; i < _noeuds.size(); i++) {
+        if (_noeuds[i]._aretes.size() == 0) {
+            std::cout << "Noeud: " << i << std::endl;
+            nbNoeudSeul++;
+        }
+    }
+    if (nbNoeudSeul == 0) {
+        if (display) { std::cout << "Aucun" << std::endl; }
+        retour = 0;
+    }
+    else {
+        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+    }
+    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
+}
+
+int Graphe::debugNoeudNonPlace(bool display, std::string nom) {
+    int retour = 20;
+    if (display) {
+        std::cout << "-----------------------------------------------" << std::endl;
+        std::cout << "Affichage DEBUG Noeud non place: " << nomGraphe << " " << nom << std::endl;
+    }
+    long nbFail = 0;
+    for (int i = 0; i < _noeuds.size(); i++) {
+        if (_noeuds[i].getEmplacement() == nullptr) {
+            std::cout << "Noeud: " << i << std::endl;
+            nbFail++;
+        }
+    }
+    if (nbFail == 0) {
+        if (display) { std::cout << "Aucun" << std::endl; }
+        retour = 0;
+    }
+    else {
+        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+    }
+    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
+}
+
+int Graphe::debugDesyncNoeudEmplacement(bool display, std::string nom) {
+    int retour = 40;
     if (display) { 
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG Sync Noeud Emplacement: " << nomGraphe << " " << nom << std::endl;
@@ -191,14 +228,39 @@ void Graphe::debugDesyncNoeudEmplacement(bool display, std::string nom) {
     }
     if (nbWrongSync == 0) {
         if (display) { std::cout << "Aucun" << std::endl; }
+        retour = 0;
     }
     else {
         if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
     }
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
 }
 
-void Graphe::debugScoreNoeud(bool display, std::string nom) {
+int Graphe::debugOldCroisement(bool display, std::string nom) {
+    int retour = 100;
+    if (display) { 
+        std::cout << "-----------------------------------------------" << std::endl;
+        std::cout << "Affichage DEBUG Score Methode Graphe: " << nomGraphe << " " << nom << std::endl;
+    }
+    bool scoreFaux = true;
+    long scoreActuel = getNbCroisementConst();
+    long scoreOld = getNbCroisementOldMethodConst();
+    if (scoreActuel != scoreOld) {
+        std::cout << "Actuel: " << scoreActuel << " old: " << scoreOld << std::endl;
+        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+        scoreFaux = false;
+    }
+    if (scoreFaux) {
+        if (display) { std::cout << "Score Correct" << std::endl; }
+        retour = 0;
+    }
+    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
+}
+
+int Graphe::debugScoreNoeud(bool display, std::string nom) {
+    int retour = 200;
     if (display) {
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG Score Noeud: " << nomGraphe << " " << nom << std::endl;
@@ -216,14 +278,48 @@ void Graphe::debugScoreNoeud(bool display, std::string nom) {
     }
     if (nbWrongScore == 0) {
         if (display) { std::cout << "Aucun" << std::endl; }
+        retour = 0;
     }
     else {
         if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
     }
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
 }
 
-void Graphe::debugInterArrays(bool display, std::string nom) {
+int Graphe::debugScoreGraphe(bool display, bool useArray, std::string nom) {
+    int retour = 400;
+    if (display) { 
+        std::cout << "-----------------------------------------------" << std::endl;
+        std::cout << "Affichage DEBUG Score Graphe: " << nomGraphe << " " << nom << std::endl;
+    }
+    bool scoreFaux = true;
+    long scoreReel = getNbCroisementConst();
+    if (useArray) {
+        long scoreArray = getNbCroisementArray();
+        if ((nombreCroisement != scoreReel)||(nombreCroisement != scoreArray)) {
+            std::cout << "Croisement: " << nombreCroisement << " reel: " << scoreReel << " array: " << scoreArray << std::endl;
+            if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+            scoreFaux = false;
+        }
+    }
+    else {
+        if (nombreCroisement != scoreReel) {
+            std::cout << "Croisement: " << nombreCroisement << " reel: " << scoreReel << std::endl;
+            if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+            scoreFaux = false;
+        }
+    }
+    if (scoreFaux) {
+        if (display) { std::cout << "Score Correct" << std::endl; }
+        retour = 0;
+    }
+    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
+}
+
+int Graphe::debugInterArrays(bool display, std::string nom) {
+    int retour = 1000;
     if (display) {
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG Inter Arrays: " << nomGraphe << " " << nom << std::endl;
@@ -263,82 +359,17 @@ void Graphe::debugInterArrays(bool display, std::string nom) {
     }
     if (nbWrongArray == 0) {
         if (display) { std::cout << "Aucun" << std::endl; }
+        retour = 0;
     }
     else {
         if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
     }
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
 }
 
-void Graphe::debugScoreGraphe(bool display, bool useArray, std::string nom) {
-    if (display) { 
-        std::cout << "-----------------------------------------------" << std::endl;
-        std::cout << "Affichage DEBUG Score Graphe: " << nomGraphe << " " << nom << std::endl;
-    }
-    bool scoreFaux = true;
-    long scoreReel = getNbCroisementConst();
-    if (useArray) {
-        long scoreArray = getNbCroisementArray();
-        if ((nombreCroisement != scoreReel)||(nombreCroisement != scoreArray)) {
-            std::cout << "Croisement: " << nombreCroisement << " reel: " << scoreReel << " array: " << scoreArray << std::endl;
-            if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
-            scoreFaux = false;
-        }
-    }
-    else {
-        if (nombreCroisement != scoreReel) {
-            std::cout << "Croisement: " << nombreCroisement << " reel: " << scoreReel << std::endl;
-            if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
-            scoreFaux = false;
-        }
-    }
-    if (scoreFaux) {
-        if (display) { std::cout << "Score Correct" << std::endl; }
-    }
-    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
-}
-
-void Graphe::debugNoeudNonPlace(bool display, std::string nom) {
-    if (display) {
-        std::cout << "-----------------------------------------------" << std::endl;
-        std::cout << "Affichage DEBUG Noeud non place: " << nomGraphe << " " << nom << std::endl;
-    }
-    long nbFail = 0;
-    for (int i = 0; i < _noeuds.size(); i++) {
-        if (_noeuds[i].getEmplacement() == nullptr) {
-            std::cout << "Noeud: " << i << std::endl;
-            nbFail++;
-        }
-    }
-    if (nbFail == 0) {
-        if (display) { std::cout << "Aucun" << std::endl; }
-    }
-    else {
-        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
-    }
-    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
-}
-
-void Graphe::debugOldCroisement(bool display, std::string nom) {
-    if (display) { 
-        std::cout << "-----------------------------------------------" << std::endl;
-        std::cout << "Affichage DEBUG Score Methode Graphe: " << nomGraphe << " " << nom << std::endl;
-    }
-    bool scoreFaux = true;
-    long scoreActuel = getNbCroisementConst();
-    long scoreOld = getNbCroisementOldMethodConst();
-    if (scoreActuel != scoreOld) {
-        std::cout << "Actuel: " << scoreActuel << " old: " << scoreOld << std::endl;
-        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
-        scoreFaux = false;
-    }
-    if (scoreFaux) {
-        if (display) { std::cout << "Score Correct" << std::endl; }
-    }
-    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
-}
-
-void Graphe::debugDesyncEmplacementCell(bool display, std::string nom) {
+int Graphe::debugDesyncEmplacementCell(bool display, std::string nom) {
+    int retour = 2000;
     if (display) {
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG desync emplacement cellule: " << nomGraphe << " " << nom << std::endl;
@@ -361,14 +392,17 @@ void Graphe::debugDesyncEmplacementCell(bool display, std::string nom) {
     }
     if (nbFail == 0) {
         if (display) { std::cout << "Aucun" << std::endl; }
+        retour = 0;
     }
     else {
         if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
     }
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
 }
 
-void Graphe::debugDesyncAreteCell(bool display, std::string nom) {
+int Graphe::debugDesyncAreteCell(bool display, std::string nom) {
+    int retour = 4000;
     if (display) {
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG desync emplacement cellule: " << nomGraphe << " " << nom << std::endl;
@@ -392,53 +426,57 @@ void Graphe::debugDesyncAreteCell(bool display, std::string nom) {
     }
     if (nbFail == 0) {
         if (display) { std::cout << "Aucun" << std::endl; }
+        retour = 0;
     }
     else {
         if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
     }
     if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
 }
 
-void Graphe::debugEverything(bool displayOther, bool displaySelf) {
+int Graphe::debugEverything(bool displayOther, bool displaySelf) {
+    int total = 0;
     if (displaySelf) { std::cout << "Debut debug arete double\n"; }
-    afficherAreteDouble(displayOther);
+    total += afficherAreteDouble(displayOther);
     if (displaySelf) { std::cout << "Debut debug noeud double\n"; }
-    afficherNoeudDouble(displayOther);
+    total += afficherNoeudDouble(displayOther);
     if (_emplacementsPossibles.size() < ((_noeuds.size()*_noeuds.size())/2)) {
         if (displaySelf) { std::cout << "Debut debug emplacement double\n"; }
-        afficherEmplacementDouble(displayOther);
+        total += afficherEmplacementDouble(displayOther);
     }
     if (displaySelf) { std::cout << "Debut debug noeud seul\n"; }
-    afficherNoeudSeul(displayOther);
+    total += afficherNoeudSeul(displayOther);
     if (displaySelf) { std::cout << "Debut debug noeud non place\n"; }
-    debugNoeudNonPlace(displayOther);
+    total += debugNoeudNonPlace(displayOther);
     if (displaySelf) { std::cout << "Debut debug desync noeud emplacement\n"; }
-    debugDesyncNoeudEmplacement(displayOther);
+    total += debugDesyncNoeudEmplacement(displayOther);
     if (displaySelf) { std::cout << "Debut debug methode intersection\n"; }
-    debugOldCroisement(displayOther);
+    total += debugOldCroisement(displayOther);
     if (isNodeScoreUpdated) {
         if (displaySelf) { std::cout << "Debut debug score noeud\n"; }
-        debugScoreNoeud(displayOther);
+        total += debugScoreNoeud(displayOther);
     }
     if (isNombreCroisementUpdated) {
         if (isIntersectionVectorUpdated) {
             if (displaySelf) { std::cout << "Debut debug score graphe avec array\n"; }
-            debugScoreGraphe(displayOther,true);
+            total += debugScoreGraphe(displayOther,true);
         }
         else {
             if (displaySelf) { std::cout << "Debut debug score graphe\n"; }
-            debugScoreGraphe(displayOther);
+            total += debugScoreGraphe(displayOther);
         }
     }
     if (isIntersectionVectorUpdated) {
         if (displaySelf) { std::cout << "Debut debug inter array\n"; }
-        debugInterArrays(displayOther);
+        total += debugInterArrays(displayOther);
     }
     if (grille.size() > 0) {
         if (displaySelf) { std::cout << "Debut debug desync emplacement cellule\n"; }
-        debugDesyncEmplacementCell(displayOther);
+        total += debugDesyncEmplacementCell(displayOther);
         if (displaySelf) { std::cout << "Debut debug desync arete cellule\n"; }
-        debugDesyncAreteCell(displayOther);
+        total += debugDesyncAreteCell(displayOther);
     }
     if (displaySelf) { std::cout << "Debug fini\n"; }
+    return total;
 }

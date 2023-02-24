@@ -94,7 +94,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 	bool needGrille = isInVector(methodeGrille,methodeAlgoName);
 	double moyenneCroisement, medianCroisement;
 	int meilleurCroisement = INT_MAX;
-	int nbSolutionIllegale = 0;
+	int nbSolutionIllegale = 0, debugValue=-1;
 	std::vector<int> croisementVector;
 	std::vector<double> tempExecVector; std::vector<double> tempBestVector; std::vector<int> bestIterationVector; std::vector<int> lastIterationVector;
 	double tempsExecMoyenne = 0; double tempsBestMoyenne = 0; double bestIterationMoyenne = 0; double lastIterationMoyenne = 0;
@@ -216,7 +216,8 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		if (G.hasIllegalCrossing()) {
 			nbSolutionIllegale++;
 		}
-		G.debugEverything();
+		debugValue = G.debugEverything();
+		if (debugValue > 0) { break; }
 	}
 	if (saveResult) {
 		std::sort(croisementVector.begin(), croisementVector.end());
@@ -260,7 +261,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		if (needGrille) {
 			resultats << "," << nombreCellule;
 		}
-		resultats << "\n";
+		resultats << "," << debugValue << "\n";
 		resultats.close();
 	}
 }

@@ -7,8 +7,4 @@ Iterative edge insertion and optimize at each step the number of crossings
 
 Selection de noeud pas au hasard mais ordonnée par score?
 
-Selection de noeud en suivant un vecteur trié au hasard
-
 Tester sur les romes graphs, AT&T, Triangulation+X
-
-Ajout stop dans le rerecuit quand on depasse 1h

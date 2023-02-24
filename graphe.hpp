@@ -67,33 +67,33 @@ public:
 
 	void afficherEmplacement(std::string nom = "");
 
-	void afficherNoeudSeul(bool display=true, std::string nom = "");
+	int afficherNoeudSeul(bool display=true, std::string nom = "");
 
 	void afficherInfo(std::string nom = "");
 
-	void afficherAreteDouble(bool display=true, std::string nom = "");
+	int afficherAreteDouble(bool display=true, std::string nom = "");
 
-	void afficherNoeudDouble(bool display=true, std::string nom = "");
+	int afficherNoeudDouble(bool display=true, std::string nom = "");
 
-	void afficherEmplacementDouble(bool display=true, std::string nom = "");
+	int afficherEmplacementDouble(bool display=true, std::string nom = "");
 
-	void debugDesyncNoeudEmplacement(bool display=true, std::string nom = "");
+	int debugDesyncNoeudEmplacement(bool display=true, std::string nom = "");
 
-	void debugScoreNoeud(bool display=true, std::string nom = "");
+	int debugScoreNoeud(bool display=true, std::string nom = "");
 
-	void debugInterArrays(bool display=true, std::string nom = "");
+	int debugInterArrays(bool display=true, std::string nom = "");
 
-	void debugScoreGraphe(bool display=true, bool useArray = false, std::string nom = "");
+	int debugScoreGraphe(bool display=true, bool useArray = false, std::string nom = "");
 
-	void debugNoeudNonPlace(bool display=true, std::string nom = "");
+	int debugNoeudNonPlace(bool display=true, std::string nom = "");
 
-	void debugOldCroisement(bool display=true, std::string nom = "");
+	int debugOldCroisement(bool display=true, std::string nom = "");
 
-	void debugDesyncEmplacementCell(bool display=true, std::string nom = "");
+	int debugDesyncEmplacementCell(bool display=true, std::string nom = "");
 
-	void debugDesyncAreteCell(bool display=true, std::string nom = "");
+	int debugDesyncAreteCell(bool display=true, std::string nom = "");
 
-	void debugEverything(bool displayOther=false, bool displaySelf=false);
+	int debugEverything(bool displayOther=false, bool displaySelf=false);
 
 	// Fait une estimation du temps requis pour effectuer un recuit simule complet
 	void tempsCalculRecuitSimule(double cool = 0.99999, double t = 100, int mode = 0);
