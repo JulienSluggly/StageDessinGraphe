@@ -545,7 +545,9 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit, int iter, double
     else { lastCroisement = getNbCroisementConst(); }
     int i=1;
     double recuitTimeBest;
-    while (numberOfNoUpgrade < maxIter) {
+    auto totalEnd = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
+    while ((numberOfNoUpgrade < maxIter)&&(!RECUIT_LIMIT_3600||secondsTotalExec.count() < 3600)) {
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         recuitSimule(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement);
         nombreRecuit++;
@@ -567,6 +569,8 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit, int iter, double
             }
         }
         i++;
+        totalEnd = std::chrono::system_clock::now();
+        secondsTotalExec = totalEnd - start;
     }
     std::chrono::duration<double> secondsTotal = end - start;
     timeBest = secondsTotal.count();
@@ -598,7 +602,9 @@ void Graphe::rerecuitSimuleCustom(double &timeBest, int& nombreRecuit, int iter,
     else { lastCroisement = getNbCroisementConst(); }
     int i=1;
     double recuitTimeBest;
-    while (numberOfNoUpgrade < maxIter) {
+    auto totalEnd = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
+    while ((numberOfNoUpgrade < maxIter)&&(!RECUIT_LIMIT_3600||secondsTotalExec.count() < 3600)) {
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         recuitSimuleCustom(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement,customParam);
         nombreRecuit++;
@@ -620,6 +626,8 @@ void Graphe::rerecuitSimuleCustom(double &timeBest, int& nombreRecuit, int iter,
             }
         }
         i++;
+        totalEnd = std::chrono::system_clock::now();
+        secondsTotalExec = totalEnd - start;
     }
     std::chrono::duration<double> secondsTotal = end - start;
     timeBest = secondsTotal.count();
@@ -793,6 +801,7 @@ void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double se
         nbCroisement = getNbCroisement();
     }
     long bestCroisement = nbCroisement;
+    std::vector<int> shuffledNodeIdVec;
     if (customParam.size() > 1) {
         if (customParam[0] == 3) {
             delay = customParam[1];
@@ -805,12 +814,25 @@ void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double se
             delay = std::min((int)ceil((double)_noeuds.size() / 20.0) + 1,5);
             }
         }
+        if ((customParam[0] == 12)&&(customParam[1]==1)) {
+            for (int i=0;i<_noeuds.size();i++) {
+                shuffledNodeIdVec.push_back(i);
+                auto rng = std::default_random_engine {};
+		        std::shuffle(std::begin(shuffledNodeIdVec), std::end(shuffledNodeIdVec), rng);
+            }
+        }
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
-    for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
+    for (int iter = 0; t > seuil && nbCroisement > 0;) {
         //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
         for (int del = 0; del < delay; del++) {
-            int nodeId = selectionNoeud(modeNoeud, t);
+            int nodeId;
+            if ((customParam.size() > 0)&&(customParam[0]==12)&&(customParam[1]==1)) {
+                nodeId = shuffledNodeIdVec[iter%shuffledNodeIdVec.size()];
+            }
+            else {
+                nodeId = selectionNoeud(modeNoeud, t);
+            }
             int slotId = selectionEmplacement(modeEmplacement, nodeId, t,customParam,iter);
             long scoreNode;
             bool swapped = false;
@@ -865,6 +887,11 @@ void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double se
             }
         }
         t *= cool;
+        iter++;
+        if (iter%_noeuds.size() == 0) {
+            auto rng = std::default_random_engine {};
+		    std::shuffle(std::begin(shuffledNodeIdVec), std::end(shuffledNodeIdVec), rng);
+        }
     }
     loadCopy(bestResult);
     nombreCroisement = bestCroisement;
@@ -894,7 +921,9 @@ void Graphe::rerecuitSimuleGrid(double &timeBest,int &nombreRecuit, int iter, do
     else { lastCroisement = getNbCroisementConst(); }
     int i=1;
     double recuitTimeBest;
-    while (numberOfNoUpgrade < maxIter) {
+    auto totalEnd = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
+    while ((numberOfNoUpgrade < maxIter)&&(!RECUIT_LIMIT_3600||secondsTotalExec.count() < 3600)) {
         if (i>1) { reinitGrille(); }
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         recuitSimuleGrid(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement, customParam);
@@ -917,6 +946,8 @@ void Graphe::rerecuitSimuleGrid(double &timeBest,int &nombreRecuit, int iter, do
             }
         }
         i++;
+        totalEnd = std::chrono::system_clock::now();
+        secondsTotalExec = totalEnd - start;
     }
     std::chrono::duration<double> secondsTotal = end - start;
     timeBest = secondsTotal.count();

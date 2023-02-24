@@ -51,6 +51,8 @@ public:
 	bool DEBUG_PROGRESS = false;
 	bool DEBUG_OPENGL = false;
 
+	bool RECUIT_LIMIT_3600 = true;
+
 	std::string nomGraphe = "Graphe";
 
 	Graphe(){}

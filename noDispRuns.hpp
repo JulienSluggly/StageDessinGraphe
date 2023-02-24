@@ -195,7 +195,15 @@ void allRunsBySlots() {
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
-		std::vector<std::vector<double>> totalRuns;
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		int chunk = std::ceil((double)mapGraphSlots.size() / (double)nthreads);
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+			printf("Chunk size: %d\n", chunk);
+		}
+		int indexKey = 0;
+		/*std::vector<std::vector<double>> totalRuns;
 		totalRuns.push_back({3,2});
 		totalRuns.push_back({3,3});
 		totalRuns.push_back({3,4});
@@ -205,19 +213,23 @@ void allRunsBySlots() {
 		totalRuns.push_back({3,8});
 		totalRuns.push_back({3,9});
 		totalRuns.push_back({3,10});
-		int indexKey = 0;
-		tid = ::omp_get_thread_num();
-		nthreads = ::omp_get_num_threads();
-		int chunk = std::ceil((double)mapGraphSlots.size() / (double)nthreads);
-		if (tid == 0) {
-			printf("Number of threads working on training data: %d\n", nthreads);
-			printf("Chunk size: %d\n", chunk);
-		}
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int taille=0;taille<totalRuns.size();taille++) {
 					startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TME Custom",totalRuns[taille],tid);
 					startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TRE Custom",totalRuns[taille],tid);
+				}
+			}
+			indexKey++;
+		}*/
+		std::vector<std::vector<double>> totalRuns2;
+		totalRuns2.push_back({12,0});
+		totalRuns2.push_back({12,1});
+		indexKey = 0;
+		for (auto& key : mapGraphSlots) {
+			if (tid == (indexKey % nthreads)) {
+				for (int taille=0;taille<totalRuns2.size();taille++) {
+					startRunsForAllSlots(key,10,"Aleatoire","Rerecuit Simule Grille TME Custom",totalRuns2[taille],tid);
 				}
 			}
 			indexKey++;
@@ -402,6 +414,7 @@ void testRomeGraphs() {
 		}
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			if (i%nthreads == tid) {
+				printf("Tid: %d | i: %d\n",tid,i);
 				Graphe G;
 				G.readFromGraphmlGraph(dirEntry.path());
 				auto start = std::chrono::system_clock::now();
@@ -413,13 +426,14 @@ void testRomeGraphs() {
 				G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
-				std::string nomFichier = chemin + "/resultatsRome/" + to_string(i) + to_string(tid) + ".csv";
+				std::string nomFichier = chemin + "resultatsRome/" + to_string(tid) + ".csv";
 				std::ofstream resultats(nomFichier, std::ios_base::app);
 				resultats << dirEntry.path() << "," << to_string(i) << "," << G.nombreCroisement << "," << tempsBest << "," << secondsTotal.count() << std::endl;
 				resultats.close();
 			}
 			i++;
 		}
+		printf("Thread %d done.\n",tid);
 	}
 
 }

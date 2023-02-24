@@ -9,10 +9,6 @@ Selection de noeud pas au hasard mais ordonnée par score?
 
 Selection de noeud en suivant un vecteur trié au hasard
 
-Tester sur les romes graphs
-
-Parser graphml files to json
-
-libraby boost? read_graphml()
+Tester sur les romes graphs, AT&T, Triangulation+X
 
 Ajout stop dans le rerecuit quand on depasse 1h

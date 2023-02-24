@@ -22,8 +22,8 @@ int main() {
 	//allRunsSingleThread();
 	//allRunsLogged();
 	//customRecuitAllRuns();
-	//allRunsBySlots();
-	testRomeGraphs();
+	allRunsBySlots();
+	//testRomeGraphs();
 	return 0;
 
 	//performanceTest();
@@ -36,11 +36,7 @@ int main() {
 	std::string fileGraphSlots = chemin + "combined/exemple3.json";
 	std::string fileOldGraph = chemin + "automatique/auto21-13.json";
 
-	std::string romeGrapheFile = chemin + "rome/grafo113.28.graphml";
-
-	G.readFromGraphmlGraph(romeGrapheFile);
-	G.generateGrid();
-	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
 	//G.generateGrid(3000,3000);
