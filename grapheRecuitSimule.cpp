@@ -793,8 +793,18 @@ void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double se
         nbCroisement = getNbCroisement();
     }
     long bestCroisement = nbCroisement;
-    if (delay == -1) { // -1 on calcule le delay en fonction de la taille du graphe
-        delay = ceil((double)_noeuds.size() / 20.0) + 1;
+    if (customParam.size() > 1) {
+        if (customParam[0] == 3) {
+            delay = customParam[1];
+        }
+        else if (customParam[0] == 4) {
+            delay = ceil((double)_noeuds.size() / customParam[1]) + 1;
+        }
+        else {
+            if (delay == -1) { 
+            delay = std::min((int)ceil((double)_noeuds.size() / 20.0) + 1,5);
+            }
+        }
     }
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {

@@ -2,3 +2,17 @@ Structure arete:
     Liste de marque avec toutes les autres aretes
 
 Moyenne sur les crossing number?
+
+Iterative edge insertion and optimize at each step the number of crossings
+
+Selection de noeud pas au hasard mais ordonnée par score?
+
+Selection de noeud en suivant un vecteur trié au hasard
+
+Tester sur les romes graphs
+
+Parser graphml files to json
+
+libraby boost? read_graphml()
+
+Ajout stop dans le rerecuit quand on depasse 1h

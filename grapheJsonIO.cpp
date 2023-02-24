@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "pugixml.hpp"
 #include "graphe.hpp"
 
 using nlohmann::json;
@@ -205,4 +206,24 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 		_liens.push_back(Aretes(&_noeuds[tmpVec[i]], &_noeuds[tmpVec[i + 1]], i / 2));
 	}
 	return tmpVec;
+}
+
+void Graphe::readFromGraphmlGraph(std::string input) {
+	pugi::xml_document doc;
+	if (!doc.load_file(input.c_str())) { std::cout << "Fichier inexistant.\n"; exit(-1); }
+
+	pugi::xml_node data = doc.child("graphml").child("graph");
+    // tag::basic[]
+	int i=0;
+    for (pugi::xml_node tool = data.child("node"); tool; tool = tool.next_sibling("node"), i++) {
+        _noeuds.push_back(Noeud(i));
+    }
+	i=0;
+	for (pugi::xml_node tool = data.child("edge"); tool; tool = tool.next_sibling("edge"), i++) {
+        std::string idSourceString = tool.attribute("source").value();
+        std::string idTargetString = tool.attribute("target").value();
+		int id1 = std::stoi(idSourceString.substr(1));
+		int id2 = std::stoi(idTargetString.substr(1));
+		_liens.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
+    }
 }

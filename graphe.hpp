@@ -409,6 +409,8 @@ public:
 	// Precondition: Les id des noeuds sont ordonn�es et commencent par 0
 	void readFromJsonGraphAndSlot(std::string input);
 
+	void readFromGraphmlGraph(std::string input);
+
 	// Sauvegarde des slots dans le fichier output
 	void writeToJsonSlots(std::string output);
 

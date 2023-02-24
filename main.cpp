@@ -16,19 +16,15 @@
 #include "utilitaire.hpp"
 
 int main() {
-	//initRandomSeed();
-	//std::vector<std::string> files = {"graph-1-input","graph-2-input","graph-3-input","graph-4-input","graph-5-input","graph-6-input","graph-7-input","graph-8-input","graph-9-input","graph-10-input","graph-11-input","graph-12-input"};
-	//std::vector<std::string> files = {"graph-1-input","graph-2-input","graph-3-input","graph-4-input","graph-5-input","graph-6-input","graph-7-input","graph-8-input","graph-10-input","graph-11-input","graph-12-input"};
-	//std::vector<std::string> files = {"graph-10-input"};
-	//ogdfCrossingNumbers(files);
-	//initRandomSeed();
+	initRandomSeed();
+	//initSameSeed();
 	//customRecuit();
 	//allRunsSingleThread();
 	//allRunsLogged();
-	initSameSeed();
 	//customRecuitAllRuns();
 	//allRunsBySlots();
-	//return 0;
+	testRomeGraphs();
+	return 0;
 
 	//performanceTest();
 	//return 0;
@@ -40,7 +36,11 @@ int main() {
 	std::string fileGraphSlots = chemin + "combined/exemple3.json";
 	std::string fileOldGraph = chemin + "automatique/auto21-13.json";
 
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	std::string romeGrapheFile = chemin + "rome/grafo113.28.graphml";
+
+	G.readFromGraphmlGraph(romeGrapheFile);
+	G.generateGrid();
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 
 	//G.readFromJsonOldGraph(fileOldGraph);
 	//G.generateGrid(3000,3000);
@@ -51,15 +51,15 @@ int main() {
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
-	G.grapheGenetique(tempsBest,bestIteration,lastIteration,1000,1000,nomFichierGraph,nomFichierSlots,false,false,6);
+	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 	
-	//G.placementAleatoire();
-	//G.triangulationDelaunay();
-	//G.initGrille();
-	//G.registerSlotsAndEdgesInGrid();
+	G.placementAleatoire();
+	G.triangulationDelaunay();
+	G.initGrille();
+	G.registerSlotsAndEdgesInGrid();
 
-	//G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
+	G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,3);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
 	//G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);

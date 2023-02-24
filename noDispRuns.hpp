@@ -6,6 +6,8 @@
 #include "graphe.hpp"
 #include "logCSV.hpp"
 #include "personnel.hpp"
+#include <filesystem>
+#include <chrono>
 
 void readOldFiles(Graphe& G) {
 	std::string nomFichierGraph = "auto21-6";
@@ -193,6 +195,16 @@ void allRunsBySlots() {
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
+		std::vector<std::vector<double>> totalRuns;
+		totalRuns.push_back({3,2});
+		totalRuns.push_back({3,3});
+		totalRuns.push_back({3,4});
+		totalRuns.push_back({3,5});
+		totalRuns.push_back({3,6});
+		totalRuns.push_back({3,7});
+		totalRuns.push_back({3,8});
+		totalRuns.push_back({3,9});
+		totalRuns.push_back({3,10});
 		int indexKey = 0;
 		tid = ::omp_get_thread_num();
 		nthreads = ::omp_get_num_threads();
@@ -203,10 +215,10 @@ void allRunsBySlots() {
 		}
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TME",{},tid);
-				startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TRE",{},tid);
-				startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille Best",{},tid);
-				startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille Best TRE",{},tid);
+				for (int taille=0;taille<totalRuns.size();taille++) {
+					startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TME Custom",totalRuns[taille],tid);
+					startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TRE Custom",totalRuns[taille],tid);
+				}
 			}
 			indexKey++;
 		}
@@ -375,6 +387,41 @@ void performanceTest2() {
 		resultats.close();
 	// Partie Vector
 	std::vector<int> nodeVec;
+}
+
+void testRomeGraphs() {
+	std::string path = chemin + "rome/";
+		int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		int i=0;
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+			if (i%nthreads == tid) {
+				Graphe G;
+				G.readFromGraphmlGraph(dirEntry.path());
+				auto start = std::chrono::system_clock::now();
+				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
+				G.generateGrid();
+				G.placementAleatoire();
+				G.initGrille();
+				G.registerSlotsAndEdgesInGrid();
+				G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> secondsTotal = end - start;
+				std::string nomFichier = chemin + "/resultatsRome/" + to_string(i) + to_string(tid) + ".csv";
+				std::ofstream resultats(nomFichier, std::ios_base::app);
+				resultats << dirEntry.path() << "," << to_string(i) << "," << G.nombreCroisement << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+				resultats.close();
+			}
+			i++;
+		}
+	}
+
 }
 
 #endif
