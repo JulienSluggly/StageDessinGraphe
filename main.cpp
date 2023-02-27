@@ -15,32 +15,45 @@
 #include "logCSV.hpp"
 #include "utilitaire.hpp"
 
-int main() {
-	initRandomSeed();
-	//initSameSeed();
-	//customRecuit();
-	//allRunsSingleThread();
-	//allRunsLogged();
-	//customRecuitAllRuns();
-	allRunsBySlots();
-	//testRomeGraphs();
-	return 0;
+void runFuncOnAllGraphs() {
+	for (int i=1;i<=12;i++) {
+		std::cout << "---------------------\n";
+		Graphe G;
+		std::string numero = to_string(i);
+		std::string nomFichierGraph = "graph-"+numero+"-input";
+		std::string nomFichierSlots = numero+"-input-slots";
+		std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
-	//performanceTest();
-	//return 0;
+		G.setupGraphe(nomFichierGraph,nomFichierSlots);
+		G.DEBUG_GRAPHE = true;
+		auto start = std::chrono::system_clock::now();
+		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
+		G.placementAleatoire();
+		ogdfOther(G);
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> secondsTotal = end - start;
+		std::cout << std::fixed << secondsTotal.count() << "s for placement.\n";
+		if (tempsBest != -1) std::cout << tempsBest << "s meilleur resultat.\n";
+		if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
+		if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
+		if (nombreRecuit != 0) std::cout << "Nombre de rechauffe: " << nombreRecuit << "\n";
+		if (G.estPlace()) std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
+		if (G.hasIllegalCrossing()) std::cout << "Solution illegale.\n";
+		if (G.estPlace()) G.debugEverything(false,false);
+	}
+}
+
+int main() {
+	//initRandomSeed();
+	initSameSeed();
+	runFuncOnAllGraphs(); return 0;
 
 	Graphe G;
-	std::string nomFichierGraph = "graph-10-input";
-	std::string nomFichierSlots = "10-input-slots";
-	
-	std::string fileGraphSlots = chemin + "combined/exemple3.json";
-	std::string fileOldGraph = chemin + "automatique/auto21-13.json";
+	std::string nomFichierGraph = "graph-6-input";
+	std::string nomFichierSlots = "6-input-slots";
+	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	G.setupGraphe(nomFichierGraph,nomFichierSlots);
-
-	//G.readFromJsonOldGraph(fileOldGraph);
-	//G.generateGrid(3000,3000);
-	//readFromJsonGraphAndSlot(G,fileGraphSlots);
 
 	std::cout << "Debut placement.\n";
 	G.DEBUG_GRAPHE = true;
@@ -51,32 +64,17 @@ int main() {
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 	
 	G.placementAleatoire();
-	G.triangulationDelaunay();
-	G.initGrille();
-	G.registerSlotsAndEdgesInGrid();
+	//G.triangulationDelaunay();
+	//G.initGrille();
+	//G.registerSlotsAndEdgesInGrid();
+	//ogdfRun(G);
+	//ogdfStressMinimization(G);
+	ogdfOther(G);
 
-	G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
+	//G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,3);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
 	//G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
-	//G.afficherEmplacement();
-	//G.afficherLiensEmp();
-	//G.recuitSimuleCustom(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3, {1,15});
-
-	//G.initGraphAndNodeScoresAndCrossings();
-	//G.afficherInfo();
-	//G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,1,0,4,{7,5});
-
-	///ogdfReverseNonPlanar(G);
-
-	
-	//G.recuitSimuleScore(tempsBest);
-
-	//ogdfRun(G);
-	//ogdfReverseNonPlanar(G);
-	//return 0;
-	
-	//ogdfPlacementAuPlusProche(G);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotal = end - start;
@@ -84,12 +82,14 @@ int main() {
 	if (tempsBest != -1) std::cout << tempsBest << "s meilleur resultat.\n";
 	if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
 	if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
-	if (nombreRecuit != -1) std::cout << "Nombre de rechauffe: " << nombreRecuit << "\n";
+	if (nombreRecuit != 0) std::cout << "Nombre de rechauffe: " << nombreRecuit << "\n";
 	if (G.estPlace()) std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
+	if (G.hasIllegalCrossing()) std::cout << "Solution illegale.\n";
 	std::cout << "Setup complete!" << std::endl;
 
 	//G.afficherInfo();
 	if (G.estPlace()) G.debugEverything(false,false);
+	
 	
 
 	// OpenGL

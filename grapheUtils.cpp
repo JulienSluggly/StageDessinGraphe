@@ -1057,3 +1057,22 @@ void Graphe::getSortedEmpVecFromGraphe(std::vector<int>& sortedIdVec, Graphe& G)
     }
 }
 
+void Graphe::translateGrapheToOrigin() {
+    double minX, minY;
+    for (int i=0;i<_emplacementsPossibles.size();i++) {
+        if (i==0) {
+            minX = _emplacementsPossibles[i].getX();
+            minY = _emplacementsPossibles[i].getY();
+        }
+        else {
+            if (_emplacementsPossibles[i].getX() < minX) minX = _emplacementsPossibles[i].getX();
+            if (_emplacementsPossibles[i].getY() < minY) minY = _emplacementsPossibles[i].getY();
+        }
+    }
+    for (int i=0;i<_emplacementsPossibles.size();i++) {
+        _emplacementsPossibles[i]._x -= minX;
+        _emplacementsPossibles[i]._y -= minY;
+    }
+    gridWidth -= minX;
+    gridHeight -= minY;
+}

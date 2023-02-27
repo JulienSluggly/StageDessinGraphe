@@ -103,8 +103,9 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 	int nombreRecuit = 0, nombreSlots, nombreCellule;
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
-	for (int i = 1; (((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600)); ++i) {
+	for (int i = 1; ((((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600))&&(i <= 100)); ++i) {
 		resetSeed(tid);
+		auto start = std::chrono::system_clock::now();
 		Graphe G;
 		G.setupGraphe(fileGraph,fileSlots);
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
@@ -119,7 +120,6 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		else {
 			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacementsPossibles.size(),secondsTotalExec.count());
 		}
-		auto start = std::chrono::system_clock::now();
 		if (methodeName == "Glouton") G.glouton();
 		else if (methodeName == "Glouton Revisite") G.gloutonRevisite();
 		else if (methodeName == "Glouton Gravite") G.gloutonRevisiteGravite();
@@ -247,7 +247,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		else { resultats << std::setprecision(1) << moyenneCroisement << ","; }
 		if (medianCroisement > 100) { resultats << std::setprecision(0) << medianCroisement << ","; }
 		else { resultats << std::setprecision(1) << medianCroisement << ","; }
-		resultats << std::setprecision(7) << tempsBestMoyenne << "," << tempsExecMoyenne;
+		resultats << std::setprecision(0) << tempsBestMoyenne << "," << tempsExecMoyenne;
 		if (isGenetique) {
 			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
 		}

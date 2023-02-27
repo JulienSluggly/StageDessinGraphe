@@ -203,7 +203,7 @@ void allRunsBySlots() {
 			printf("Chunk size: %d\n", chunk);
 		}
 		int indexKey = 0;
-		/*std::vector<std::vector<double>> totalRuns;
+		std::vector<std::vector<double>> totalRuns;
 		totalRuns.push_back({3,2});
 		totalRuns.push_back({3,3});
 		totalRuns.push_back({3,4});
@@ -221,7 +221,7 @@ void allRunsBySlots() {
 				}
 			}
 			indexKey++;
-		}*/
+		}
 		std::vector<std::vector<double>> totalRuns2;
 		totalRuns2.push_back({12,0});
 		totalRuns2.push_back({12,1});

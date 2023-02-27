@@ -477,6 +477,8 @@ public:
 
 	void setupGraphe(std::string fileGraphe, std::string fileSlot);
 
+	void translateGrapheToOrigin();
+
 };
 
 #endif
