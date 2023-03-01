@@ -37,21 +37,19 @@ public:
 	int compteurSwapE = 0;
 	int compteurDeplacementE = 0;
 
-	// Attention cette variable n'est pas forcément à jour!
-	long nombreCroisement = -1;
-	bool isNombreCroisementUpdated = false;
-	bool isNodeScoreUpdated = false;
-	bool isIntersectionVectorUpdated = false;
-	bool isCarteSetUp = false;
+	long nombreCroisement = -1; // Attention cette variable n'est pas forcément à jour! Voir 'isNombreCroisementUpdated'
+	bool isNombreCroisementUpdated = false; // Indique si la valeur dans 'nombreCroisement' est à jour.
+	bool isNodeScoreUpdated = false; // Indique les les scores stockés dans les noeuds sont à jour.
+	bool isIntersectionVectorUpdated = false; // Indique si les vecteurs d'intersections dans les edge sont à jour.
+	bool isCarteSetUp = false; // Indique si la triangulation de delaunay sur le graphe a été faite.
 
-	// Nombre maximum de voisin d'un noeud dans le graphe.
-	int maxVoisin = -1;
+	int maxVoisin = -1; // Nombre maximum de voisin d'un noeud dans le graphe. Pas forcément à jour.
 
-	bool DEBUG_GRAPHE = false;
-	bool DEBUG_PROGRESS = false;
-	bool DEBUG_OPENGL = false;
+	bool DEBUG_GRAPHE = false; // Affiche uniquement les informations importantes
+	bool DEBUG_PROGRESS = false; // Affiche des informations pendant les itérations
+	bool DEBUG_OPENGL = false; // Utile pour les affichage des intersections illégales dans openGL
 
-	bool RECUIT_LIMIT_3600 = true;
+	bool RECUIT_LIMIT_3600 = true; // Indique si on limite le temps d'un rerecuit a 3600 secondes.
 
 	std::string nomGraphe = "Graphe";
 
@@ -67,36 +65,46 @@ public:
 
 	void afficherEmplacement(std::string nom = "");
 
-	int afficherNoeudSeul(bool display=true, std::string nom = "");
-
 	void afficherInfo(std::string nom = "");
 
+	// Affiche s'il y a un noeud n'ayant pas de voisin.
+	int afficherNoeudSeul(bool display=true, std::string nom = "");
+
+	// Indique s'il y a plusieurs aretes ayant la meme source et destination
 	int afficherAreteDouble(bool display=true, std::string nom = "");
 
+	// Indique s'il ya plusieurs noeud au meme emplacement
 	int afficherNoeudDouble(bool display=true, std::string nom = "");
 
+	// Indique s'il y a plusieurs emplacements aux meme coordonnées
 	int afficherEmplacementDouble(bool display=true, std::string nom = "");
 
+	// Indique si pour un noeud associé a un emplacement si l'inverse est aussi vrai. Puis pareil pour les emplacements.
 	int debugDesyncNoeudEmplacement(bool display=true, std::string nom = "");
 
+	// Calcule si le score d'un noeud est faux ou non.
 	int debugScoreNoeud(bool display=true, std::string nom = "");
 
+	// Calcule si il y a une incohérence dans les vecteurs d'intersections des cotés.
 	int debugInterArrays(bool display=true, std::string nom = "");
 
+	// Calcule si le score du graphe est le meme selon les différentes méthode que celui stocké.
 	int debugScoreGraphe(bool display=true, bool useArray = false, std::string nom = "");
 
+	// Affiche si un noeud n'est associé a aucun emplacement.
 	int debugNoeudNonPlace(bool display=true, std::string nom = "");
 
+	// Affiche le score calculé avec l'ancienne fonction d'intersection.
 	int debugOldCroisement(bool display=true, std::string nom = "");
 
+	// Indique si pour un emplacement associé a une cellule si la cellule contient cet emplacement. Puis pareil pour les cellules.
 	int debugDesyncEmplacementCell(bool display=true, std::string nom = "");
 
+	// Indique si pour un coté associé a une cellule si la cellule contient ce coté. Puis pareil pour les cellules.
 	int debugDesyncAreteCell(bool display=true, std::string nom = "");
 
+	// Appelle toutes les fonctions de debug et renvoie un entier en fonction de si un bug a été détecté.
 	int debugEverything(bool displayOther=false, bool displaySelf=false);
-
-	// Fait une estimation du temps requis pour effectuer un recuit simule complet
-	void tempsCalculRecuitSimule(double cool = 0.99999, double t = 100, int mode = 0);
 
 	// Enleve tout les noeuds de leur emplacement.
 	void clearNodeEmplacement();
@@ -149,13 +157,32 @@ public:
 	// Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
 	int selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<double>& customParam, int iter);
 
+	// Calcule le delay a appliquer lors du recuit si besoin.
+	void calculDelaiRefroidissement(int& delay, std::vector<double>& customParam, int iter);
+
+	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
+	int calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,Emplacement* oldEmplacement,bool useGrille, bool useScore);
+
+	// Modifie les parametres du rerecuit en fonction des customParam
+	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<double> customParam={});
+
+	// Effectue une sauvegarde du graphe en fonction de la méthode utilisée.
+	void saveBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, bool useScore, bool useGrille);
+
+	// Charge la sauvegarde du graphe en fonction de la méthode utilisée.
+	void loadBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, long bestNbCroisement, bool useScore, bool useGrille);
+
+	// Met a jour les variables importantes du graphe pour indiquer ce qui est stocké
+	void updateGraphDataRecuit(bool useScore, bool useGrille);
+
+	// Calcule le score du noeud en fonction de la méthode choisie.
+	long calculScoreNodeMethode(int nodeId,int idSwappedNode, bool swapped, bool useGrille, bool useScore);
+
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimule(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0,std::vector<double> customParam = {});
-
-	void recuitSimuleCustom(double &timeBest, double cool = 0.99999, double t= 100.0, double seuil = 0.0001, int delay=1, int modeNoeud=0, int modeEmplacement=0, std::vector<double> customParam={}) ;
+	void recuitSimule(double &timeBest, std::vector<double> customParam = {}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 3,bool useGrille=true,bool useScore=false);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe si elle etait a jour avant.
@@ -163,25 +190,7 @@ public:
 
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimule(double &timeBest, int &nombreRecuit, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0);
-
-	void rerecuitSimuleCustom(double &timeBest, int &nombreRecuit, int iter=-1, double cool=0.99999, double coolt=0.99, double t=100.0, double seuil = 0.0001, int delay=1, int modeNoeud=0, int modeEmplacement=0,std::vector<double> customParam={});
-
-	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
-	// Met à jour le score du graphe et des noeuds
-	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
-	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimuleScore(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0,std::vector<double> customParam = {});
-
-	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
-	// Met à jour la variable nombreCroisement du graphe, utilise la grille.
-	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
-	// modeNoeud et modeEmplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimuleGrid(double &timeBest, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0,std::vector<double> customParam = {});
-
-	// Applique le recuit simulé grille plusieurs fois
-	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimuleGrid(double &timeBest, int &nombreRecuit, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 0, std::vector<double> customParam = {});
+	void rerecuitSimule(double &timeBest, int &nombreRecuit, std::vector<double> customParam = {}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 3,bool useGrille=true,bool useScore=false);
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
 	// On parcoure tout les noeuds et on teste chaque deplacement possible et on effectue le meilleur s'il ameliore le score. (O(n²*e))

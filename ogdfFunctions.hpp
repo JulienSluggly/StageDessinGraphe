@@ -9,6 +9,8 @@
 #include <ogdf/planarlayout/PlanarDrawLayout.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
+#include <ogdf/planarity/PlanarizationGridLayout.h>
+
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
@@ -21,16 +23,23 @@
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
 #include <ogdf/energybased/FMMMLayout.h>
 #include <ogdf/energybased/GEMLayout.h>
-#include <ogdf/energybased/NodeRespecterLayout.h>
+#include <ogdf/energybased/PivotMDS.h>
+#include <ogdf/energybased/TutteLayout.h>
+
+#include <ogdf/fileformats/GraphIO.h>
 
 #include <fstream>
 
+std::vector<ogdf::node> vecNoeudAOGDFNode;
+
 // Creer un graphe ogdf a partir d'un graphe placé ou non.
 void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph &ogdfG) {
+	vecNoeudAOGDFNode.clear();
 	int nodeNumber = G._noeuds.size();
 	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
 	for (int i = 0; i < nodeNumber; i++) {
 		nodeTab[i] = ogdfG.newNode();
+		vecNoeudAOGDFNode.push_back(nodeTab[i]);
 		if (G.estPlace()) {
 			ogdfGL.x(nodeTab[i]) = G._noeuds[i].getX();
 			ogdfGL.y(nodeTab[i]) = G._noeuds[i].getY();
@@ -53,8 +62,10 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph 
 void createOGDFGraphFromGraphe(Graphe &G, ogdf::GraphAttributes &ogdfGA, ogdf::Graph &ogdfG) {
 	int nodeNumber = G._noeuds.size();
 	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
+	vecNoeudAOGDFNode.clear();
 	for (int i = 0; i < nodeNumber; i++) {
 		nodeTab[i] = ogdfG.newNode();
+		vecNoeudAOGDFNode.push_back(nodeTab[i]);
 		if (G.estPlace()) {
 			ogdfGA.x(nodeTab[i]) = G._noeuds[i].getX();
 			ogdfGA.y(nodeTab[i]) = G._noeuds[i].getY();
@@ -259,6 +270,9 @@ int ogdfReverse(Graphe &G) {
 		if (y > G.gridHeight) { G.gridHeight = y; }
 		i++;
 	}
+	for (int i=0;i<G._noeuds.size();i++) {
+		G._noeuds[i].setEmplacement(&G._emplacementsPossibles[i]);
+	}
 	return 0;
 }
 
@@ -292,31 +306,34 @@ void ogdfReverseNonPlanar(Graphe &G) {
 	G.clearNodeEmplacement();
 	G._emplacementsPossibles.clear();
 	ogdf::Graph ogdfG;
-	ogdf::GridLayout ogdfGL{ ogdfG };
-	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
-	ogdf::PlanRep pr(ogdfG);
-	//pr.initCC(0);
-	ogdf::SubgraphPlanarizer sp = ogdf::SubgraphPlanarizer();
-	int crossingNumber;
-	sp.setInserter(new ogdf::FixedEmbeddingInserter);
-	//sp.setInserter(new ogdf::MultiEdgeApproxInserter);
-	//sp.setInserter(new ogdf::VariableEmbeddingInserter);
-	//sp.setInserter(new ogdf::VariableEmbeddingInserterDyn);
-	sp.call(pr,0,crossingNumber);
-	std::cout << "Crossing Number: " << crossingNumber << std::endl;
-	for (int i=0;i<ogdfG.nodes.size();i++) {
-		ogdf::node n = pr.v(i);
-		ogdf::node n2 = pr.copy(n);
-		int x = ogdfGL.x(n2);
-		int y = ogdfGL.y(n2);
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	createOGDFGraphFromGraphe(G, ogdfGA, ogdfG);
+	
+	ogdf::PlanarizationGridLayout pl;
+
+	ogdf::SubgraphPlanarizer *crossMin = new ogdf::SubgraphPlanarizer;
+
+	pl.setCrossMin(crossMin);
+
+	pl.call(ogdfGA);
+
+	std::cout << "OGDF number of crossings: " << pl.numberOfCrossings() << std::endl;
+
+	G.clearNodeEmplacement();
+	G._emplacementsPossibles.clear();
+	int i=0;
+	for (ogdf::node& n : ogdfG.nodes) {
+		int x = ogdfGA.x(n);
+		int y = ogdfGA.y(n);
 		G._emplacementsPossibles.push_back(Emplacement(x,y,i));
 		if (x > G.gridWidth) { G.gridWidth = x; }
 		if (y > G.gridHeight) { G.gridHeight = y; }
+		i++;
 	}
 	for (int i=0;i<G._noeuds.size();i++) {
-		ogdf::node n = pr.v(i);
-		G._noeuds[n->index()].setEmplacement(&G._emplacementsPossibles[i]);
+		G._noeuds[i].setEmplacement(&G._emplacementsPossibles[i]);
 	}
+	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
 
 void ogdfCrossingNumbers(std::vector<std::string> graphFiles) {
@@ -433,12 +450,22 @@ void ogdfGEMLayout(Graphe& G) {
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
 
+void ogdfPivotMDS(Graphe& G) {
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
+	ogdf::PivotMDS pmds;
+	pmds.call(ogdfGA);
+	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
+	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+}
+
 void ogdfOther(Graphe& G) {
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
-	ogdf::NodeRespecterLayout nrl;
-	nrl.call(ogdfGA);
+	ogdf::TutteLayout tl;
+	tl.call(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }

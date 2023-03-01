@@ -18,5 +18,3 @@ Variante recuit qui modifie la probabilité d'acceptation
 Faire une version ogdf placement au plus proche qui place les voisins d'un noeud au plus proche recursivement parcour en largeur
 
 Faire tests recuit avec les differents placements au plus proche d'ogdf
-
-Continuer de tester les energy based layout d'ogdf a partir de #include <ogdf/energybased/FMMMLayout.h>

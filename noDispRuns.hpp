@@ -68,7 +68,7 @@ void customRecuit() {
 			totalRuns.push_back({8,14});
 			totalRuns.push_back({8,15});
 			for (int i=0;i<totalRuns.size();i++) {
-				generateCSV(10,"Aleatoire","Recuit Simule Grille TRE Custom","graph-10-input",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
+				generateCSV(10,"Aleatoire","Reezcuit Simule Grille TME Custom","graph-10-input",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
 			}
 		}
 		printf("Thread: %d done.\n",tid);
@@ -423,7 +423,7 @@ void testRomeGraphs() {
 				G.placementAleatoire();
 				G.initGrille();
 				G.registerSlotsAndEdgesInGrid();
-				G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
+				G.recuitSimule(tempsBest);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
 				std::string nomFichier = chemin + "resultatsRome/" + to_string(tid) + ".csv";

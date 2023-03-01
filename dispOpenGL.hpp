@@ -283,6 +283,10 @@ void openGLShowNodes(Graphe& G) {
 				}
 			}
 			glEnd();
+			if (show_selected_emplacement) {
+				glColor3f(0.5f, 0.0f, 0.0f);
+				glVertex2d(G._emplacementsPossibles[selectedEmplacement].getX(), G._emplacementsPossibles[selectedEmplacement].getY());
+			}
 		}
 	}
 }
@@ -648,10 +652,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 14: {// Prevision Recuit
-			if (!display_genetic) {
-				G.tempsCalculRecuitSimule();
-			}
+		case 14: {
 			break;
 		}
 		case 15: {// Affiche fenetre genetique

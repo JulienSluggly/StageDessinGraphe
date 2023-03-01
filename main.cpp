@@ -44,16 +44,19 @@ void runFuncOnAllGraphs() {
 }
 
 int main() {
-	//initRandomSeed();
-	initSameSeed();
-	runFuncOnAllGraphs(); return 0;
+	initRandomSeed();
+	//initSameSeed();
+
+	//runFuncOnAllGraphs(); return 0;
 
 	Graphe G;
-	std::string nomFichierGraph = "graph-6-input";
-	std::string nomFichierSlots = "6-input-slots";
+	std::string nomFichierGraph = "graph-10-input";
+	std::string nomFichierSlots = "10-input-slots";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//G.readFromJsonOldGraph(chemin + "automatique/auto21-11.json");
+	//ogdfReverse(G);
 
 	std::cout << "Debut placement.\n";
 	G.DEBUG_GRAPHE = true;
@@ -65,13 +68,15 @@ int main() {
 	
 	G.placementAleatoire();
 	//G.triangulationDelaunay();
-	//G.initGrille();
-	//G.registerSlotsAndEdgesInGrid();
+	G.initGrille();
+	G.registerSlotsAndEdgesInGrid();
 	//ogdfRun(G);
 	//ogdfStressMinimization(G);
-	ogdfOther(G);
+	//ogdfOther(G);
 
-	//G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
+	//ogdfReverseNonPlanar(G);
+
+	G.recuitSimule(tempsBest);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,3);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
 	//G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);

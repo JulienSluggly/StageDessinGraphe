@@ -3,79 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include <climits>
-
-// Fait une estimation du temps requis pour effectuer un recuit simule complet
-void Graphe::tempsCalculRecuitSimule(double cool, double t, int mode) {
-    std::vector<int> bestResult = saveCopy();
-    int nbCroisement = getNbCroisement();
-
-    auto start = std::chrono::system_clock::now();
-    // DEBUT RECUIT UNE ITERATION
-    for (int iter = 0; iter < 10000 && nbCroisement > 0; iter++) {
-        int randomId;
-        if (mode == 0)
-            randomId = generateRand(_noeuds.size() - 1); // Selection aléatoire du noeud
-        else if (mode == 1) {
-            randomId = selectionNoeudTournoiBinaire();
-        }
-        else if (mode == 2) {
-            int nbTirageNoeud = ((100 - t) / 15) + 1;
-            randomId = selectionNoeudTournoiMultiple(nbTirageNoeud);
-        }
-        int randomEmpId = generateRand(_emplacementsPossibles.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
-        // on retire si on pioche le meme emplacement
-        while (_noeuds[randomId].getEmplacement()->getId() == randomEmpId) {
-            randomEmpId = generateRand(_emplacementsPossibles.size() - 1);
-        }
-        long scoreNode;
-        bool swapped = false;
-        int idSwappedNode = -1;
-        Emplacement* oldEmplacement = _noeuds[randomId].getEmplacement();
-        if (!_emplacementsPossibles[randomEmpId].estDisponible()) {
-            idSwappedNode = _emplacementsPossibles[randomEmpId]._noeud->getId();
-            scoreNode = getScoreCroisementNode(randomId, idSwappedNode);
-            scoreNode += getScoreCroisementNode(idSwappedNode);
-            _noeuds[randomId].swap(&_emplacementsPossibles[randomEmpId]);
-            swapped = true;
-        }
-        else {
-            scoreNode = getScoreCroisementNode(randomId);
-            _noeuds[randomId].setEmplacement(&_emplacementsPossibles[randomEmpId]);
-        }
-        long newScoreNode;
-        if (swapped) {
-            newScoreNode = getScoreCroisementNode(randomId, idSwappedNode);
-            newScoreNode += getScoreCroisementNode(idSwappedNode);
-        }
-        else {
-            newScoreNode = getScoreCroisementNode(randomId);
-        }
-        int improve = newScoreNode - scoreNode;
-        if (improve < 0) {
-            bestResult = saveCopy();
-            nbCroisement += improve;
-        }
-        else {
-            double randDouble = generateDoubleRand(1.0);
-            if (randDouble >= exp(-improve / t)) {
-                if (swapped) {
-                    _noeuds[randomId].swap(oldEmplacement);
-                }
-                else {
-                    _noeuds[randomId].setEmplacement(oldEmplacement);
-                }
-            }
-            else {
-                nbCroisement += improve;
-            }
-        }
-        t *= cool;
-    }
-    // FIN RECUIT 100 ITERATIONS
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> secondsTotal = end - start;
-    std::cout << "Prevision: " << secondsTotal.count() * 138.1545 << " secondes." << std::endl;
-}
+#include <algorithm>
 
 // Selectionne deux noeud et retourne celui avec le score le plus faible. (le moin d'intersection)
 int Graphe::selectionNoeudTournoiBinaire(bool isScoreUpdated) {
@@ -271,436 +199,158 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
     return slotId;
 }
 
-// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
-// Met à jour la variable nombreCroisement du graphe.
-// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
-// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-void Graphe::recuitSimule(double &timeBest, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement,std::vector<double> customParam) {
-    auto start = std::chrono::system_clock::now();
-    auto end = start;
-    std::vector<int> bestResult = saveCopy();
-    long nbCroisement;
-    if (isNombreCroisementUpdated) {
-        nbCroisement = nombreCroisement;
-    }
-    else {
-        nbCroisement = getNbCroisement();
-    }
-    long bestCroisement = nbCroisement;
-    if (delay == -1) { // -1 on calcule le delay en fonction de la taille du graphe
-        delay = ceil((double)_noeuds.size() / 20.0) + 1;
-    }
-    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
-    for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
-        //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
-        for (int del = 0; del < delay; del++) {
-            int nodeId = selectionNoeud(modeNoeud, t);
-            int slotId = selectionEmplacement(modeEmplacement, nodeId, t,customParam,iter);
-            long scoreNode;
-            bool swapped = false;
-            int idSwappedNode = -1;
-            Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
-            if (!_emplacementsPossibles[slotId].estDisponible()) {
-                idSwappedNode = _emplacementsPossibles[slotId]._noeud->getId();
-                scoreNode = getScoreCroisementNode(nodeId, idSwappedNode);
-                scoreNode += getScoreCroisementNode(idSwappedNode);
-                _noeuds[nodeId].swap(&_emplacementsPossibles[slotId]);
-                swapped = true;
-            }
-            else {
-                scoreNode = getScoreCroisementNode(nodeId);
-                _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
-            }
-            long newScoreNode;
-            if (swapped) {
-                newScoreNode = getScoreCroisementNode(nodeId, idSwappedNode);
-                newScoreNode += getScoreCroisementNode(idSwappedNode);
-            }
-            else {
-                newScoreNode = getScoreCroisementNode(nodeId);
-            }
-            int improve = newScoreNode - scoreNode;
-            if (improve < 0) {
-                nbCroisement += improve;
-                if (nbCroisement < bestCroisement) {
-                    if (swapped) { compteurSwapE++; } else { compteurDeplacementE++; }
-                    bestCroisement = nbCroisement;
-                    bestResult = saveCopy();
-                    end = std::chrono::system_clock::now();
-                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
-                }
-            }
-            else {
-                double randDouble = generateDoubleRand(1.0);
-                if (randDouble >= exp(-improve / t)) {
-                    if (swapped) {
-                        _noeuds[nodeId].swap(oldEmplacement);
-                    }
-                    else {
-                        _noeuds[nodeId].setEmplacement(oldEmplacement);
-                    }
-                }
-                else {
-                    nbCroisement += improve;
-                    if (swapped) { compteurSwapE++; } else { compteurDeplacementE++; }
-                }
-            }
-            if (swapped) { compteurSwap++; } else { compteurDeplacement++; }
+// Calcule le delay a appliquer lors du recuit si besoin.
+void Graphe::calculDelaiRefroidissement(int& delay, std::vector<double>& customParam, int iter) {
+    if (customParam[0] == 3) {
+        if (customParam[1] == 0) {
+            delay = customParam[2];
         }
-        t *= cool;
+        else if (customParam[1] == 1) {
+            delay = ceil((double)_noeuds.size() / customParam[2]) + 1;
+        }
+        else if (customParam[1] == 2) {
+            delay = (iter / 100000) + customParam[2];
+        }
+        else if (customParam[1] == 3) {
+            delay = ((1381545-iter) / 100000) + customParam[2];
+        }
     }
-    loadCopy(bestResult);
-    nombreCroisement = bestCroisement;
-    isNombreCroisementUpdated = true;
-    isNodeScoreUpdated = false;
-    isIntersectionVectorUpdated = false;
-    std::chrono::duration<double> secondsTotal = end - start;
-    timeBest = secondsTotal.count();
-    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de swap: " << compteurSwap << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement: " << compteurDeplacement << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de swap effectue: " << compteurSwapE << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement effectue: " << compteurDeplacementE << std::endl;
+    else if (delay == -1) {
+        delay = std::min((int)ceil((double)_noeuds.size() / 20.0) + 1,5);
+    }
 }
 
-// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
-// Met à jour la variable nombreCroisement du graphe.
-// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
-// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-void Graphe::recuitSimuleCustom(double &timeBest, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
-    auto start = std::chrono::system_clock::now();
-    auto end = start;
-    std::vector<int> bestResult = saveCopy();
-    long nbCroisement;
-    if (isNombreCroisementUpdated) {
-        nbCroisement = nombreCroisement;
+long Graphe::calculScoreNodeMethode(int nodeId, int idSwappedNode, bool swapped, bool useGrille, bool useScore) {
+    if (useGrille) {
+        if (swapped) { return getScoreCroisementNodeGrid(nodeId, idSwappedNode); }
+        else { return getScoreCroisementNodeGrid(nodeId);}
     }
-    else {
-        nbCroisement = getNbCroisement();
+    else if (useScore) {
+        if (swapped) { return getNodeLinkedScore(nodeId, idSwappedNode); }
+        else { return _noeuds[nodeId].score; }
     }
-    long bestCroisement = nbCroisement;
-    if (delay == -1) { // -1 on calcule le delay en fonction de la taille du graphe
-        if (customParam[0] == 3) {
-            delay = customParam[1];
-        }
-        else if (customParam[0] == 4) {
-            delay = ceil((double)_noeuds.size() / customParam[1]) + 1;
-        }
-        else {
-            delay = std::min((int)ceil((double)_noeuds.size() / 20.0) + 1,5);
-        }
+    else { 
+        if (swapped) { return getScoreCroisementNode(nodeId,idSwappedNode); }
+        else { return getScoreCroisementNode(nodeId); }
     }
-    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
-    for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
-        if (customParam[0] == 3) {
-            if (customParam[1] == 5) {
-                delay = (iter / 100000) + customParam[1];
-            }
-            else if (customParam[1] == 6) {
-                delay = ((1381545-iter) / 100000) + customParam[1];
-            }
-        }
-        //if (iter % 20000 == 0) {
-        //    std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
-        //}
-        for (int del = 0; del < delay; del++) {
-            int nodeId = selectionNoeud(modeNoeud, t);
-            int slotId = selectionEmplacement(modeEmplacement, nodeId, t,customParam,iter);
-            long scoreNode;
-            bool swapped = false;
-            int idSwappedNode = -1;
-            Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
-            if (!_emplacementsPossibles[slotId].estDisponible()) {
-                idSwappedNode = _emplacementsPossibles[slotId]._noeud->getId();
-                scoreNode = getScoreCroisementNode(nodeId, idSwappedNode);
-                scoreNode += getScoreCroisementNode(idSwappedNode);
-                _noeuds[nodeId].swap(&_emplacementsPossibles[slotId]);
-                swapped = true;
-            }
-            else {
-                scoreNode = getScoreCroisementNode(nodeId);
-                _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
-            }
-            long newScoreNode;
-            if (swapped) {
-                newScoreNode = getScoreCroisementNode(nodeId, idSwappedNode);
-                newScoreNode += getScoreCroisementNode(idSwappedNode);
-            }
-            else {
-                newScoreNode = getScoreCroisementNode(nodeId);
-            }
-            int improve = newScoreNode - scoreNode;
-            if (improve < 0) {
-                nbCroisement += improve;
-                if (nbCroisement < bestCroisement) {
-                    if (swapped) { compteurSwapE++; } else { compteurDeplacementE++; }
-                    bestCroisement = nbCroisement;
-                    bestResult = saveCopy();
-                    end = std::chrono::system_clock::now();
-                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
-                }
-            }
-            else {
-                double randDouble = generateDoubleRand(1.0);
-                if (randDouble >= exp(-improve / t)) {
-                    if (swapped) {
-                        _noeuds[nodeId].swap(oldEmplacement);
-                    }
-                    else {
-                        _noeuds[nodeId].setEmplacement(oldEmplacement);
-                    }
-                }
-                else {
-                    nbCroisement += improve;
-                    if (swapped) { compteurSwapE++; } else { compteurDeplacementE++; }
-                }
-            }
-            if (swapped) { compteurSwap++; } else { compteurDeplacement++; }
-        }
-        t *= cool;
-    }
-    loadCopy(bestResult);
-    nombreCroisement = bestCroisement;
-    isNombreCroisementUpdated = true;
-    isNodeScoreUpdated = false;
-    isIntersectionVectorUpdated = false;
-    std::chrono::duration<double> secondsTotal = end - start;
-    timeBest = secondsTotal.count();
-    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de swap: " << compteurSwap << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement: " << compteurDeplacement << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de swap effectue: " << compteurSwapE << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement effectue: " << compteurDeplacementE << std::endl;
 }
 
-// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
-// Met à jour la variable nombreCroisement du graphe si elle etait a jour avant.
-void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
-    std::vector<int> bestResult = saveCopy();
-    int nbCroisement = nbCrois;
-    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
-    int randomId = selectionNoeud(modeNoeud, t);
-    int randomEmpId = selectionEmplacement(modeEmplacement, randomId, t,customParam,-1);
+int Graphe::calculImprove(int nodeId,int slotId,bool& swapped,int& idSwappedNode,Emplacement* oldEmplacement,bool useGrille,bool useScore) {
+    oldEmplacement = _noeuds[nodeId].getEmplacement();
     long scoreNode;
-    bool swapped = false;
-    int idSwappedNode = -1;
-    Emplacement* oldEmplacement = _noeuds[randomId].getEmplacement();
-    if (!_emplacementsPossibles[randomEmpId].estDisponible()) {
-        idSwappedNode = _emplacementsPossibles[randomEmpId]._noeud->getId();
-        scoreNode = getScoreCroisementNode(randomId, idSwappedNode);
-        scoreNode += getScoreCroisementNode(idSwappedNode);
-        _noeuds[randomId].swap(&_emplacementsPossibles[randomEmpId]);
+    if (!_emplacementsPossibles[slotId].estDisponible()) {
         swapped = true;
+        idSwappedNode = _emplacementsPossibles[slotId]._noeud->getId();
+        scoreNode = calculScoreNodeMethode(nodeId,idSwappedNode,true,useGrille,useScore);
+        scoreNode += calculScoreNodeMethode(idSwappedNode,-1,false,useGrille,useScore);
+        _noeuds[nodeId].swap(&_emplacementsPossibles[slotId]);
+        if (useScore) {
+            changeUpdateValue(nodeId);
+            changeUpdateValue(idSwappedNode);
+            updateNodeScore(idSwappedNode);
+        }
     }
     else {
-        scoreNode = getScoreCroisementNode(randomId);
-        _noeuds[randomId].setEmplacement(&_emplacementsPossibles[randomEmpId]);
+        scoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore);
+        _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
+        if (useScore) { changeUpdateValue(nodeId); }
     }
+    if (useScore) { updateNodeScore(nodeId); }
+    if (useGrille) { recalcNodeCellule(nodeId); }
     long newScoreNode;
     if (swapped) {
-        newScoreNode = getScoreCroisementNode(randomId, idSwappedNode);
-        newScoreNode += getScoreCroisementNode(idSwappedNode);
+        if (useGrille) { recalcNodeCellule(idSwappedNode); }
+        newScoreNode = calculScoreNodeMethode(nodeId,idSwappedNode,true,useGrille,useScore);
+        newScoreNode += calculScoreNodeMethode(idSwappedNode,-1,false,useGrille,useScore);
     }
     else {
-        newScoreNode = getScoreCroisementNode(randomId);
+        newScoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore);
     }
-    int improve = newScoreNode - scoreNode;
-    if (improve < 0) {
-        bestResult = saveCopy();
-        nbCroisement += improve;
-    }
-    else {
-        double randDouble = generateDoubleRand(1.0);
-        if (randDouble >= exp(-improve / t)) {
-            if (swapped) {
-                _noeuds[randomId].swap(oldEmplacement);
-            }
-            else {
-                _noeuds[randomId].setEmplacement(oldEmplacement);
-            }
-        }
-        else {
-            nbCroisement += improve;
-        }
-    }
-    t *= cool;
-    if (isNombreCroisementUpdated) {
-        nombreCroisement = nbCroisement;
-        isNombreCroisementUpdated = true;
-    }
-    loadCopy(bestResult);
+    return newScoreNode - scoreNode;
 }
 
-// Applique le recuit simulé plusieurs fois
-// Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement) {
-    auto start = std::chrono::system_clock::now();
-    auto end = start;
-    if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
-    int numberOfNoUpgrade = 0;
-    int maxIter = 2;
-    if (iter != -1) { maxIter = iter; }
-    long lastCroisement;
-    if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
-    else { lastCroisement = getNbCroisementConst(); }
-    int i=1;
-    double recuitTimeBest;
-    auto totalEnd = std::chrono::system_clock::now();
-	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
-    while ((numberOfNoUpgrade < maxIter)&&(!RECUIT_LIMIT_3600||secondsTotalExec.count() < 3600)) {
-        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
-        recuitSimule(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement);
-        nombreRecuit++;
-        t *= coolt;
-        if (iter != -1) {
-            numberOfNoUpgrade++;
-        }
-        else {
-            long newCroisement;
-            if (isNombreCroisementUpdated) { newCroisement = nombreCroisement; }
-            else { newCroisement = getNbCroisementConst(); }
-            if (newCroisement == lastCroisement) {
-                numberOfNoUpgrade++;
-            }
-            else {
-                lastCroisement = newCroisement;
-                end = std::chrono::system_clock::now();
-                numberOfNoUpgrade = 0;
-            }
-        }
-        i++;
-        totalEnd = std::chrono::system_clock::now();
-        secondsTotalExec = totalEnd - start;
-    }
-    std::chrono::duration<double> secondsTotal = end - start;
-    timeBest = secondsTotal.count();
+void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<double> customParam) {
+    if (customParam[0] == 8) { t = customParam[1]; }
+    else if (customParam[0] == 9) { cool = customParam[1]; }
+    else if (customParam[0] == 10) { coolt = customParam[1]; }
+    else if (customParam[0] == 11) { seuil = customParam[1]; }
 }
 
-// Applique le recuit simulé plusieurs fois
-// Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimuleCustom(double &timeBest, int& nombreRecuit, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
-    if (customParam[0] == 8) {
-        t = customParam[1];
-    }
-    else if (customParam[0] == 9) {
-        cool = customParam[1];
-    }
-    else if (customParam[0] == 10) {
-        coolt = customParam[1];
-    }
-    else if (customParam[0] == 11) {
-        seuil = customParam[1];
-    }
-    auto start = std::chrono::system_clock::now();
-    auto end = start;
-    if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
-    int numberOfNoUpgrade = 0;
-    int maxIter = 2;
-    if (iter != -1) { maxIter = iter; }
-    long lastCroisement;
-    if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
-    else { lastCroisement = getNbCroisementConst(); }
-    int i=1;
-    double recuitTimeBest;
-    auto totalEnd = std::chrono::system_clock::now();
-	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
-    while ((numberOfNoUpgrade < maxIter)&&(!RECUIT_LIMIT_3600||secondsTotalExec.count() < 3600)) {
-        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
-        recuitSimuleCustom(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement,customParam);
-        nombreRecuit++;
-        t *= coolt;
-        if (iter != -1) {
-            numberOfNoUpgrade++;
-        }
-        else {
-            long newCroisement;
-            if (isNombreCroisementUpdated) { newCroisement = nombreCroisement; }
-            else { newCroisement = getNbCroisementConst(); }
-            if (newCroisement == lastCroisement) {
-                numberOfNoUpgrade++;
-            }
-            else {
-                lastCroisement = newCroisement;
-                end = std::chrono::system_clock::now();
-                numberOfNoUpgrade = 0;
-            }
-        }
-        i++;
-        totalEnd = std::chrono::system_clock::now();
-        secondsTotalExec = totalEnd - start;
-    }
-    std::chrono::duration<double> secondsTotal = end - start;
-    timeBest = secondsTotal.count();
+void Graphe::saveBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, bool useScore, bool useGrille) {
+    if (useScore) { bestResultGraphe.copyFromGraphe(*this); }
+    else if (useGrille) { bestResultVector = saveCopy(); }
+    else { bestResultVector = saveCopy(); }
+}
+
+void Graphe::loadBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, long bestNbCroisement, bool useScore, bool useGrille) {
+    nombreCroisement = bestNbCroisement;
+    if (useScore) { copyFromGraphe(bestResultGraphe); }
+    else if (useGrille) { loadCopy(bestResultVector); }
+    else { loadCopy(bestResultVector); }
+}
+
+void Graphe::updateGraphDataRecuit(bool useScore, bool useGrille) {
+    isNombreCroisementUpdated = true;
+    if (useScore) { isNodeScoreUpdated = true; }
+    else { isNodeScoreUpdated = false; }
+    if (useScore) { isIntersectionVectorUpdated = true; }
+    else { isIntersectionVectorUpdated = false; }
+}
+
+void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
+    std::cout << "Not Yet Updated.\n";
 }
 
 // Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
-// Met à jour le score du graphe et des noeuds
+// Met à jour la variable nombreCroisement du graphe.
 // delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-void Graphe::recuitSimuleScore(double &timeBest, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement,std::vector<double> customParam) {
-    auto start = std::chrono::system_clock::now();
-    auto end = start;
-    Graphe bestResult;
-    bestResult.copyFromGraphe(*this);
-    long nbCroisement = nombreCroisement;
+void Graphe::recuitSimule(double &timeBest, std::vector<double> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore) {
+    auto start = std::chrono::system_clock::now(); auto end = start; // Timer pour le meilleur resultat trouvé
+    std::vector<int> bestResultVector; Graphe bestResultGraphe; // Sauvegarde du meilleur graphe.
+    saveBestResultRecuit(bestResultVector,bestResultGraphe,useScore,useGrille);
+    long nbCroisement;
+    if (isNombreCroisementUpdated) { nbCroisement = nombreCroisement; }
+    else { nbCroisement = getNbCroisement(); }
     long bestCroisement = nbCroisement;
-    if (delay == -1) {
-        delay = ceil((double)_noeuds.size() / 20.0) + 1;
-    }
+    calculDelaiRefroidissement(delay,customParam,0);
+    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    int nodeId, slotId, idSwappedNode, improve;
+    bool swapped;
+    Emplacement* oldEmplacement;
     for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
+        //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
+        calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
         for (int del = 0; del < delay; del++) {
-            int nodeId = selectionNoeud(modeNoeud, t, true);
-            int slotId = selectionEmplacement(modeEmplacement, nodeId, t,customParam,iter);
-            long scoreNode;
-            bool swapped = false;
-            int idSwappedNode = -1;
-            Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
-            if (!_emplacementsPossibles[slotId].estDisponible()) {
-                idSwappedNode = _emplacementsPossibles[slotId]._noeud->getId();
-                scoreNode = getNodeLinkedScore(nodeId, idSwappedNode);
-                scoreNode += _noeuds[idSwappedNode].score;
-                _noeuds[nodeId].swap(&_emplacementsPossibles[slotId]);
-                swapped = true;
-                changeUpdateValue(nodeId);
-                changeUpdateValue(idSwappedNode);
-                updateNodeScore(idSwappedNode);
-            }
-            else {
-                scoreNode = _noeuds[nodeId].score;
-                _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
-                changeUpdateValue(nodeId);
-            }
-            updateNodeScore(nodeId);
-            long newScoreNode;
-            if (swapped) {
-                newScoreNode = getNodeLinkedScore(nodeId, idSwappedNode);
-                newScoreNode += _noeuds[idSwappedNode].score;
-            }
-            else {
-                newScoreNode = _noeuds[nodeId].score;
-            }
-            int improve = newScoreNode - scoreNode;
+            nodeId = selectionNoeud(modeNoeud, t);
+            slotId = selectionEmplacement(modeEmplacement, nodeId, t,customParam,iter);
+            swapped = false;
+            idSwappedNode = -1;
+            improve = calculImprove(nodeId,slotId,swapped,idSwappedNode,oldEmplacement,useGrille,useScore);
             if (improve < 0) {
                 nbCroisement += improve;
                 if (nbCroisement < bestCroisement) {
                     bestCroisement = nbCroisement;
-                    bestResult.copyFromGraphe(*this);
+                    saveBestResultRecuit(bestResultVector,bestResultGraphe,useScore,useGrille);
                     end = std::chrono::system_clock::now();
+                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
                 }
             }
             else {
                 double randDouble = generateDoubleRand(1.0);
                 if (randDouble >= exp(-improve / t)) {
-                    changeUpdateValue(nodeId);
+                    if (useScore) { changeUpdateValue(nodeId); }
                     if (swapped) {
-                        changeUpdateValue(idSwappedNode);
+                        if (useScore) { changeUpdateValue(idSwappedNode); }
                         _noeuds[nodeId].swap(oldEmplacement);
-                        updateNodeScore(idSwappedNode);
+                        if (useScore) { updateNodeScore(idSwappedNode); }
+                        if (useGrille) { recalcNodeCellule(idSwappedNode); }
                     }
                     else {
                         _noeuds[nodeId].setEmplacement(oldEmplacement);
                     }
-                    updateNodeScore(nodeId);
+                    if (useScore) { updateNodeScore(nodeId); }
+                    if (useGrille) { recalcNodeCellule(nodeId); }
                 }
                 else {
                     nbCroisement += improve;
@@ -709,10 +359,56 @@ void Graphe::recuitSimuleScore(double &timeBest, double cool, double t, double s
         }
         t *= cool;
     }
-    copyFromGraphe(bestResult);
-    isNombreCroisementUpdated = true;
-    isNodeScoreUpdated = true;
-    isIntersectionVectorUpdated = true;
+    loadBestResultRecuit(bestResultVector,bestResultGraphe,bestCroisement,useScore,useGrille);
+    updateGraphDataRecuit(useScore,useGrille);
+    std::chrono::duration<double> secondsTotal = end - start;
+    timeBest = secondsTotal.count();
+    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+}
+
+// Applique le recuit simulé plusieurs fois
+// Met a jour le nombre de croisement du graphe.
+void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::vector<double> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore) {
+    applyRerecuitCustomParam(t,cool,coolt,seuil,customParam);
+    auto start = std::chrono::system_clock::now();
+    auto end = start;
+    if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
+    int numberOfNoUpgrade = 0;
+    int maxIter = 2;
+    if (iter != -1) { maxIter = iter; }
+    long lastCroisement;
+    if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
+    else { lastCroisement = getNbCroisementConst(); }
+    int i=1;
+    double recuitTimeBest;
+    auto totalEnd = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
+    while ((numberOfNoUpgrade < maxIter)&&(!RECUIT_LIMIT_3600||secondsTotalExec.count() < 3600)) {
+        if (useGrille) { if (i>1) { reinitGrille(); } }
+        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
+        recuitSimule(recuitTimeBest,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore);
+        nombreRecuit++;
+        t *= coolt;
+        if (iter != -1) {
+            numberOfNoUpgrade++;
+        }
+        else {
+            long newCroisement;
+            if (isNombreCroisementUpdated) { newCroisement = nombreCroisement; }
+            else { newCroisement = getNbCroisementConst(); }
+            if (newCroisement == lastCroisement) {
+                numberOfNoUpgrade++;
+            }
+            else {
+                lastCroisement = newCroisement;
+                end = std::chrono::system_clock::now();
+                numberOfNoUpgrade = 0;
+            }
+        }
+        i++;
+        totalEnd = std::chrono::system_clock::now();
+        secondsTotalExec = totalEnd - start;
+    }
     std::chrono::duration<double> secondsTotal = end - start;
     timeBest = secondsTotal.count();
 }
@@ -783,172 +479,4 @@ void Graphe::bestDeplacement() {
     isNodeScoreUpdated = false;
     isIntersectionVectorUpdated = false;
     if (DEBUG_GRAPHE) std::cout << "Meilleur resultat de l'algo meilleur deplacement: " << nbIntersection << std::endl;
-}
-
-// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
-// Met à jour la variable nombreCroisement du graphe.
-// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
-// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-void Graphe::recuitSimuleGrid(double &timeBest, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement,std::vector<double> customParam) {
-    auto start = std::chrono::system_clock::now();
-    auto end = start;
-    std::vector<int> bestResult = saveCopy();
-    long nbCroisement;
-    if (isNombreCroisementUpdated) {
-        nbCroisement = nombreCroisement;
-    }
-    else {
-        nbCroisement = getNbCroisement();
-    }
-    long bestCroisement = nbCroisement;
-    std::vector<int> shuffledNodeIdVec;
-    if (customParam.size() > 1) {
-        if (customParam[0] == 3) {
-            delay = customParam[1];
-        }
-        else if (customParam[0] == 4) {
-            delay = ceil((double)_noeuds.size() / customParam[1]) + 1;
-        }
-        else {
-            if (delay == -1) { 
-            delay = std::min((int)ceil((double)_noeuds.size() / 20.0) + 1,5);
-            }
-        }
-        if ((customParam[0] == 12)&&(customParam[1]==1)) {
-            for (int i=0;i<_noeuds.size();i++) {
-                shuffledNodeIdVec.push_back(i);
-                auto rng = std::default_random_engine {};
-		        std::shuffle(std::begin(shuffledNodeIdVec), std::end(shuffledNodeIdVec), rng);
-            }
-        }
-    }
-    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
-    for (int iter = 0; t > seuil && nbCroisement > 0;) {
-        //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
-        for (int del = 0; del < delay; del++) {
-            int nodeId;
-            if ((customParam.size() > 0)&&(customParam[0]==12)&&(customParam[1]==1)) {
-                nodeId = shuffledNodeIdVec[iter%shuffledNodeIdVec.size()];
-            }
-            else {
-                nodeId = selectionNoeud(modeNoeud, t);
-            }
-            int slotId = selectionEmplacement(modeEmplacement, nodeId, t,customParam,iter);
-            long scoreNode;
-            bool swapped = false;
-            int idSwappedNode = -1;
-            Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
-            if (!_emplacementsPossibles[slotId].estDisponible()) {
-                idSwappedNode = _emplacementsPossibles[slotId]._noeud->getId();
-                scoreNode = getScoreCroisementNodeGrid(nodeId, idSwappedNode);
-                scoreNode += getScoreCroisementNodeGrid(idSwappedNode);
-                _noeuds[nodeId].swap(&_emplacementsPossibles[slotId]);
-                swapped = true;
-            }
-            else {
-                scoreNode = getScoreCroisementNodeGrid(nodeId);
-                _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
-            }
-            long newScoreNode;
-            recalcNodeCellule(nodeId);
-            if (swapped) {
-                recalcNodeCellule(idSwappedNode);
-                newScoreNode = getScoreCroisementNodeGrid(nodeId, idSwappedNode);
-                newScoreNode += getScoreCroisementNodeGrid(idSwappedNode);
-            }
-            else {
-                newScoreNode = getScoreCroisementNodeGrid(nodeId);
-            }
-            int improve = newScoreNode - scoreNode;
-            if (improve < 0) {
-                nbCroisement += improve;
-                if (nbCroisement < bestCroisement) {
-                    bestCroisement = nbCroisement;
-                    bestResult = saveCopy();
-                    end = std::chrono::system_clock::now();
-                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
-                }
-            }
-            else {
-                double randDouble = generateDoubleRand(1.0);
-                if (randDouble >= exp(-improve / t)) {
-                    if (swapped) {
-                        _noeuds[nodeId].swap(oldEmplacement);
-                        recalcNodeCellule(idSwappedNode);
-                    }
-                    else {
-                        _noeuds[nodeId].setEmplacement(oldEmplacement);
-                    }
-                    recalcNodeCellule(nodeId);
-                }
-                else {
-                    nbCroisement += improve;
-                }
-            }
-        }
-        t *= cool;
-        iter++;
-        if (iter%_noeuds.size() == 0) {
-            auto rng = std::default_random_engine {};
-		    std::shuffle(std::begin(shuffledNodeIdVec), std::end(shuffledNodeIdVec), rng);
-        }
-    }
-    loadCopy(bestResult);
-    nombreCroisement = bestCroisement;
-    isNombreCroisementUpdated = true;
-    isNodeScoreUpdated = false;
-    isIntersectionVectorUpdated = false;
-    std::chrono::duration<double> secondsTotal = end - start;
-    timeBest = secondsTotal.count();
-    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de swap: " << compteurSwap << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement: " << compteurDeplacement << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de swap effectue: " << compteurSwapE << std::endl;
-    if (DEBUG_PROGRESS) std::cout << "Nombre de deplacement effectue: " << compteurDeplacementE << std::endl;
-}
-
-// Applique le recuit simulé grid plusieurs fois
-// Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimuleGrid(double &timeBest,int &nombreRecuit, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
-    auto start = std::chrono::system_clock::now();
-    auto end = start;
-    if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
-    int numberOfNoUpgrade = 0;
-    int maxIter = 2;
-    if (iter != -1) { maxIter = iter; }
-    long lastCroisement;
-    if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
-    else { lastCroisement = getNbCroisementConst(); }
-    int i=1;
-    double recuitTimeBest;
-    auto totalEnd = std::chrono::system_clock::now();
-	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
-    while ((numberOfNoUpgrade < maxIter)&&(!RECUIT_LIMIT_3600||secondsTotalExec.count() < 3600)) {
-        if (i>1) { reinitGrille(); }
-        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
-        recuitSimuleGrid(recuitTimeBest, cool, t, seuil, delay, modeNoeud, modeEmplacement, customParam);
-        nombreRecuit++;
-        t *= coolt;
-        if (iter != -1) {
-            numberOfNoUpgrade++;
-        }
-        else {
-            long newCroisement;
-            if (isNombreCroisementUpdated) { newCroisement = nombreCroisement; }
-            else { newCroisement = getNbCroisementConst(); }
-            if (newCroisement == lastCroisement) {
-                numberOfNoUpgrade++;
-            }
-            else {
-                lastCroisement = newCroisement;
-                end = std::chrono::system_clock::now();
-                numberOfNoUpgrade = 0;
-            }
-        }
-        i++;
-        totalEnd = std::chrono::system_clock::now();
-        secondsTotalExec = totalEnd - start;
-    }
-    std::chrono::duration<double> secondsTotal = end - start;
-    timeBest = secondsTotal.count();
 }

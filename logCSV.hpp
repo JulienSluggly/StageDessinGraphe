@@ -162,28 +162,6 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		}
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest);
-		else if (methodeAlgoName == "Rerecuit Simule Grille Best") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,3);
-		else if (methodeAlgoName == "Rerecuit Simule Grille Best TRE") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,4);
-		else if (methodeAlgoName == "Recuit Simule TME") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,3);
-		else if (methodeAlgoName == "Rerecuit Simule TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
-		else if (methodeAlgoName == "Recuit Simule TRE") G.recuitSimule(tempsBest,0.99999, 100.0,0.0001,1,0,4);
-		else if (methodeAlgoName == "Rerecuit Simule TRE") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
-		else if (methodeAlgoName == "Recuit Simule Grille TME") G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001,1,0,3);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Delay") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,10,0,3);
-		else if (methodeAlgoName == "Recuit Simule Grille TRE") G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001,1,0,4);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TRE") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TRE Delay") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,10,0,4);
-		else if (methodeAlgoName == "Recuit Simule TME Custom") G.recuitSimuleCustom(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3, customParam);
-		else if (methodeAlgoName == "Recuit Simule Delay TME Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,-1,0,3,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Delay TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Delay TME") G.rerecuitSimule(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,-1,0,3);
-		else if (methodeAlgoName == "Recuit Simule TRE Custom") G.recuitSimuleCustom(tempsBest,0.99999,100.0,0.0001,1,0,4,customParam);
-		else if (methodeAlgoName == "Recuit Simule Grille TRE Custom") G.recuitSimuleGrid(tempsBest,0.99999, 100.0,0.0001, 1, 0, 4, customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TRE Custom") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule TRE Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule TME Custom") G.rerecuitSimuleCustom(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,3,customParam);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
