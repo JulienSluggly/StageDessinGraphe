@@ -54,18 +54,18 @@ int Graphe::selectionNoeudTournoiMultiple(int n, bool isScoreUpdated) {
 // Selectionne deux emplacements different entre eux et de celui du noeud, puis renvoie le plus proche du noeud.
 // Le noeud doit etre place.
 int Graphe::selectionEmplacementTournoiBinaire(int nodeId) {
-    int randomEmpId = generateRand(_emplacementsPossibles.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
+    int randomEmpId = generateRand(_emplacements.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
     // on retire si on pioche le meme emplacement
     while (_noeuds[nodeId].getEmplacement()->getId() == randomEmpId) {
-        randomEmpId = generateRand(_emplacementsPossibles.size() - 1);
+        randomEmpId = generateRand(_emplacements.size() - 1);
     }
-    int randomEmpId2 = generateRand(_emplacementsPossibles.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
+    int randomEmpId2 = generateRand(_emplacements.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
     // on retire si on pioche le meme emplacement
     while ((_noeuds[nodeId].getEmplacement()->getId() == randomEmpId2)||(randomEmpId2 == randomEmpId)) {
-        randomEmpId2 = generateRand(_emplacementsPossibles.size() - 1);
+        randomEmpId2 = generateRand(_emplacements.size() - 1);
     }
-    double dist1 = ((_emplacementsPossibles[randomEmpId].getX() - _noeuds[nodeId].getX()) * (_emplacementsPossibles[randomEmpId].getX() - _noeuds[nodeId].getX())) + ((_emplacementsPossibles[randomEmpId].getY() - _noeuds[nodeId].getY()) * (_emplacementsPossibles[randomEmpId].getY() - _noeuds[nodeId].getY()));
-    double dist2 = ((_emplacementsPossibles[randomEmpId2].getX() - _noeuds[nodeId].getX()) * (_emplacementsPossibles[randomEmpId2].getX() - _noeuds[nodeId].getX())) + ((_emplacementsPossibles[randomEmpId2].getY() - _noeuds[nodeId].getY()) * (_emplacementsPossibles[randomEmpId2].getY() - _noeuds[nodeId].getY()));
+    double dist1 = ((_emplacements[randomEmpId].getX() - _noeuds[nodeId].getX()) * (_emplacements[randomEmpId].getX() - _noeuds[nodeId].getX())) + ((_emplacements[randomEmpId].getY() - _noeuds[nodeId].getY()) * (_emplacements[randomEmpId].getY() - _noeuds[nodeId].getY()));
+    double dist2 = ((_emplacements[randomEmpId2].getX() - _noeuds[nodeId].getX()) * (_emplacements[randomEmpId2].getX() - _noeuds[nodeId].getX())) + ((_emplacements[randomEmpId2].getY() - _noeuds[nodeId].getY()) * (_emplacements[randomEmpId2].getY() - _noeuds[nodeId].getY()));
     if (dist2 < dist1) {
         randomEmpId = randomEmpId2;
     }
@@ -75,22 +75,22 @@ int Graphe::selectionEmplacementTournoiBinaire(int nodeId) {
 // Selectionne n emplacements different entre eux et de celui du noeud, puis renvoie le plus proche du noeud.
 // Le noeud doit etre place.
 int Graphe::selectionEmplacementTournoiMultiple(int n, int nodeId) {
-    int randomEmpId = generateRand(_emplacementsPossibles.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
+    int randomEmpId = generateRand(_emplacements.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
     // on retire si on pioche le meme emplacement
     while (_noeuds[nodeId].getEmplacement()->getId() == randomEmpId) {
-        randomEmpId = generateRand(_emplacementsPossibles.size() - 1);
+        randomEmpId = generateRand(_emplacements.size() - 1);
     }
     double dist;
     if (n > 1) {
-        dist = ((_emplacementsPossibles[randomEmpId].getX() - _noeuds[nodeId].getX()) * (_emplacementsPossibles[randomEmpId].getX() - _noeuds[nodeId].getX())) + ((_emplacementsPossibles[randomEmpId].getY() - _noeuds[nodeId].getY()) * (_emplacementsPossibles[randomEmpId].getY() - _noeuds[nodeId].getY()));
+        dist = ((_emplacements[randomEmpId].getX() - _noeuds[nodeId].getX()) * (_emplacements[randomEmpId].getX() - _noeuds[nodeId].getX())) + ((_emplacements[randomEmpId].getY() - _noeuds[nodeId].getY()) * (_emplacements[randomEmpId].getY() - _noeuds[nodeId].getY()));
     }
     for (int i = 1; i < n; i++) {
-        int randomEmpId2 = generateRand(_emplacementsPossibles.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
+        int randomEmpId2 = generateRand(_emplacements.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
         // on retire si on pioche le meme emplacement
         while ((_noeuds[nodeId].getEmplacement()->getId() == randomEmpId2)||(randomEmpId2 == randomEmpId)) {
-            randomEmpId2 = generateRand(_emplacementsPossibles.size() - 1);
+            randomEmpId2 = generateRand(_emplacements.size() - 1);
         }
-        double dist2 = ((_emplacementsPossibles[randomEmpId2].getX() - _noeuds[nodeId].getX()) * (_emplacementsPossibles[randomEmpId2].getX() - _noeuds[nodeId].getX())) + ((_emplacementsPossibles[randomEmpId2].getY() - _noeuds[nodeId].getY()) * (_emplacementsPossibles[randomEmpId2].getY() - _noeuds[nodeId].getY()));
+        double dist2 = ((_emplacements[randomEmpId2].getX() - _noeuds[nodeId].getX()) * (_emplacements[randomEmpId2].getX() - _noeuds[nodeId].getX())) + ((_emplacements[randomEmpId2].getY() - _noeuds[nodeId].getY()) * (_emplacements[randomEmpId2].getY() - _noeuds[nodeId].getY()));
         if (dist2 < dist) {
             randomEmpId = randomEmpId2;
             dist = dist2;
@@ -123,7 +123,7 @@ int Graphe::selectionEmplacementTriangulation(int nodeId, int profondeur) {
                 randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
             }
         }
-        arrive = &_emplacementsPossibles[arrive->voisinsDelaunay[randomId]];
+        arrive = &_emplacements[arrive->voisinsDelaunay[randomId]];
     }
     return arrive->_id;
 }
@@ -148,10 +148,10 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
     int slotId;
     switch (modeEmplacement) {
     case 0: {
-        slotId = generateRand(_emplacementsPossibles.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
+        slotId = generateRand(_emplacements.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
         // on retire si on pioche le meme emplacement
         while (_noeuds[nodeId].getEmplacement()->getId() == slotId) {
-            slotId = generateRand(_emplacementsPossibles.size() - 1);
+            slotId = generateRand(_emplacements.size() - 1);
         }
         break;
     }
@@ -201,18 +201,20 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
 
 // Calcule le delay a appliquer lors du recuit si besoin.
 void Graphe::calculDelaiRefroidissement(int& delay, std::vector<double>& customParam, int iter) {
-    if (customParam[0] == 3) {
-        if (customParam[1] == 0) {
-            delay = customParam[2];
-        }
-        else if (customParam[1] == 1) {
-            delay = ceil((double)_noeuds.size() / customParam[2]) + 1;
-        }
-        else if (customParam[1] == 2) {
-            delay = (iter / 100000) + customParam[2];
-        }
-        else if (customParam[1] == 3) {
-            delay = ((1381545-iter) / 100000) + customParam[2];
+    if (customParam.size() > 2) {
+        if (customParam[0] == 3) {
+            if (customParam[1] == 0) {
+                delay = customParam[2];
+            }
+            else if (customParam[1] == 1) {
+                delay = ceil((double)_noeuds.size() / customParam[2]) + 1;
+            }
+            else if (customParam[1] == 2) {
+                delay = (iter / 100000) + customParam[2];
+            }
+            else if (customParam[1] == 3) {
+                delay = ((1381545-iter) / 100000) + customParam[2];
+            }
         }
     }
     else if (delay == -1) {
@@ -235,15 +237,15 @@ long Graphe::calculScoreNodeMethode(int nodeId, int idSwappedNode, bool swapped,
     }
 }
 
-int Graphe::calculImprove(int nodeId,int slotId,bool& swapped,int& idSwappedNode,Emplacement* oldEmplacement,bool useGrille,bool useScore) {
+int Graphe::calculImprove(int nodeId,int slotId,bool& swapped,int& idSwappedNode,Emplacement*& oldEmplacement,bool useGrille,bool useScore) {
     oldEmplacement = _noeuds[nodeId].getEmplacement();
     long scoreNode;
-    if (!_emplacementsPossibles[slotId].estDisponible()) {
+    if (!_emplacements[slotId].estDisponible()) {
         swapped = true;
-        idSwappedNode = _emplacementsPossibles[slotId]._noeud->getId();
+        idSwappedNode = _emplacements[slotId]._noeud->getId();
         scoreNode = calculScoreNodeMethode(nodeId,idSwappedNode,true,useGrille,useScore);
         scoreNode += calculScoreNodeMethode(idSwappedNode,-1,false,useGrille,useScore);
-        _noeuds[nodeId].swap(&_emplacementsPossibles[slotId]);
+        _noeuds[nodeId].swap(&_emplacements[slotId]);
         if (useScore) {
             changeUpdateValue(nodeId);
             changeUpdateValue(idSwappedNode);
@@ -252,7 +254,7 @@ int Graphe::calculImprove(int nodeId,int slotId,bool& swapped,int& idSwappedNode
     }
     else {
         scoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore);
-        _noeuds[nodeId].setEmplacement(&_emplacementsPossibles[slotId]);
+        _noeuds[nodeId].setEmplacement(&_emplacements[slotId]);
         if (useScore) { changeUpdateValue(nodeId); }
     }
     if (useScore) { updateNodeScore(nodeId); }
@@ -319,7 +321,6 @@ void Graphe::recuitSimule(double &timeBest, std::vector<double> customParam, dou
     bool swapped;
     Emplacement* oldEmplacement;
     for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
-        //std::cout << "Iter: " << iter << " t: " << t << " intersections: " << nbCroisement << std::endl;
         calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
         for (int del = 0; del < delay; del++) {
             nodeId = selectionNoeud(modeNoeud, t);
@@ -429,21 +430,21 @@ void Graphe::bestDeplacement() {
     do {
         bestImprove = 0;
         for (int i = 0; i < _noeuds.size(); i++) {
-            for (int j = 0; j < _emplacementsPossibles.size(); j++) {
+            for (int j = 0; j < _emplacements.size(); j++) {
                 if (_noeuds[i].getEmplacement()->getId() != j) {
                     long score, newScore;
                     int swappedId;
                     bool swapped = false;
                     Emplacement* oldEmplacement = _noeuds[i].getEmplacement();
-                    if (_emplacementsPossibles[j].estDisponible()) {
+                    if (_emplacements[j].estDisponible()) {
                         score = getScoreCroisementNode(i);
-                        _noeuds[i].setEmplacement(&_emplacementsPossibles[j]);
+                        _noeuds[i].setEmplacement(&_emplacements[j]);
                     }
                     else {
-                        swappedId = _emplacementsPossibles[j]._noeud->getId();
+                        swappedId = _emplacements[j]._noeud->getId();
                         score = getScoreCroisementNode(i);
                         score += getScoreCroisementNode(swappedId, i);
-                        _noeuds[i].swap(&_emplacementsPossibles[j]);
+                        _noeuds[i].swap(&_emplacements[j]);
                         swapped = true;
                     }
                     if (!swapped) {
@@ -465,11 +466,11 @@ void Graphe::bestDeplacement() {
             }
         }
         if (bestImprove < 0) {
-            if (_emplacementsPossibles[indexEmplacement].estDisponible()) {
-                _noeuds[indexNoeud].setEmplacement(&_emplacementsPossibles[indexEmplacement]);
+            if (_emplacements[indexEmplacement].estDisponible()) {
+                _noeuds[indexNoeud].setEmplacement(&_emplacements[indexEmplacement]);
             }
             else {
-                _noeuds[indexNoeud].swap(&_emplacementsPossibles[indexEmplacement]);
+                _noeuds[indexNoeud].swap(&_emplacements[indexEmplacement]);
             }
             nbIntersection += bestImprove;
         }

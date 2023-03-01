@@ -50,9 +50,9 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph 
 		}
 		G._noeuds[i].ogdfId = nodeTab[i]->index();
 	}
-	for (int i = 0; i < G._liens.size(); i++) {
-		int id1 = G._liens[i].getNoeud1()->getId();
-		int id2 = G._liens[i].getNoeud2()->getId();
+	for (int i = 0; i < G._aretes.size(); i++) {
+		int id1 = G._aretes[i].getNoeud1()->getId();
+		int id2 = G._aretes[i].getNoeud2()->getId();
 		ogdfG.newEdge(nodeTab[id1], nodeTab[id2]);
 	}
 	delete[] nodeTab;
@@ -76,9 +76,9 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GraphAttributes &ogdfGA, ogdf::G
 		}
 		G._noeuds[i].ogdfId = nodeTab[i]->index();
 	}
-	for (int i = 0; i < G._liens.size(); i++) {
-		int id1 = G._liens[i].getNoeud1()->getId();
-		int id2 = G._liens[i].getNoeud2()->getId();
+	for (int i = 0; i < G._aretes.size(); i++) {
+		int id1 = G._aretes[i].getNoeud1()->getId();
+		int id2 = G._aretes[i].getNoeud2()->getId();
 		ogdfG.newEdge(nodeTab[id1], nodeTab[id2]);
 	}
 	delete[] nodeTab;
@@ -134,9 +134,9 @@ int ogdfPlacementAuPlusProche(Graphe& G) {
 		return 1;
 	}
 	int maxX=0, maxY=0;
-	for (int i = 0; i < G._emplacementsPossibles.size(); i++) {
-		if (G._emplacementsPossibles[i].getX() > maxX) { maxX = G._emplacementsPossibles[i].getX();  }
-		if (G._emplacementsPossibles[i].getY() > maxY) { maxY = G._emplacementsPossibles[i].getY();  }
+	for (int i = 0; i < G._emplacements.size(); i++) {
+		if (G._emplacements[i].getX() > maxX) { maxX = G._emplacements[i].getX();  }
+		if (G._emplacements[i].getY() > maxY) { maxY = G._emplacements[i].getY();  }
 	}
 	int ogdfMaxX = 0, ogdfMaxY = 0;
 	int nodeNumber = G._noeuds.size();
@@ -152,9 +152,9 @@ int ogdfPlacementAuPlusProche(Graphe& G) {
 	double ratio2 = (double)ogdfMaxY / (double)maxY;
 	if (ratio2 > ratio) { ratio = ratio2; }
 	if (ratio > 1) {
-		for (int i = 0; i < G._emplacementsPossibles.size(); i++) {
-			G._emplacementsPossibles[i]._x *= ratio;
-			G._emplacementsPossibles[i]._y *= ratio;
+		for (int i = 0; i < G._emplacements.size(); i++) {
+			G._emplacements[i]._x *= ratio;
+			G._emplacements[i]._y *= ratio;
 		}
 	}
 	else {
@@ -168,9 +168,9 @@ int ogdfPlacementAuPlusProche(Graphe& G) {
 		double dist = 9999999;
 		for (int j = 0; j < G._noeuds.size(); j++) {
 			if (!G._noeuds[j].estPlace()) {
-				for (int k = 0; k < G._emplacementsPossibles.size(); k++) {
-					if (G._emplacementsPossibles[k].estDisponible()) {
-						double dist2 = ((G._emplacementsPossibles[k].getX() - ogdfGL.x(nodeTab[j])) * (G._emplacementsPossibles[k].getX() - ogdfGL.x(nodeTab[j]))) + ((G._emplacementsPossibles[k].getY() - ogdfGL.y(nodeTab[j])) * (G._emplacementsPossibles[k].getY() - ogdfGL.y(nodeTab[j])));
+				for (int k = 0; k < G._emplacements.size(); k++) {
+					if (G._emplacements[k].estDisponible()) {
+						double dist2 = ((G._emplacements[k].getX() - ogdfGL.x(nodeTab[j])) * (G._emplacements[k].getX() - ogdfGL.x(nodeTab[j]))) + ((G._emplacements[k].getY() - ogdfGL.y(nodeTab[j])) * (G._emplacements[k].getY() - ogdfGL.y(nodeTab[j])));
 						if (dist2 < dist) {
 							dist = dist2;
 							indexNoeud = j;
@@ -180,7 +180,7 @@ int ogdfPlacementAuPlusProche(Graphe& G) {
 				}
 			}
 		}
-		G._noeuds[indexNoeud].setEmplacement(&G._emplacementsPossibles[indexEmp]);
+		G._noeuds[indexNoeud].setEmplacement(&G._emplacements[indexEmp]);
 	}
 	delete[] nodeTab;
 	return 0;
@@ -195,9 +195,9 @@ void ogdfPlacementAuPlusProcheStress(Graphe& G) {
 	sm.call(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	int maxX=0, maxY=0;
-	for (int i = 0; i < G._emplacementsPossibles.size(); i++) {
-		if (G._emplacementsPossibles[i].getX() > maxX) { maxX = G._emplacementsPossibles[i].getX();  }
-		if (G._emplacementsPossibles[i].getY() > maxY) { maxY = G._emplacementsPossibles[i].getY();  }
+	for (int i = 0; i < G._emplacements.size(); i++) {
+		if (G._emplacements[i].getX() > maxX) { maxX = G._emplacements[i].getX();  }
+		if (G._emplacements[i].getY() > maxY) { maxY = G._emplacements[i].getY();  }
 	}
 	int ogdfMaxX = 0, ogdfMaxY = 0;
 	int nodeNumber = G._noeuds.size();
@@ -213,9 +213,9 @@ void ogdfPlacementAuPlusProcheStress(Graphe& G) {
 	double ratio2 = (double)ogdfMaxY / (double)maxY;
 	if (ratio2 > ratio) { ratio = ratio2; }
 	if (ratio > 1) {
-		for (int i = 0; i < G._emplacementsPossibles.size(); i++) {
-			G._emplacementsPossibles[i]._x *= ratio;
-			G._emplacementsPossibles[i]._y *= ratio;
+		for (int i = 0; i < G._emplacements.size(); i++) {
+			G._emplacements[i]._x *= ratio;
+			G._emplacements[i]._y *= ratio;
 		}
 		G.gridWidth *= ratio;
 		G.gridHeight *= ratio;
@@ -232,9 +232,9 @@ void ogdfPlacementAuPlusProcheStress(Graphe& G) {
 		long long dist = LONG_LONG_MAX;
 		for (int j = 0; j < G._noeuds.size(); j++) {
 			if (!G._noeuds[j].estPlace()) {
-				for (int k = 0; k < G._emplacementsPossibles.size(); k++) {
-					if (G._emplacementsPossibles[k].estDisponible()) {
-						long long dist2 = ((G._emplacementsPossibles[k].getX() - ogdfGA.x(nodeTab[j])) * (G._emplacementsPossibles[k].getX() - ogdfGA.x(nodeTab[j]))) + ((G._emplacementsPossibles[k].getY() - ogdfGA.y(nodeTab[j])) * (G._emplacementsPossibles[k].getY() - ogdfGA.y(nodeTab[j])));
+				for (int k = 0; k < G._emplacements.size(); k++) {
+					if (G._emplacements[k].estDisponible()) {
+						long long dist2 = ((G._emplacements[k].getX() - ogdfGA.x(nodeTab[j])) * (G._emplacements[k].getX() - ogdfGA.x(nodeTab[j]))) + ((G._emplacements[k].getY() - ogdfGA.y(nodeTab[j])) * (G._emplacements[k].getY() - ogdfGA.y(nodeTab[j])));
 						if (dist2 < dist) {
 							dist = dist2;
 							indexNoeud = j;
@@ -244,7 +244,7 @@ void ogdfPlacementAuPlusProcheStress(Graphe& G) {
 				}
 			}
 		}
-		G._noeuds[indexNoeud].setEmplacement(&G._emplacementsPossibles[indexEmp]);
+		G._noeuds[indexNoeud].setEmplacement(&G._emplacements[indexEmp]);
 	}
 	delete[] nodeTab;
 }
@@ -258,20 +258,20 @@ int ogdfReverse(Graphe &G) {
 		return 1;
 	}
 	G.clearNodeEmplacement();
-	G._emplacementsPossibles.clear();
+	G._emplacements.clear();
 	G.gridHeight = 10;
 	G.gridWidth = 10;
 	int i = 0;
 	for (auto n : ogdfG.nodes) {
 		int x = ogdfGL.x(n);
 		int y = ogdfGL.y(n);
-		G._emplacementsPossibles.push_back(Emplacement(x,y,i));
+		G._emplacements.push_back(Emplacement(x,y,i));
 		if (x > G.gridWidth) { G.gridWidth = x; }
 		if (y > G.gridHeight) { G.gridHeight = y; }
 		i++;
 	}
 	for (int i=0;i<G._noeuds.size();i++) {
-		G._noeuds[i].setEmplacement(&G._emplacementsPossibles[i]);
+		G._noeuds[i].setEmplacement(&G._emplacements[i]);
 	}
 	return 0;
 }
@@ -285,26 +285,26 @@ void ogdfRescaleOgdfG(ogdf::Graph& ogdfG, ogdf::GraphAttributes& ogdfGA, int sca
 
 void ogdfReverseAndPlace(Graphe &G, ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG) {
 	G.clearNodeEmplacement();
-	G._emplacementsPossibles.clear();
+	G._emplacements.clear();
 	G.gridHeight = 10;
 	G.gridWidth = 10;
 	int i = 0;
 	for (auto n : ogdfG.nodes) {
 		int x = ogdfGA.x(n);
 		int y = ogdfGA.y(n);
-		G._emplacementsPossibles.push_back(Emplacement(x,y,i));
+		G._emplacements.push_back(Emplacement(x,y,i));
 		if (x > G.gridWidth) { G.gridWidth = x; }
 		if (y > G.gridHeight) { G.gridHeight = y; }
 		i++;
 	}
 	for (int i=0;i<G._noeuds.size();i++) {
-		G._noeuds[i].setEmplacement(&G._emplacementsPossibles[i]);
+		G._noeuds[i].setEmplacement(&G._emplacements[i]);
 	}
 }
 
 void ogdfReverseNonPlanar(Graphe &G) {
 	G.clearNodeEmplacement();
-	G._emplacementsPossibles.clear();
+	G._emplacements.clear();
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
 	createOGDFGraphFromGraphe(G, ogdfGA, ogdfG);
@@ -319,19 +319,17 @@ void ogdfReverseNonPlanar(Graphe &G) {
 
 	std::cout << "OGDF number of crossings: " << pl.numberOfCrossings() << std::endl;
 
-	G.clearNodeEmplacement();
-	G._emplacementsPossibles.clear();
 	int i=0;
 	for (ogdf::node& n : ogdfG.nodes) {
 		int x = ogdfGA.x(n);
 		int y = ogdfGA.y(n);
-		G._emplacementsPossibles.push_back(Emplacement(x,y,i));
+		G._emplacements.push_back(Emplacement(x,y,i));
 		if (x > G.gridWidth) { G.gridWidth = x; }
 		if (y > G.gridHeight) { G.gridHeight = y; }
 		i++;
 	}
 	for (int i=0;i<G._noeuds.size();i++) {
-		G._noeuds[i].setEmplacement(&G._emplacementsPossibles[i]);
+		G._noeuds[i].setEmplacement(&G._emplacements[i]);
 	}
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }

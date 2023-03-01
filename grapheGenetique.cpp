@@ -143,10 +143,10 @@ bool Graphe::croisementVoisinageScore(Graphe& originalGraphe1, Graphe& originalG
         }
 
         int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
-        _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+        _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
         if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
             --nbNoeudATraiter;
-            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
             nodeToUpdate[numberOfNodeToUpdate] = bestNodeId;
             numberOfNodeToUpdate++;
             otherGraphe->changeUpdateValue(bestNodeId);
@@ -168,10 +168,10 @@ bool Graphe::croisementVoisinageScore(Graphe& originalGraphe1, Graphe& originalG
                 else {
                     bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
                 }
-                _noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+                _noeuds[idNodeVoisin].setEmplacement(&_emplacements[bestEmplacementId]);
                 if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
                     --nbNoeudATraiter;
-                    int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+                    int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
                     nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
                     numberOfNodeToUpdate++;
                     otherGraphe->changeUpdateValue(idNodeVoisin);
@@ -216,8 +216,8 @@ bool Graphe::croisementVoisinageScore(Graphe& originalGraphe1, Graphe& originalG
     }
     nombreCroisement = otherGraphe->nombreCroisement;
     _noeuds.swap(graphe1._noeuds);
-    _liens.swap(graphe1._liens);
-    _emplacementsPossibles.swap(graphe1._emplacementsPossibles);
+    _aretes.swap(graphe1._aretes);
+    _emplacements.swap(graphe1._emplacements);
     isNombreCroisementUpdated = true;
     isNodeScoreUpdated = true;
     isIntersectionVectorUpdated = true;
@@ -263,10 +263,10 @@ void Graphe::stepCroisementVoisinageScore(Graphe& graphe1, Graphe& graphe2, bool
     }
 
     int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
-    _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+    _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
     if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
         --nbNoeudATraiter;
-        int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+        int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
         nodeToUpdate[numberOfNodeToUpdate] = bestNodeId;
         numberOfNodeToUpdate++;
         otherGraphe->changeUpdateValue(bestNodeId);
@@ -288,10 +288,10 @@ void Graphe::stepCroisementVoisinageScore(Graphe& graphe1, Graphe& graphe2, bool
             else {
                 bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
             }
-            _noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+            _noeuds[idNodeVoisin].setEmplacement(&_emplacements[bestEmplacementId]);
             if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
                 --nbNoeudATraiter;
-                int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+                int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
                 nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
                 numberOfNodeToUpdate++;
                 otherGraphe->changeUpdateValue(idNodeVoisin);
@@ -393,10 +393,10 @@ bool Graphe::croisementBestOfBoth(Graphe& originalGraphe1, Graphe& originalGraph
         }
 
         int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
-        _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+        _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
         if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
             --nbNoeudATraiter;
-            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
             nodeToUpdate[numberOfNodeToUpdate] = bestNodeId;
             numberOfNodeToUpdate++;
             otherGraphe->changeUpdateValue(bestNodeId);
@@ -418,10 +418,10 @@ bool Graphe::croisementBestOfBoth(Graphe& originalGraphe1, Graphe& originalGraph
                 else {
                     bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
                 }
-                _noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+                _noeuds[idNodeVoisin].setEmplacement(&_emplacements[bestEmplacementId]);
                 if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
                     --nbNoeudATraiter;
-                    int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+                    int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
                     nodeToUpdate[numberOfNodeToUpdate] = idNodeVoisin;
                     numberOfNodeToUpdate++;
                     otherGraphe->changeUpdateValue(idNodeVoisin);
@@ -454,8 +454,8 @@ bool Graphe::croisementBestOfBoth(Graphe& originalGraphe1, Graphe& originalGraph
     }
     nombreCroisement = otherGraphe->nombreCroisement;
     _noeuds.swap(graphe1._noeuds);
-    _liens.swap(graphe1._liens);
-    _emplacementsPossibles.swap(graphe1._emplacementsPossibles);
+    _aretes.swap(graphe1._aretes);
+    _emplacements.swap(graphe1._emplacements);
     isNombreCroisementUpdated = true;
     isNodeScoreUpdated = true;
     isIntersectionVectorUpdated = true;
@@ -486,8 +486,8 @@ bool Graphe::croisementHalfParent(Graphe& graphe1, Graphe& graphe2, std::vector<
         int meilleurScore;
         int nbRencontre = 0;
         for (int i = startVec; i < endVec; ++i) { // Recherche du meilleur noeud du coté du graphe choisi
-            if (currentGraphe->_emplacementsPossibles[sortedEmpId[i]]._noeud != nullptr) {
-                int idNode = currentGraphe->_emplacementsPossibles[sortedEmpId[i]]._noeud->getId();
+            if (currentGraphe->_emplacements[sortedEmpId[i]]._noeud != nullptr) {
+                int idNode = currentGraphe->_emplacements[sortedEmpId[i]]._noeud->getId();
                 if (!_noeuds[idNode].estPlace()) {
                     int nodeScore = currentGraphe->getScoreCroisementNode(idNode);
                     if (meilleurNoeud == nullptr || meilleurScore < nodeScore) {
@@ -507,10 +507,10 @@ bool Graphe::croisementHalfParent(Graphe& graphe1, Graphe& graphe2, std::vector<
 
         if (meilleurNoeud != nullptr) {
             int meilleurEmplacement = meilleurNoeud->getEmplacement()->getId();
-            _noeuds[meilleurNoeud->getId()].setEmplacement(&_emplacementsPossibles[meilleurEmplacement]);
+            _noeuds[meilleurNoeud->getId()].setEmplacement(&_emplacements[meilleurEmplacement]);
             if (!graphe1._noeuds[meilleurNoeud->getId()].compare(&graphe2._noeuds[meilleurNoeud->getId()])) {
                 --nbNoeudATraiter;
-                otherGraphe->_noeuds[meilleurNoeud->getId()].ecraseNoeud(otherGraphe->_emplacementsPossibles[meilleurEmplacement]);
+                otherGraphe->_noeuds[meilleurNoeud->getId()].ecraseNoeud(otherGraphe->_emplacements[meilleurEmplacement]);
             }
             //Place tout les voisins du point choisis
             for (Noeud* noeudVoisin : meilleurNoeud->getVoisins()) {
@@ -521,13 +521,13 @@ bool Graphe::croisementHalfParent(Graphe& graphe1, Graphe& graphe2, std::vector<
                     else {
                         meilleurEmplacement = noeudVoisin->getEmplacement()->getId();
                     }
-                    _noeuds[noeudVoisin->getId()].setEmplacement(&_emplacementsPossibles[meilleurEmplacement]);
+                    _noeuds[noeudVoisin->getId()].setEmplacement(&_emplacements[meilleurEmplacement]);
                     Noeud* noeudGraphe1 = &graphe1._noeuds[noeudVoisin->getId()];
                     Noeud* noeudGraphe2 = &graphe2._noeuds[noeudVoisin->getId()];
                     if (noeudGraphe1->estPlace() && noeudGraphe2->estPlace()) {
                         if (!noeudGraphe1->compare(noeudGraphe2)) {
                             --nbNoeudATraiter;
-                            otherGraphe->_noeuds[noeudVoisin->getId()].ecraseNoeud(graphe1._emplacementsPossibles[meilleurEmplacement]);
+                            otherGraphe->_noeuds[noeudVoisin->getId()].ecraseNoeud(graphe1._emplacements[meilleurEmplacement]);
                         }
                     }
                     else {
@@ -571,8 +571,8 @@ bool Graphe::croisementHalfParent(Graphe& graphe1, Graphe& graphe2, std::vector<
     }
 
     _noeuds.swap(graphe1._noeuds);
-    _liens.swap(graphe1._liens);
-    _emplacementsPossibles.swap(graphe1._emplacementsPossibles);
+    _aretes.swap(graphe1._aretes);
+    _emplacements.swap(graphe1._emplacements);
     graphe1.loadCopy(saveGraphe1);
     graphe2.loadCopy(saveGraphe2);
     isNombreCroisementUpdated = false;
@@ -604,10 +604,10 @@ bool Graphe::croisementAleatoire(Graphe& graphe1, Graphe& graphe2, bool useRand)
         }
 
         int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
-        _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+        _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
         if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
             --nbNoeudATraiter;
-            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
             if (oldNodeId != -1) {
                 if (useRand) {
                     otherGraphe->completePlacementAleatoire();
@@ -635,8 +635,8 @@ bool Graphe::croisementAleatoire(Graphe& graphe1, Graphe& graphe2, bool useRand)
     }
 
     _noeuds.swap(graphe1._noeuds);
-    _liens.swap(graphe1._liens);
-    _emplacementsPossibles.swap(graphe1._emplacementsPossibles);
+    _aretes.swap(graphe1._aretes);
+    _emplacements.swap(graphe1._emplacements);
     graphe1.loadCopy(saveGraphe1);
     graphe2.loadCopy(saveGraphe2);
     isNombreCroisementUpdated = false;
@@ -660,9 +660,9 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
     }
     std::vector<int> activeEdges; // Contient les id des aretes actives chez l'enfant
     for (int i=0;i<commonNodeVec.size();i++) { // On place les noeuds communs et on active les aretes placées
-        _noeuds[commonNodeVec[i]].setEmplacement(&_emplacementsPossibles[originalGraphe1._noeuds[commonNodeVec[i]].getEmplacement()->_id]);
+        _noeuds[commonNodeVec[i]].setEmplacement(&_emplacements[originalGraphe1._noeuds[commonNodeVec[i]].getEmplacement()->_id]);
         for (const int& areteId : _noeuds[commonNodeVec[i]]._aretes) {
-            if (_liens[areteId].estPlace()) {
+            if (_aretes[areteId].estPlace()) {
                 activeEdges.push_back(areteId);
             }
         }
@@ -685,10 +685,10 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
         int nbRencontre = 0;
         for (int i=0;i<nbNoeudATraiter;i++) {
             if (currentGraphe->_noeuds[otherNodeVec[i]].estPlace()) {
-                if (_emplacementsPossibles[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
+                if (_emplacements[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
                     int nodeNbVoisinsPlace = 0;
                     for (const int& areteId : _noeuds[otherNodeVec[i]]._aretes) {
-                        if (_liens[areteId].unPlace()) { nodeNbVoisinsPlace++; }
+                        if (_aretes[areteId].unPlace()) { nodeNbVoisinsPlace++; }
                     }
                     int nodeNbVoisins = _noeuds[otherNodeVec[i]]._aretes.size();
                     if (nodeNbVoisinsPlace > bestNbVoisinsPlace) {
@@ -728,15 +728,15 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
         }
         if (bestNodeId != -1) {
             int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
-            _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+            _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
             for (const int& areteId : _noeuds[bestNodeId]._aretes) {
-                if (_liens[areteId].estPlace())
+                if (_aretes[areteId].estPlace())
                     activeEdges.push_back(areteId);
             }
             --nbNoeudATraiter;
             otherNodeVec[bestNodeIndexInVec] = otherNodeVec[nbNoeudATraiter];
             indexNodeInOtherVec[otherNodeVec[bestNodeIndexInVec]] = bestNodeIndexInVec;
-            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
             if (oldNodeId != -1) {
                 if (!areVoisin(bestNodeId,oldNodeId)) {
                     if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
@@ -753,15 +753,15 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
                 if (!_noeuds[idNodeVoisin].estPlace()) {
                     if (currentGraphe->_noeuds[idNodeVoisin].estPlace()) {
                         bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
-                        _noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+                        _noeuds[idNodeVoisin].setEmplacement(&_emplacements[bestEmplacementId]);
                         for (const int& areteId : _noeuds[idNodeVoisin]._aretes) {
-                            if (_liens[areteId].estPlace())
+                            if (_aretes[areteId].estPlace())
                                 activeEdges.push_back(areteId);
                         }
                         --nbNoeudATraiter;
                         otherNodeVec[indexNodeInOtherVec[idNodeVoisin]] = otherNodeVec[nbNoeudATraiter];
                         indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[idNodeVoisin];
-                        int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+                        int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
                         if (oldNodeId != -1) {
                             if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
                                 nodeToRelocate.push_back(oldNodeId);
@@ -846,10 +846,10 @@ bool Graphe::croisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool useR
             }
         }
         int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
-        _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+        _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
         if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
             --nbNoeudATraiter;
-            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
             if (oldNodeId != -1) {
                 if (!areVoisin(bestNodeId,oldNodeId)) {
                     nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
@@ -867,10 +867,10 @@ bool Graphe::croisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool useR
                 else {
                     bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
                 }
-                _noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+                _noeuds[idNodeVoisin].setEmplacement(&_emplacements[bestEmplacementId]);
                 if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
                     --nbNoeudATraiter;
-                    int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+                    int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
                     if (oldNodeId != -1) {
                         if (!areVoisin(bestNodeId,oldNodeId)) {
                             nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
@@ -886,7 +886,7 @@ bool Graphe::croisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool useR
         else {
             otherGraphe->completeBasicGlouton();
         }
-        //Si les lieux coincident les noeuds ne sont plus à traitercurrentGraphe->_noeuds[idNodeVoisin].ecraseNoeud(currentGraphe->_emplacementsPossibles[bestEmplacementId]);
+        //Si les lieux coincident les noeuds ne sont plus à traitercurrentGraphe->_noeuds[idNodeVoisin].ecraseNoeud(currentGraphe->_emplacements[bestEmplacementId]);
         for (int i = 0; i < numberOfNodeToRelocate; ++i) {
             if (graphe1._noeuds[nodeToRelocate[i]].compare(&graphe2._noeuds[nodeToRelocate[i]])) {
                 --nbNoeudATraiter;
@@ -907,8 +907,8 @@ bool Graphe::croisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool useR
         }
     }
     _noeuds.swap(graphe1._noeuds);
-    _liens.swap(graphe1._liens);
-    _emplacementsPossibles.swap(graphe1._emplacementsPossibles);
+    _aretes.swap(graphe1._aretes);
+    _emplacements.swap(graphe1._emplacements);
     graphe1.loadCopy(saveGraphe1);
     graphe2.loadCopy(saveGraphe2);
     isNombreCroisementUpdated = false;
@@ -955,10 +955,10 @@ void Graphe::stepCroisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool 
     }
 
     bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
-    _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+    _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
     if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
         --nbNoeudATraiter;
-        int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+        int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
         if (oldNodeId != -1) {
             if (!areVoisin(bestNodeId,oldNodeId)) {
                 nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
@@ -976,10 +976,10 @@ void Graphe::stepCroisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool 
             else {
                 bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
             }
-            _noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+            _noeuds[idNodeVoisin].setEmplacement(&_emplacements[bestEmplacementId]);
             if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
                 --nbNoeudATraiter;
-                int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+                int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
                 if (oldNodeId != -1) {
                     if (!areVoisin(bestNodeId,oldNodeId)) {
                         nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
@@ -1027,9 +1027,9 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
     }
     clearGrille();
     for (int i=0;i<commonNodeVec.size();i++) { // On place les noeuds communs et on active les aretes placées
-        _noeuds[commonNodeVec[i]].setEmplacement(&_emplacementsPossibles[originalGraphe1._noeuds[commonNodeVec[i]].getEmplacement()->_id]);
+        _noeuds[commonNodeVec[i]].setEmplacement(&_emplacements[originalGraphe1._noeuds[commonNodeVec[i]].getEmplacement()->_id]);
         for (const int& areteId : _noeuds[commonNodeVec[i]]._aretes) {
-            if (_liens[areteId].estPlace()) {
+            if (_aretes[areteId].estPlace()) {
                 initAreteCellule(areteId);
             }
         }
@@ -1051,10 +1051,10 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
         int nbRencontre = 0;
         for (int i=0;i<nbNoeudATraiter;i++) {
             if (currentGraphe->_noeuds[otherNodeVec[i]].estPlace()) {
-                if (_emplacementsPossibles[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
+                if (_emplacements[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
                     int nodeNbVoisinsPlace = 0;
                     for (const int& areteId : _noeuds[otherNodeVec[i]]._aretes) {
-                        if (_liens[areteId].unPlace()) { nodeNbVoisinsPlace++; }
+                        if (_aretes[areteId].unPlace()) { nodeNbVoisinsPlace++; }
                     }
                     int nodeNbVoisins = _noeuds[otherNodeVec[i]]._aretes.size();
                     if (nodeNbVoisinsPlace > bestNbVoisinsPlace) {
@@ -1094,16 +1094,16 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
         }
         if (bestNodeId != -1) {
             int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
-            _noeuds[bestNodeId].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+            _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
             for (const int& areteId : _noeuds[bestNodeId]._aretes) {
-                if (_liens[areteId].estPlace()) {
+                if (_aretes[areteId].estPlace()) {
                     initAreteCellule(areteId);
                 }
             }
             --nbNoeudATraiter;
             otherNodeVec[bestNodeIndexInVec] = otherNodeVec[nbNoeudATraiter];
             indexNodeInOtherVec[otherNodeVec[bestNodeIndexInVec]] = bestNodeIndexInVec;
-            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
             if (oldNodeId != -1) {
                 if (!areVoisin(bestNodeId,oldNodeId)) {
                     if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
@@ -1120,16 +1120,16 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
                 if (!_noeuds[idNodeVoisin].estPlace()) {
                     if (currentGraphe->_noeuds[idNodeVoisin].estPlace()) {
                         bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
-                        _noeuds[idNodeVoisin].setEmplacement(&_emplacementsPossibles[bestEmplacementId]);
+                        _noeuds[idNodeVoisin].setEmplacement(&_emplacements[bestEmplacementId]);
                         for (const int& areteId : _noeuds[idNodeVoisin]._aretes) {
-                            if (_liens[areteId].estPlace()) {
+                            if (_aretes[areteId].estPlace()) {
                                 initAreteCellule(areteId);
                             }
                         }
                         --nbNoeudATraiter;
                         otherNodeVec[indexNodeInOtherVec[idNodeVoisin]] = otherNodeVec[nbNoeudATraiter];
                         indexNodeInOtherVec[otherNodeVec[nbNoeudATraiter]] = indexNodeInOtherVec[idNodeVoisin];
-                        int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacementsPossibles[bestEmplacementId]);
+                        int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
                         if (oldNodeId != -1) {
                             if (!currentGraphe->_noeuds[oldNodeId].estPlace()) {
                                 nodeToRelocate.push_back(oldNodeId);

@@ -15,9 +15,9 @@ void Graphe::clearNodeEmplacement() {
         _noeuds[i].clearEmplacement();
         _noeuds[i].score = -1;
     }
-    for (int i = 0;i < _liens.size();i++) {
-        _liens[i].clearIntersectionsVector();
-        _liens[i].vecIdCellules.clear();
+    for (int i = 0;i < _aretes.size();i++) {
+        _aretes[i].clearIntersectionsVector();
+        _aretes[i].vecIdCellules.clear();
     }
     nombreCroisement = -1;
     isNombreCroisementUpdated = false;
@@ -27,28 +27,28 @@ void Graphe::clearNodeEmplacement() {
 
 // Indique si le graphe contient une intersection illegale.
 bool Graphe::hasIllegalCrossing() {
-    for (int i = 0; i < _liens.size() - 1; ++i) {
-        for (int j = i + 1; j < _liens.size(); ++j) {
-            //Aretes aretes1 = _liens[i], aretes2 = _liens[j];
-            if (!(_liens[i].contains(_liens[j].getNoeud1()) || _liens[i].contains(_liens[j].getNoeud2()))) {
+    for (int i = 0; i < _aretes.size() - 1; ++i) {
+        for (int j = i + 1; j < _aretes.size(); ++j) {
+            //Aretes aretes1 = _aretes[i], aretes2 = _aretes[j];
+            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
                 bool isIllegal = false;
-                if (seCroisent(_liens[i], _liens[j],isIllegal)) {
-                    if (surSegment(_liens[i], *_liens[j].getNoeud1()) || surSegment(_liens[i], *_liens[j].getNoeud2())) {
+                if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
+                    if (surSegment(_aretes[i], *_aretes[j].getNoeud1()) || surSegment(_aretes[i], *_aretes[j].getNoeud2())) {
                         return true;
                     }
-                    else if (surSegment(_liens[j], *_liens[i].getNoeud1()) || surSegment(_liens[j], *_liens[i].getNoeud2())) {
+                    else if (surSegment(_aretes[j], *_aretes[i].getNoeud1()) || surSegment(_aretes[j], *_aretes[i].getNoeud2())) {
                         return true;
                     }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _liens[j].nodeNotInCommon(&_liens[i]);
-                if (surSegment(_liens[i], *nodeNotInCommon)) {
+                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                if (surSegment(_aretes[i], *nodeNotInCommon)) {
                     return true;
                 }
                 else {
-                    nodeNotInCommon = _liens[i].nodeNotInCommon(&_liens[j]);
-                    if (surSegment(_liens[j], *nodeNotInCommon)) {
+                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
                         return true;
                     }
                 }
@@ -60,8 +60,8 @@ bool Graphe::hasIllegalCrossing() {
 
 // Indique s'il reste au moin un emplacement disponible
 bool Graphe::emplacementRestant() {
-    for (int i=0;i<_emplacementsPossibles.size();i++) {
-        if (_emplacementsPossibles[i].estDisponible()) {
+    for (int i=0;i<_emplacements.size();i++) {
+        if (_emplacements[i].estDisponible()) {
             return true;
         }
     }
@@ -88,19 +88,19 @@ int Graphe::nbAPlace() {
 // Ajoute (n-1)*_emplacements.size emplacements dans le graphe si possible
 void Graphe::generateMoreEmplacement(int n) {
     int nbTotal = gridWidth * gridHeight;
-    if (n * _emplacementsPossibles.size() > nbTotal) {
-        if (DEBUG_GRAPHE) std::cout << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacementsPossibles.size() << std::endl;
+    if (n * _emplacements.size() > nbTotal) {
+        if (DEBUG_GRAPHE) std::cout << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacements.size() << std::endl;
     }
     else {
-        int nbAjout = (n - 1) * _emplacementsPossibles.size();
+        int nbAjout = (n - 1) * _emplacements.size();
         std::vector<std::vector<bool>> marque;
         for (int i = 0; i <= gridHeight; i++) {
             std::vector<bool> tmpVec(gridWidth + 1);
             marque.push_back(tmpVec);
         }
-        for (int i = 0; i < _emplacementsPossibles.size(); i++) {
-            int x = _emplacementsPossibles[i].getX();
-            int y = _emplacementsPossibles[i].getY();
+        for (int i = 0; i < _emplacements.size(); i++) {
+            int x = _emplacements[i].getX();
+            int y = _emplacements[i].getY();
             marque[y][x] = true;
         }
         int x, y;
@@ -110,7 +110,7 @@ void Graphe::generateMoreEmplacement(int n) {
                 y = generateRand(gridHeight);
             } while (marque[y][x]);
             marque[y][x] = true;
-            _emplacementsPossibles.push_back(Emplacement(x,y,_emplacementsPossibles.size()));
+            _emplacements.push_back(Emplacement(x,y,_emplacements.size()));
         }
     }
 }
@@ -118,14 +118,14 @@ void Graphe::generateMoreEmplacement(int n) {
 // Creer la grille d'emplacement de taille gridHeight*gridWidth
 void Graphe::generateGrid(int gridW, int gridH) {
     clearNodeEmplacement();
-    _emplacementsPossibles.clear();
+    _emplacements.clear();
     if (gridW == -1 || gridH == -1) {
         gridW = _noeuds.size()*2;
         gridH = gridW;
     }
     for (int i=0;i<gridH;i++) {
         for (int j=0;j<gridW;j++) {
-            _emplacementsPossibles.push_back(Emplacement(i,j,_emplacementsPossibles.size()));
+            _emplacements.push_back(Emplacement(i,j,_emplacements.size()));
         }
     }
     gridWidth = gridW;
@@ -143,8 +143,8 @@ void Graphe::generateEmplacements(int n) {
     }
     else {
         int nbTotal = gridWidth * gridHeight;
-        if (n + _emplacementsPossibles.size() > nbTotal) {
-            if (DEBUG_GRAPHE) std::cout << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacementsPossibles.size() << std::endl;
+        if (n + _emplacements.size() > nbTotal) {
+            if (DEBUG_GRAPHE) std::cout << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacements.size() << std::endl;
             return;
         }
     }
@@ -154,9 +154,9 @@ void Graphe::generateEmplacements(int n) {
         std::vector<bool> tmpVec(gridWidth + 1);
         marque.push_back(tmpVec);
     }
-    for (int i = 0; i < _emplacementsPossibles.size(); i++) {
-        int x = _emplacementsPossibles[i].getX();
-        int y = _emplacementsPossibles[i].getY();
+    for (int i = 0; i < _emplacements.size(); i++) {
+        int x = _emplacements[i].getX();
+        int y = _emplacements[i].getY();
         marque[y][x] = true;
     }
     int x, y;
@@ -166,7 +166,7 @@ void Graphe::generateEmplacements(int n) {
             y = generateRand(gridHeight);
         } while (marque[y][x]);
         marque[y][x] = true;
-        _emplacementsPossibles.push_back(Emplacement(x,y,_emplacementsPossibles.size()));
+        _emplacements.push_back(Emplacement(x,y,_emplacements.size()));
     }
 
 }
@@ -188,15 +188,15 @@ void Graphe::loadCopy(std::vector<int> vectorId) {
         _noeuds[i].clearEmplacement();
     }
     for (int i = 0; i < _noeuds.size(); i++) {
-        _noeuds[i].setEmplacement(&_emplacementsPossibles[vectorId[i]]);
+        _noeuds[i].setEmplacement(&_emplacements[vectorId[i]]);
     }
 }
 
 // Vide tout les vecteurs du graphe
 void Graphe::clearGraphe() {
     _noeuds.clear();
-    _emplacementsPossibles.clear();
-    _liens.clear();
+    _emplacements.clear();
+    _aretes.clear();
     grille.clear();
     isNodeScoreUpdated = false;
     isNombreCroisementUpdated = false;
@@ -208,11 +208,11 @@ void Graphe::clearGraphe() {
 
 // Vide les vecteurs du graphe et effectue une copie du contenu des vecteur du graphe en parametre
 void Graphe::copyFromGraphe(Graphe& graphe) {
-    _emplacementsPossibles.clear();
+    _emplacements.clear();
     _noeuds.clear();
-    _liens.clear();
-    for (int i = 0; i < graphe._emplacementsPossibles.size(); ++i) {
-        _emplacementsPossibles.push_back(Emplacement(graphe._emplacementsPossibles[i].getX(),graphe._emplacementsPossibles[i].getY(),i));
+    _aretes.clear();
+    for (int i = 0; i < graphe._emplacements.size(); ++i) {
+        _emplacements.push_back(Emplacement(graphe._emplacements[i].getX(),graphe._emplacements[i].getY(),i));
     }
     for (int i = 0; i < graphe._noeuds.size(); ++i) {
         _noeuds.push_back(Noeud(i));
@@ -221,21 +221,21 @@ void Graphe::copyFromGraphe(Graphe& graphe) {
         _noeuds[i].score = graphe._noeuds[i].score;
     }
 
-    for (int i = 0; i < graphe._liens.size(); ++i) {
-        int id1 = graphe._liens[i].getNoeud1()->getId();
-        int id2 = graphe._liens[i].getNoeud2()->getId();
-        _liens.push_back(Aretes(&_noeuds[id1], &_noeuds[id2], i));
+    for (int i = 0; i < graphe._aretes.size(); ++i) {
+        int id1 = graphe._aretes[i].getNoeud1()->getId();
+        int id2 = graphe._aretes[i].getNoeud2()->getId();
+        _aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2], i));
     }
-    for (int i = 0; i < graphe._liens.size(); ++i) {
-        _liens[i].intersections = graphe._liens[i].intersections;
-        _liens[i].intersectionsIll = graphe._liens[i].intersectionsIll;
-        _liens[i].intersectionsIllSelf = graphe._liens[i].intersectionsIllSelf;
-        _liens[i].isUpdated = graphe._liens[i].isUpdated;
+    for (int i = 0; i < graphe._aretes.size(); ++i) {
+        _aretes[i].intersections = graphe._aretes[i].intersections;
+        _aretes[i].intersectionsIll = graphe._aretes[i].intersectionsIll;
+        _aretes[i].intersectionsIllSelf = graphe._aretes[i].intersectionsIllSelf;
+        _aretes[i].isUpdated = graphe._aretes[i].isUpdated;
     }
     for (int i = 0; i < graphe._noeuds.size(); ++i) {
         if (graphe._noeuds[i].getEmplacement() != nullptr) {
             int idEmplacement = graphe._noeuds[i].getEmplacement()->getId();
-            _noeuds[i].setEmplacement(&_emplacementsPossibles[idEmplacement]);
+            _noeuds[i].setEmplacement(&_emplacements[idEmplacement]);
         }
     }
     nombreCroisement = graphe.nombreCroisement;
@@ -255,7 +255,7 @@ void Graphe::copyNodesFromGraphe(Graphe& graphe) {
     for (int i = 0; i < graphe._noeuds.size(); ++i) {
         if (graphe._noeuds[i].getEmplacement() != nullptr) {
             int idEmplacement = graphe._noeuds[i].getEmplacement()->getId();
-            _noeuds[i].setEmplacement(&_emplacementsPossibles[idEmplacement]);
+            _noeuds[i].setEmplacement(&_emplacements[idEmplacement]);
         }
     }
     nombreCroisement = graphe.nombreCroisement;
@@ -268,25 +268,25 @@ void Graphe::copyGrilleFromGraphe(Graphe& graphe) {
     for (int i=0;i<graphe.grillePtr.size();i++) {
         grillePtr[i]->vecAreteId = graphe.grillePtr[i]->vecAreteId;
     }
-    for (int i=0;i<graphe._liens.size();i++) {
-        _liens[i].vecIdCellules = graphe._liens[i].vecIdCellules;
+    for (int i=0;i<graphe._aretes.size();i++) {
+        _aretes[i].vecIdCellules = graphe._aretes[i].vecIdCellules;
     }
 }
 
 void Graphe::copyFromGrapheGenetique(Graphe& graphe) {
-    _emplacementsPossibles.clear();
+    _emplacements.clear();
     _noeuds.clear();
-    _liens.clear();
-    for (int i = 0; i < graphe._emplacementsPossibles.size(); ++i) {
-        _emplacementsPossibles.push_back(Emplacement(graphe._emplacementsPossibles[i].getX(),graphe._emplacementsPossibles[i].getY(),i));
+    _aretes.clear();
+    for (int i = 0; i < graphe._emplacements.size(); ++i) {
+        _emplacements.push_back(Emplacement(graphe._emplacements[i].getX(),graphe._emplacements[i].getY(),i));
     }
     for (int i = 0; i < graphe._noeuds.size(); ++i) {
         _noeuds.push_back(Noeud(i));
     }
-    for (int i = 0; i < graphe._liens.size(); ++i) {
-        int id1 = graphe._liens[i].getNoeud1()->getId();
-        int id2 = graphe._liens[i].getNoeud2()->getId();
-        _liens.push_back(Aretes(&_noeuds[id1], &_noeuds[id2], i));
+    for (int i = 0; i < graphe._aretes.size(); ++i) {
+        int id1 = graphe._aretes[i].getNoeud1()->getId();
+        int id2 = graphe._aretes[i].getNoeud2()->getId();
+        _aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2], i));
     }
     maxVoisin = graphe.maxVoisin;
     gridHeight = graphe.gridHeight;
@@ -351,7 +351,7 @@ void Graphe::clearSetAreteInter() {
 // Indique si les deux noeuds ont une aretes commune
 bool Graphe::areVoisin(int nodeId1, int nodeId2) {
     for (const int& nodeAreteId : _noeuds[nodeId1]._aretes) {
-        if (_liens[nodeAreteId].contains(nodeId2))
+        if (_aretes[nodeAreteId].contains(nodeId2))
             return true;
     }
     return false;
@@ -361,7 +361,7 @@ bool Graphe::areVoisin(int nodeId1, int nodeId2) {
 // Utilise la liste d'arete stockee dans les nodes
 int Graphe::getAreteFromTwoNodes(int nodeId1, int nodeId2) {
     for (const int& nodeAreteId : _noeuds[nodeId1]._aretes) {
-        if (_liens[nodeAreteId].contains(nodeId2))
+        if (_aretes[nodeAreteId].contains(nodeId2))
             return nodeAreteId;
     }
     return -1;
@@ -370,8 +370,8 @@ int Graphe::getAreteFromTwoNodes(int nodeId1, int nodeId2) {
 void Graphe::triangulationDelaunay() {
     if (DEBUG_GRAPHE) std::cout << "Debut triangulation.\n";
     std::vector<Emplacement*> empPtrVec;
-    for (int i=0;i<_emplacementsPossibles.size();i++) {
-        empPtrVec.push_back(&_emplacementsPossibles[i]);
+    for (int i=0;i<_emplacements.size();i++) {
+        empPtrVec.push_back(&_emplacements[i]);
     }
     std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacementTri);
     triangulation(empPtrVec,_c);
@@ -395,21 +395,21 @@ void Graphe::clearGrille() {
     for (int i=0;i<grillePtr.size();i++) {
         grillePtr[i]->vecAreteId.clear();
     }
-    for (int i=0;i<_liens.size();i++) {
-        _liens[i].vecIdCellules.clear();
+    for (int i=0;i<_aretes.size();i++) {
+        _aretes[i].vecIdCellules.clear();
     }
 }
 
 void Graphe::initGrille(int row,int column,bool decalleGrille) {
     if (decalleGrille) {
-        for (int i=0;i<_emplacementsPossibles.size();i++) {
-            _emplacementsPossibles[i]._x = (_emplacementsPossibles[i]._x*2)+2;
-            _emplacementsPossibles[i]._y = (_emplacementsPossibles[i]._y*2)+2;
+        for (int i=0;i<_emplacements.size();i++) {
+            _emplacements[i]._x = (_emplacements[i]._x*2)+2;
+            _emplacements[i]._y = (_emplacements[i]._y*2)+2;
         }
         gridWidth = (gridWidth * 2) + 2;
         gridHeight = (gridHeight * 2) + 2;
     }
-    if (row == -1) { row = (int)ceil(sqrt(_liens.size())*1.5); }
+    if (row == -1) { row = (int)ceil(sqrt(_aretes.size())*1.5); }
     if (column == -1) { column = row; }
     int sizeColumn = ceil((double)gridWidth / (double)column);
     if (sizeColumn % 2 == 1) { sizeColumn++; }
@@ -440,9 +440,9 @@ void Graphe::initGrille(int row,int column,bool decalleGrille) {
 void Graphe::registerSlotsAndEdgesInGridNoMove() {
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
-    for (int i=0;i < _emplacementsPossibles.size();i++) {
-        int x = _emplacementsPossibles[i].getX();
-        int y = _emplacementsPossibles[i].getY();
+    for (int i=0;i < _emplacements.size();i++) {
+        int x = _emplacements[i].getX();
+        int y = _emplacements[i].getY();
         double dnumX = (double)x/(double)sizeColumn;
         double dnumY = (double)y/(double)sizeRow;
         int numX = floor(dnumX);
@@ -459,38 +459,38 @@ void Graphe::registerSlotsAndEdgesInGridNoMove() {
                 if ((numY2 >= 0)&&(numY2 < grille.size())) { // Ajout numY2 & numX
                     if (numX < grille[0].size()) {
                         id = numY2 * grille[0].size() + numX;
-                        //_emplacementsPossibles[i].vecIdCellules.push_back(id);
+                        //_emplacements[i].vecIdCellules.push_back(id);
                         grille[numY2][numX].vecEmplacementId.push_back(i);
                     }
                     if ((numX2 >= 0)&&(numX2 < grille[0].size())) { // Ajout numY2 et numX2
                         id = numY2 * grille[0].size() + numX2;
-                        //_emplacementsPossibles[i].vecIdCellules.push_back(id);
+                        //_emplacements[i].vecIdCellules.push_back(id);
                         grille[numY2][numX2].vecEmplacementId.push_back(i);
                     }
                 }
             }
             if ((numX2 >= 0)&&(numX2 < grille[0].size())&&numY < grille.size()) { // Ajout numY et numX2
                 id = numY * grille[0].size() + numX2;
-                //_emplacementsPossibles[i].vecIdCellules.push_back(id);
+                //_emplacements[i].vecIdCellules.push_back(id);
                 grille[numY][numX2].vecEmplacementId.push_back(i);
             }
         }
         else if (numY2 != numY) { // Cas juste aligné sur segment horizontal de la grille
             if ((numY2 >= 0)&&(numY2 < grille.size())&&numX < grille[0].size()) { // Ajout numY2 & numX
                 id = numY2 * grille[0].size() + numX;
-                //_emplacementsPossibles[i].vecIdCellules.push_back(id);
+                //_emplacements[i].vecIdCellules.push_back(id);
                 grille[numY2][numX].vecEmplacementId.push_back(i);
             }
         }
         // Ajout numY & numX
         if (numY < grille.size() && numX < grille[0].size()) {
             id = numY * grille[0].size() + numX;
-            //_emplacementsPossibles[i].vecIdCellules.push_back(id);
+            //_emplacements[i].vecIdCellules.push_back(id);
             grille[numY][numX].vecEmplacementId.push_back(i);
         }
     }
 
-    for (int i=0;i<_liens.size();i++) {
+    for (int i=0;i<_aretes.size();i++) {
         int direction = getDirectionArete(i);
 
         // A faire si besoin
@@ -501,15 +501,15 @@ void Graphe::registerSlotsAndEdgesInGrid() {
     if (DEBUG_GRAPHE) std::cout << "Remplissage de la grille.\n";
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
-    for (int i=0;i < _emplacementsPossibles.size();i++) {
-        int x = _emplacementsPossibles[i].getX()-1;
-        int y = _emplacementsPossibles[i].getY()-1;
+    for (int i=0;i < _emplacements.size();i++) {
+        int x = _emplacements[i].getX()-1;
+        int y = _emplacements[i].getY()-1;
         double dnumX = (double)x/(double)sizeColumn;
         double dnumY = (double)y/(double)sizeRow;
         int numX = floor(dnumX);
         int numY = floor(dnumY);
         int id = numY * grille[0].size() + numX;
-        _emplacementsPossibles[i].idCellule = id;
+        _emplacements[i].idCellule = id;
         grille[numY][numX].vecEmplacementId.push_back(i);
     }
     registerEdgesInGrid();
@@ -518,18 +518,18 @@ void Graphe::registerSlotsAndEdgesInGrid() {
 
 void Graphe::registerEdgesInGrid() {
     int nombreColonne = grille[0].size();
-    for (int i=0;i<_liens.size();i++) {
-            if (_liens[i].estPlace()) {
-            int n1X = _liens[i].getNoeud1()->getX();
-            int n1Y = _liens[i].getNoeud1()->getY();
-            int n2X = _liens[i].getNoeud2()->getX();
-            int n2Y = _liens[i].getNoeud2()->getY();
+    for (int i=0;i<_aretes.size();i++) {
+            if (_aretes[i].estPlace()) {
+            int n1X = _aretes[i].getNoeud1()->getX();
+            int n1Y = _aretes[i].getNoeud1()->getY();
+            int n2X = _aretes[i].getNoeud2()->getX();
+            int n2Y = _aretes[i].getNoeud2()->getY();
             int direction = getDirectionArete(i);
-            int idCell = _liens[i].getNoeud1()->getEmplacement()->idCellule;
-            int idCellArrive = _liens[i].getNoeud2()->getEmplacement()->idCellule;
+            int idCell = _aretes[i].getNoeud1()->getEmplacement()->idCellule;
+            int idCellArrive = _aretes[i].getNoeud2()->getEmplacement()->idCellule;
             int idCellX = idCell % grille[0].size();
             int idCellY = idCell / grille[0].size();
-            _liens[i].vecIdCellules.push_back(idCell);
+            _aretes[i].vecIdCellules.push_back(idCell);
             grille[idCellY][idCellX].vecAreteId.push_back(i); 
             while (idCell != idCellArrive) {
             switch(direction) {
@@ -550,9 +550,9 @@ void Graphe::registerEdgesInGrid() {
                         idCell += nombreColonne;
                     }
                     else {
-                        _liens[i].vecIdCellules.push_back(idCell+nombreColonne);
+                        _aretes[i].vecIdCellules.push_back(idCell+nombreColonne);
                         grille[idCellY+1][idCellX].vecAreteId.push_back(i);
-                        _liens[i].vecIdCellules.push_back(idCell+1);
+                        _aretes[i].vecIdCellules.push_back(idCell+1);
                         grille[idCellY][idCellX+1].vecAreteId.push_back(i);
                         idCell = idCell + nombreColonne + 1;
                         idCellX++;
@@ -577,9 +577,9 @@ void Graphe::registerEdgesInGrid() {
                         idCell--;
                     }
                     else {
-                        _liens[i].vecIdCellules.push_back(idCell+nombreColonne);
+                        _aretes[i].vecIdCellules.push_back(idCell+nombreColonne);
                         grille[idCellY+1][idCellX].vecAreteId.push_back(i);
-                        _liens[i].vecIdCellules.push_back(idCell-1);
+                        _aretes[i].vecIdCellules.push_back(idCell-1);
                         grille[idCellY][idCellX-1].vecAreteId.push_back(i);
                         idCell = idCell + nombreColonne - 1;
                         idCellX--;
@@ -604,9 +604,9 @@ void Graphe::registerEdgesInGrid() {
                         idCell -= nombreColonne;
                     }
                     else {
-                        _liens[i].vecIdCellules.push_back(idCell-nombreColonne);
+                        _aretes[i].vecIdCellules.push_back(idCell-nombreColonne);
                         grille[idCellY-1][idCellX].vecAreteId.push_back(i);
-                        _liens[i].vecIdCellules.push_back(idCell-1);
+                        _aretes[i].vecIdCellules.push_back(idCell-1);
                         grille[idCellY][idCellX-1].vecAreteId.push_back(i);
                         idCell = idCell - nombreColonne - 1;
                         idCellX--;
@@ -631,9 +631,9 @@ void Graphe::registerEdgesInGrid() {
                         idCell++;
                     }
                     else {
-                        _liens[i].vecIdCellules.push_back(idCell-nombreColonne);
+                        _aretes[i].vecIdCellules.push_back(idCell-nombreColonne);
                         grille[idCellY-1][idCellX].vecAreteId.push_back(i);
-                        _liens[i].vecIdCellules.push_back(idCell+1);
+                        _aretes[i].vecIdCellules.push_back(idCell+1);
                         grille[idCellY][idCellX+1].vecAreteId.push_back(i);
                         idCell = idCell - nombreColonne + 1;
                         idCellX++;
@@ -642,7 +642,7 @@ void Graphe::registerEdgesInGrid() {
                     break;
                 }
             }
-            _liens[i].vecIdCellules.push_back(idCell);
+            _aretes[i].vecIdCellules.push_back(idCell);
             grille[idCellY][idCellX].vecAreteId.push_back(i);
         }
         }
@@ -650,11 +650,11 @@ void Graphe::registerEdgesInGrid() {
 }
 
 int Graphe::getDirectionArete(int idArete) {
-    int x1 = _liens[idArete].getNoeud1()->getX();
-    int y1 = _liens[idArete].getNoeud1()->getY();
+    int x1 = _aretes[idArete].getNoeud1()->getX();
+    int y1 = _aretes[idArete].getNoeud1()->getY();
 
-    int x2 = _liens[idArete].getNoeud2()->getX();
-    int y2 = _liens[idArete].getNoeud2()->getY();
+    int x2 = _aretes[idArete].getNoeud2()->getX();
+    int y2 = _aretes[idArete].getNoeud2()->getY();
     
     if (x2 > x1) { // Dirigé vers la droite
         if (y2 > y1) { // Dirigé en haut à droite
@@ -684,13 +684,13 @@ int Graphe::getDirectionArete(int idArete) {
 
 void Graphe::recalcAreteCellule(int areteId) {
     std::vector<int> vecCellId;
-    int n1X = _liens[areteId].getNoeud1()->getX();
-    int n1Y = _liens[areteId].getNoeud1()->getY();
-    int n2X = _liens[areteId].getNoeud2()->getX();
-    int n2Y = _liens[areteId].getNoeud2()->getY();
+    int n1X = _aretes[areteId].getNoeud1()->getX();
+    int n1Y = _aretes[areteId].getNoeud1()->getY();
+    int n2X = _aretes[areteId].getNoeud2()->getX();
+    int n2Y = _aretes[areteId].getNoeud2()->getY();
     int direction = getDirectionArete(areteId);
-    int idCell = _liens[areteId].getNoeud1()->getEmplacement()->idCellule;
-    int idCellArrive = _liens[areteId].getNoeud2()->getEmplacement()->idCellule;
+    int idCell = _aretes[areteId].getNoeud1()->getEmplacement()->idCellule;
+    int idCellArrive = _aretes[areteId].getNoeud2()->getEmplacement()->idCellule;
     vecCellId.push_back(idCell);
     int nombreColonne = grille[0].size();
     while (idCell != idCellArrive) {
@@ -779,17 +779,17 @@ void Graphe::recalcAreteCellule(int areteId) {
         vecCellId.push_back(idCell);
     }
     int sameUntil=0;
-    int minSize = min(vecCellId.size(),_liens[areteId].vecIdCellules.size());
-    for (;((sameUntil<minSize)&&(vecCellId[sameUntil]==_liens[areteId].vecIdCellules[sameUntil]));sameUntil++);
-    for (int i=sameUntil;i<_liens[areteId].vecIdCellules.size();i++) {
-        removeFromVector(grillePtr[_liens[areteId].vecIdCellules[i]]->vecAreteId,areteId);
+    int minSize = min(vecCellId.size(),_aretes[areteId].vecIdCellules.size());
+    for (;((sameUntil<minSize)&&(vecCellId[sameUntil]==_aretes[areteId].vecIdCellules[sameUntil]));sameUntil++);
+    for (int i=sameUntil;i<_aretes[areteId].vecIdCellules.size();i++) {
+        removeFromVector(grillePtr[_aretes[areteId].vecIdCellules[i]]->vecAreteId,areteId);
     }
     for (int i=sameUntil;i<vecCellId.size();i++) {
         if (!isInVector(grillePtr[vecCellId[i]]->vecAreteId,areteId)) {
             grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
         }
     }
-    _liens[areteId].vecIdCellules.swap(vecCellId);
+    _aretes[areteId].vecIdCellules.swap(vecCellId);
 }
 
 void Graphe::recalcNodeCellule(int nodeId) {
@@ -799,14 +799,14 @@ void Graphe::recalcNodeCellule(int nodeId) {
 }
 
 void Graphe::initAreteCellule(int areteId) {
-    int n1X = _liens[areteId].getNoeud1()->getX();
-    int n1Y = _liens[areteId].getNoeud1()->getY();
-    int n2X = _liens[areteId].getNoeud2()->getX();
-    int n2Y = _liens[areteId].getNoeud2()->getY();
+    int n1X = _aretes[areteId].getNoeud1()->getX();
+    int n1Y = _aretes[areteId].getNoeud1()->getY();
+    int n2X = _aretes[areteId].getNoeud2()->getX();
+    int n2Y = _aretes[areteId].getNoeud2()->getY();
     int direction = getDirectionArete(areteId);
-    int idCell = _liens[areteId].getNoeud1()->getEmplacement()->idCellule;
-    int idCellArrive = _liens[areteId].getNoeud2()->getEmplacement()->idCellule;
-    _liens[areteId].vecIdCellules.push_back(idCell);
+    int idCell = _aretes[areteId].getNoeud1()->getEmplacement()->idCellule;
+    int idCellArrive = _aretes[areteId].getNoeud2()->getEmplacement()->idCellule;
+    _aretes[areteId].vecIdCellules.push_back(idCell);
     int nombreColonne = grille[0].size();
     while (idCell != idCellArrive) {
         switch(direction) {
@@ -824,8 +824,8 @@ void Graphe::initAreteCellule(int areteId) {
                     idCell += nombreColonne;
                 }
                 else {
-                    _liens[areteId].vecIdCellules.push_back(idCell+nombreColonne);
-                    _liens[areteId].vecIdCellules.push_back(idCell+1);
+                    _aretes[areteId].vecIdCellules.push_back(idCell+nombreColonne);
+                    _aretes[areteId].vecIdCellules.push_back(idCell+1);
                     idCell = idCell + nombreColonne + 1;
                 }
                 break;
@@ -844,8 +844,8 @@ void Graphe::initAreteCellule(int areteId) {
                     idCell--;
                 }
                 else {
-                    _liens[areteId].vecIdCellules.push_back(idCell+nombreColonne);
-                    _liens[areteId].vecIdCellules.push_back(idCell-1);
+                    _aretes[areteId].vecIdCellules.push_back(idCell+nombreColonne);
+                    _aretes[areteId].vecIdCellules.push_back(idCell-1);
                     idCell = idCell + nombreColonne - 1;
                 }
                 break;
@@ -864,8 +864,8 @@ void Graphe::initAreteCellule(int areteId) {
                     idCell -= nombreColonne;
                 }
                 else {
-                    _liens[areteId].vecIdCellules.push_back(idCell-nombreColonne);
-                    _liens[areteId].vecIdCellules.push_back(idCell-1);
+                    _aretes[areteId].vecIdCellules.push_back(idCell-nombreColonne);
+                    _aretes[areteId].vecIdCellules.push_back(idCell-1);
                     idCell = idCell - nombreColonne - 1;
                 }
                 break;
@@ -884,36 +884,36 @@ void Graphe::initAreteCellule(int areteId) {
                     idCell++;
                 }
                 else {
-                    _liens[areteId].vecIdCellules.push_back(idCell-nombreColonne);
-                    _liens[areteId].vecIdCellules.push_back(idCell+1);
+                    _aretes[areteId].vecIdCellules.push_back(idCell-nombreColonne);
+                    _aretes[areteId].vecIdCellules.push_back(idCell+1);
                     idCell = idCell - nombreColonne + 1;
                 }
                 break;
             }
         }
-        _liens[areteId].vecIdCellules.push_back(idCell);
+        _aretes[areteId].vecIdCellules.push_back(idCell);
     }
-    for (int i=0;i<_liens[areteId].vecIdCellules.size();i++) {
-        grillePtr[_liens[areteId].vecIdCellules[i]]->vecAreteId.push_back(areteId);
+    for (int i=0;i<_aretes[areteId].vecIdCellules.size();i++) {
+        grillePtr[_aretes[areteId].vecIdCellules[i]]->vecAreteId.push_back(areteId);
     }
 }
 
 void Graphe::initNodeCellule(int nodeId) {
     for (const int& areteId : _noeuds[nodeId]._aretes) {
-        if (_liens[areteId].estPlace()) {
+        if (_aretes[areteId].estPlace()) {
             initAreteCellule(areteId);
         }
     }
 }
 
 void Graphe::calcAreteCelluleVec(std::vector<int>& vecCellId, int areteId) {
-    int n1X = _liens[areteId].getNoeud1()->getX();
-    int n1Y = _liens[areteId].getNoeud1()->getY();
-    int n2X = _liens[areteId].getNoeud2()->getX();
-    int n2Y = _liens[areteId].getNoeud2()->getY();
+    int n1X = _aretes[areteId].getNoeud1()->getX();
+    int n1Y = _aretes[areteId].getNoeud1()->getY();
+    int n2X = _aretes[areteId].getNoeud2()->getX();
+    int n2Y = _aretes[areteId].getNoeud2()->getY();
     int direction = getDirectionArete(areteId);
-    int idCell = _liens[areteId].getNoeud1()->getEmplacement()->idCellule;
-    int idCellArrive = _liens[areteId].getNoeud2()->getEmplacement()->idCellule;
+    int idCell = _aretes[areteId].getNoeud1()->getEmplacement()->idCellule;
+    int idCellArrive = _aretes[areteId].getNoeud2()->getEmplacement()->idCellule;
     vecCellId.push_back(idCell);
     int nombreColonne = grille[0].size();
     while (idCell != idCellArrive) {
@@ -1016,17 +1016,17 @@ void Graphe::applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int n
         std::vector<int>& vecCellId = vecId[numArete];
         int areteId = _noeuds[nodeIndex]._aretes[numArete];
         int sameUntil;
-        int minSize = min(vecCellId.size(),_liens[areteId].vecIdCellules.size());
-        for (sameUntil=0;((sameUntil<minSize)&&(vecCellId[sameUntil]==_liens[areteId].vecIdCellules[sameUntil]));sameUntil++);
-        for (int i=sameUntil;i<_liens[areteId].vecIdCellules.size();i++) {
-            removeFromVector(grillePtr[_liens[areteId].vecIdCellules[i]]->vecAreteId,areteId);
+        int minSize = min(vecCellId.size(),_aretes[areteId].vecIdCellules.size());
+        for (sameUntil=0;((sameUntil<minSize)&&(vecCellId[sameUntil]==_aretes[areteId].vecIdCellules[sameUntil]));sameUntil++);
+        for (int i=sameUntil;i<_aretes[areteId].vecIdCellules.size();i++) {
+            removeFromVector(grillePtr[_aretes[areteId].vecIdCellules[i]]->vecAreteId,areteId);
         }
         for (int i=sameUntil;i<vecCellId.size();i++) {
             if (!isInVector(grillePtr[vecCellId[i]]->vecAreteId,areteId)) {
                 grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
             }
         }
-        _liens[areteId].vecIdCellules.swap(vecCellId);
+        _aretes[areteId].vecIdCellules.swap(vecCellId);
     }
 }
 
@@ -1045,9 +1045,9 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
 
 void Graphe::getSortedEmpVecFromGraphe(std::vector<int>& sortedIdVec, Graphe& G) {
     std::vector<Emplacement*> empPtrVec;
-    empPtrVec.resize(G._emplacementsPossibles.size());
-    for (int i = 0; i < G._emplacementsPossibles.size(); i++) {
-        empPtrVec[i] = &G._emplacementsPossibles[i];
+    empPtrVec.resize(G._emplacements.size());
+    for (int i = 0; i < G._emplacements.size(); i++) {
+        empPtrVec[i] = &G._emplacements[i];
     }
     // Tri des emplacements pas la coord X
     std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacement);
@@ -1059,19 +1059,19 @@ void Graphe::getSortedEmpVecFromGraphe(std::vector<int>& sortedIdVec, Graphe& G)
 
 void Graphe::translateGrapheToOrigin() {
     double minX, minY;
-    for (int i=0;i<_emplacementsPossibles.size();i++) {
+    for (int i=0;i<_emplacements.size();i++) {
         if (i==0) {
-            minX = _emplacementsPossibles[i].getX();
-            minY = _emplacementsPossibles[i].getY();
+            minX = _emplacements[i].getX();
+            minY = _emplacements[i].getY();
         }
         else {
-            if (_emplacementsPossibles[i].getX() < minX) minX = _emplacementsPossibles[i].getX();
-            if (_emplacementsPossibles[i].getY() < minY) minY = _emplacementsPossibles[i].getY();
+            if (_emplacements[i].getX() < minX) minX = _emplacements[i].getX();
+            if (_emplacements[i].getY() < minY) minY = _emplacements[i].getY();
         }
     }
-    for (int i=0;i<_emplacementsPossibles.size();i++) {
-        _emplacementsPossibles[i]._x -= minX;
-        _emplacementsPossibles[i]._y -= minY;
+    for (int i=0;i<_emplacements.size();i++) {
+        _emplacements[i]._x -= minX;
+        _emplacements[i]._y -= minY;
     }
     gridWidth -= minX;
     gridHeight -= minY;

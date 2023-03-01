@@ -14,8 +14,8 @@
 
 class Graphe {
 public:
-	std::vector<Emplacement> _emplacementsPossibles;
-	std::vector<Aretes> _liens;
+	std::vector<Emplacement> _emplacements;
+	std::vector<Aretes> _aretes;
 	std::vector<Noeud> _noeuds;
 
 	std::set<Aretes*> areteIll;
@@ -31,11 +31,6 @@ public:
 	int PENALITE_MAX_SELF = 1001;
 	int gridHeight = 10;
 	int gridWidth = 10;
-
-	int compteurSwap = 0;
-	int compteurDeplacement = 0;
-	int compteurSwapE = 0;
-	int compteurDeplacementE = 0;
 
 	long nombreCroisement = -1; // Attention cette variable n'est pas forcément à jour! Voir 'isNombreCroisementUpdated'
 	bool isNombreCroisementUpdated = false; // Indique si la valeur dans 'nombreCroisement' est à jour.
@@ -161,7 +156,7 @@ public:
 	void calculDelaiRefroidissement(int& delay, std::vector<double>& customParam, int iter);
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
-	int calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,Emplacement* oldEmplacement,bool useGrille, bool useScore);
+	int calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,Emplacement*& oldEmplacement,bool useGrille, bool useScore);
 
 	// Modifie les parametres du rerecuit en fonction des customParam
 	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<double> customParam={});

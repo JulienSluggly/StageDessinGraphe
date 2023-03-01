@@ -115,10 +115,10 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		}
 		saveResult = true;
 		if (customParam.size() > 1) {
-			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacementsPossibles.size(),customParam[0],customParam[1],secondsTotalExec.count());
+			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],secondsTotalExec.count());
 		}
 		else {
-			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacementsPossibles.size(),secondsTotalExec.count());
+			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),secondsTotalExec.count());
 		}
 		if (methodeName == "Glouton") G.glouton();
 		else if (methodeName == "Glouton Revisite") G.gloutonRevisite();
@@ -145,7 +145,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 					G.registerSlotsAndEdgesInGrid();
 				}
 				else if (customParam[0] == 11) {
-					int row = (int)(ceil(sqrt(G._liens.size()))*customParam[1]);
+					int row = (int)(ceil(sqrt(G._aretes.size()))*customParam[1]);
 					row = max(1,row);
 					G.initGrille(row,row);
 					G.registerSlotsAndEdgesInGrid();
@@ -183,7 +183,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		tempBestVector.push_back(tempsBest);
 		bestIterationVector.push_back(bestIteration);
 		lastIterationVector.push_back(lastIteration);
-		nombreSlots = G._emplacementsPossibles.size();
+		nombreSlots = G._emplacements.size();
 		nombreCellule = G.grillePtr.size();
 		if (G.isNombreCroisementUpdated) {
 			croisementVector.push_back(G.nombreCroisement);

@@ -44,14 +44,14 @@ void runFuncOnAllGraphs() {
 }
 
 int main() {
-	initRandomSeed();
-	//initSameSeed();
+	//initRandomSeed();
+	initSameSeed();
 
 	//runFuncOnAllGraphs(); return 0;
 
 	Graphe G;
 	std::string nomFichierGraph = "graph-10-input";
-	std::string nomFichierSlots = "10-input-slots";
+	std::string nomFichierSlots = "2X-10-input-slots";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	G.setupGraphe(nomFichierGraph,nomFichierSlots);

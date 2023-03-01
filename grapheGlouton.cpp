@@ -7,11 +7,11 @@
 void Graphe::placementAleatoire() {
     if (DEBUG_GRAPHE) std::cout << "Placement aleatoire" << std::endl;
     for (int i = 0; i < _noeuds.size(); ++i) {
-        int emplacementId = generateRand(_emplacementsPossibles.size() - 1);
-        while (!_emplacementsPossibles[emplacementId].estDisponible()) {
-            emplacementId = (emplacementId + 1) % _emplacementsPossibles.size();
+        int emplacementId = generateRand(_emplacements.size() - 1);
+        while (!_emplacements[emplacementId].estDisponible()) {
+            emplacementId = (emplacementId + 1) % _emplacements.size();
         }
-        _noeuds[i].setEmplacement(&_emplacementsPossibles[emplacementId]);
+        _noeuds[i].setEmplacement(&_emplacements[emplacementId]);
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -23,7 +23,7 @@ void Graphe::placementAleatoire() {
 void Graphe::placementFixe() {
     if (DEBUG_GRAPHE) std::cout << "Placement fixe" << std::endl;
     for (int i=0;i<_noeuds.size();i++) {
-        _noeuds[i].setEmplacement(&_emplacementsPossibles[i]);
+        _noeuds[i].setEmplacement(&_emplacements[i]);
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -33,11 +33,11 @@ void Graphe::placementFixe() {
 // Place un noeud aleatoirement sur un emplacement disponible.
 // Ne tient pas a jour le score du noeud ou du graphe.
 void Graphe::placementNoeudAleatoire(int idNoeud) {
-    int emplacementId = generateRand(_emplacementsPossibles.size() - 1);
-    while (!_emplacementsPossibles[emplacementId].estDisponible()) {
-        emplacementId = (emplacementId + 1) % _emplacementsPossibles.size();
+    int emplacementId = generateRand(_emplacements.size() - 1);
+    while (!_emplacements[emplacementId].estDisponible()) {
+        emplacementId = (emplacementId + 1) % _emplacements.size();
     }
-    _noeuds[idNoeud].setEmplacement(&_emplacementsPossibles[emplacementId]);
+    _noeuds[idNoeud].setEmplacement(&_emplacements[emplacementId]);
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
     isIntersectionVectorUpdated = false;
@@ -45,24 +45,24 @@ void Graphe::placementNoeudAleatoire(int idNoeud) {
 
 // Selectionne les emplacements disponibles a egale distance d'un point et en renvoie un aleatoirement.
 Emplacement* Graphe::getEmplacementPlusProche(std::pair<int,int>& origin) {
-    Emplacement* meilleurEmplacement = &_emplacementsPossibles[generateRand(_emplacementsPossibles.size() - 1)];
+    Emplacement* meilleurEmplacement = &_emplacements[generateRand(_emplacements.size() - 1)];
     while (!meilleurEmplacement->estDisponible()) {
-        meilleurEmplacement = &_emplacementsPossibles[(meilleurEmplacement->getId() + 1) % _emplacementsPossibles.size()];
+        meilleurEmplacement = &_emplacements[(meilleurEmplacement->getId() + 1) % _emplacements.size()];
     }
     int meilleurDistance = meilleurEmplacement->distance(origin);
     int nbRencontre = 0;
-    for (int i = 0; i < _emplacementsPossibles.size(); ++i) {
-        if (_emplacementsPossibles[i].estDisponible() && i != meilleurEmplacement->getId()) {
-            int distanceActuel = _emplacementsPossibles[i].distance(origin);
+    for (int i = 0; i < _emplacements.size(); ++i) {
+        if (_emplacements[i].estDisponible() && i != meilleurEmplacement->getId()) {
+            int distanceActuel = _emplacements[i].distance(origin);
             if (meilleurDistance > distanceActuel) {
-                meilleurEmplacement = &_emplacementsPossibles[i];
+                meilleurEmplacement = &_emplacements[i];
                 meilleurDistance = distanceActuel;
                 nbRencontre = 0;
             }
             else if (meilleurDistance == distanceActuel) {
                 ++nbRencontre;
                 if (generateRand(nbRencontre) == 1) {
-                    meilleurEmplacement = &_emplacementsPossibles[i];
+                    meilleurEmplacement = &_emplacements[i];
                     meilleurDistance = distanceActuel;
                 }
             }
@@ -74,21 +74,21 @@ Emplacement* Graphe::getEmplacementPlusProche(std::pair<int,int>& origin) {
 
 // Selectionne les emplacements different de l'emplacement en parametre a egale distance de celui ci et en renvoie un aleatoirement.
 Emplacement* Graphe::getEmplacementPlusProche(Emplacement* origin) {
-    Emplacement* meilleurEmplacement = &_emplacementsPossibles[0];
+    Emplacement* meilleurEmplacement = &_emplacements[0];
     int meilleurDistance = meilleurEmplacement->distance(origin);
     int nbRencontre = 0;
-    for (int i = 1; i < _emplacementsPossibles.size(); ++i) {
-        if (origin->getId() != _emplacementsPossibles[i].getId()) {
-            int distanceActuel = _emplacementsPossibles[i].distance(origin);
+    for (int i = 1; i < _emplacements.size(); ++i) {
+        if (origin->getId() != _emplacements[i].getId()) {
+            int distanceActuel = _emplacements[i].distance(origin);
             if (distanceActuel < meilleurDistance) {
-                meilleurEmplacement = &_emplacementsPossibles[i];
+                meilleurEmplacement = &_emplacements[i];
                 meilleurDistance = distanceActuel;
                 nbRencontre = 0;
             }
             else if (meilleurDistance == distanceActuel) {
                 ++nbRencontre;
                 if (generateRand(nbRencontre) == 1) {
-                    meilleurEmplacement = &_emplacementsPossibles[i];
+                    meilleurEmplacement = &_emplacements[i];
                 }
             }
         }
@@ -99,11 +99,11 @@ Emplacement* Graphe::getEmplacementPlusProche(Emplacement* origin) {
 // Retourne le centre de gravite des emplacements.
 std::pair<int,int> Graphe::getCentreGravite() {
     double totalX = 0.0, totalY = 0.0;
-    for (int i=0;i<_emplacementsPossibles.size();i++) {
-        totalX += _emplacementsPossibles[i].getX();
-        totalY += _emplacementsPossibles[i].getY();
+    for (int i=0;i<_emplacements.size();i++) {
+        totalX += _emplacements[i].getX();
+        totalY += _emplacements[i].getY();
     }
-    return std::pair<int,int>(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
+    return std::pair<int,int>(totalX / _emplacements.size(),totalY / _emplacements.size());
 }
 
 // Retourne le centre de gravite des noeuds place
@@ -115,7 +115,7 @@ std::pair<int,int> Graphe::getCentreGraviteNoeudPlaces() {
             totalY += _noeuds[i].getY();
         }
     }
-    return std::pair<int,int>(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
+    return std::pair<int,int>(totalX / _emplacements.size(),totalY / _emplacements.size());
 }
 
 // Retourne le centre de gravite des voisins place d'un noeud.
@@ -127,7 +127,7 @@ std::pair<int,int> Graphe::getCentreGraviteVoisin(Noeud* noeud) {
             totalY += noeud->voisins[i]->getY();
         }
     }
-    return std::pair<int,int>(totalX / _emplacementsPossibles.size(),totalY / _emplacementsPossibles.size());
+    return std::pair<int,int>(totalX / _emplacements.size(),totalY / _emplacements.size());
 }
 
 // Renvoie l'id du meilleur emplacement disponible
@@ -136,9 +136,9 @@ int Graphe::getMeilleurEmplacement(Noeud& meilleurNoeud) {
     int nbRencontre = 0;
     long bestScore = INT_MAX;
     int bestId;
-    for (int j = 0; j < _emplacementsPossibles.size(); j++) {
-        if (_emplacementsPossibles[j].estDisponible()) {
-            meilleurNoeud.setEmplacement(&_emplacementsPossibles[j]);
+    for (int j = 0; j < _emplacements.size(); j++) {
+        if (_emplacements[j].estDisponible()) {
+            meilleurNoeud.setEmplacement(&_emplacements[j]);
             long newScore = getNbCroisementGlouton();
             if (newScore < bestScore) {
                 bestScore = newScore;
@@ -154,7 +154,7 @@ int Graphe::getMeilleurEmplacement(Noeud& meilleurNoeud) {
         }
     }
     meilleurNoeud.clearEmplacement();
-    return _emplacementsPossibles[bestId].getId();
+    return _emplacements[bestId].getId();
 }
 
 // Renvoie l'id du meilleur emplacement disponible
@@ -163,17 +163,17 @@ int Graphe::getMeilleurEmplacementScore(Noeud& meilleurNoeud) {
     int nbRencontre = 0;
     long bestScore = -1;
     int bestId = -1;
-    for (int j = 0; j < _emplacementsPossibles.size(); j++) {
-        if (_emplacementsPossibles[j].estDisponible()) {
+    for (int j = 0; j < _emplacements.size(); j++) {
+        if (_emplacements[j].estDisponible()) {
             if (bestId == -1) {
                 bestId = j;
             }
             else {
                 if (bestScore == -1) {
-                    meilleurNoeud.setEmplacement(&_emplacementsPossibles[bestId]);
+                    meilleurNoeud.setEmplacement(&_emplacements[bestId]);
                     bestScore = getNbCroisementGloutonScore(meilleurNoeud._id);
                 }
-                meilleurNoeud.setEmplacement(&_emplacementsPossibles[j]);
+                meilleurNoeud.setEmplacement(&_emplacements[j]);
                 long newScore = getNbCroisementGloutonScore(meilleurNoeud._id);
                 if (newScore < bestScore) {
                     bestScore = newScore;
@@ -200,17 +200,17 @@ int Graphe::getMeilleurEmplacementGravite(Noeud* meilleurNoeud, std::pair<int,in
     int bestId = -1;
     long bestScore = INT_MAX;
     long bestDistance;
-    for (int i = 0; i < _emplacementsPossibles.size(); i++) {
-        if (_emplacementsPossibles[i].estDisponible()) {
-            meilleurNoeud->setEmplacement(&_emplacementsPossibles[i]);
+    for (int i = 0; i < _emplacements.size(); i++) {
+        if (_emplacements[i].estDisponible()) {
+            meilleurNoeud->setEmplacement(&_emplacements[i]);
             long newScore = getNbCroisementGlouton();
             if (newScore < bestScore) {
                 bestScore = newScore;
                 bestId = i;
-                bestDistance = _emplacementsPossibles[bestId].distance(gravite);
+                bestDistance = _emplacements[bestId].distance(gravite);
             }
             else if (newScore == bestScore) {
-                long newDistance = _emplacementsPossibles[i].distance(gravite);
+                long newDistance = _emplacements[i].distance(gravite);
                 if (newDistance < bestDistance) {
                     bestScore = newScore;
                     bestId = i;
@@ -238,9 +238,9 @@ void Graphe::glouton() {
         }
         long bestScore = INT_MAX;
         int bestEmpId = -1;
-        for (int j = 0; j < _emplacementsPossibles.size(); j++) {
-            if (_emplacementsPossibles[j].estDisponible()) {
-                _noeuds[randomId].setEmplacement(&_emplacementsPossibles[j]);
+        for (int j = 0; j < _emplacements.size(); j++) {
+            if (_emplacements[j].estDisponible()) {
+                _noeuds[randomId].setEmplacement(&_emplacements[j]);
                 long newScore = getNbCroisementGlouton();
                 if (newScore < bestScore) {
                     bestScore = newScore;
@@ -248,7 +248,7 @@ void Graphe::glouton() {
                 }
             }
         }
-        _noeuds[randomId].setEmplacement(&_emplacementsPossibles[bestEmpId]);
+        _noeuds[randomId].setEmplacement(&_emplacements[bestEmpId]);
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -314,21 +314,21 @@ void Graphe::gloutonRevisite() {
 
         if (meilleurNoeud != nullptr)
         {
-            int randomEmpId = generateRand(_emplacementsPossibles.size() - 1);
-            while (!_emplacementsPossibles[randomEmpId].estDisponible()) {
-                randomEmpId = (randomEmpId + 1) % _emplacementsPossibles.size();
+            int randomEmpId = generateRand(_emplacements.size() - 1);
+            while (!_emplacements[randomEmpId].estDisponible()) {
+                randomEmpId = (randomEmpId + 1) % _emplacements.size();
             }
-            meilleurNoeud->setEmplacement(&_emplacementsPossibles[randomEmpId]);
+            meilleurNoeud->setEmplacement(&_emplacements[randomEmpId]);
             long bestScore = getNbCroisementGlouton();
             int bestId = randomEmpId;
-            int index = (randomEmpId + 1) % _emplacementsPossibles.size();
+            int index = (randomEmpId + 1) % _emplacements.size();
             if (emplacementRestant())
             {
-                for (int j = 0; j < _emplacementsPossibles.size(); j++) {
-                    while (!_emplacementsPossibles[index].estDisponible()) {
-                        index = (index + 1) % _emplacementsPossibles.size();
+                for (int j = 0; j < _emplacements.size(); j++) {
+                    while (!_emplacements[index].estDisponible()) {
+                        index = (index + 1) % _emplacements.size();
                     }
-                    meilleurNoeud->setEmplacement(&_emplacementsPossibles[index]);
+                    meilleurNoeud->setEmplacement(&_emplacements[index]);
                     long newScore = getNbCroisementGlouton();
                     if (newScore < bestScore) {
                         bestScore = newScore;
@@ -346,7 +346,7 @@ void Graphe::gloutonRevisite() {
                     }
                 }
             }
-            meilleurNoeud->setEmplacement(&_emplacementsPossibles[bestId]);
+            meilleurNoeud->setEmplacement(&_emplacements[bestId]);
         }
 
     }
@@ -525,7 +525,7 @@ void Graphe::completeBasicGlouton() {
                 }
             }
         }
-        meilleurNoeud->setEmplacement(&_emplacementsPossibles[getMeilleurEmplacement(*meilleurNoeud)]);
+        meilleurNoeud->setEmplacement(&_emplacements[getMeilleurEmplacement(*meilleurNoeud)]);
         nbNode--;
     }
     isNombreCroisementUpdated = false;
@@ -569,7 +569,7 @@ void Graphe::completeBasicGloutonScore(std::vector<int>& vecNode, int tailleMax)
         }
         marque[bestNodeId] = true;
         int meilleurEmplacement = getMeilleurEmplacementScore(_noeuds[vecNode[bestNodeId]]);
-        _noeuds[vecNode[bestNodeId]].setEmplacement(&_emplacementsPossibles[meilleurEmplacement]);
+        _noeuds[vecNode[bestNodeId]].setEmplacement(&_emplacements[meilleurEmplacement]);
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -612,9 +612,9 @@ void Graphe::completeBasicGloutonScoreGrille(std::vector<int>& vecNode, int tail
         }
         marque[bestNodeId] = true;
         int meilleurEmplacement = getMeilleurEmplacementScore(_noeuds[vecNode[bestNodeId]]);
-        _noeuds[vecNode[bestNodeId]].setEmplacement(&_emplacementsPossibles[meilleurEmplacement]);
+        _noeuds[vecNode[bestNodeId]].setEmplacement(&_emplacements[meilleurEmplacement]);
         for (const int& areteId : _noeuds[vecNode[bestNodeId]]._aretes) {
-            if (_liens[areteId].estPlace()) {
+            if (_aretes[areteId].estPlace()) {
                 initAreteCellule(areteId);
             }
         }
@@ -630,11 +630,11 @@ void Graphe::completePlacementAleatoire()
     for (int i = 0; i < _noeuds.size(); ++i)
     {
         if (_noeuds[i]._emplacement == nullptr) {
-            int emplacementId = generateRand(_emplacementsPossibles.size() - 1);
-            while (!_emplacementsPossibles[emplacementId].estDisponible()) {
-                emplacementId = (emplacementId + 1) % _emplacementsPossibles.size();
+            int emplacementId = generateRand(_emplacements.size() - 1);
+            while (!_emplacements[emplacementId].estDisponible()) {
+                emplacementId = (emplacementId + 1) % _emplacements.size();
             }
-            _noeuds[i].setEmplacement(&_emplacementsPossibles[emplacementId]);
+            _noeuds[i].setEmplacement(&_emplacements[emplacementId]);
         }
     }
     isNombreCroisementUpdated = false;
@@ -644,11 +644,11 @@ void Graphe::completePlacementAleatoire()
 
 void Graphe::completePlacementAleatoireScore(std::vector<int>& vecNode, int tailleMax) {
     for (int i=0;i<tailleMax;i++) {
-        int emplacementId = generateRand(_emplacementsPossibles.size() - 1);
-        while (!_emplacementsPossibles[emplacementId].estDisponible()) {
-            emplacementId = (emplacementId + 1) % _emplacementsPossibles.size();
+        int emplacementId = generateRand(_emplacements.size() - 1);
+        while (!_emplacements[emplacementId].estDisponible()) {
+            emplacementId = (emplacementId + 1) % _emplacements.size();
         }
-        _noeuds[vecNode[i]].setEmplacement(&_emplacementsPossibles[emplacementId]);
+        _noeuds[vecNode[i]].setEmplacement(&_emplacements[emplacementId]);
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;

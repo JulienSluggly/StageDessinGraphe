@@ -31,7 +31,7 @@ void Graphe::readFromJsonGraph(std::string input) {
 	for (int i = 0; i < edgeNumber; i++) {
 		id1 = j["edges"][i]["source"];
 		id2 = j["edges"][i]["target"];
-		_liens.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
+		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
 	}
 }
 
@@ -54,7 +54,7 @@ void Graphe::readFromJsonSlots(std::string input) {
 	for (int i = 0; i < slotsNumber; i++) {
 		x = j["slots"][i]["x"];
 		y = j["slots"][i]["y"];
-		_emplacementsPossibles.push_back(Emplacement(x,y,i));
+		_emplacements.push_back(Emplacement(x,y,i));
 		if (x > gridWidth) { gridWidth = x; }
 		if (y > gridHeight) { gridHeight = y; }
 	}
@@ -83,7 +83,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	for (int i = 0; i < slotsNumber; i++) {
 		x = j["slots"][i]["x"];
 		y = j["slots"][i]["y"];
-		_emplacementsPossibles.push_back(Emplacement(x,y,i));
+		_emplacements.push_back(Emplacement(x,y,i));
 		if (x > gridWidth) { gridWidth = x; }
 		if (y > gridHeight) { gridHeight = y; }
 	}
@@ -97,7 +97,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	for (int i=0;i<nodeNumber;i++) {
 		id = j["nodes"][i]["id_slot"];
 		if (id != -1) {
-			_noeuds[i].setEmplacement(&_emplacementsPossibles[id]);
+			_noeuds[i].setEmplacement(&_emplacements[id]);
 		}
 	}
 	int edgeNumber = static_cast<int>(j["edges"].size());
@@ -106,7 +106,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	for (int i = 0; i < edgeNumber; i++) {
 		id1 = j["edges"][i]["source"];
 		id2 = j["edges"][i]["target"];
-		_liens.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
+		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
 	}
 }
 
@@ -116,11 +116,11 @@ void Graphe::writeToJsonSlots(std::string output) {
 	j["width"] = gridWidth;
 	j["height"] = gridHeight;
 
-	int slotsNumber = _emplacementsPossibles.size();
+	int slotsNumber = _emplacements.size();
 	for (int i = 0; i < slotsNumber; i++) {
 		j["slots"][i]["id"] = i;
-		j["slots"][i]["x"] = _emplacementsPossibles[i].getX();
-		j["slots"][i]["y"] = _emplacementsPossibles[i].getY();
+		j["slots"][i]["x"] = _emplacements[i].getX();
+		j["slots"][i]["y"] = _emplacements[i].getY();
 	}
 
 	std::ofstream o(output);
@@ -139,10 +139,10 @@ void Graphe::writeToJsonGraph(std::string output) {
 			j["nodes"][i]["id_slot"] = -1;
 	}
 
-	int edgeNumber = _liens.size();
+	int edgeNumber = _aretes.size();
 	for (int i = 0; i < edgeNumber; i++) {
-		j["edges"][i]["source"] = _liens[i].getNoeud1()->getId();
-		j["edges"][i]["target"] = _liens[i].getNoeud2()->getId();
+		j["edges"][i]["source"] = _aretes[i].getNoeud1()->getId();
+		j["edges"][i]["target"] = _aretes[i].getNoeud2()->getId();
 	}
 
 	std::ofstream o(output);
@@ -175,7 +175,7 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 		_noeuds.push_back(Noeud(i));
 		x = j["nodes"][i]["x"];
 		y = j["nodes"][i]["y"];
-		if (areNodePlaced) { _emplacementsPossibles.push_back(Emplacement(x,y,i)); }
+		if (areNodePlaced) { _emplacements.push_back(Emplacement(x,y,i)); }
 	}
 
 	int edgeNumber = static_cast<int>(j["edges"].size());
@@ -194,7 +194,7 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 				tmpVec.push_back(id2);
 				tmpVec.push_back(id2);
 				_noeuds.push_back(Noeud(index));
-				if (areNodePlaced) { _emplacementsPossibles.push_back(Emplacement(x,y,index)); }
+				if (areNodePlaced) { _emplacements.push_back(Emplacement(x,y,index)); }
 				nbArete++;
 				id1 = id2;
 			}
@@ -203,7 +203,7 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 		tmpVec.push_back(id2);
 	}
 	for (int i = 0; i < tmpVec.size(); i += 2) {
-		_liens.push_back(Aretes(&_noeuds[tmpVec[i]], &_noeuds[tmpVec[i + 1]], i / 2));
+		_aretes.push_back(Aretes(&_noeuds[tmpVec[i]], &_noeuds[tmpVec[i + 1]], i / 2));
 	}
 	return tmpVec;
 }
@@ -224,6 +224,6 @@ void Graphe::readFromGraphmlGraph(std::string input) {
         std::string idTargetString = tool.attribute("target").value();
 		int id1 = std::stoi(idSourceString.substr(1));
 		int id2 = std::stoi(idTargetString.substr(1));
-		_liens.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
+		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
     }
 }

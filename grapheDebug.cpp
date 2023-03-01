@@ -4,11 +4,11 @@
 void Graphe::afficherLiens(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
     std::cout << "Affichage DEBUG Aretes: " << nomGraphe << " " << nom << std::endl;
-    std::cout << "Nb Aretes: " << _liens.size() << std::endl;
-    for (int i = 0; i < _liens.size(); i++) {
-        std::cout << "id: " << _liens[i]._id << " idnode1: " << _liens[i].getNoeud1()->getId() << " idnode2: " << _liens[i].getNoeud2()->getId();
-        std::cout << " x1: " << _liens[i].getNoeud1()->getX() << " y1: " << _liens[i].getNoeud1()->getY();
-        std::cout << " x2: " << _liens[i].getNoeud2()->getX() << " y2: " << _liens[i].getNoeud2()->getY();
+    std::cout << "Nb Aretes: " << _aretes.size() << std::endl;
+    for (int i = 0; i < _aretes.size(); i++) {
+        std::cout << "id: " << _aretes[i]._id << " idnode1: " << _aretes[i].getNoeud1()->getId() << " idnode2: " << _aretes[i].getNoeud2()->getId();
+        std::cout << " x1: " << _aretes[i].getNoeud1()->getX() << " y1: " << _aretes[i].getNoeud1()->getY();
+        std::cout << " x2: " << _aretes[i].getNoeud2()->getX() << " y2: " << _aretes[i].getNoeud2()->getY();
         std::cout << std::endl;
     }
     std::cout << "-----------------------------------------------" << std::endl;
@@ -17,9 +17,9 @@ void Graphe::afficherLiens(std::string nom) {
 void Graphe::afficherLiensEmp(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
     std::cout << "Affichage DEBUG Aretes: " << nomGraphe << " " << nom << std::endl;
-    std::cout << "Nb Aretes: " << _liens.size() << std::endl;
-    for (int i = 0; i < _liens.size(); i++) {
-        std::cout << "id: " << _liens[i]._id << " idemp1: " << _liens[i].getNoeud1()->getEmplacement()->_id << " idemp2: " << _liens[i].getNoeud2()->getEmplacement()->_id;
+    std::cout << "Nb Aretes: " << _aretes.size() << std::endl;
+    for (int i = 0; i < _aretes.size(); i++) {
+        std::cout << "id: " << _aretes[i]._id << " idemp1: " << _aretes[i].getNoeud1()->getEmplacement()->_id << " idemp2: " << _aretes[i].getNoeud2()->getEmplacement()->_id;
         std::cout << std::endl;
     }
     std::cout << "-----------------------------------------------" << std::endl;
@@ -44,14 +44,14 @@ void Graphe::afficherNoeuds(std::string nom) {
 void Graphe::afficherEmplacement(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
     std::cout << "Affichage DEBUG Emplacements: " << nomGraphe << " " << nom << std::endl;
-    std::cout << "Nb Emplacements: " << _emplacementsPossibles.size() << std::endl;
-    for (int i = 0; i < _emplacementsPossibles.size(); i++) {
-        std::cout << "id: " << _emplacementsPossibles[i]._id << " x: " << _emplacementsPossibles[i].getX() << " y: " << _emplacementsPossibles[i].getY() << " idnode: ";
-        if (_emplacementsPossibles[i]._noeud == nullptr) {
-            std::cout << "aucun: " << _emplacementsPossibles[i].estDisponible() << std::endl;
+    std::cout << "Nb Emplacements: " << _emplacements.size() << std::endl;
+    for (int i = 0; i < _emplacements.size(); i++) {
+        std::cout << "id: " << _emplacements[i]._id << " x: " << _emplacements[i].getX() << " y: " << _emplacements[i].getY() << " idnode: ";
+        if (_emplacements[i]._noeud == nullptr) {
+            std::cout << "aucun: " << _emplacements[i].estDisponible() << std::endl;
         }
         else {
-            std::cout << _emplacementsPossibles[i]._noeud->getId() << std::endl;
+            std::cout << _emplacements[i]._noeud->getId() << std::endl;
         }
     }
     std::cout << "-----------------------------------------------" << std::endl;
@@ -61,8 +61,8 @@ void Graphe::afficherInfo(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
     std::cout << "Information sur le graphe: " << nomGraphe << " " << nom << std::endl;
     std::cout << "Nombre de noeud: " << _noeuds.size() << std::endl;
-    std::cout << "Nombre d'emplacement: " << _emplacementsPossibles.size() << std::endl;
-    std::cout << "Nombre d'aretes: " << _liens.size() << std::endl;
+    std::cout << "Nombre d'emplacement: " << _emplacements.size() << std::endl;
+    std::cout << "Nombre d'aretes: " << _aretes.size() << std::endl;
     std::cout << "Max Voisin: " << maxVoisin << std::endl;
     std::cout << "-----------------------------------------------" << std::endl;
 }
@@ -74,12 +74,12 @@ int Graphe::afficherAreteDouble(bool display, std::string nom) {
         std::cout << "Affichage DEBUG Arrete Double: " << nomGraphe << " " << nom << std::endl;
     }
     int nbAreteDouble = 0;
-    for (int i = 0; i < _liens.size(); i++) {
-        int id1 = _liens[i].getNoeud1()->getId();
-        int id2 = _liens[i].getNoeud2()->getId();
-        for (int j = i + 1; j < _liens.size(); j++) {
-            int id12 = _liens[j].getNoeud1()->getId();
-            int id22 = _liens[j].getNoeud2()->getId();
+    for (int i = 0; i < _aretes.size(); i++) {
+        int id1 = _aretes[i].getNoeud1()->getId();
+        int id2 = _aretes[i].getNoeud2()->getId();
+        for (int j = i + 1; j < _aretes.size(); j++) {
+            int id12 = _aretes[j].getNoeud1()->getId();
+            int id22 = _aretes[j].getNoeud2()->getId();
             if (((id1 == id12) && (id2 == id22)) || ((id1 == id22) && (id2 == id12))) {
                 std::cout << "Arete: " << i << " & " << j << " Noeud A1: " << id1 << " & " << id2 << " Noeud A2: " << id12 << " & " << id22 << std::endl;
                 nbAreteDouble++;
@@ -136,9 +136,9 @@ int Graphe::afficherEmplacementDouble(bool display, std::string nom) {
         std::cout << "Affichage DEBUG Emplacement Double: " << nomGraphe << " " << nom << std::endl;
     }
     int nbEmplacementDouble = 0;
-    for (int i = 0; i < _emplacementsPossibles.size(); i++) {
-        for (int j = i + 1; j < _emplacementsPossibles.size(); j++) {
-            if ((_emplacementsPossibles[i].getX() == _emplacementsPossibles[j].getX())&&(_emplacementsPossibles[i].getY() == _emplacementsPossibles[j].getY())) {
+    for (int i = 0; i < _emplacements.size(); i++) {
+        for (int j = i + 1; j < _emplacements.size(); j++) {
+            if ((_emplacements[i].getX() == _emplacements[j].getX())&&(_emplacements[i].getY() == _emplacements[j].getY())) {
                 std::cout << "Emplacement: " << i << " & " << j << std::endl;
                 nbEmplacementDouble++;
             }
@@ -212,16 +212,16 @@ int Graphe::debugDesyncNoeudEmplacement(bool display, std::string nom) {
     long nbWrongSync = 0;
     for (int i=0;i<_noeuds.size();i++) {
         if (_noeuds[i]._emplacement != nullptr) {
-            if (_noeuds[i]._id != _emplacementsPossibles[_noeuds[i]._emplacement->_id]._noeud->_id) {
-                std::cout << "Noeud: " << i << " NodeEmpId: " << _noeuds[i]._emplacement->_id << " EmpNodeId: " << _emplacementsPossibles[_noeuds[i]._emplacement->_id]._noeud->_id << std::endl;
+            if (_noeuds[i]._id != _emplacements[_noeuds[i]._emplacement->_id]._noeud->_id) {
+                std::cout << "Noeud: " << i << " NodeEmpId: " << _noeuds[i]._emplacement->_id << " EmpNodeId: " << _emplacements[_noeuds[i]._emplacement->_id]._noeud->_id << std::endl;
                 nbWrongSync++;
             }
         }
     }
-    for (int i=0;i<_emplacementsPossibles.size();i++) {
-        if (!_emplacementsPossibles[i].estDisponible()) {
-            if (_emplacementsPossibles[i]._id != _noeuds[_emplacementsPossibles[i]._noeud->_id]._emplacement->_id) {
-                std::cout << "Emplacement: " << i << " EmpNodeId: " << _emplacementsPossibles[_noeuds[i]._emplacement->_id]._noeud->_id << " NodeEmpId: " << _noeuds[i]._emplacement->_id << std::endl;
+    for (int i=0;i<_emplacements.size();i++) {
+        if (!_emplacements[i].estDisponible()) {
+            if (_emplacements[i]._id != _noeuds[_emplacements[i]._noeud->_id]._emplacement->_id) {
+                std::cout << "Emplacement: " << i << " EmpNodeId: " << _emplacements[_noeuds[i]._emplacement->_id]._noeud->_id << " NodeEmpId: " << _noeuds[i]._emplacement->_id << std::endl;
                 nbWrongSync++;
             }
         }
@@ -325,9 +325,9 @@ int Graphe::debugInterArrays(bool display, std::string nom) {
         std::cout << "Affichage DEBUG Inter Arrays: " << nomGraphe << " " << nom << std::endl;
     }
     long nbWrongArray = 0;
-    for (int i = 0; i < _liens.size(); i++) {
-        for (const int& idOtherArray : _liens[i].intersections) {
-            if (_liens[idOtherArray].intersections.count(i) == 0) {
+    for (int i = 0; i < _aretes.size(); i++) {
+        for (const int& idOtherArray : _aretes[i].intersections) {
+            if (_aretes[idOtherArray].intersections.count(i) == 0) {
                 std::cout << "Inter: " << i << "&" << idOtherArray << std::endl;
                 nbWrongArray++;
             }
@@ -336,8 +336,8 @@ int Graphe::debugInterArrays(bool display, std::string nom) {
                 nbWrongArray++;
             }
         }
-        for (const int& idOtherArray : _liens[i].intersectionsIll) {
-            if (_liens[idOtherArray].intersectionsIll.count(i) == 0) {
+        for (const int& idOtherArray : _aretes[i].intersectionsIll) {
+            if (_aretes[idOtherArray].intersectionsIll.count(i) == 0) {
                 std::cout << "InterIll: " << i << "&" << idOtherArray << std::endl;
                 nbWrongArray++;
             }
@@ -346,8 +346,8 @@ int Graphe::debugInterArrays(bool display, std::string nom) {
                 nbWrongArray++;
             }
         }
-        for (const int& idOtherArray : _liens[i].intersectionsIllSelf) {
-            if (_liens[idOtherArray].intersectionsIllSelf.count(i) == 0) {
+        for (const int& idOtherArray : _aretes[i].intersectionsIllSelf) {
+            if (_aretes[idOtherArray].intersectionsIllSelf.count(i) == 0) {
                 std::cout << "InterIllSelf: " << i << "&" << idOtherArray << std::endl;
                 nbWrongArray++;
             }
@@ -375,8 +375,8 @@ int Graphe::debugDesyncEmplacementCell(bool display, std::string nom) {
         std::cout << "Affichage DEBUG desync emplacement cellule: " << nomGraphe << " " << nom << std::endl;
     }
     long nbFail = 0;
-    for (int i = 0; i < _emplacementsPossibles.size(); i++) {
-        int id = _emplacementsPossibles[i].idCellule;
+    for (int i = 0; i < _emplacements.size(); i++) {
+        int id = _emplacements[i].idCellule;
         if (!isInVector(grillePtr[id]->vecEmplacementId,i)) {
             std::cout << "Emplacement: " << i << " Cellule: " << id << std::endl;
             nbFail++;
@@ -384,7 +384,7 @@ int Graphe::debugDesyncEmplacementCell(bool display, std::string nom) {
     }
     for (int i=0;i<grillePtr.size();i++) {
         for (const int& id : grillePtr[i]->vecEmplacementId) {
-            if (_emplacementsPossibles[id].idCellule != i) {
+            if (_emplacements[id].idCellule != i) {
                 std::cout << "Cellule: " << i << " Emplacement: " << id << std::endl;
                 nbFail++;
             }
@@ -408,8 +408,8 @@ int Graphe::debugDesyncAreteCell(bool display, std::string nom) {
         std::cout << "Affichage DEBUG desync emplacement cellule: " << nomGraphe << " " << nom << std::endl;
     }
     long nbFail = 0;
-    for (int i = 0; i < _liens.size(); i++) {
-        for (const int& id : _liens[i].vecIdCellules) {
+    for (int i = 0; i < _aretes.size(); i++) {
+        for (const int& id : _aretes[i].vecIdCellules) {
             if (!isInVector(grillePtr[id]->vecAreteId,i)) {
                 std::cout << "Arete: " << i << " Cellule: " << id << std::endl;
                 nbFail++;
@@ -418,7 +418,7 @@ int Graphe::debugDesyncAreteCell(bool display, std::string nom) {
     }
     for (int i=0;i<grillePtr.size();i++) {
         for (const int& id : grillePtr[i]->vecAreteId) {
-            if (!isInVector(_liens[id].vecIdCellules,i)) {
+            if (!isInVector(_aretes[id].vecIdCellules,i)) {
                 std::cout << "Cellule: " << i << " Arete: " << id << std::endl;
                 nbFail++;
             }
@@ -441,7 +441,7 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
     total += afficherAreteDouble(displayOther);
     if (displaySelf) { std::cout << "Debut debug noeud double\n"; }
     total += afficherNoeudDouble(displayOther);
-    if (_emplacementsPossibles.size() < ((_noeuds.size()*_noeuds.size())/2)) {
+    if (_emplacements.size() < ((_noeuds.size()*_noeuds.size())/2)) {
         if (displaySelf) { std::cout << "Debut debug emplacement double\n"; }
         total += afficherEmplacementDouble(displayOther);
     }
