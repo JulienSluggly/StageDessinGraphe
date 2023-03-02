@@ -39,6 +39,7 @@ void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pair
 	}
 }
 
+// A besoin d'au moin 4 threads pour effectuer toutes les executions.
 void customRecuit() {
 	fillLogsVector();
 	std::string nomFichierGraph = "graph-10-input";
@@ -54,21 +55,15 @@ void customRecuit() {
 				printf("Number of threads working on training data: %d\n", nthreads);
 			}
 			std::vector<std::vector<double>> totalRuns;
-			totalRuns.push_back({8,3});
-			totalRuns.push_back({8,4});
-			totalRuns.push_back({8,5});
-			totalRuns.push_back({8,6});
-			totalRuns.push_back({8,7});
-			totalRuns.push_back({8,8});
-			totalRuns.push_back({8,9});
-			totalRuns.push_back({8,10});
-			totalRuns.push_back({8,11});
-			totalRuns.push_back({8,12});
-			totalRuns.push_back({8,13});
-			totalRuns.push_back({8,14});
-			totalRuns.push_back({8,15});
+			totalRuns.push_back({0,3,200000});
+			totalRuns.push_back({0,3,150000});
+			totalRuns.push_back({0,3,100000});
+			totalRuns.push_back({0,3,75000});
+			totalRuns.push_back({0,3,50000});
+			totalRuns.push_back({0,3,25000});
+			totalRuns.push_back({0,3,10000});
 			for (int i=0;i<totalRuns.size();i++) {
-				generateCSV(10,"Aleatoire","Reezcuit Simule Grille TME Custom","graph-10-input",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
+				generateCSV(10,"Aleatoire","Rerecuit Simule Grille TME Custom","graph-10-input",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
 			}
 		}
 		printf("Thread: %d done.\n",tid);

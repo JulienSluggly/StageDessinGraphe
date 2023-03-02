@@ -143,7 +143,7 @@ int Graphe::selectionNoeud(int modeNoeud, int t, bool isScoreUpdated) {
     return nodeId;
 }
 
-// Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
+// Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple,3=Triangulation
 int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<double>& customParam, int iter) {
     int slotId;
     switch (modeEmplacement) {
@@ -160,26 +160,28 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         break;
     }
     case 2: {
-        int nbTirage = ((100 - t) / 15) + 1;
+        int nbTirage;
+        if (customParam.size() > 2) {
+            if (customParam[0] == 0) {
+                if (customParam[1] == 0) {
+                    nbTirage = customParam[2];
+                }
+                else if (customParam[1] == 1) {
+                    nbTirage = ((100 - t) / customParam[2]) + 1;
+                }
+                else if (customParam[1] == 2) {
+                    nbTirage = (iter / 100000) + customParam[2];
+                }
+                else if (customParam[1] == 3) {
+                    nbTirage = (iter / customParam[2]) + 1;
+                }
+            }
+        }
+        nbTirage = (iter / 100000) + 3;
         slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
         break;
     }
     case 3: {
-        /*int nbTirage;
-        if (customParam[0] == 0) {
-            nbTirage == customParam[1];
-        }
-        else if (customParam[0] == 1) {
-            nbTirage = ((100 - t) / customParam[1]) + 1;
-        }
-        else if (customParam[0] == 2) {
-            nbTirage = (iter / 100000) + customParam[1];
-        }*/
-        int nbTirage = (iter / 100000) + 3;
-        slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
-        break;
-    }
-    case 4: {
         int profondeur = (iter / 100000) + 10;
         if (customParam.size() > 0) {
             if (customParam[0] == 7) {
@@ -305,8 +307,8 @@ void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeu
 
 // Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 // Met à jour la variable nombreCroisement du graphe.
-// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
-// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
+// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
+// Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
 void Graphe::recuitSimule(double &timeBest, std::vector<double> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore) {
     auto start = std::chrono::system_clock::now(); auto end = start; // Timer pour le meilleur resultat trouvé
     std::vector<int> bestResultVector; Graphe bestResultGraphe; // Sauvegarde du meilleur graphe.
@@ -370,12 +372,12 @@ void Graphe::recuitSimule(double &timeBest, std::vector<double> customParam, dou
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
 void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::vector<double> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore) {
-    applyRerecuitCustomParam(t,cool,coolt,seuil,customParam);
     auto start = std::chrono::system_clock::now();
     auto end = start;
+    applyRerecuitCustomParam(t,cool,coolt,seuil,customParam);
+    nombreRecuit= 0;
     if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
-    int numberOfNoUpgrade = 0;
-    int maxIter = 2;
+    int numberOfNoUpgrade = 0, maxIter = 2;
     if (iter != -1) { maxIter = iter; }
     long lastCroisement;
     if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }

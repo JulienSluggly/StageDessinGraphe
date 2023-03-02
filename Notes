@@ -3,13 +3,13 @@ Structure arete:
 
 Moyenne sur les crossing number?
 
+Trouver une methode de energy layout qui n'utilise pas les bends
+
 Iterative edge insertion and optimize at each step the number of crossings
 
-Selection de noeud pas au hasard mais ordonnée par score?
+Selection de noeud pas au hasard mais ordonnée par score? ordonné, avant pusi arriere?
 
 Tester sur les romes graphs, AT&T, Triangulation+X
-
-Refaire plus de tests sur le nombre d'emplacement a tirer
 
 Tests avec delay plutot que cool?
 
@@ -18,3 +18,13 @@ Variante recuit qui modifie la probabilité d'acceptation
 Faire une version ogdf placement au plus proche qui place les voisins d'un noeud au plus proche recursivement parcour en largeur
 
 Faire tests recuit avec les differents placements au plus proche d'ogdf
+
+Refaire le recuit score en intégrant la grille
+
+Faire le glouton grille.
+
+Faire des tests avec autre qu'un depart aleatoire, max planar graph? glouton?
+
+Utilisation d'un solver, branch and bound?
+
+Faire notre propre version du stress majorization.

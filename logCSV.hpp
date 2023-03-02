@@ -12,6 +12,7 @@
 #include "personnel.hpp"
 #include <omp.h>
 #include <climits>
+#include <ctime>
 #include <algorithm>
 
 std::vector<std::string> methodeWithScore;
@@ -96,11 +97,11 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0, debugValue=-1;
 	std::vector<int> croisementVector;
-	std::vector<double> tempExecVector; std::vector<double> tempBestVector; std::vector<int> bestIterationVector; std::vector<int> lastIterationVector;
-	double tempsExecMoyenne = 0; double tempsBestMoyenne = 0; double bestIterationMoyenne = 0; double lastIterationMoyenne = 0;
+	std::vector<double> tempExecVector, tempBestVector; std::vector<int> bestIterationVector, lastIterationVector, nombreRecuitVector;
+	double tempsExecMoyenne, tempsBestMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne;
 	bool saveResult = true;
 	int population, maxIteration;
-	int nombreRecuit = 0, nombreSlots, nombreCellule;
+	int nombreRecuit, nombreSlots, nombreCellule;
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
 	for (int i = 1; ((((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600))&&(i <= 100)); ++i) {
@@ -115,7 +116,12 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		}
 		saveResult = true;
 		if (customParam.size() > 1) {
-			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],secondsTotalExec.count());
+			if (customParam.size() > 2) {
+				printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | Param: {%.0f,%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],customParam[2],secondsTotalExec.count());
+			}
+			else {
+				printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],secondsTotalExec.count());
+			}
 		}
 		else {
 			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),secondsTotalExec.count());
@@ -161,7 +167,8 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 			}
 		}
 
-		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest);
+		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
@@ -183,6 +190,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		tempBestVector.push_back(tempsBest);
 		bestIterationVector.push_back(bestIteration);
 		lastIterationVector.push_back(lastIteration);
+		nombreRecuitVector.push_back(nombreRecuit);
 		nombreSlots = G._emplacements.size();
 		nombreCellule = G.grillePtr.size();
 		if (G.isNombreCroisementUpdated) {
@@ -206,6 +214,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		tempsBestMoyenne = moyenneVector(tempBestVector);
 		bestIterationMoyenne = moyenneVector(bestIterationVector);
 		lastIterationMoyenne = moyenneVector(lastIterationVector);
+		nombreRecuitMoyenne = moyenneVector(nombreRecuitVector);
 
 		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
@@ -213,6 +222,10 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		if (position == 0) {
 			//resultats << "MethodeUtilisee,AlgoDeplacement,NbRun,NbSlots,NbIllegal,BestCross,MoyCross,MedCross,MoyBest(s),MoyTotal(s),Population,MaxGen,MoyBestGen,MoyLastGen,Machine,CustomParams\n";
 		}
+
+		char date[80];
+		time_t t = time(0);
+    	strftime(date, 80, "%d/%m/%Y", localtime(&t));
 
 		resultats << std::fixed;
 		resultats << methodeName << ","
@@ -229,17 +242,21 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		if (isGenetique) {
 			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
 		}
-		resultats << "," << nombreRecuit << "," << getTypeSeed() << "," << machine;
+		else {
+			resultats << "," << std::setprecision(1) << nombreRecuitMoyenne;
+		}
+		resultats << "," << getTypeSeed() << "," << machine;
 		if (customParam.size() > 1) {
 			resultats << "," << std::setprecision(1) << customParam[0] << " " << std::setprecision(2) << customParam[1];
 			for (int j=2;j<customParam.size();j++) {
-				resultats << " " << to_string(customParam[j]) << " ";
+				resultats << " " << to_string(customParam[j]);
 			}
 		}
-		if (needGrille) {
-			resultats << "," << nombreCellule;
+		else {
+			resultats << ",";
 		}
-		resultats << "," << debugValue << "\n";
+		resultats << "," << nombreCellule;
+		resultats << "," << debugValue << "," << date << "\n";
 		resultats.close();
 	}
 }

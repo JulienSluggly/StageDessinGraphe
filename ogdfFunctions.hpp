@@ -436,6 +436,7 @@ void ogdfFMMMLayout(Graphe& G) {
 	fmmml.call(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
 
 void ogdfGEMLayout(Graphe& G) {

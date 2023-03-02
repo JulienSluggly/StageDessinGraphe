@@ -44,14 +44,15 @@ void runFuncOnAllGraphs() {
 }
 
 int main() {
-	//initRandomSeed();
-	initSameSeed();
-
+	initRandomSeed();
+	//initSameSeed();
+	//customRecuit();
+	//return 0;
 	//runFuncOnAllGraphs(); return 0;
 
 	Graphe G;
 	std::string nomFichierGraph = "graph-10-input";
-	std::string nomFichierSlots = "2X-10-input-slots";
+	std::string nomFichierSlots = "10-input-slots";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	G.setupGraphe(nomFichierGraph,nomFichierSlots);
@@ -66,17 +67,18 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 	
-	G.placementAleatoire();
+	//G.placementAleatoire();
 	//G.triangulationDelaunay();
-	G.initGrille();
-	G.registerSlotsAndEdgesInGrid();
+	//G.initGrille();
+	//G.registerSlotsAndEdgesInGrid();
+	//ogdfPivotMDS(G);
 	//ogdfRun(G);
 	//ogdfStressMinimization(G);
 	//ogdfOther(G);
 
 	//ogdfReverseNonPlanar(G);
 
-	G.recuitSimule(tempsBest);
+	//G.recuitSimule(tempsBest);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.999999,0.999,150.0,0.000001,1,0,3);
 	//G.rerecuitSimuleGrid(tempsBest,nombreRecuit,-1,0.99999,0.99,100.0,0.0001,1,0,4);
 	//G.recuitSimule(tempsBest,0.99999, 100.0,0.0001, 1, 0, 3);
