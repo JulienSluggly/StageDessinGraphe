@@ -400,15 +400,13 @@ void Graphe::clearGrille() {
     }
 }
 
-void Graphe::initGrille(int row,int column,bool decalleGrille) {
-    if (decalleGrille) {
-        for (int i=0;i<_emplacements.size();i++) {
-            _emplacements[i]._x = (_emplacements[i]._x*2)+2;
-            _emplacements[i]._y = (_emplacements[i]._y*2)+2;
-        }
-        gridWidth = (gridWidth * 2) + 2;
-        gridHeight = (gridHeight * 2) + 2;
+void Graphe::initGrille(int row,int column) {
+    for (int i=0;i<_emplacements.size();i++) {
+        _emplacements[i]._x = (_emplacements[i]._x*2)+2;
+        _emplacements[i]._y = (_emplacements[i]._y*2)+2;
     }
+    gridWidth = (gridWidth * 2) + 2;
+    gridHeight = (gridHeight * 2) + 2;
     if (row == -1) { row = (int)ceil(sqrt(_aretes.size())*1.5); }
     if (column == -1) { column = row; }
     int sizeColumn = ceil((double)gridWidth / (double)column);
@@ -436,8 +434,35 @@ void Graphe::initGrille(int row,int column,bool decalleGrille) {
 
 }
 
+void Graphe::initGrilleNoMove(int row,int column) {
+    if (row == -1) { row = (int)ceil(sqrt(_aretes.size())*1.5); }
+    if (column == -1) { column = row; }
+    int sizeColumn = ceil((double)gridWidth / (double)column);
+    int sizeRow = ceil((double)gridHeight / (double)row);
+    for (int y=0;y<row;y++) {
+        std::vector<Cellule> tmpVec;
+        for (int x=0;x<column;x++) {
+            int id = y*sizeColumn + x;
+            int x1 = x*sizeColumn;
+            int x2 = x1+sizeColumn;
+            int y1 = y*sizeRow;
+            int y2 = y1+sizeRow;
+            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1));
+        }
+        grille.push_back(tmpVec);
+    }
+
+    for (int i=0;i<grille.size();i++) {
+        for (int j=0;j<grille[0].size();j++) {
+            grillePtr.push_back(&grille[i][j]);
+        }
+    }
+
+}
+
+
 // Pas utilisé
-void Graphe::registerSlotsAndEdgesInGridNoMove() {
+void Graphe::registerSlotsInGridNoMove() {
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
     for (int i=0;i < _emplacements.size();i++) {
@@ -459,42 +484,40 @@ void Graphe::registerSlotsAndEdgesInGridNoMove() {
                 if ((numY2 >= 0)&&(numY2 < grille.size())) { // Ajout numY2 & numX
                     if (numX < grille[0].size()) {
                         id = numY2 * grille[0].size() + numX;
-                        //_emplacements[i].vecIdCellules.push_back(id);
+                        _emplacements[i].idCelluleVec.push_back(id);
                         grille[numY2][numX].vecEmplacementId.push_back(i);
                     }
                     if ((numX2 >= 0)&&(numX2 < grille[0].size())) { // Ajout numY2 et numX2
                         id = numY2 * grille[0].size() + numX2;
-                        //_emplacements[i].vecIdCellules.push_back(id);
+                        _emplacements[i].idCelluleVec.push_back(id);
                         grille[numY2][numX2].vecEmplacementId.push_back(i);
                     }
                 }
             }
             if ((numX2 >= 0)&&(numX2 < grille[0].size())&&numY < grille.size()) { // Ajout numY et numX2
                 id = numY * grille[0].size() + numX2;
-                //_emplacements[i].vecIdCellules.push_back(id);
+                _emplacements[i].idCelluleVec.push_back(id);
                 grille[numY][numX2].vecEmplacementId.push_back(i);
             }
         }
         else if (numY2 != numY) { // Cas juste aligné sur segment horizontal de la grille
             if ((numY2 >= 0)&&(numY2 < grille.size())&&numX < grille[0].size()) { // Ajout numY2 & numX
                 id = numY2 * grille[0].size() + numX;
-                //_emplacements[i].vecIdCellules.push_back(id);
+                _emplacements[i].idCelluleVec.push_back(id);
                 grille[numY2][numX].vecEmplacementId.push_back(i);
             }
         }
         // Ajout numY & numX
         if (numY < grille.size() && numX < grille[0].size()) {
             id = numY * grille[0].size() + numX;
-            //_emplacements[i].vecIdCellules.push_back(id);
+            _emplacements[i].idCelluleVec.push_back(id);
             grille[numY][numX].vecEmplacementId.push_back(i);
         }
     }
+}
 
-    for (int i=0;i<_aretes.size();i++) {
-        int direction = getDirectionArete(i);
-
-        // A faire si besoin
-    }
+void Graphe::registerEdgesInGridNoMove() {
+    // NYI
 }
 
 void Graphe::registerSlotsAndEdgesInGrid() {
@@ -1092,11 +1115,82 @@ Emplacement* Graphe::getClosestEmplacementFromPoint(double x, double y) {
     for (int i=0;i<_emplacements.size();i++) {
         double xDiff = x - (double)_emplacements[i].getX();
 		double yDiff = y - (double)_emplacements[i].getY();
-        double newDist = sqrt(xDiff * xDiff + yDiff * yDiff);
+        double newDist = xDiff * xDiff + yDiff * yDiff;
         if (newDist < minDist) {
             minDist = newDist;
             empId = i;
         }
     }
     return &_emplacements[empId];
+}
+
+void Graphe::searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist) {
+    for (int& empId : grille[cellY][cellX].vecEmplacementId) {
+        double xDiff = x - (double)_emplacements[empId].getX();
+        double yDiff = y - (double)_emplacements[empId].getY();
+        double newDist = xDiff * xDiff + yDiff * yDiff;
+        if (newDist < minDist) {
+            minDist = newDist;
+            closestEmpId = empId;
+        }
+    }
+}
+
+// Vide le vecteur et ajoute les id des cellules autour des précédentes.
+// La premiere case du vecteur est la cellule en bas a gauche de la zone, la derniere et la cellule en haut a droite.
+void Graphe::enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector) {
+    std::pair<int,int> firstCellCoord = searchVector[0];
+    std::pair<int,int> lastCellCoord = searchVector[searchVector.size()-1];
+    int startX = std::max(firstCellCoord.first-1,0);
+    int endX = std::min(lastCellCoord.first+1,(int)grille[0].size()-1);
+    int startY = std::max(firstCellCoord.second-1,0);
+    int endY = std::min(lastCellCoord.second+1,(int)grille.size()-1);
+    searchVector.clear();
+    for (int x=startX;x<=endX;x++) {
+        searchVector.push_back(make_pair(x,startY));
+    }
+    for (int y=startY;y<endY;y++) {
+        searchVector.push_back(make_pair(startX,y));
+        searchVector.push_back(make_pair(endX,y));
+    }
+    for (int x=startX;x<=endX;x++) {
+        searchVector.push_back(make_pair(x,endY));
+    }
+}
+
+Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y) {
+    int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
+    int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
+    double dnumX = x/(double)sizeColumn;
+    double dnumY = y/(double)sizeRow;
+    int numX = round(dnumX);
+    if (numX == grille[0].size()) { numX--; }
+    int numY = round(dnumY);
+    if (numY == grille.size()) { numY--; }
+    int startX = std::max(numX-1,0);
+    int endX = std::min(numX+1,(int)grille[0].size()-1);
+    endX = std::max(endX,0);
+    int startY = std::max(numY-1,0);
+    int endY = std::min(numY+1,(int)grille.size()-1);
+    endY = std::max(endY,0);
+    std::vector<std::pair<int,int>> searchVector;
+    for (int i=startY;i<=endY;i++) {
+        for (int j=startX;j<=endX;j++) {
+            searchVector.push_back(make_pair(j,i));
+        }
+    }
+    //std::cout << "dnumX: " << dnumX << " dnumY: " << dnumY << std::endl;
+    //std::cout << "numX: " << numX << " numY: " << numY << std::endl;
+    //std::cout << "StartX: " << startX << " EndX: " << endX << " StartY: " << startY << " EndY: " << endY << std::endl;
+    double minDist = __DBL_MAX__;
+    int closestEmpId = -1;
+    while (closestEmpId == -1) {
+        for (std::pair<int,int>& cellCoord : searchVector) {
+            searchInCellClosestEmplacement(x,y,cellCoord.first,cellCoord.second,closestEmpId,minDist);
+        }
+        if (closestEmpId == -1) {
+            enlargeSearchVector(searchVector);
+        }
+    }
+    return &_emplacements[closestEmpId];
 }

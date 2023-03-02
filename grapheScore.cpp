@@ -710,7 +710,7 @@ long Graphe::getNbCroisementConst() const {
 }
 
 // Ne modifie pas le score
-void Graphe::getNbCroisementDiff() {
+long Graphe::getNbCroisementDiff() {
     nombreInter = 0;
     nombreInterIll = 0;
     nombreInterIllSelf = 0;
@@ -743,6 +743,50 @@ void Graphe::getNbCroisementDiff() {
             }
         }
     }
+    return nombreInter+nombreInterIll+nombreInterIllSelf;
+}
+
+long Graphe::getNbCroisementDiffGrid() {
+    nombreInter = 0;
+    nombreInterIll = 0;
+    nombreInterIllSelf = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _aretes.size() - 1; ++i) {
+        std::vector<int> indexPasseCellule;
+        for (int j = 0; j < _aretes[i].vecIdCellules.size(); ++j) {
+            std::vector<int>& vecId = grillePtr[_aretes[i].vecIdCellules[j]]->vecAreteId;
+            for (int k=0; k < vecId.size();k++) {
+                if ((i != vecId[k]) && (!isInVector(indexPasse, vecId[k]) && (!isInVector(indexPasseCellule,vecId[k])))) {
+                    if (!(_aretes[i].contains(_aretes[vecId[k]].getNoeud1()) || _aretes[i].contains(_aretes[vecId[k]].getNoeud2()))) {
+                        bool isIllegal = false;
+                        if (seCroisent(_aretes[i], _aretes[vecId[k]],isIllegal)) {
+                            if (isIllegal) {
+                                nombreInterIll++;
+                            }
+                            else {
+                                nombreInter++;
+                            }
+                        }
+                    }
+                    else {
+                        Noeud* nodeNotInCommon = _aretes[vecId[k]].nodeNotInCommon(&_aretes[i]);
+                        if (surSegment(_aretes[i], *nodeNotInCommon)) {
+                            nombreInterIllSelf++;
+                        }
+                        else {
+                            nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[vecId[k]]);
+                            if (surSegment(_aretes[vecId[k]], *nodeNotInCommon)) {
+                                nombreInterIllSelf++;
+                            }
+                        }
+                    }
+                    indexPasseCellule.push_back(vecId[k]);
+                }
+            }
+        }
+        indexPasse.push_back(i);
+    }
+    return nombreInter+nombreInterIll+nombreInterIllSelf;
 }
 
 long Graphe::getNbCroisementOldMethodConst() const {

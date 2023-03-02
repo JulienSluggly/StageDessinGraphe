@@ -376,7 +376,9 @@ public:
 
 	long getNbCroisementConst() const;
 
-	void getNbCroisementDiff();
+	long getNbCroisementDiff();
+
+	long getNbCroisementDiffGrid();
 
 	long getNbCroisementOldMethodConst() const;
 
@@ -446,7 +448,9 @@ public:
 	void triangulationDelaunay();
 
 	// Remplie la grille de cellules, nombre de ligne et nombre de colones
-	void initGrille(int row=-1,int column=-1,bool decalleGrille=true);
+	void initGrille(int row=-1,int column=-1);
+
+	void initGrilleNoMove(int row=-1,int column=-1);
 
 	// Supprime la grille courante et la reinitialise
 	void reinitGrille();
@@ -461,7 +465,9 @@ public:
 	void registerEdgesInGrid();
 
 	// Enregistre avec alignements d'emplacements
-	void registerSlotsAndEdgesInGridNoMove();
+	void registerSlotsInGridNoMove();
+
+	void registerEdgesInGridNoMove();
 
 	// Renvoie un entier indiquant la direction de l'arete noeud1 vers noeud2.
 	//0=R,1=TR,2=T,3=TL,4=L,5=BL,6=B,7=BR
@@ -492,6 +498,12 @@ public:
 	void scaleGraph(int n);
 
 	Emplacement* getClosestEmplacementFromPoint(double x, double y);
+
+	Emplacement* getClosestEmplacementFromPointGrid(double x, double y);
+
+	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist);
+
+	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
 
 };
 

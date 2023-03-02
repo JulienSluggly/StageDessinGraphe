@@ -27,4 +27,6 @@ Faire des tests avec autre qu'un depart aleatoire, max planar graph? glouton?
 
 Utilisation d'un solver, branch and bound?
 
-Faire notre propre version du stress majorization.
+Grille pour le stress majorization pour la recherche de l'emplacement le plus proche?
+
+Pourquoi le useGrille = true donne des plus mauvais resultats qu'avec le false?

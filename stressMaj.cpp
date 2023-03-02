@@ -60,7 +60,7 @@ void StressMajorization::calcWeights(Graphe& G, std::vector<std::vector<double>>
 }
 
 void StressMajorization::nextIteration(Graphe& G, std::vector<std::vector<double>>& shortestPathMatrix, std::vector<std::vector<double>>& weightMatrix) {
-	for (int nodeId=0;nodeId<G._noeuds.size();nodeId++) {
+    for (int nodeId=0;nodeId<G._noeuds.size();nodeId++) {
 		double newXCoord = 0.0;
 		double newYCoord = 0.0;
 		double currXCoord = G._noeuds[nodeId].getX();
@@ -101,13 +101,20 @@ void StressMajorization::nextIteration(Graphe& G, std::vector<std::vector<double
 			currXCoord = newXCoord / totalWeight;
 			currYCoord = newYCoord / totalWeight;
 		}
-        Emplacement* closestEmplacement = G.getClosestEmplacementFromPoint(currXCoord,currYCoord);
+        Emplacement* closestEmplacement;
+        if (m_useGrille) {
+            Emplacement* closestEmplacement = G.getClosestEmplacementFromPointGrid(currXCoord,currYCoord);
+        }
+        else {
+            closestEmplacement = G.getClosestEmplacementFromPoint(currXCoord,currYCoord);
+        }
         Emplacement* currentEmplacement = G._noeuds[nodeId].getEmplacement();
         if (closestEmplacement->_id != currentEmplacement->_id) {
             if (closestEmplacement->estDisponible()) {
                 G._noeuds[nodeId].setEmplacement(closestEmplacement);
             }
             else {
+                int idSwappedNode = closestEmplacement->_noeud->_id;
                 G._noeuds[nodeId].swap(closestEmplacement);
             }
         }
@@ -130,8 +137,10 @@ void StressMajorization::minimizeStress(Graphe& G, std::vector<std::vector<doubl
 	std::vector<double> newX;
 	std::vector<double> newY;
 
+    int i=0;
 	do {
 		nextIteration(G, shortestPathMatrix, weightMatrix);
+        i++;
 	} while (!finished(G, ++numberOfPerformedIterations, newX, newY, prevStress, curStress));
 }
 
