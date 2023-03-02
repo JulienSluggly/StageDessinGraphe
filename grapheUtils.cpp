@@ -1076,3 +1076,27 @@ void Graphe::translateGrapheToOrigin() {
     gridWidth -= minX;
     gridHeight -= minY;
 }
+
+void Graphe::scaleGraph(int n) {
+    for (int i=0;i<_emplacements.size();i++) {
+        _emplacements[i]._x *= n;
+        _emplacements[i]._y *= n;
+    }
+    gridHeight *= n;
+    gridWidth *= n;
+}
+
+Emplacement* Graphe::getClosestEmplacementFromPoint(double x, double y) {
+    double minDist = __DBL_MAX__;
+    int empId = -1;
+    for (int i=0;i<_emplacements.size();i++) {
+        double xDiff = x - (double)_emplacements[i].getX();
+		double yDiff = y - (double)_emplacements[i].getY();
+        double newDist = sqrt(xDiff * xDiff + yDiff * yDiff);
+        if (newDist < minDist) {
+            minDist = newDist;
+            empId = i;
+        }
+    }
+    return &_emplacements[empId];
+}

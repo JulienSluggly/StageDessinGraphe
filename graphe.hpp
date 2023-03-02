@@ -46,6 +46,10 @@ public:
 
 	bool RECUIT_LIMIT_3600 = true; // Indique si on limite le temps d'un rerecuit a 3600 secondes.
 
+	long nombreInter = -1; // Variable pas à jour
+	long nombreInterIll = -1; // Variable pas à jour
+	long nombreInterIllSelf = -1; // Variable pas à jour;
+
 	std::string nomGraphe = "Graphe";
 
 	Graphe(){}
@@ -372,6 +376,8 @@ public:
 
 	long getNbCroisementConst() const;
 
+	void getNbCroisementDiff();
+
 	long getNbCroisementOldMethodConst() const;
 
 	// Ne met pas a jour le nombre de croisement du graphe
@@ -482,6 +488,10 @@ public:
 	void setupGraphe(std::string fileGraphe, std::string fileSlot);
 
 	void translateGrapheToOrigin();
+
+	void scaleGraph(int n);
+
+	Emplacement* getClosestEmplacementFromPoint(double x, double y);
 
 };
 

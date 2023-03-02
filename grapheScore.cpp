@@ -709,6 +709,42 @@ long Graphe::getNbCroisementConst() const {
     return total;
 }
 
+// Ne modifie pas le score
+void Graphe::getNbCroisementDiff() {
+    nombreInter = 0;
+    nombreInterIll = 0;
+    nombreInterIllSelf = 0;
+    for (int i = 0; i < _aretes.size() - 1; ++i) {
+        for (int j = i + 1; j < _aretes.size(); ++j) {
+            //Aretes aretes1 = _aretes[i], aretes2 = _aretes[j];
+            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                bool isIllegal = false;
+                if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
+                    if (isIllegal) {
+                        nombreInterIll++;
+                    }
+                    else {
+                        nombreInter++;
+                    }
+                }
+            }
+            else {
+                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                if (surSegment(_aretes[i], *nodeNotInCommon))
+                {
+                    nombreInterIllSelf++;
+                }
+                else {
+                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
+                        nombreInterIllSelf++;
+                    }
+                }
+            }
+        }
+    }
+}
+
 long Graphe::getNbCroisementOldMethodConst() const {
     long total = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i)

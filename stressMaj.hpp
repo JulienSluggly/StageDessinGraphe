@@ -9,7 +9,8 @@ public:
 
     double m_epsilon=0.0001;
     int m_npivot = 50;
-    int m_edgeCosts = 100;
+    int m_edgeCosts = 45;
+    int m_iterations = 400;
 
     void initMatrices(Graphe& G, std::vector<std::vector<double>>& shortestPathMatrix, std::vector<std::vector<double>>& weightMatrix);
 
@@ -24,6 +25,10 @@ public:
     void minimizeStress(Graphe& G, std::vector<std::vector<double>>& shortestPathMatrix, std::vector<std::vector<double>>& weightMatrix);
     
     void runAlgo(Graphe& G, std::vector<std::vector<double>>& shortestPathMatrix, std::vector<std::vector<double>>& weightMatrix);
+
+    void nextIteration(Graphe& G, std::vector<std::vector<double>>& shortestPathMatrix, std::vector<std::vector<double>>& weightMatrix);
+
+    bool finished(Graphe& G, int numberOfPerformedIterations, std::vector<double>& newX, std::vector<double>& newY, double prevStress, double curStress);
 
 };
 
