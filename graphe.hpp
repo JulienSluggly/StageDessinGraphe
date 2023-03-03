@@ -39,6 +39,7 @@ public:
 	bool isCarteSetUp = false; // Indique si la triangulation de delaunay sur le graphe a été faite.
 
 	int maxVoisin = -1; // Nombre maximum de voisin d'un noeud dans le graphe. Pas forcément à jour.
+	double avgVoisin = -1; // Nombre moyen de voisin d'un noeud dans le graphe. Pas forcément à jour.
 
 	bool DEBUG_GRAPHE = false; // Affiche uniquement les informations importantes
 	bool DEBUG_PROGRESS = false; // Affiche des informations pendant les itérations
@@ -532,6 +533,8 @@ public:
 	void stressMajorization(std::vector<double> customParam = {});
 
 	bool isGrapheConnected();
+
+	void calcMaxAndAverageDegree();
 
 };
 

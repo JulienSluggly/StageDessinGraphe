@@ -7,7 +7,7 @@ Trouver une methode de energy layout qui n'utilise pas les bends
 
 Iterative edge insertion and optimize at each step the number of crossings
 
-Selection de noeud pas au hasard mais ordonnée par score? ordonné, avant pusi arriere?
+Selection de noeud pas au hasard mais ordonnée par score? ordonné, avant puis arriere?
 
 Tester sur les romes graphs, AT&T, Triangulation+X
 
@@ -21,13 +21,12 @@ Faire tests recuit avec les differents placements au plus proche d'ogdf
 
 Refaire le recuit score en intégrant la grille
 
-Faire le glouton grille en placement de depart.
-
 Utilisation d'un solver, branch and bound?
 
-Pourquoi le useGrille = true donne des plus mauvais resultats qu'avec le false? Grille avec cellule carée?
-
+Ameliorer recherche plus proche dans cellule carre?
 
 Faire des tests avec autre qu'un depart aleatoire, max planar graph? glouton?
 
 Faire des tests sur le placement de depart avec stressMin en variant edgeCost, comparer avec placement aleatoire et glouton
+
+Passer customParam en vecteur de vecteur pour avoir plusieurs customisation en meme temps

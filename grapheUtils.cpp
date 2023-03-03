@@ -1274,3 +1274,16 @@ bool Graphe::isGrapheConnected() {
     }
     return (totalVisited == _noeuds.size());
 }
+
+void Graphe::calcMaxAndAverageDegree() {
+    maxVoisin = 0;
+    avgVoisin = 0.0;
+    for (int i=0;i<_noeuds.size();i++) {
+        int nombreVoisin = _noeuds[i]._aretes.size();
+        if (nombreVoisin > maxVoisin) {
+            maxVoisin = nombreVoisin;
+        }
+        avgVoisin += nombreVoisin;
+    }
+    avgVoisin = avgVoisin / (double)_noeuds.size();
+}

@@ -16,6 +16,25 @@
 #include "utilitaire.hpp"
 #include "stressMaj.hpp"
 
+void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIteration, int nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start) {
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotal = end - start;
+	std::cout << std::fixed << secondsTotal.count() << "s for placement.\n";
+	if (tempsBest != -1) std::cout << tempsBest << "s meilleur resultat.\n";
+	if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
+	if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
+	if (nombreRecuit != 0) std::cout << "Nombre de rechauffe: " << nombreRecuit << "\n";
+	if (G.estPlace()) { std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
+		if (G.hasIllegalCrossing())  { 
+			std::cout << "Solution illegale.\n";
+			G.getNbCroisementDiff();
+			std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
+		}
+		G.debugEverything(false,false);
+	}
+	std::cout << "Setup complete!" << std::endl;
+}
+
 void runFuncOnAllGraphs() {
 	for (int i=1;i<=12;i++) {
 		std::cout << "---------------------\n";
@@ -29,25 +48,17 @@ void runFuncOnAllGraphs() {
 		G.DEBUG_GRAPHE = true;
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
-		G.placementAleatoire();
-		ogdfOther(G);
-		auto end = std::chrono::system_clock::now();
-		std::chrono::duration<double> secondsTotal = end - start;
-		std::cout << std::fixed << secondsTotal.count() << "s for placement.\n";
-		if (tempsBest != -1) std::cout << tempsBest << "s meilleur resultat.\n";
-		if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
-		if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
-		if (nombreRecuit != 0) std::cout << "Nombre de rechauffe: " << nombreRecuit << "\n";
-		if (G.estPlace()) std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
-		if (G.hasIllegalCrossing()) std::cout << "Solution illegale.\n";
-		if (G.estPlace()) G.debugEverything(false,false);
+		G.calcMaxAndAverageDegree();
+		std::cout << "Max Deg: " << G.maxVoisin << " Avg: " << G.avgVoisin << std::endl;
+		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
 	}
 }
 
 int main() {
 	initRandomSeed();
 	//initSameSeed();
-	allRunsBySlots(); allRunsBySlotsSecondRun(); allRunsBySlotsThirdRun(); return 0;
+	//allRunsBySlots(); allRunsBySlotsSecondRun(); allRunsBySlotsThirdRun(); return 0;
+	//runFuncOnAllGraphs(); return 0;
 
 	Graphe G;
 	std::string nomFichierGraph = "graph-11-input";
@@ -85,25 +96,9 @@ int main() {
 	//G.rerecuitSimule(tempsBest,nombreRecuit);
 	//G.rerecuitSimule(tempsBest,nombreRecuit,{},-1,0.999999);
 
-	auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> secondsTotal = end - start;
-	std::cout << std::fixed << secondsTotal.count() << "s for placement.\n";
-	if (tempsBest != -1) std::cout << tempsBest << "s meilleur resultat.\n";
-	if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
-	if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
-	if (nombreRecuit != 0) std::cout << "Nombre de rechauffe: " << nombreRecuit << "\n";
-	if (G.estPlace()) std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
-	if (G.hasIllegalCrossing())  { std::cout << "Solution illegale.\n";
-		if (G.estPlace()) G.getNbCroisementDiff();
-		std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
-	}
-	std::cout << "Setup complete!" << std::endl;
-
 	//G.afficherInfo();
-	if (G.estPlace()) G.debugEverything(false,false);
+	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
 	
-	
-
 	// OpenGL
 	bool useOpenGL = true;
 	if (useOpenGL) {
