@@ -15,18 +15,19 @@ Tests avec delay plutot que cool?
 
 Variante recuit qui modifie la probabilité d'acceptation
 
-Faire une version ogdf placement au plus proche qui place les voisins d'un noeud au plus proche recursivement parcour en largeur
+Faire une version ogdf placement au plus proche qui place les voisins d'un noeud au plus proche recursivement parcour en largeur?
 
 Faire tests recuit avec les differents placements au plus proche d'ogdf
 
 Refaire le recuit score en intégrant la grille
 
-Faire le glouton grille.
-
-Faire des tests avec autre qu'un depart aleatoire, max planar graph? glouton?
+Faire le glouton grille en placement de depart.
 
 Utilisation d'un solver, branch and bound?
 
-Grille pour le stress majorization pour la recherche de l'emplacement le plus proche?
+Pourquoi le useGrille = true donne des plus mauvais resultats qu'avec le false? Grille avec cellule carée?
 
-Pourquoi le useGrille = true donne des plus mauvais resultats qu'avec le false?
+
+Faire des tests avec autre qu'un depart aleatoire, max planar graph? glouton?
+
+Faire des tests sur le placement de depart avec stressMin en variant edgeCost, comparer avec placement aleatoire et glouton

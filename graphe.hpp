@@ -46,6 +46,8 @@ public:
 
 	bool RECUIT_LIMIT_3600 = true; // Indique si on limite le temps d'un rerecuit a 3600 secondes.
 
+	bool grille_with_move = false; // Indique si on a initialisé la grille en déplacant le graphe.
+
 	long nombreInter = -1; // Variable pas à jour
 	long nombreInterIll = -1; // Variable pas à jour
 	long nombreInterIllSelf = -1; // Variable pas à jour;
@@ -228,6 +230,8 @@ public:
 	// Algorithme glouton
 	void gloutonRevisite();
 
+	void gloutonRevisiteGrid();
+
 	void gloutonRevisiteGravite();
 
 	void gloutonRevisiteVoisin();
@@ -301,6 +305,12 @@ public:
 
 	// Calcule le score du noeud en parametre. Utilise la grille
 	long getScoreCroisementNodeGrid(int nodeIndex);
+
+	// Calcule le score du noeud en parametre. Le graphe peut ne pas etre placé entierement.
+	long getScoreCroisementNodeGlouton(int nodeIndex);
+
+	// Calcule le score du noeud en parametre. Utilise la grille. Le graphe peut ne pas etre placé entierement.
+	long getScoreCroisementNodeGloutonGrid(int nodeIndex);
 
 	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex. Utilise la grille
 	long getScoreCroisementNodeGrid(int nodeIndex, int swapIndex);
@@ -447,9 +457,16 @@ public:
 	// Creer une triangulation de delaunay des emplacements et peulple la carte _c
 	void triangulationDelaunay();
 
-	// Remplie la grille de cellules, nombre de ligne et nombre de colones
+	// Remplie la grille de cellules, nombre de ligne et nombre de colones.
+	// Les emplacements sont deplaces sur des entiers pairs ((coord*2+)2) et les cotés de la grilles sont sur des entiers impairs avec 1 comme min.
+	// Cela a pour effet de n'avoir qu'une cellule associée a chaque emplacement.
 	void initGrille(int row=-1,int column=-1);
 
+	// Pareil que initGrilleNoMove, les cellules ont la meme largeur et hauteur
+	void initGrilleCarre();
+
+	// Remplie la grille de cellules, nombre de ligne et nombre de colones.
+	// Chaque emplacement est associé a 1,2 ou 4 cellules.
 	void initGrilleNoMove(int row=-1,int column=-1);
 
 	// Supprime la grille courante et la reinitialise
@@ -458,11 +475,17 @@ public:
 	// Vide la grille courante
 	void clearGrille();
 
+	// Supprime la grille courante
+	void deleteGrille();
+
 	// Enregistre les emplacements et les aretes dans la grille
 	void registerSlotsAndEdgesInGrid();
 
 	// Enregistre les aretes dans la grille
 	void registerEdgesInGrid();
+
+	// Enregistre avec alignements d'emplacements
+	void registerSlotsInGrid();
 
 	// Enregistre avec alignements d'emplacements
 	void registerSlotsInGridNoMove();
@@ -504,6 +527,11 @@ public:
 	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist);
 
 	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
+
+	// Appelle l'algorithme de stress majorization sur le graphe.
+	void stressMajorization(std::vector<double> customParam = {});
+
+	bool isGrapheConnected();
 
 };
 

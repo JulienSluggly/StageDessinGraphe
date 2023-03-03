@@ -78,6 +78,7 @@ void fillVectorGrille() {
 	methodeGrille.push_back("Recuit Simule Grille TRE Custom");
 	methodeGrille.push_back("Rerecuit Simule Grille TME Delay");
 	methodeGrille.push_back("Rerecuit Simule Grille TRE Delay");
+	methodeGrille.push_back("Rerecuit Simule Grille TME Cool");
 }
 
 void fillLogsVector() {
@@ -88,7 +89,7 @@ void fillLogsVector() {
 	fillVectorGrille();
 }
 
-void generateCSV(int nbEssay, const std::string& methodeName, const std::string& methodeAlgoName, const std::string& nomGraphe, std::string fileGraph, std::string fileSlots, std::vector<double> customParam={}, int tid=0) {
+void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, const std::string& nomGraphe, std::string fileGraph, std::string fileSlots, std::vector<double> customParam={}, int tid=0) {
 	bool updateScore = isInVector(methodeWithScore,methodeAlgoName);
 	bool isGenetique = isInVector(methodeGenetique,methodeAlgoName);
 	bool needTriangulation = isInVector(methodeTriangulation,methodeAlgoName);
@@ -97,8 +98,8 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0, debugValue=-1;
 	std::vector<int> croisementVector;
-	std::vector<double> tempExecVector, tempBestVector; std::vector<int> bestIterationVector, lastIterationVector, nombreRecuitVector;
-	double tempsExecMoyenne, tempsBestMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne;
+	std::vector<double> tempExecVector, tempBestVector; std::vector<int> bestIterationVector, lastIterationVector, nombreRecuitVector, totalInterVector, totalInterIllVector;
+	double tempsExecMoyenne, tempsBestMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne;
 	bool saveResult = true;
 	int population, maxIteration;
 	int nombreRecuit, nombreSlots, nombreCellule;
@@ -117,23 +118,25 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		saveResult = true;
 		if (customParam.size() > 1) {
 			if (customParam.size() > 2) {
-				printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | Param: {%.0f,%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],customParam[2],secondsTotalExec.count());
+				printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Param: {%.0f,%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],customParam[2],secondsTotalExec.count());
 			}
 			else {
-				printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],secondsTotalExec.count());
+				printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],secondsTotalExec.count());
 			}
 		}
 		else {
-			printf("Tid: %d | Iter: %d Max: %d | %s | %s | Slots: %lu | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),secondsTotalExec.count());
+			printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),secondsTotalExec.count());
 		}
-		if (methodeName == "Glouton") G.glouton();
-		else if (methodeName == "Glouton Revisite") G.gloutonRevisite();
-		else if (methodeName == "Glouton Gravite") G.gloutonRevisiteGravite();
-		else if (methodeName == "Glouton Voisin") G.gloutonRevisiteVoisin();
-		//else if (methodeName == "OGDF") ogdfPlacementAuPlusProche(G);
-		else if (methodeName == "Aleatoire") G.placementAleatoire();
-		else if (methodeName != "Aucun") {
-			std::cout << "ERROR Aucune methode " << methodeName << " trouve !\n";
+		if (methodePlacementName == "Glouton") G.glouton();
+		else if (methodePlacementName == "Glouton Revisite") G.gloutonRevisite();
+		else if (methodePlacementName == "Glouton Gravite") G.gloutonRevisiteGravite();
+		else if (methodePlacementName == "Glouton Voisin") G.gloutonRevisiteVoisin();
+		//else if (methodePlacementName == "OGDF") ogdfPlacementAuPlusProche(G);
+		else if (methodePlacementName == "Stress") { G.stressMajorization(); }
+		else if (methodePlacementName == "Glouton Grille") { G.gloutonRevisiteGrid(); }
+		else if (methodePlacementName == "Aleatoire") G.placementAleatoire();
+		else if (methodePlacementName != "Aucun") {
+			std::cout << "ERROR Aucune methode " << methodePlacementName << " trouve !\n";
 			return;
 		}
 		if (updateScore) {
@@ -169,6 +172,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
@@ -202,6 +206,8 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		if (G.hasIllegalCrossing()) {
 			nbSolutionIllegale++;
 		}
+		totalInterVector.push_back(G.getNbCroisementDiff());
+		totalInterIllVector.push_back(G.nombreInterIll + G.nombreInterIllSelf);
 		debugValue = G.debugEverything();
 		if (debugValue > 0) { break; }
 	}
@@ -215,6 +221,8 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		bestIterationMoyenne = moyenneVector(bestIterationVector);
 		lastIterationMoyenne = moyenneVector(lastIterationVector);
 		nombreRecuitMoyenne = moyenneVector(nombreRecuitVector);
+		totalInterMoyenne = moyenneVector(totalInterVector);
+		totalInterIllMoyenne = moyenneVector(totalInterIllVector);
 
 		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
@@ -228,11 +236,12 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
     	strftime(date, 80, "%d/%m/%Y", localtime(&t));
 
 		resultats << std::fixed;
-		resultats << methodeName << ","
+		resultats << methodePlacementName << ","
 			<< methodeAlgoName << ","
 			<< std::setprecision(0) << croisementVector.size() << ","
 			<< nombreSlots << ","
 			<< nbSolutionIllegale << ","
+			<< totalInterMoyenne << "," << totalInterIllMoyenne << ","
 			<< meilleurCroisement << ",";
 		if (moyenneCroisement > 100) { resultats << std::setprecision(0) << moyenneCroisement << ","; }
 		else { resultats << std::setprecision(1) << moyenneCroisement << ","; }
@@ -247,7 +256,7 @@ void generateCSV(int nbEssay, const std::string& methodeName, const std::string&
 		}
 		resultats << "," << getTypeSeed() << "," << machine;
 		if (customParam.size() > 1) {
-			resultats << "," << std::setprecision(1) << customParam[0] << " " << std::setprecision(2) << customParam[1];
+			resultats << "," << std::setprecision(0) << customParam[0] << " " << std::setprecision(2) << customParam[1];
 			for (int j=2;j<customParam.size();j++) {
 				resultats << " " << to_string(customParam[j]);
 			}

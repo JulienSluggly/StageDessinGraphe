@@ -183,7 +183,61 @@ void allRunsLogged() {
 void allRunsBySlots() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
-	for (int i = 1; i <= 12; i++) {
+	for (int i = 5; i <= 12; i++) {
+		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
+	}
+	std::cout << "Starting all run logs." << std::endl;
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		int chunk = std::ceil((double)mapGraphSlots.size() / (double)nthreads);
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+			printf("Chunk size: %d\n", chunk);
+		}
+		int indexKey = 0;
+		std::vector<std::vector<double>> customParam;
+		customParam.push_back({1,5});
+		customParam.push_back({1,10});
+		customParam.push_back({1,15});
+		customParam.push_back({1,20});
+		customParam.push_back({1,25});
+		customParam.push_back({1,30});
+		customParam.push_back({1,35});
+		customParam.push_back({1,40});
+		customParam.push_back({1,45});
+		customParam.push_back({1,50});
+		customParam.push_back({1,55});
+		customParam.push_back({1,60});
+		customParam.push_back({1,65});
+		customParam.push_back({1,70});
+		customParam.push_back({1,75});
+		customParam.push_back({1,80});
+		customParam.push_back({1,85});
+		customParam.push_back({1,90});
+		customParam.push_back({1,95});
+		customParam.push_back({1,100});
+		for (auto& key : mapGraphSlots) {
+			if (tid == (indexKey % nthreads)) {
+				startRunsForAllSlots(key,-1,"Aleatoire","Aucun",{},tid);
+				for (int taille=0;taille<customParam.size();taille++) {
+					startRunsForAllSlots(key,100,"Stress","Aucun",customParam[taille],tid);
+				}
+				startRunsForAllSlots(key,10,"Stress","Rerecuit Simule Grille TME Cool",{},tid);
+			}
+			indexKey++;
+		}
+		printf("Thread: %d done.\n",tid);
+	}
+	printf("All Threads done.\n");
+}
+
+void allRunsBySlotsSecondRun() {
+	fillLogsVector();
+	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
+	for (int i = 5; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
 	std::cout << "Starting all run logs." << std::endl;
@@ -199,33 +253,60 @@ void allRunsBySlots() {
 		}
 		int indexKey = 0;
 		std::vector<std::vector<double>> totalRuns;
-		totalRuns.push_back({3,2});
-		totalRuns.push_back({3,3});
-		totalRuns.push_back({3,4});
-		totalRuns.push_back({3,5});
-		totalRuns.push_back({3,6});
-		totalRuns.push_back({3,7});
-		totalRuns.push_back({3,8});
-		totalRuns.push_back({3,9});
-		totalRuns.push_back({3,10});
+		totalRuns.push_back({1,5});
+		totalRuns.push_back({1,10});
+		totalRuns.push_back({1,15});
+		totalRuns.push_back({1,20});
+		totalRuns.push_back({1,25});
+		totalRuns.push_back({1,30});
+		totalRuns.push_back({1,35});
+		totalRuns.push_back({1,40});
+		totalRuns.push_back({1,45});
+		totalRuns.push_back({1,50});
+		totalRuns.push_back({1,55});
+		totalRuns.push_back({1,60});
+		totalRuns.push_back({1,65});
+		totalRuns.push_back({1,70});
+		totalRuns.push_back({1,75});
+		totalRuns.push_back({1,80});
+		totalRuns.push_back({1,85});
+		totalRuns.push_back({1,90});
+		totalRuns.push_back({1,95});
+		totalRuns.push_back({1,100});
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int taille=0;taille<totalRuns.size();taille++) {
-					startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TME Custom",totalRuns[taille],tid);
-					startRunsForAllSlots(key,1,"Aleatoire","Rerecuit Simule Grille TRE Custom",totalRuns[taille],tid);
+					startRunsForAllSlots(key,10,"Stress","Rerecuit Simule Grille TME Cool",totalRuns[taille],tid);
 				}
 			}
 			indexKey++;
 		}
-		std::vector<std::vector<double>> totalRuns2;
-		totalRuns2.push_back({12,0});
-		totalRuns2.push_back({12,1});
-		indexKey = 0;
+		printf("Thread: %d done.\n",tid);
+	}
+	printf("All Threads done.\n");
+}
+
+void allRunsBySlotsThirdRun() {
+	fillLogsVector();
+	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
+	for (int i = 5; i <= 12; i++) {
+		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
+	}
+	std::cout << "Starting all run logs." << std::endl;
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		int chunk = std::ceil((double)mapGraphSlots.size() / (double)nthreads);
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+			printf("Chunk size: %d\n", chunk);
+		}
+		int indexKey = 0;
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				for (int taille=0;taille<totalRuns2.size();taille++) {
-					startRunsForAllSlots(key,10,"Aleatoire","Rerecuit Simule Grille TME Custom",totalRuns2[taille],tid);
-				}
+				startRunsForAllSlots(key,100,"Glouton Grille","Aucun",{},tid);
 			}
 			indexKey++;
 		}

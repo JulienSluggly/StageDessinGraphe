@@ -400,7 +400,35 @@ void Graphe::clearGrille() {
     }
 }
 
+void Graphe::deleteGrille() {
+    grillePtr.clear();
+    if (grille.size() > 0) {
+        for (int i=0;i<grille[0].size();i++) {
+            grille[i].clear();
+        }
+    }
+    grille.clear();
+    for (int i=0;i<_emplacements.size();i++) {
+        _emplacements[i].idCelluleVec.clear();
+        _emplacements[i].idCellule = -1;
+    }
+    for (int i=0;i<_aretes.size();i++) {
+        _aretes[i].vecIdCellules.clear();
+    }
+    if (grille_with_move) {
+        for (int i=0;i<_emplacements.size();i++) {
+            _emplacements[i]._x = (_emplacements[i]._x-2)/2;
+            _emplacements[i]._y = (_emplacements[i]._y-2)/2;
+        }
+        gridWidth = (gridWidth-2)/2;
+        gridHeight = (gridHeight-2)/2;
+    }
+    grille_with_move = false;
+}
+
 void Graphe::initGrille(int row,int column) {
+    deleteGrille();
+    grille_with_move = true;
     for (int i=0;i<_emplacements.size();i++) {
         _emplacements[i]._x = (_emplacements[i]._x*2)+2;
         _emplacements[i]._y = (_emplacements[i]._y*2)+2;
@@ -435,6 +463,7 @@ void Graphe::initGrille(int row,int column) {
 }
 
 void Graphe::initGrilleNoMove(int row,int column) {
+    deleteGrille();
     if (row == -1) { row = (int)ceil(sqrt(_aretes.size())*1.5); }
     if (column == -1) { column = row; }
     int sizeColumn = ceil((double)gridWidth / (double)column);
@@ -457,11 +486,37 @@ void Graphe::initGrilleNoMove(int row,int column) {
             grillePtr.push_back(&grille[i][j]);
         }
     }
-
 }
 
+void Graphe::initGrilleCarre() {
+    deleteGrille();
+    int row = (int)ceil(sqrt(_aretes.size())*1.5);
+    int column = row;
+    int sizeColumn = ceil((double)gridWidth / (double)row);
+    int sizeRow = ceil((double)gridHeight / (double)row);
+    int sizeCell = min(sizeColumn,sizeRow);
+    if (sizeCell == sizeRow) { column = ceil((double)gridWidth/(double)sizeCell); }
+    else { row = ceil((double)gridHeight/(double)sizeCell); }
+    for (int y=0;y<row;y++) {
+        std::vector<Cellule> tmpVec;
+        for (int x=0;x<column;x++) {
+            int id = y*sizeCell + x;
+            int x1 = x*sizeCell;
+            int x2 = x1+sizeCell;
+            int y1 = y*sizeCell;
+            int y2 = y1+sizeCell;
+            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1));
+        }
+        grille.push_back(tmpVec);
+    }
+    for (int i=0;i<grille.size();i++) {
+        for (int j=0;j<grille[0].size();j++) {
+            grillePtr.push_back(&grille[i][j]);
+        }
+    }
+}
 
-// Pas utilisé
+// Appeller cette fonction uniquement si initGrilleNoMove ou initGrilleCarre a été appellé précédement.
 void Graphe::registerSlotsInGridNoMove() {
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
@@ -520,8 +575,7 @@ void Graphe::registerEdgesInGridNoMove() {
     // NYI
 }
 
-void Graphe::registerSlotsAndEdgesInGrid() {
-    if (DEBUG_GRAPHE) std::cout << "Remplissage de la grille.\n";
+void Graphe::registerSlotsInGrid() {
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
     for (int i=0;i < _emplacements.size();i++) {
@@ -535,6 +589,11 @@ void Graphe::registerSlotsAndEdgesInGrid() {
         _emplacements[i].idCellule = id;
         grille[numY][numX].vecEmplacementId.push_back(i);
     }
+}
+
+void Graphe::registerSlotsAndEdgesInGrid() {
+    if (DEBUG_GRAPHE) std::cout << "Remplissage de la grille.\n";
+    registerSlotsInGrid();
     registerEdgesInGrid();
     if (DEBUG_GRAPHE) std::cout << "Fin remplissage de la grille.\n";
 }
@@ -817,7 +876,9 @@ void Graphe::recalcAreteCellule(int areteId) {
 
 void Graphe::recalcNodeCellule(int nodeId) {
     for (const int& areteId : _noeuds[nodeId]._aretes) {
-        recalcAreteCellule(areteId);
+        if (_aretes[areteId].estPlace()) {
+            recalcAreteCellule(areteId);
+        }
     }
 }
 
@@ -1168,9 +1229,11 @@ Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y) {
     int numY = round(dnumY);
     if (numY == grille.size()) { numY--; }
     int startX = std::max(numX-1,0);
+    startX = std::min(startX,(int)grille[0].size()-1);
     int endX = std::min(numX+1,(int)grille[0].size()-1);
     endX = std::max(endX,0);
     int startY = std::max(numY-1,0);
+    startY = std::min(startY,(int)grille.size()-1);
     int endY = std::min(numY+1,(int)grille.size()-1);
     endY = std::max(endY,0);
     std::vector<std::pair<int,int>> searchVector;
@@ -1193,4 +1256,21 @@ Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y) {
         }
     }
     return &_emplacements[closestEmpId];
+}
+
+bool Graphe::isGrapheConnected() {
+    std::vector<bool> visitedNode(_noeuds.size(),false);
+    int totalVisited = 0;
+    std::vector<int> nodeIdVec(1,0);
+    for (int i=0;i<nodeIdVec.size();i++) {
+        int nodeId = nodeIdVec[i];
+        if (!visitedNode[nodeId]) {
+            visitedNode[nodeId] = true;
+            totalVisited++;
+            for (Noeud* n : _noeuds[nodeId].voisins) {
+                if (!visitedNode[n->_id]) { nodeIdVec.push_back(n->_id); }
+            }
+        }
+    }
+    return (totalVisited == _noeuds.size());
 }

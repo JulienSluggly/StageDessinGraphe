@@ -103,7 +103,7 @@ void StressMajorization::nextIteration(Graphe& G, std::vector<std::vector<double
 		}
         Emplacement* closestEmplacement;
         if (m_useGrille) {
-            Emplacement* closestEmplacement = G.getClosestEmplacementFromPointGrid(currXCoord,currYCoord);
+            closestEmplacement = G.getClosestEmplacementFromPointGrid(currXCoord,currYCoord);
         }
         else {
             closestEmplacement = G.getClosestEmplacementFromPoint(currXCoord,currYCoord);
@@ -144,19 +144,29 @@ void StressMajorization::minimizeStress(Graphe& G, std::vector<std::vector<doubl
 	} while (!finished(G, ++numberOfPerformedIterations, newX, newY, prevStress, curStress));
 }
 
+void StressMajorization::replaceInfinityDistances(Graphe& G, std::vector<std::vector<double>>& shortestPathMatrix,double newVal) {
+    for (int i=0;i<G._noeuds.size();i++) {
+        for (int j=0;j<G._noeuds.size();j++) {
+            if (i != j) {
+                if (isinf(shortestPathMatrix[i][j])) {
+                    shortestPathMatrix[i][j] = newVal;
+                }
+            }
+        }
+    }
+}
+
 void StressMajorization::runAlgo(Graphe& G, std::vector<std::vector<double>>& shortestPathMatrix, std::vector<std::vector<double>>& weightMatrix) {
     //computeInitialLayout(G); // Pas obligatoire
-    //replaceInfinityDistances(shortestPathMatrix,m_edgeCosts * sqrt((double)(G._noeuds.size()); // Pas utile si graphe connexe
+    if (!G.isGrapheConnected()) { replaceInfinityDistances(G,shortestPathMatrix,m_edgeCosts * sqrt((double)(G._noeuds.size()))); }
     calcWeights(G,shortestPathMatrix,weightMatrix);
     minimizeStress(G,shortestPathMatrix,weightMatrix);
 }
 
 void StressMajorization::runAlgo(Graphe& G) {
-    if (G.DEBUG_GRAPHE) std::cout << "Debut Stress Majorization\n";
     std::vector<std::vector<double>> shortestPathMatrix;
     std::vector<std::vector<double>> weightMatrix;
     initMatrices(G,shortestPathMatrix,weightMatrix);
     bfs_SPAP(G,shortestPathMatrix,m_edgeCosts);
     runAlgo(G,shortestPathMatrix,weightMatrix);
-    if (G.DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";
 }

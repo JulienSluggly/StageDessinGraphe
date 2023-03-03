@@ -45,15 +45,14 @@ void runFuncOnAllGraphs() {
 }
 
 int main() {
-	//initRandomSeed();
-	initSameSeed();
-	//customRecuit();
-	//return 0;
-	//runFuncOnAllGraphs(); return 0;/
+	initRandomSeed();
+	//initSameSeed();
+	allRunsBySlots(); allRunsBySlotsSecondRun(); allRunsBySlotsThirdRun(); return 0;
 
 	Graphe G;
 	std::string nomFichierGraph = "graph-11-input";
 	std::string nomFichierSlots = "Grid";
+	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	G.setupGraphe(nomFichierGraph,nomFichierSlots);
@@ -67,15 +66,12 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	
-	G.placementAleatoire();
-	G.initGrilleNoMove();
-	G.registerSlotsInGridNoMove();
-	StressMajorization sm;
-	sm.m_useGrille = false;
-	sm.runAlgo(G);
-	//G.initGrille();
-	//G.registerSlotsAndEdgesInGrid();
+
+	//G.placementAleatoire();
+	//G.stressMajorization();
+	G.gloutonRevisiteGrid();
+	//G.gloutonRevisite();
+
 
 	//G.triangulationDelaunay();
 	//ogdfPivotMDS(G);
@@ -86,7 +82,8 @@ int main() {
 	//ogdfReverseNonPlanar(G);
 
 	//G.recuitSimule(tempsBest);
-	//G.recuitSimule(tempsBest,nombreRecuit);
+	//G.rerecuitSimule(tempsBest,nombreRecuit);
+	//G.rerecuitSimule(tempsBest,nombreRecuit,{},-1,0.999999);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotal = end - start;
@@ -103,7 +100,7 @@ int main() {
 	std::cout << "Setup complete!" << std::endl;
 
 	//G.afficherInfo();
-	//if (G.estPlace()) G.debugEverything(false,false);
+	if (G.estPlace()) G.debugEverything(false,false);
 	
 	
 

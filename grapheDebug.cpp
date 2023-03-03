@@ -377,9 +377,11 @@ int Graphe::debugDesyncEmplacementCell(bool display, std::string nom) {
     long nbFail = 0;
     for (int i = 0; i < _emplacements.size(); i++) {
         int id = _emplacements[i].idCellule;
-        if (!isInVector(grillePtr[id]->vecEmplacementId,i)) {
-            std::cout << "Emplacement: " << i << " Cellule: " << id << std::endl;
-            nbFail++;
+        if (id != -1) {
+            if (!isInVector(grillePtr[id]->vecEmplacementId,i)) {
+                std::cout << "Emplacement: " << i << " Cellule: " << id << std::endl;
+                nbFail++;
+            }
         }
     }
     for (int i=0;i<grillePtr.size();i++) {

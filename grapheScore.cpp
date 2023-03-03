@@ -333,6 +333,46 @@ long Graphe::getScoreCroisementNode(int nodeIndex) {
     return score;
 }
 
+// Calcule le score du noeud en parametre. Le graphe peut ne pas etre placé entierement
+long Graphe::getScoreCroisementNodeGlouton(int nodeIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        if (_aretes[index].estPlace()) {
+            for (int j = 0; j < _aretes.size(); ++j) {
+                if (_aretes[j].estPlace()&&(index != j) && (!isInVector(indexPasse, j))) {
+                    if (!(_aretes[index].contains(_aretes[j].getNoeud1()) || _aretes[index].contains(_aretes[j].getNoeud2()))) {
+                        bool isIllegal = false;
+                        if (seCroisent(_aretes[index], _aretes[j],isIllegal)) {
+                            if (isIllegal) {
+                                score += PENALITE_MAX;
+                            }
+                            else {
+                                score++;
+                            }
+                        }
+                    }
+                    else {
+                        Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[index]);
+                        if (surSegment(_aretes[index], *nodeNotInCommon)) {
+                            score += PENALITE_MAX_SELF;
+                        }
+                        else {
+                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[j]);
+                            if (surSegment(_aretes[j], *nodeNotInCommon)) {
+                                score += PENALITE_MAX_SELF;
+                            }
+                        }
+                    }
+                }
+            }
+            indexPasse.push_back(index);
+        }
+    }
+    return score;
+}
+
 // Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
 long Graphe::getScoreCroisementNode(int nodeIndex, int swapIndex) {
     long score = 0;
@@ -552,6 +592,51 @@ long Graphe::getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecCellul
             }
         }
         indexPasse.push_back(index);
+    }
+    return score;
+}
+
+// Calcule le score du noeud en parametre.
+long Graphe::getScoreCroisementNodeGloutonGrid(int nodeIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        if (_aretes[index].estPlace()) {
+            std::vector<int> indexPasseCellule;
+            for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
+                std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
+                for (int k=0; k < vecId.size();k++) {
+                    if ((index != vecId[k]) && (!isInVector(indexPasse, vecId[k]) && (!isInVector(indexPasseCellule,vecId[k])))) {
+                        if (!(_aretes[index].contains(_aretes[vecId[k]].getNoeud1()) || _aretes[index].contains(_aretes[vecId[k]].getNoeud2()))) {
+                            bool isIllegal = false;
+                            if (seCroisent(_aretes[index], _aretes[vecId[k]],isIllegal)) {
+                                if (isIllegal) {
+                                    score += PENALITE_MAX;
+                                }
+                                else {
+                                    score++;
+                                }
+                            }
+                        }
+                        else {
+                            Noeud* nodeNotInCommon = _aretes[vecId[k]].nodeNotInCommon(&_aretes[index]);
+                            if (surSegment(_aretes[index], *nodeNotInCommon)) {
+                                score += PENALITE_MAX_SELF;
+                            }
+                            else {
+                                nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[vecId[k]]);
+                                if (surSegment(_aretes[vecId[k]], *nodeNotInCommon)) {
+                                    score += PENALITE_MAX_SELF;
+                                }
+                            }
+                        }
+                        indexPasseCellule.push_back(vecId[k]);
+                    }
+                }
+            }
+            indexPasse.push_back(index);
+        }
     }
     return score;
 }

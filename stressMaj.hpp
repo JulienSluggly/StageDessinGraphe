@@ -33,6 +33,8 @@ public:
 
     bool finished(Graphe& G, int numberOfPerformedIterations, std::vector<double>& newX, std::vector<double>& newY, double prevStress, double curStress);
 
+    void replaceInfinityDistances(Graphe& G,std::vector<std::vector<double>>& shortestPathMatrix,double newVal);
+
 };
 
 #endif
