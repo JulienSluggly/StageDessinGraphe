@@ -57,12 +57,12 @@ void runFuncOnAllGraphs() {
 int main() {
 	initRandomSeed();
 	//initSameSeed();
-	//allRunsBySlots(); allRunsBySlotsSecondRun(); allRunsBySlotsThirdRun(); return 0;
+	allRunsSingleThread(); return 0;
 	//runFuncOnAllGraphs(); return 0;
 
 	Graphe G;
 	std::string nomFichierGraph = "graph-11-input";
-	std::string nomFichierSlots = "Grid";
+	std::string nomFichierSlots = "3X-11-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
@@ -79,10 +79,12 @@ int main() {
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 
 	//G.placementAleatoire();
-	//G.stressMajorization();
-	G.gloutonRevisiteGrid();
+	G.stressMajorization();
+	//G.gloutonRevisiteGrid();
 	//G.gloutonRevisite();
 
+	//G.initGrilleCarre();
+	//G.gloutonRevisiteGrid();
 
 	//G.triangulationDelaunay();
 	//ogdfPivotMDS(G);

@@ -11,7 +11,7 @@ public:
     int m_npivot = 50;
     //int m_edgeCosts = 30;
     int m_edgeCosts = 45;
-    int m_iterations = 200;
+    int m_iterations = 2000;
 
     bool m_useGrille = true;
 

@@ -35,14 +35,20 @@ bool comparePtrEmplacement(Emplacement* a, Emplacement* b);
 // Fonction de sort par x et y
 bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b);
 
-void initSameSeed(int n=0);
+void initSameSeed(unsigned int n=0,bool resetting=true);
 
-void initRandomSeed();
+void initRandomSeed(bool resetting=false);
 
-void resetSeed(int numThread);
+void resetSeed(int numThread, bool resetSameSeed=false);
 
 std::string getTypeSeed();
 
 int nombreIterationRecuit(double t,double cool,double seuil);
+
+unsigned int getSeed(int tid);
+
+bool isSeedFixe();
+
+bool isSeedResetting(int numThread);
 
 #endif

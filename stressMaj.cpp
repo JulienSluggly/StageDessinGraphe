@@ -157,7 +157,7 @@ void StressMajorization::replaceInfinityDistances(Graphe& G, std::vector<std::ve
 }
 
 void StressMajorization::runAlgo(Graphe& G, std::vector<std::vector<double>>& shortestPathMatrix, std::vector<std::vector<double>>& weightMatrix) {
-    //computeInitialLayout(G); // Pas obligatoire
+    //computeInitialLayout(G); // Pas obligatoire, aleatoire suffisant?
     if (!G.isGrapheConnected()) { replaceInfinityDistances(G,shortestPathMatrix,m_edgeCosts * sqrt((double)(G._noeuds.size()))); }
     calcWeights(G,shortestPathMatrix,weightMatrix);
     minimizeStress(G,shortestPathMatrix,weightMatrix);

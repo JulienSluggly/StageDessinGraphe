@@ -119,9 +119,10 @@ void allRunsSingleThread() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire" };
-	std::vector<std::string> methodesAlgo = { "Rerecuit Simule TME" };
-	for (int i = 1; i <= 10; i++) {
-		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
+	std::vector<std::string> methodesAlgo = { "Aucun" };
+	for (int i = 5; i <= 5; i++) {
+		//mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
+		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 	}
 	int nbRuns = 5;
 	std::cout << "Starting all run logs, nb run: " << nbRuns << std::endl;
@@ -199,33 +200,9 @@ void allRunsBySlots() {
 		}
 		int indexKey = 0;
 		std::vector<std::vector<double>> customParam;
-		customParam.push_back({1,5});
-		customParam.push_back({1,10});
-		customParam.push_back({1,15});
-		customParam.push_back({1,20});
-		customParam.push_back({1,25});
-		customParam.push_back({1,30});
-		customParam.push_back({1,35});
-		customParam.push_back({1,40});
-		customParam.push_back({1,45});
-		customParam.push_back({1,50});
-		customParam.push_back({1,55});
-		customParam.push_back({1,60});
-		customParam.push_back({1,65});
-		customParam.push_back({1,70});
-		customParam.push_back({1,75});
-		customParam.push_back({1,80});
-		customParam.push_back({1,85});
-		customParam.push_back({1,90});
-		customParam.push_back({1,95});
-		customParam.push_back({1,100});
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,-1,"Aleatoire","Aucun",{},tid);
-				for (int taille=0;taille<customParam.size();taille++) {
-					startRunsForAllSlots(key,100,"Stress","Aucun",customParam[taille],tid);
-				}
-				startRunsForAllSlots(key,10,"Stress","Rerecuit Simule Grille TME Cool",{},tid);
+				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cool",{},tid);
 			}
 			indexKey++;
 		}

@@ -105,8 +105,9 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	int nombreRecuit, nombreSlots, nombreCellule;
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
+	resetSeed(tid);
 	for (int i = 1; ((((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600))&&(i <= 100)); ++i) {
-		resetSeed(tid);
+		resetSeed(tid,true);
 		auto start = std::chrono::system_clock::now();
 		Graphe G;
 		G.setupGraphe(fileGraph,fileSlots);
@@ -254,7 +255,10 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else {
 			resultats << "," << std::setprecision(1) << nombreRecuitMoyenne;
 		}
-		resultats << "," << getTypeSeed() << "," << machine;
+		resultats << ",";
+		if (isSeedResetting(tid)) { resultats << "R-"; }
+		else { resultats << "NR-"; }
+		resultats << getSeed(tid) << "," << machine;
 		if (customParam.size() > 1) {
 			resultats << "," << std::setprecision(0) << customParam[0] << " " << std::setprecision(2) << customParam[1];
 			for (int j=2;j<customParam.size();j++) {

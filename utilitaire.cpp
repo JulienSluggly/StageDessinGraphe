@@ -12,7 +12,9 @@ std::vector<std::mt19937*> genVector;
 thread_local int numGen=0;
 
 bool isSeedRandom;
-int seed;
+unsigned int seed;
+std::vector<unsigned int> seedThread;
+std::vector<bool> resetSeedThread;
 
 std::string typeSeed;
 
@@ -32,7 +34,7 @@ int generateRand(int n) {
     return dis(*genVector[numGen]);
 }
 
-void initSameSeed(int n) {
+void initSameSeed(unsigned int n, bool resetting) {
     std::cout << "---------- SEED FIXE: 0 ----------\n";
     typeSeed = "FIXE";
     isSeedRandom = false;
@@ -41,10 +43,12 @@ void initSameSeed(int n) {
     int maxThread = omp_get_max_threads();
     for (int i=0;i<maxThread;i++) {
         genVector.push_back(new std::mt19937(n));
+        seedThread.push_back(n);
+        resetSeedThread.push_back(resetting);
     }
 }
 
-void initRandomSeed() {
+void initRandomSeed(bool resetting) {
     std::cout << "---------- SEED RANDOM ----------\n";
     typeSeed = "RANDOM";
     isSeedRandom = true;
@@ -52,23 +56,47 @@ void initRandomSeed() {
     int maxThread = omp_get_max_threads();
     for (int i=0;i<maxThread;i++) {
         std::random_device rd;
-        genVector.push_back(new std::mt19937(rd()));
+        unsigned int tmpSeed = rd();
+        genVector.push_back(new std::mt19937(tmpSeed));
+        seedThread.push_back(tmpSeed);
+        resetSeedThread.push_back(resetting);
     }
 }
 
-void resetSeed(int numThread) {
+void resetSeed(int numThread, bool resetSameSeed) {
     numGen = numThread;
-    if (isSeedRandom) {
-        std::random_device rd;
-        genVector[numThread] = new std::mt19937(rd());
-    }
-    else {
-        genVector[numThread] = new std::mt19937(seed);
+    if (resetSeedThread[numThread]) {
+        if (isSeedRandom) {
+            if (resetSameSeed) {
+                genVector[numThread] = new std::mt19937(seedThread[numThread]);
+            }
+            else {
+                std::random_device rd;
+                unsigned int tmpSeed = rd();
+                genVector[numThread] = new std::mt19937(tmpSeed);
+                seedThread[numThread] = tmpSeed;
+            }
+        }
+        else {
+            genVector[numThread] = new std::mt19937(seed);
+        }
     }
 }
 
 std::string getTypeSeed() {
     return typeSeed;
+}
+
+unsigned int getSeed(int tid) {
+    return seedThread[tid];
+}
+
+bool isSeedFixe() {
+    return !isSeedRandom;
+}
+
+bool isSeedResetting(int numThread) {
+    return resetSeedThread[numThread];
 }
 
 // Indique si une valeur est dans un vecteur ou non
