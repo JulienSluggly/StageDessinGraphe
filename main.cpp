@@ -57,8 +57,8 @@ void runFuncOnAllGraphs() {
 int main() {
 	initRandomSeed();
 	//initSameSeed();
-	allRunsSingleThread(); return 0;
-	//runFuncOnAllGraphs(); return 0;
+	//allRunsSingleThread(); return 0;
+	allRunsBySlots(); return 0;
 
 	Graphe G;
 	std::string nomFichierGraph = "graph-11-input";

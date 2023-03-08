@@ -120,7 +120,7 @@ void allRunsSingleThread() {
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire" };
 	std::vector<std::string> methodesAlgo = { "Aucun" };
-	for (int i = 5; i <= 5; i++) {
+	for (int i = 1; i <= 12; i++) {
 		//mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 	}
@@ -202,7 +202,8 @@ void allRunsBySlots() {
 		std::vector<std::vector<double>> customParam;
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cool",{},tid);
+				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cooler",{},tid);
+				startRunsForAllSlots(key,-1,"Stress","Rerecuit Simule Grille TME Cooler",{},tid);
 			}
 			indexKey++;
 		}
@@ -281,9 +282,33 @@ void allRunsBySlotsThirdRun() {
 			printf("Chunk size: %d\n", chunk);
 		}
 		int indexKey = 0;
+		std::vector<std::vector<double>> totalRuns;
+		totalRuns.push_back({1,5});
+		totalRuns.push_back({1,10});
+		totalRuns.push_back({1,15});
+		totalRuns.push_back({1,20});
+		totalRuns.push_back({1,25});
+		totalRuns.push_back({1,30});
+		totalRuns.push_back({1,35});
+		totalRuns.push_back({1,40});
+		totalRuns.push_back({1,45});
+		totalRuns.push_back({1,50});
+		totalRuns.push_back({1,55});
+		totalRuns.push_back({1,60});
+		totalRuns.push_back({1,65});
+		totalRuns.push_back({1,70});
+		totalRuns.push_back({1,75});
+		totalRuns.push_back({1,80});
+		totalRuns.push_back({1,85});
+		totalRuns.push_back({1,90});
+		totalRuns.push_back({1,95});
+		totalRuns.push_back({1,100});
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,100,"Glouton Grille","Aucun",{},tid);
+				startRunsForAllSlots(key,10,"Stress","Aucun",{},tid);
+				for (int taille=0;taille<totalRuns.size();taille++) {
+					startRunsForAllSlots(key,10,"Stress","Aucun",totalRuns[taille],tid);
+				}
 			}
 			indexKey++;
 		}

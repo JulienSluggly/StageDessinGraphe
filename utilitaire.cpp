@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "emplacement.hpp"
 #include <iostream>
+#include <cstring>
 #include <omp.h>
 
 using std::min;
@@ -175,4 +176,12 @@ void removeFromVector(std::vector<int>& vec, int x) {
 
 int nombreIterationRecuit(double t,double cool,double seuil) {
     return (int)(((log(seuil/t)))/(log(cool)));
+}
+
+bool containsString(std::string a, std::string b) {
+    std::transform(a.begin(), a.end(), a.begin(),
+    [](unsigned char c){ return std::tolower(c); });
+    std::transform(b.begin(), b.end(), b.begin(),
+    [](unsigned char c){ return std::tolower(c); });
+    return strstr(a.c_str(),b.c_str());
 }

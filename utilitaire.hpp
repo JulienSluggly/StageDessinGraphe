@@ -47,8 +47,13 @@ int nombreIterationRecuit(double t,double cool,double seuil);
 
 unsigned int getSeed(int tid);
 
+// Renvoie vrai si la seed est fixe.
 bool isSeedFixe();
 
+// Renvoie vrai si la seed est reset a chaque run dans logCSV
 bool isSeedResetting(int numThread);
+
+// Renvoie true si le string b est présent dans le string a
+bool containsString(std::string a, std::string b);
 
 #endif

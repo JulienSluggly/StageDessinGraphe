@@ -15,10 +15,6 @@
 #include <ctime>
 #include <algorithm>
 
-std::vector<std::string> methodeWithScore;
-std::vector<std::string> methodeGenetique;
-std::vector<std::string> methodeTriangulation;
-std::vector<std::string> methodeGrille;
 std::unordered_map<std::string,std::pair<int,int>> mapGraphPopGen;
 
 void fillMap() {
@@ -36,64 +32,31 @@ void fillMap() {
 	mapGraphPopGen["graph-12-input"] = std::pair<int,int>(10,30);
 }
 
-void fillVectorScore() {
-	methodeWithScore.push_back("Recuit Simule Score");
-	methodeWithScore.push_back("Genetique Score");
-	methodeWithScore.push_back("Genetique Score Recuit");
-}
-
-void fillVectorGenetique() {
-	methodeGenetique.push_back("Genetique");
-	methodeGenetique.push_back("Genetique Recuit");
-	methodeGenetique.push_back("Genetique Recuit Random");
-	methodeGenetique.push_back("Genetique Random");
-	methodeGenetique.push_back("Genetique Score");
-	methodeGenetique.push_back("Genetique Score Recuit");
-	methodeGenetique.push_back("Genetique Enfant");
-	methodeGenetique.push_back("Genetique Enfant Recuit");
-}
-
-void fillVectorTriangulation() {
-	methodeTriangulation.push_back("Recuit Simule TRE");
-	methodeTriangulation.push_back("Rerecuit Simule TRE");
-	methodeTriangulation.push_back("Recuit Simule TRE Custom");
-	methodeTriangulation.push_back("Rerecuit Simule TRE Custom");
-	methodeTriangulation.push_back("Rerecuit Simule Grille Best TRE");
-	methodeTriangulation.push_back("Rerecuit Simule Grille TRE");
-	methodeTriangulation.push_back("Rerecuit Simule Grille TRE Custom");
-	methodeTriangulation.push_back("Recuit Simule Grille TRE Custom");
-	methodeTriangulation.push_back("Rerecuit Simule Grille TRE Delay");
-}
-
-void fillVectorGrille() {
-	methodeGrille.push_back("Recuit Simule Grille");
-	methodeGrille.push_back("Recuit Simule Grille TME");
-	methodeGrille.push_back("Rerecuit Simule Grille");
-	methodeGrille.push_back("Rerecuit Simule Grille TME");
-	methodeGrille.push_back("Rerecuit Simule Grille TRE");
-	methodeGrille.push_back("Rerecuit Simule Grille Best");
-	methodeGrille.push_back("Rerecuit Simule Grille Best TRE");
-	methodeGrille.push_back("Rerecuit Simule Grille TME Custom");
-	methodeGrille.push_back("Rerecuit Simule Grille TRE Custom");
-	methodeGrille.push_back("Recuit Simule Grille TRE Custom");
-	methodeGrille.push_back("Rerecuit Simule Grille TME Delay");
-	methodeGrille.push_back("Rerecuit Simule Grille TRE Delay");
-	methodeGrille.push_back("Rerecuit Simule Grille TME Cool");
-}
-
 void fillLogsVector() {
 	fillMap();
-	fillVectorScore();
-	fillVectorGenetique();
-	fillVectorTriangulation();
-	fillVectorGrille();
+}
+
+std::string getParamAsString(std::vector<double> customParam) {
+	std::stringstream paramStream;
+	paramStream << std::fixed;
+	paramStream << "{";
+	for (int i=0;i<customParam.size();i++) {
+		if (i<=1) { paramStream << std::setprecision(0) << customParam[i]; }
+		else { 
+			if (customParam[i] > 0.1) { paramStream << std::setprecision(2) << customParam[i]; }
+			else { paramStream << std::setprecision(9) << customParam[i]; }
+		}
+		if (i<customParam.size()-1) { paramStream << ","; }
+	}
+	paramStream << "}";
+	return paramStream.str();
 }
 
 void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, const std::string& nomGraphe, std::string fileGraph, std::string fileSlots, std::vector<double> customParam={}, int tid=0) {
-	bool updateScore = isInVector(methodeWithScore,methodeAlgoName);
-	bool isGenetique = isInVector(methodeGenetique,methodeAlgoName);
-	bool needTriangulation = isInVector(methodeTriangulation,methodeAlgoName);
-	bool needGrille = isInVector(methodeGrille,methodeAlgoName);
+	bool updateScore = containsString(methodeAlgoName,"Score");
+	bool isGenetique = containsString(methodeAlgoName,"Genetique");
+	bool needTriangulation = containsString(methodeAlgoName,"TRE");
+	bool needGrille = containsString(methodeAlgoName,"Grille");
 	double moyenneCroisement, medianCroisement;
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0, debugValue=-1;
@@ -105,6 +68,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	int nombreRecuit, nombreSlots, nombreCellule;
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
+	getParamAsString(customParam);
 	resetSeed(tid);
 	for (int i = 1; ((((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600))&&(i <= 100)); ++i) {
 		resetSeed(tid,true);
@@ -117,17 +81,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 			maxIteration = mapGraphPopGen[nomGraphe].second;
 		}
 		saveResult = true;
-		if (customParam.size() > 1) {
-			if (customParam.size() > 2) {
-				printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Param: {%.0f,%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],customParam[2],secondsTotalExec.count());
-			}
-			else {
-				printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Param: {%.0f,%.2f} | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),customParam[0],customParam[1],secondsTotalExec.count());
-			}
-		}
-		else {
-			printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),secondsTotalExec.count());
-		}
+		printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Param: %s | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),getParamAsString(customParam).c_str(),secondsTotalExec.count());
 		if (methodePlacementName == "Glouton") G.glouton();
 		else if (methodePlacementName == "Glouton Revisite") G.gloutonRevisite();
 		else if (methodePlacementName == "Glouton Gravite") G.gloutonRevisiteGravite();
@@ -174,6 +128,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cooler") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.9999999);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
@@ -259,15 +214,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		if (isSeedResetting(tid)) { resultats << "R-"; }
 		else { resultats << "NR-"; }
 		resultats << getSeed(tid) << "," << machine;
-		if (customParam.size() > 1) {
-			resultats << "," << std::setprecision(0) << customParam[0] << " " << std::setprecision(2) << customParam[1];
-			for (int j=2;j<customParam.size();j++) {
-				resultats << " " << to_string(customParam[j]);
-			}
-		}
-		else {
-			resultats << ",";
-		}
+		resultats << "," << getParamAsString(customParam);
 		resultats << "," << nombreCellule;
 		resultats << "," << debugValue << "," << date << "\n";
 		resultats.close();

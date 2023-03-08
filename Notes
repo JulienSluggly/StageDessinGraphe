@@ -49,3 +49,5 @@ moyenne dist a chaque iteration
 separer les composantes connexes
 
 stress min sur graphe non connexe pas bon?
+
+Restructurer le code genetique pour les appels des differentes fonctions
