@@ -718,25 +718,49 @@ void Graphe::completePlacementAleatoireScore(std::vector<int>& vecNode, int tail
 void Graphe::stressMajorization(std::vector<double> customParam) {
     if (!estPlace()) { placementAleatoire(); }
     if (DEBUG_GRAPHE) std::cout << "Debut Stress Majorization\n";
-    StressMajorization sm;
+    if (_sm.G == nullptr) { _sm.G = this; }
     bool useGrille = _emplacements.size() > _noeuds.size() * 5;
     if (useGrille) {
-        sm.m_useGrille = true;
+        _sm.m_useGrille = true;
         initGrilleCarre();
         registerSlotsInGridNoMove();
     }
     else {
-        sm.m_useGrille = false;
+        _sm.m_useGrille = false;
     }
     if (customParam.size() > 1) {
         if (customParam[0] == 1) {
-            sm.m_edgeCosts = customParam[1];
+            _sm.m_edgeCosts = customParam[1];
         }
         if (customParam[0] == 2) {
-            sm.m_iterations = customParam[1];
+            _sm.m_iterations = customParam[1];
         }
     }
-    sm.runAlgo(*this);
+    _sm.runAlgo();
     if (useGrille) { deleteGrille(); }
     if (DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";
+}
+
+void Graphe::stepStressMajorization(std::vector<double> customParam) {
+    if (_sm.G == nullptr) { 
+        _sm.G = this;
+        if (!estPlace()) { 
+            placementAleatoire();
+        }
+        bool useGrille = _emplacements.size() > _noeuds.size() * 5;
+        if (useGrille) {
+            initGrilleCarre();
+            registerSlotsInGridNoMove();
+            _sm.m_useGrille = true;
+        }
+        else {
+            _sm.m_useGrille = false;
+        }
+        if (customParam.size() > 1) {
+            if (customParam[0] == 1) {
+                _sm.m_edgeCosts = customParam[1];
+            }
+        }
+    }
+    _sm.runStepAlgo();
 }

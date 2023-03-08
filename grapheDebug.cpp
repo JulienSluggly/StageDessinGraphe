@@ -135,13 +135,19 @@ int Graphe::afficherEmplacementDouble(bool display, std::string nom) {
         std::cout << "-----------------------------------------------" << std::endl;
         std::cout << "Affichage DEBUG Emplacement Double: " << nomGraphe << " " << nom << std::endl;
     }
+    std::vector<std::vector<int>> grilleEmp;
+    for (int i=0;i<gridHeight;i++) {
+        std::vector<int> grilleTmp(gridWidth,-1);
+        grilleEmp.push_back(grilleTmp);
+    }
     int nbEmplacementDouble = 0;
-    for (int i = 0; i < _emplacements.size(); i++) {
-        for (int j = i + 1; j < _emplacements.size(); j++) {
-            if ((_emplacements[i].getX() == _emplacements[j].getX())&&(_emplacements[i].getY() == _emplacements[j].getY())) {
-                std::cout << "Emplacement: " << i << " & " << j << std::endl;
-                nbEmplacementDouble++;
-            }
+    for (int i=0;i<_emplacements.size();i++) {
+        int x = _emplacements[i].getX();
+        int y = _emplacements[i].getY();
+        if (grilleEmp[y][x] == -1) { grilleEmp[y][x] = i; }
+        else {
+            std::cout << "Emplacement: " << grilleEmp[y][x] << " & " << i << std::endl;
+            nbEmplacementDouble++;
         }
     }
     if (nbEmplacementDouble == 0) {
@@ -443,10 +449,8 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
     total += afficherAreteDouble(displayOther);
     if (displaySelf) { std::cout << "Debut debug noeud double\n"; }
     total += afficherNoeudDouble(displayOther);
-    if (_emplacements.size() < ((_noeuds.size()*_noeuds.size())/2)) {
-        if (displaySelf) { std::cout << "Debut debug emplacement double\n"; }
-        total += afficherEmplacementDouble(displayOther);
-    }
+    if (displaySelf) { std::cout << "Debut debug emplacement double\n"; }
+    total += afficherEmplacementDouble(displayOther);
     if (displaySelf) { std::cout << "Debut debug noeud seul\n"; }
     total += afficherNoeudSeul(displayOther);
     if (displaySelf) { std::cout << "Debut debug noeud non place\n"; }

@@ -203,6 +203,7 @@ void allRunsBySlots() {
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cooler",{},tid);
+				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cool Delay",{},tid);
 				startRunsForAllSlots(key,-1,"Stress","Rerecuit Simule Grille TME Cooler",{},tid);
 			}
 			indexKey++;

@@ -11,6 +11,7 @@
 #include "carte.h"
 #include "cellule.hpp"
 #include "personnel.hpp"
+#include "stressMaj.hpp"
 
 class Graphe {
 public:
@@ -23,6 +24,7 @@ public:
 	std::set<Aretes*> areteInter;
 
 	Carte _c;
+	StressMajorization _sm;
 
 	std::vector<std::vector<Cellule>> grille;
 	std::vector<Cellule*> grillePtr;
@@ -531,6 +533,9 @@ public:
 
 	// Appelle l'algorithme de stress majorization sur le graphe.
 	void stressMajorization(std::vector<double> customParam = {});
+
+	// Effectue le deplacement d'un seul noeud avec l'algorithme de stressMajorization
+	void stepStressMajorization(std::vector<double> customParam = {});
 
 	bool isGrapheConnected();
 

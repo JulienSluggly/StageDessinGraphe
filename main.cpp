@@ -58,16 +58,16 @@ int main() {
 	initRandomSeed();
 	//initSameSeed();
 	//allRunsSingleThread(); return 0;
-	allRunsBySlots(); return 0;
+	//allRunsBySlots(); return 0;
 
-	Graphe G;
 	std::string nomFichierGraph = "graph-11-input";
-	std::string nomFichierSlots = "3X-11-input-slots";
-	//std::string nomFichierSlots = "Grid";
+	//std::string nomFichierSlots = "3X-11-input-slots";
+	std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
+	Graphe G(nomFichierGraph);
 	G.setupGraphe(nomFichierGraph,nomFichierSlots);
-	//G.readFromJsonOldGraph(chemin + "automatique/auto21-11.json");
+	///G.readFromJsonOldGraph(chemin + "automatique/auto21-11.json");
 	//ogdfReverse(G);
 
 	std::cout << "Debut placement.\n";
@@ -78,8 +78,9 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 
-	//G.placementAleatoire();
-	G.stressMajorization();
+	G.placementAleatoire();
+	//G.stepStressMajorization(); G.deleteGrille();
+	//G.stressMajorization();
 	//G.gloutonRevisiteGrid();
 	//G.gloutonRevisite();
 

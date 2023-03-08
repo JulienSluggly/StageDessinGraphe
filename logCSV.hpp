@@ -129,6 +129,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cooler") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.9999999);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999,0.99,100.0,0.0001,2);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
@@ -182,10 +183,6 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 
 		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
-		std::streampos position = resultats.tellp();
-		if (position == 0) {
-			//resultats << "MethodeUtilisee,AlgoDeplacement,NbRun,NbSlots,NbIllegal,BestCross,MoyCross,MedCross,MoyBest(s),MoyTotal(s),Population,MaxGen,MoyBestGen,MoyLastGen,Machine,CustomParams\n";
-		}
 
 		char date[80];
 		time_t t = time(0);

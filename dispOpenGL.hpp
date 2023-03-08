@@ -133,7 +133,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_4:
 			keyPressFunctionNum = 7; singleKeyPress = true;
 			break;
-		case GLFW_KEY_5:
+		case GLFW_KEY_5: // Step Stress Majorization
+			keyPressFunctionNum = 20; singleKeyPress = true;
 			break;
 		case GLFW_KEY_8:
 			showEmplacement = !showEmplacement;
@@ -708,6 +709,10 @@ void openGLKeyPressFunction(Graphe& G) {
 					std::cout << "	Arete: " << id << " N1: " << G._aretes[id].getNoeud1()->_id << " N2: " << G._aretes[id].getNoeud2()->_id << std::endl;
 				}
 			}
+			break;
+		}
+		case 20: {// Step Stress Majorization
+			G.stepStressMajorization();
 			break;
 		}
 		default:{

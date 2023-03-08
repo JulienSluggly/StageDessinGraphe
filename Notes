@@ -43,9 +43,6 @@ glouton au depart?
 
 affecter a la toute fin?
 
-calcul nombre de deplacement, valeur du deplacement?
-moyenne dist a chaque iteration
-
 separer les composantes connexes
 
 stress min sur graphe non connexe pas bon?
