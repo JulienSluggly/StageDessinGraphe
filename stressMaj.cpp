@@ -2,6 +2,7 @@
 #include "graphe.hpp"
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 void StressMajorization::initMatrices() {
     for (int i=0;i<G->_noeuds.size();i++) {
@@ -61,7 +62,7 @@ void StressMajorization::calcWeights() {
     }
 }
 
-bool StressMajorization::nextIteration() {
+bool StressMajorization::nextIteration(std::vector<double> customParam) {
     double moyenneDist = 0.0;
     double dist = 0.0;
     int nombreDeplacement = 0;
@@ -155,12 +156,18 @@ bool StressMajorization::nextIteration() {
     return converged;
 }
 
-bool StressMajorization::nextIterationDelay(int iteration) {
+bool StressMajorization::nextIterationDelay(int iteration,std::vector<double> customParam) {
     double moyenneDist = 0.0;
     double dist = 0.0;
     int nombreDeplacement = 0;
+    int delai=1, numero = 1;
+    if (customParam.size() > 1) {
+        if (customParam[0] == 4) { delai = customParam[1]; }
+        else if (customParam[0] == 5) { numero = customParam[1]; }
+    }
     std::vector<int> distMatrix(11,0);
     for (int nodeId=0;nodeId<G->_noeuds.size();nodeId++) {
+        if ((nodeId+(iteration%numero))%numero == 0) {
 		double newXCoord = 0.0;
 		double newYCoord = 0.0;
 		double currXCoord = G->_noeuds[nodeId].stressX;
@@ -211,9 +218,11 @@ bool StressMajorization::nextIterationDelay(int iteration) {
             distMatrix[distMatrix.size()-1]++;
         }
         moyenneDist += dist;
+        }
 	}
-    if (iteration%20 == 0) {
+    if (iteration%delai == 0) {
         for (int i=0;i<G->_noeuds.size();i++) {
+            if ((i+(iteration%numero))%numero == 0) {
             Emplacement* closestEmplacement;
             double currXCoord = G->_noeuds[i].stressX;
             double currYCoord = G->_noeuds[i].stressY;
@@ -238,6 +247,7 @@ bool StressMajorization::nextIterationDelay(int iteration) {
                 G->_noeuds[i].stressX = G->_noeuds[i].getEmplacement()->getX();
                 G->_noeuds[i].stressY = G->_noeuds[i].getEmplacement()->getY();
             }
+            }
         }
     }
     bool log = false;
@@ -259,12 +269,12 @@ bool StressMajorization::finished(int numberOfPerformedIterations) {
     return numberOfPerformedIterations >= m_iterations;
 }
 
-void StressMajorization::minimizeStress() {
+void StressMajorization::minimizeStress(std::vector<double> customParam) {
     bool converged;
 	do {
         //std::cout << i << std::endl;
-		converged = nextIteration();
-		//converged = nextIterationDelay(totalIterationDone);
+		//converged = nextIteration(customParam);
+		converged = nextIterationDelay(totalIterationDone,customParam);
         totalIterationDone++;
 	} while (!converged && !finished(totalIterationDone));
 }
@@ -281,7 +291,7 @@ void StressMajorization::replaceInfinityDistances(double newVal) {
     }
 }
 
-void StressMajorization::runAlgo() {
+void StressMajorization::runAlgo(std::vector<double> customParam) {
     initMatrices();
     bfs_SPAP(m_edgeCosts);
     //computeInitialLayout(G); // Pas obligatoire, aleatoire suffisant?
@@ -290,7 +300,7 @@ void StressMajorization::runAlgo() {
     minimizeStress();
 }
 
-void StressMajorization::runStepAlgo() {
+void StressMajorization::runStepAlgo(std::vector<double> customParam) {
     if (!areVectorsSetup) {
         initMatrices();
         bfs_SPAP(m_edgeCosts);

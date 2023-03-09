@@ -86,7 +86,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodePlacementName == "Glouton Gravite") G.gloutonRevisiteGravite();
 		else if (methodePlacementName == "Glouton Voisin") G.gloutonRevisiteVoisin();
 		//else if (methodePlacementName == "OGDF") ogdfPlacementAuPlusProche(G);
-		else if (methodePlacementName == "Stress") { G.stressMajorization(); }
+		else if (methodePlacementName == "Stress") { G.stressMajorization(customParam); }
 		else if (methodePlacementName == "Glouton Grille") { G.gloutonRevisiteGrid(); }
 		else if (methodePlacementName == "Aleatoire") G.placementAleatoire();
 		else if (methodePlacementName != "Aucun") {

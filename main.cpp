@@ -56,12 +56,12 @@ void runFuncOnAllGraphs() {
 
 int main() {
 	initRandomSeed();
-	//initSameSeed();
+	//initSameSeed(1462039345);
 	//allRunsSingleThread(); return 0;
-	//allRunsBySlots(); allRunsBySlotsSecondRun(); return 0;
+	customRecuit(); return 0;
 
 	std::string nomFichierGraph = "graph-11-input";
-	std::string nomFichierSlots = "3X-11-input-slots";
+	std::string nomFichierSlots = "11-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
@@ -78,10 +78,10 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 
-	//G.placementAleatoire();
+	G.placementAleatoire();
 	//G.stepStressMajorization(); G.deleteGrille();
 	//G.stressMajorization();
-	G.placementPivotMDS({},60);
+	//G.placementPivotMDS({},70);
 	//G.stressMajorization();
 	//G.gloutonRevisiteGrid();
 	//G.gloutonRevisite();

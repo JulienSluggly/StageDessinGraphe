@@ -51,4 +51,4 @@ Changer edgecost pour les setup qui n'arrivent pas a bien se finir dans le stres
 
 Genetique qui place n/2 noeud iterativement et produit deux enfants
 
-Implementer pivotMDS
+Moyenne des variantes stressMin avec différents parametres

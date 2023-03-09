@@ -23,7 +23,7 @@ public:
 
     void initMatrices();
 
-    void runAlgo();
+    void runAlgo(std::vector<double> customParam={});
 
     void bfs_SPAP(int edgeCosts);
 
@@ -31,17 +31,17 @@ public:
 
     void calcWeights();
 
-    void minimizeStress();
+    void minimizeStress(std::vector<double> customParam={});
 
-    bool nextIteration();
+    bool nextIteration(std::vector<double> customParam={});
 
-    bool nextIterationDelay(int iteration);
+    bool nextIterationDelay(int iteration,std::vector<double> customParam={});
 
     bool finished(int numberOfPerformedIterations);
 
     void replaceInfinityDistances(double newVal);
 
-    void runStepAlgo();
+    void runStepAlgo(std::vector<double> customParam={});
 
 };
 

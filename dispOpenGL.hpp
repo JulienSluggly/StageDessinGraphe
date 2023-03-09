@@ -555,9 +555,11 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 7: {// Affiche score
 			if (!display_genetic) {
-				std::cout << "Selected Node: " << selectedNode << " emplacement: " << G._noeuds[selectedNode].getEmplacement()->_id << " Selected Emplacement: " << selectedEmplacement << std::endl;
+				G.getNbCroisementDiff();
+				std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
+				//std::cout << "Selected Node: " << selectedNode << " emplacement: " << G._noeuds[selectedNode].getEmplacement()->_id << " Selected Emplacement: " << selectedEmplacement << std::endl;
 				std::cout << "Nb Intersection: " << G.getNbCroisement() << std::endl;
-				std::cout << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
+				//std::cout << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
 				if (show_selected_emplacement) {
 					if (!G._emplacements[selectedEmplacement].estDisponible()) {
 						int swapId = G._emplacements[selectedEmplacement]._noeud->getId();
