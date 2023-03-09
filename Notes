@@ -41,8 +41,6 @@ n*sqrt(2) pire cas recherche, prendre la vraie longueur et chercher dans une pro
 
 glouton au depart?
 
-affecter a la toute fin?
-
 separer les composantes connexes
 
 stress min sur graphe non connexe pas bon?

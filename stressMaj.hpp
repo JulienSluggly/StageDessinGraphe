@@ -13,10 +13,7 @@ public:
     StressMajorization(){}
     StressMajorization(Graphe* _g){ G = _g; }
 
-    double m_epsilon=0.0001;
-    int m_npivot = 50;
-    //int m_edgeCosts = 30;
-    int m_edgeCosts = 45;
+    int m_edgeCosts;
     int m_iterations = 400;
 
     bool m_useGrille = true;

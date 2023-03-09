@@ -1170,29 +1170,33 @@ void Graphe::scaleGraph(int n) {
     gridWidth *= n;
 }
 
-Emplacement* Graphe::getClosestEmplacementFromPoint(double x, double y) {
+Emplacement* Graphe::getClosestEmplacementFromPoint(double x, double y, bool isFree) {
     double minDist = __DBL_MAX__;
     int empId = -1;
     for (int i=0;i<_emplacements.size();i++) {
-        double xDiff = x - (double)_emplacements[i].getX();
-		double yDiff = y - (double)_emplacements[i].getY();
-        double newDist = xDiff * xDiff + yDiff * yDiff;
-        if (newDist < minDist) {
-            minDist = newDist;
-            empId = i;
+        if (!isFree||_emplacements[i].estDisponible()) {
+            double xDiff = x - (double)_emplacements[i].getX();
+            double yDiff = y - (double)_emplacements[i].getY();
+            double newDist = xDiff * xDiff + yDiff * yDiff;
+            if (newDist < minDist) {
+                minDist = newDist;
+                empId = i;
+            }
         }
     }
     return &_emplacements[empId];
 }
 
-void Graphe::searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist) {
+void Graphe::searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree) {
     for (int& empId : grille[cellY][cellX].vecEmplacementId) {
-        double xDiff = x - (double)_emplacements[empId].getX();
-        double yDiff = y - (double)_emplacements[empId].getY();
-        double newDist = xDiff * xDiff + yDiff * yDiff;
-        if (newDist < minDist) {
-            minDist = newDist;
-            closestEmpId = empId;
+        if (!isFree||_emplacements[empId].estDisponible()) {
+            double xDiff = x - (double)_emplacements[empId].getX();
+            double yDiff = y - (double)_emplacements[empId].getY();
+            double newDist = xDiff * xDiff + yDiff * yDiff;
+            if (newDist < minDist) {
+                minDist = newDist;
+                closestEmpId = empId;
+            }
         }
     }
 }
@@ -1219,7 +1223,7 @@ void Graphe::enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector) 
     }
 }
 
-Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y) {
+Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y, bool isFree) {
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
     double dnumX = x/(double)sizeColumn;
@@ -1249,7 +1253,7 @@ Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y) {
     int closestEmpId = -1;
     while (closestEmpId == -1) {
         for (std::pair<int,int>& cellCoord : searchVector) {
-            searchInCellClosestEmplacement(x,y,cellCoord.first,cellCoord.second,closestEmpId,minDist);
+            searchInCellClosestEmplacement(x,y,cellCoord.first,cellCoord.second,closestEmpId,minDist,isFree);
         }
         if (closestEmpId == -1) {
             enlargeSearchVector(searchVector);

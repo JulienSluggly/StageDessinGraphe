@@ -148,7 +148,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_KP_1:
 			break;
-		case GLFW_KEY_KP_9:
+		case GLFW_KEY_KP_9: // Save Graph
 			keyPressFunctionNum = 0; singleKeyPress = true;
 			break;
 		case GLFW_KEY_F1:

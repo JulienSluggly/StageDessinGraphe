@@ -1,5 +1,6 @@
 #include "graphe.hpp"
 #include "stressMaj.hpp"
+#include "pivotMDS.hpp"
 #include <iostream>
 #include <climits>
 
@@ -774,4 +775,21 @@ void Graphe::stepStressMajorization(std::vector<double> customParam, int edgeCos
         _sm.m_edgeCosts = edgeCost;
     }
     _sm.runStepAlgo();
+}
+
+void Graphe::placementPivotMDS(std::vector<double> customParam, int edgeCost, int nbPivot) {
+    if (_pmds.G == nullptr) { _pmds.G = this; }
+    _pmds.m_edgeCosts = edgeCost;
+    _pmds.m_numberOfPivots = nbPivot;
+    bool useGrille = _emplacements.size() > _noeuds.size() * 5;
+    if (useGrille) {
+        initGrilleCarre();
+        registerSlotsInGridNoMove();
+        _pmds.m_useGrille = true;
+    }
+    else {
+        _pmds.m_useGrille = false;
+    }
+    _pmds.runAlgo();
+    if (useGrille) { deleteGrille(); }
 }

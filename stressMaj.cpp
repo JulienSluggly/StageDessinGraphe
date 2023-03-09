@@ -212,7 +212,7 @@ bool StressMajorization::nextIterationDelay(int iteration) {
         }
         moyenneDist += dist;
 	}
-    if (iteration%3 == 0) {
+    if (iteration%20 == 0) {
         for (int i=0;i<G->_noeuds.size();i++) {
             Emplacement* closestEmplacement;
             double currXCoord = G->_noeuds[i].stressX;
@@ -263,8 +263,8 @@ void StressMajorization::minimizeStress() {
     bool converged;
 	do {
         //std::cout << i << std::endl;
-		//converged = nextIteration();
-		converged = nextIterationDelay(totalIterationDone);
+		converged = nextIteration();
+		//converged = nextIterationDelay(totalIterationDone);
         totalIterationDone++;
 	} while (!converged && !finished(totalIterationDone));
 }

@@ -12,6 +12,7 @@
 #include "cellule.hpp"
 #include "personnel.hpp"
 #include "stressMaj.hpp"
+#include "pivotMDS.hpp"
 
 class Graphe {
 public:
@@ -25,6 +26,7 @@ public:
 
 	Carte _c;
 	StressMajorization _sm;
+	PivotMDS _pmds;
 
 	std::vector<std::vector<Cellule>> grille;
 	std::vector<Cellule*> grillePtr;
@@ -523,11 +525,11 @@ public:
 
 	void scaleGraph(int n);
 
-	Emplacement* getClosestEmplacementFromPoint(double x, double y);
+	Emplacement* getClosestEmplacementFromPoint(double x, double y, bool isFree=false);
 
-	Emplacement* getClosestEmplacementFromPointGrid(double x, double y);
+	Emplacement* getClosestEmplacementFromPointGrid(double x, double y, bool isFree=false);
 
-	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist);
+	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree);
 
 	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
 
@@ -540,6 +542,8 @@ public:
 	bool isGrapheConnected();
 
 	void calcMaxAndAverageDegree();
+
+	void placementPivotMDS(std::vector<double> customParam = {}, int edgeCost=45, int nbPivot=50);
 
 };
 

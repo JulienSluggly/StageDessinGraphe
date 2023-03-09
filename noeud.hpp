@@ -22,6 +22,8 @@ public:
 
 	double stressX = -1;
 	double stressY = -1;
+	double pivotX = -1;
+	double pivotY = -1;
 	
 	bool estPlace() const { return _emplacement != nullptr; }
 	Emplacement* getEmplacement()  const { return _emplacement; }
