@@ -20,6 +20,9 @@ public:
     int m_iterations = 400;
 
     bool m_useGrille = true;
+    bool areVectorsSetup = false;
+
+    int totalIterationDone = 0;
 
     void initMatrices();
 
@@ -34,6 +37,8 @@ public:
     void minimizeStress();
 
     bool nextIteration();
+
+    bool nextIterationDelay(int iteration);
 
     bool finished(int numberOfPerformedIterations);
 

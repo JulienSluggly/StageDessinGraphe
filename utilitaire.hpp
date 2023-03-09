@@ -39,7 +39,7 @@ void initSameSeed(unsigned int n=0,bool resetting=true);
 
 void initRandomSeed(bool resetting=false);
 
-void resetSeed(int numThread, bool resetSameSeed=false);
+void resetSeed(int numThread, bool resetSameSeed=false, bool forceReset=false);
 
 std::string getTypeSeed();
 

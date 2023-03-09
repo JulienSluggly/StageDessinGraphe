@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5)
 project(dessinGrapheCmake VERSION 0.1.0)
 cmake_policy(SET CMP0072 NEW)
 
@@ -19,7 +19,7 @@ add_executable(dessinGrapheCmake
     src/grapheDebug.cpp
     src/grapheScore.cpp
     src/grapheUtils.cpp
-    src/grapheGlouton.cpp
+    src/graphePlacement.cpp
     src/geometrie.cpp
     src/intersection.cpp
     src/utilitaire.cpp

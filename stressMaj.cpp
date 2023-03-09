@@ -133,38 +133,140 @@ bool StressMajorization::nextIteration() {
             else {
                 int idSwappedNode = closestEmplacement->_noeud->_id;
                 G->_noeuds[nodeId].swap(closestEmplacement);
+                G->_noeuds[idSwappedNode].stressX = G->_noeuds[idSwappedNode].getEmplacement()->getX();
+                G->_noeuds[idSwappedNode].stressY = G->_noeuds[idSwappedNode].getEmplacement()->getY();
             }
+            G->_noeuds[nodeId].stressX = G->_noeuds[nodeId].getEmplacement()->getX();
+            G->_noeuds[nodeId].stressY = G->_noeuds[nodeId].getEmplacement()->getY();
         }
 	}
-    moyenneDist = moyenneDist / (double)G->_noeuds.size();
-    std::string nomFichier = chemin + "/resultats/" + G->nomGraphe + "ST.csv";
-	std::ofstream resultats(nomFichier, std::ios_base::app);
-    resultats << std::fixed << moyenneDist << "," << nombreDeplacement << ",";
-    for (int i=0;i<distMatrix.size();i++) {
-        resultats << distMatrix[i] << ",";
+    bool log = false;
+    if (log) {
+        moyenneDist = moyenneDist / (double)G->_noeuds.size();
+        std::string nomFichier = chemin + "/resultats/" + G->nomGraphe + "ST.csv";
+        std::ofstream resultats(nomFichier, std::ios_base::app);
+        resultats << std::fixed << moyenneDist << "," << nombreDeplacement << ",";
+        for (int i=0;i<distMatrix.size();i++) {
+            resultats << distMatrix[i] << ",";
+        }
+        resultats << "\n";
+        resultats.close();
     }
-    resultats << "\n";
-    resultats.close();
     return converged;
 }
 
-bool StressMajorization::finished(int numberOfPerformedIterations) {
-	if (numberOfPerformedIterations == m_iterations) {
-		return true;
+bool StressMajorization::nextIterationDelay(int iteration) {
+    double moyenneDist = 0.0;
+    double dist = 0.0;
+    int nombreDeplacement = 0;
+    std::vector<int> distMatrix(11,0);
+    for (int nodeId=0;nodeId<G->_noeuds.size();nodeId++) {
+		double newXCoord = 0.0;
+		double newYCoord = 0.0;
+		double currXCoord = G->_noeuds[nodeId].stressX;
+		double currYCoord = G->_noeuds[nodeId].stressY;
+		double totalWeight = 0;
+		for (int secondNodeId=0;secondNodeId<G->_noeuds.size();secondNodeId++) {
+			if (nodeId == secondNodeId) {
+				continue;
+			}
+			// calculate euclidean distance between both points
+			double xDiff = currXCoord - G->_noeuds[secondNodeId].stressX;
+			double yDiff = currYCoord - G->_noeuds[secondNodeId].stressY;
+			double euclideanDist = sqrt(xDiff * xDiff + yDiff * yDiff);
+			// get the weight
+			double weight = weightMatrix[nodeId][secondNodeId];
+			// get the desired distance
+			double desDistance = shortestPathMatrix[nodeId][secondNodeId];
+			// reset the voted x coordinate
+            double voteX = G->_noeuds[secondNodeId].stressX;
+            if (euclideanDist != 0) {
+                // calc the vote
+                voteX += desDistance * (currXCoord - voteX) / euclideanDist;
+            }
+            // add the vote
+            newXCoord += weight * voteX;
+			// reset the voted y coordinate
+            double voteY = G->_noeuds[secondNodeId].stressY;
+            if (euclideanDist != 0) {
+                // calc the vote
+                voteY += desDistance * (currYCoord - voteY) / euclideanDist;
+            }
+            newYCoord += weight * voteY;
+			// sum up the weights
+			totalWeight += weight;
+		}
+		// update the positions
+		if (totalWeight != 0) {
+			currXCoord = newXCoord / totalWeight;
+			currYCoord = newYCoord / totalWeight;
+            G->_noeuds[nodeId].stressX = currXCoord;
+            G->_noeuds[nodeId].stressY = currYCoord;
+		}
+        dist = sqrt((currXCoord - G->_noeuds[nodeId].getX()) * (currXCoord - G->_noeuds[nodeId].getX())  + (currYCoord - G->_noeuds[nodeId].getY()) * (currYCoord - G->_noeuds[nodeId].getY()));
+        if (dist < 10) {
+            distMatrix[floor(dist)]++;
+        }
+        else {
+            distMatrix[distMatrix.size()-1]++;
+        }
+        moyenneDist += dist;
 	}
-	return false;
+    if (iteration%3 == 0) {
+        for (int i=0;i<G->_noeuds.size();i++) {
+            Emplacement* closestEmplacement;
+            double currXCoord = G->_noeuds[i].stressX;
+            double currYCoord = G->_noeuds[i].stressY;
+            if (m_useGrille) {
+                closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord);
+            }
+            else {
+                closestEmplacement = G->getClosestEmplacementFromPoint(currXCoord,currYCoord);
+            }
+            Emplacement* currentEmplacement = G->_noeuds[i].getEmplacement();
+            if (closestEmplacement->_id != currentEmplacement->_id) {
+                nombreDeplacement++;
+                if (closestEmplacement->estDisponible()) {
+                    G->_noeuds[i].setEmplacement(closestEmplacement);
+                }
+                else {
+                    int idSwappedNode = closestEmplacement->_noeud->_id;
+                    G->_noeuds[i].swap(closestEmplacement);
+                    G->_noeuds[idSwappedNode].stressX = G->_noeuds[idSwappedNode].getEmplacement()->getX();
+                    G->_noeuds[idSwappedNode].stressY = G->_noeuds[idSwappedNode].getEmplacement()->getY();
+                }
+                G->_noeuds[i].stressX = G->_noeuds[i].getEmplacement()->getX();
+                G->_noeuds[i].stressY = G->_noeuds[i].getEmplacement()->getY();
+            }
+        }
+    }
+    bool log = false;
+    if (log) {
+        moyenneDist = moyenneDist / (double)G->_noeuds.size();
+        std::string nomFichier = chemin + "/resultats/" + G->nomGraphe + "ST.csv";
+        std::ofstream resultats(nomFichier, std::ios_base::app);
+        resultats << std::fixed << moyenneDist << "," << nombreDeplacement << ",";
+        for (int i=0;i<distMatrix.size();i++) {
+            resultats << distMatrix[i] << ",";
+        }
+        resultats << "\n";
+        resultats.close();
+    }
+    return false;
+}
+
+bool StressMajorization::finished(int numberOfPerformedIterations) {
+    return numberOfPerformedIterations >= m_iterations;
 }
 
 void StressMajorization::minimizeStress() {
-	int numberOfPerformedIterations = 0;
-
     bool converged;
-    int i=0;
 	do {
         //std::cout << i << std::endl;
-		converged = nextIteration();
-        i++;
-	} while (!converged && !finished(++numberOfPerformedIterations));
+		//converged = nextIteration();
+		converged = nextIterationDelay(totalIterationDone);
+        totalIterationDone++;
+	} while (!converged && !finished(totalIterationDone));
 }
 
 void StressMajorization::replaceInfinityDistances(double newVal) {
@@ -189,11 +291,15 @@ void StressMajorization::runAlgo() {
 }
 
 void StressMajorization::runStepAlgo() {
-    initMatrices();
-    bfs_SPAP(m_edgeCosts);
-    //computeInitialLayout(G); // Pas obligatoire, aleatoire suffisant?
-    if (!G->isGrapheConnected()) { replaceInfinityDistances(m_edgeCosts * sqrt((double)(G->_noeuds.size()))); }
-    calcWeights();
-    m_iterations = 1;
+    if (!areVectorsSetup) {
+        initMatrices();
+        bfs_SPAP(m_edgeCosts);
+        //computeInitialLayout(G); // Pas obligatoire, aleatoire suffisant?
+        if (!G->isGrapheConnected()) { replaceInfinityDistances(m_edgeCosts * sqrt((double)(G->_noeuds.size()))); }
+        calcWeights();
+        m_iterations = 1;
+        areVectorsSetup = true;
+        totalIterationDone = 0;
+    }
     minimizeStress();
 }

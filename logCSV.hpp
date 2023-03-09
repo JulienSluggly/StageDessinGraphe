@@ -69,7 +69,6 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
 	getParamAsString(customParam);
-	resetSeed(tid);
 	for (int i = 1; ((((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600))&&(i <= 100)); ++i) {
 		resetSeed(tid,true);
 		auto start = std::chrono::system_clock::now();
@@ -168,6 +167,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		debugValue = G.debugEverything();
 		if (debugValue > 0) { break; }
 	}
+	resetSeed(tid,false,true);
 	if (saveResult) {
 		std::sort(croisementVector.begin(), croisementVector.end());
 		meilleurCroisement = croisementVector[0];

@@ -55,14 +55,14 @@ void runFuncOnAllGraphs() {
 }
 
 int main() {
-	initRandomSeed();
-	//initSameSeed();
+	//initRandomSeed();
+	initSameSeed(1462039345);
 	//allRunsSingleThread(); return 0;
-	//allRunsBySlots(); return 0;
+	//allRunsBySlots(); allRunsBySlotsSecondRun(); return 0;
 
 	std::string nomFichierGraph = "graph-11-input";
-	//std::string nomFichierSlots = "3X-11-input-slots";
-	std::string nomFichierSlots = "Grid";
+	std::string nomFichierSlots = "3X-11-input-slots";
+	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph);

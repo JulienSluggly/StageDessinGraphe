@@ -19,6 +19,9 @@ public:
 	long score = -1;
 
 	int ogdfId = -1;
+
+	double stressX = -1;
+	double stressY = -1;
 	
 	bool estPlace() const { return _emplacement != nullptr; }
 	Emplacement* getEmplacement()  const { return _emplacement; }

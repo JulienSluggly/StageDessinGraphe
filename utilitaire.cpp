@@ -64,9 +64,9 @@ void initRandomSeed(bool resetting) {
     }
 }
 
-void resetSeed(int numThread, bool resetSameSeed) {
+void resetSeed(int numThread, bool resetSameSeed, bool forceReset) {
     numGen = numThread;
-    if (resetSeedThread[numThread]) {
+    if (resetSeedThread[numThread]||forceReset) {
         if (isSeedRandom) {
             if (resetSameSeed) {
                 genVector[numThread] = new std::mt19937(seedThread[numThread]);

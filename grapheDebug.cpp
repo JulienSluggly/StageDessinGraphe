@@ -136,8 +136,8 @@ int Graphe::afficherEmplacementDouble(bool display, std::string nom) {
         std::cout << "Affichage DEBUG Emplacement Double: " << nomGraphe << " " << nom << std::endl;
     }
     std::vector<std::vector<int>> grilleEmp;
-    for (int i=0;i<gridHeight;i++) {
-        std::vector<int> grilleTmp(gridWidth,-1);
+    for (int i=0;i<=gridHeight;i++) {
+        std::vector<int> grilleTmp(gridWidth+1,-1);
         grilleEmp.push_back(grilleTmp);
     }
     int nbEmplacementDouble = 0;

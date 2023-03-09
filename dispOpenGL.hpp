@@ -15,6 +15,7 @@ int keyPressFunctionNum = -1;
 
 int gridWidth, gridHeight, initialGridWidth, initialGridHeight, maxX, maxY;
 
+bool repeatInfinitely = false;
 bool display_genetic = false;
 bool isGeneticSetUp = false;
 bool show_triangulation = false;
@@ -180,6 +181,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_F8:
 			keyPressFunctionNum = 19; singleKeyPress = true;
+			break;
+		case GLFW_KEY_F9: // Print current seed
+			keyPressFunctionNum = 21; singleKeyPress = true;
+			break;
+		case GLFW_KEY_F12: // Repeat Infinitely
+			repeatInfinitely = !repeatInfinitely;
 			break;
 		case GLFW_KEY_KP_ADD:
 			//if (currentZoom >= 30)
@@ -713,6 +720,14 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 20: {// Step Stress Majorization
 			G.stepStressMajorization();
+			std::cout << G._sm.totalIterationDone << std::endl;
+			break;
+		}
+		case 21: {// Print current seed
+			std::cout << "Current Seed: "; 
+			if (isSeedResetting(0)) { std::cout << "R-"; }
+			else { std::cout << "NR-"; }
+			std::cout << getSeed(0) << "\n";
 			break;
 		}
 		default:{
@@ -726,8 +741,10 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			recalcIllegal = false;
 		}
-		singleKeyPress = false;
-		keyPressFunctionNum = -1;
+		if (!repeatInfinitely) {
+			singleKeyPress = false;
+			keyPressFunctionNum = -1;
+		}
 	}
 }
 
