@@ -733,7 +733,7 @@ void Graphe::completePlacementAleatoireScore(std::vector<int>& vecNode, int tail
     isIntersectionVectorUpdated = false;
 }
 
-void Graphe::stressMajorization(std::vector<double> customParam, int edgeCost, int iterations) {
+void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, int edgeCost, int iterations) {
     if (!estPlace()) { placementAleatoire(); }
     for (int i=0;i<_noeuds.size();i++) {
         _noeuds[i].stressX = (double)_noeuds[i].getEmplacement()->getX();
@@ -752,12 +752,16 @@ void Graphe::stressMajorization(std::vector<double> customParam, int edgeCost, i
     else {
         _sm.m_useGrille = false;
     }
-    if (customParam.size() > 1) {
-        if (customParam[0] == 1) {
-            _sm.m_edgeCosts = customParam[1];
-        }
-        if (customParam[0] == 2) {
-            _sm.m_iterations = customParam[1];
+    if (customParam.size() > 0) {
+        for (std::vector<double>& param : customParam) {
+            if (param.size() > 0) {
+                if (param[0] == 1) {
+                    _sm.m_edgeCosts = param[1];
+                }
+                if (param[0] == 2) {
+                    _sm.m_iterations = param[1];
+                }
+            }
         }
     }
     _sm.runAlgo();
@@ -765,7 +769,7 @@ void Graphe::stressMajorization(std::vector<double> customParam, int edgeCost, i
     if (DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";
 }
 
-void Graphe::stepStressMajorization(std::vector<double> customParam, int edgeCost) {
+void Graphe::stepStressMajorization(std::vector<std::vector<double>> customParam, int edgeCost) {
     if (_sm.G == nullptr) { 
         _sm.G = this;
         if (!estPlace()) { 
@@ -784,9 +788,13 @@ void Graphe::stepStressMajorization(std::vector<double> customParam, int edgeCos
         else {
             _sm.m_useGrille = false;
         }
-        if (customParam.size() > 1) {
-            if (customParam[0] == 1) {
-                _sm.m_edgeCosts = customParam[1];
+        if (customParam.size() > 0) {
+            for (std::vector<double>& param : customParam) {
+                if (param.size() > 0) {
+                    if (param[0] == 1) {
+                        _sm.m_edgeCosts = param[1];
+                    }
+                }
             }
         }
         _sm.m_edgeCosts = edgeCost;
@@ -800,7 +808,7 @@ void Graphe::stepStressMajorization(std::vector<double> customParam, int edgeCos
     _sm.runStepAlgo();
 }
 
-void Graphe::placementPivotMDS(std::vector<double> customParam, int edgeCost, int nbPivot) {
+void Graphe::placementPivotMDS(std::vector<std::vector<double>> customParam, int edgeCost, int nbPivot) {
     if (_pmds.G == nullptr) { _pmds.G = this; }
     _pmds.m_edgeCosts = edgeCost;
     _pmds.m_numberOfPivots = nbPivot;

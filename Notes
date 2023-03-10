@@ -3,15 +3,11 @@ Structure arete:
 
 Moyenne sur les crossing number?
 
-Trouver une methode de energy layout qui n'utilise pas les bends
-
 Iterative edge insertion and optimize at each step the number of crossings
 
 Selection de noeud pas au hasard mais ordonnée par score? ordonné, avant puis arriere?
 
 Tester sur les romes graphs, AT&T, Triangulation+X
-
-Tests avec delay plutot que cool?
 
 Variante recuit qui modifie la probabilité d'acceptation
 
@@ -29,17 +25,13 @@ Faire des tests avec autre qu'un depart aleatoire, max planar graph? glouton?
 
 Faire des tests sur le placement de depart avec stressMin en variant edgeCost, comparer avec placement aleatoire et glouton
 
-Passer customParam en vecteur de vecteur pour avoir plusieurs customisation en meme temps
-
 Variante Stress Maj qui minimise le nombre d'intersection au moment de la recherche du plus proche.
-
-Tester stress majorization avec un layout de depart different de l'aleatoire
-
-Tester recuit avec cool encore plus haut: 0.9999999
 
 n*sqrt(2) pire cas recherche, prendre la vraie longueur et chercher dans une profondeur egale a la longueur.
 
 glouton au depart?
+
+Regarder si il est possible d'implementer l'algo de planarisation d'ogdf avec nos contraintes
 
 separer les composantes connexes
 

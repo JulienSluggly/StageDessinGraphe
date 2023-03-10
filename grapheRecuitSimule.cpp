@@ -144,7 +144,7 @@ int Graphe::selectionNoeud(int modeNoeud, int t, bool isScoreUpdated) {
 }
 
 // Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple,3=Triangulation
-int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<double>& customParam, int iter) {
+int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<std::vector<double>>& customParam, int iter) {
     int slotId;
     switch (modeEmplacement) {
     case 0: {
@@ -161,19 +161,23 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
     }
     case 2: {
         int nbTirage;
-        if (customParam.size() > 2) {
-            if (customParam[0] == 0) {
-                if (customParam[1] == 0) {
-                    nbTirage = customParam[2];
-                }
-                else if (customParam[1] == 1) {
-                    nbTirage = ((100 - t) / customParam[2]) + 1;
-                }
-                else if (customParam[1] == 2) {
-                    nbTirage = (iter / 100000) + customParam[2];
-                }
-                else if (customParam[1] == 3) {
-                    nbTirage = (iter / customParam[2]) + 1;
+        if (customParam.size() > 0) {
+            for (std::vector<double>& param : customParam) {
+                if (param.size() > 0) {
+                    if (param[0] == 0) {
+                        if (param[1] == 0) {
+                            nbTirage = param[2];
+                        }
+                        else if (param[1] == 1) {
+                            nbTirage = ((100 - t) / param[2]) + 1;
+                        }
+                        else if (param[1] == 2) {
+                            nbTirage = (iter / 100000) + param[2];
+                        }
+                        else if (param[1] == 3) {
+                            nbTirage = (iter / param[2]) + 1;
+                        }
+                    }
                 }
             }
         }
@@ -184,14 +188,18 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
     case 3: {
         int profondeur = (iter / 100000) + 10;
         if (customParam.size() > 0) {
-            if (customParam[0] == 7) {
-                profondeur = customParam[1];
-            }
-            else if (customParam[0] == 8) {
-                profondeur = (iter / 100000) + customParam[1];
-            }
-            else if (customParam[0] == 9) {
-                profondeur = ((1381545-iter) / 100000) + customParam[1];
+            for (std::vector<double>& param : customParam) {
+                if (param.size() > 0) {
+                    if (param[0] == 7) {
+                        profondeur = param[1];
+                    }
+                    else if (param[0] == 8) {
+                        profondeur = (iter / 100000) + param[1];
+                    }
+                    else if (param[0] == 9) {
+                        profondeur = ((1381545-iter) / 100000) + param[1];
+                    }
+                }
             }
         }
         slotId = selectionEmplacementTriangulation(nodeId,profondeur);
@@ -202,20 +210,24 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
 }
 
 // Calcule le delay a appliquer lors du recuit si besoin.
-void Graphe::calculDelaiRefroidissement(int& delay, std::vector<double>& customParam, int iter) {
-    if (customParam.size() > 2) {
-        if (customParam[0] == 3) {
-            if (customParam[1] == 0) {
-                delay = customParam[2];
-            }
-            else if (customParam[1] == 1) {
-                delay = ceil((double)_noeuds.size() / customParam[2]) + 1;
-            }
-            else if (customParam[1] == 2) {
-                delay = (iter / 100000) + customParam[2];
-            }
-            else if (customParam[1] == 3) {
-                delay = ((1381545-iter) / 100000) + customParam[2];
+void Graphe::calculDelaiRefroidissement(int& delay, std::vector<std::vector<double>>& customParam, int iter) {
+    if (customParam.size() > 0) {
+        for (std::vector<double>& param : customParam) {
+            if (param.size() > 0) {
+                if (param[0] == 3) {
+                    if (param[1] == 0) {
+                        delay = param[2];
+                    }
+                    else if (param[1] == 1) {
+                        delay = ceil((double)_noeuds.size() / param[2]) + 1;
+                    }
+                    else if (param[1] == 2) {
+                        delay = (iter / 100000) + param[2];
+                    }
+                    else if (param[1] == 3) {
+                        delay = ((1381545-iter) / 100000) + param[2];
+                    }
+                }
             }
         }
     }
@@ -273,12 +285,16 @@ int Graphe::calculImprove(int nodeId,int slotId,bool& swapped,int& idSwappedNode
     return newScoreNode - scoreNode;
 }
 
-void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<double> customParam) {
-    if (customParam.size() > 1) {
-        if (customParam[0] == 8) { t = customParam[1]; }
-        else if (customParam[0] == 9) { cool = customParam[1]; }
-        else if (customParam[0] == 10) { coolt = customParam[1]; }
-        else if (customParam[0] == 11) { seuil = customParam[1]; }
+void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam) {
+    if (customParam.size() > 0) {
+        for (std::vector<double>& param : customParam) {
+            if (param.size() > 0) {
+                if (param[0] == 8) { t = param[1]; }
+                else if (param[0] == 9) { cool = param[1]; }
+                else if (param[0] == 10) { coolt = param[1]; }
+                else if (param[0] == 11) { seuil = param[1]; }
+            }
+        }
     }
 }
 
@@ -303,7 +319,7 @@ void Graphe::updateGraphDataRecuit(bool useScore, bool useGrille) {
     else { isIntersectionVectorUpdated = false; }
 }
 
-void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeud, int modeEmplacement, std::vector<double> customParam) {
+void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeud, int modeEmplacement, std::vector<std::vector<double>> customParam) {
     std::cout << "Not Yet Updated.\n";
 }
 
@@ -311,7 +327,7 @@ void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeu
 // Met à jour la variable nombreCroisement du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
 // Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
-void Graphe::recuitSimule(double &timeBest, std::vector<double> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore) {
+void Graphe::recuitSimule(double &timeBest, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore) {
     auto start = std::chrono::system_clock::now(); auto bestEnd = start; auto end = start; // Timer pour le meilleur resultat trouvé et total
     std::vector<int> bestResultVector; Graphe bestResultGraphe; // Sauvegarde du meilleur graphe.
     saveBestResultRecuit(bestResultVector,bestResultGraphe,useScore,useGrille);
@@ -376,7 +392,7 @@ void Graphe::recuitSimule(double &timeBest, std::vector<double> customParam, dou
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::vector<double> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore) {
+void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore) {
     auto start = std::chrono::system_clock::now();
     auto end = start;
     applyRerecuitCustomParam(t,cool,coolt,seuil,customParam);

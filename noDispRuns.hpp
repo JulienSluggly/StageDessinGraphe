@@ -33,7 +33,7 @@ void readOldFiles(Graphe& G) {
 	}
 }
 
-void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pairGraphSlots, int nbRun, std::string methodePlacement, std::string methodeAlgo,std::vector<double> customParam, int tid) {
+void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pairGraphSlots, int nbRun, std::string methodePlacement, std::string methodeAlgo,std::vector<std::vector<double>> customParam, int tid) {
 	for (int i = 0; i < pairGraphSlots.second.size(); i++) {
 		generateCSV(nbRun, methodePlacement, methodeAlgo, pairGraphSlots.first, pairGraphSlots.first, pairGraphSlots.second[i],customParam,tid);
 	}
@@ -54,7 +54,7 @@ void customRecuit() {
 			if (tid == 0) {
 				printf("Number of threads working on training data: %d\n", nthreads);
 			}
-			std::vector<std::vector<double>> totalRuns;
+			std::vector<std::vector<std::vector<double>>> totalRuns;
 			for (int i=0;i<totalRuns.size();i++) {
 				generateCSV(-1,"Stress","Aucun","graph-11-input",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
 			}
@@ -83,19 +83,8 @@ void customRecuitAllRuns() {
 		for (auto &key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int numSlot = 0; numSlot < key.second.size(); numSlot++) {
-					std::vector<std::vector<double>> totalRuns;
-					totalRuns.push_back({10,1});
-					totalRuns.push_back({11,1});
-					totalRuns.push_back({10,0.5});
-					totalRuns.push_back({11,0.5});
-					totalRuns.push_back({10,1.5});
-					totalRuns.push_back({11,1.5});
-					totalRuns.push_back({10,0.8});
-					totalRuns.push_back({11,0.8});
-					totalRuns.push_back({10,1.2});
-					totalRuns.push_back({11,1.2});
-					totalRuns.push_back({10,2});
-					totalRuns.push_back({11,2});
+					std::vector<std::vector<std::vector<double>>> totalRuns;
+					totalRuns.push_back({{10,1}});
 					std::string nomFichierLog = key.first;
 					for (int i=0;i<totalRuns.size();i++) {
 						generateCSV(2,"Aleatoire","Recuit Simule Grille TME",nomFichierLog,key.first,key.second[numSlot],totalRuns[i],tid);
@@ -196,9 +185,9 @@ void allRunsBySlots() {
 		std::vector<std::vector<double>> customParam;
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cooler",{},tid);
-				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cool Delay",{},tid);
-				startRunsForAllSlots(key,-1,"Stress","Rerecuit Simule Grille TME Cooler",{},tid);
+				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cooler",{{}},tid);
+				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cool Delay",{{}},tid);
+				startRunsForAllSlots(key,-1,"Stress","Rerecuit Simule Grille TME Cooler",{{}},tid);
 			}
 			indexKey++;
 		}
@@ -225,27 +214,8 @@ void allRunsBySlotsSecondRun() {
 			printf("Chunk size: %d\n", chunk);
 		}
 		int indexKey = 0;
-		std::vector<std::vector<double>> totalRuns;
-		totalRuns.push_back({1,5});
-		totalRuns.push_back({1,10});
-		totalRuns.push_back({1,15});
-		totalRuns.push_back({1,20});
-		totalRuns.push_back({1,25});
-		totalRuns.push_back({1,30});
-		totalRuns.push_back({1,35});
-		totalRuns.push_back({1,40});
-		totalRuns.push_back({1,45});
-		totalRuns.push_back({1,50});
-		totalRuns.push_back({1,55});
-		totalRuns.push_back({1,60});
-		totalRuns.push_back({1,65});
-		totalRuns.push_back({1,70});
-		totalRuns.push_back({1,75});
-		totalRuns.push_back({1,80});
-		totalRuns.push_back({1,85});
-		totalRuns.push_back({1,90});
-		totalRuns.push_back({1,95});
-		totalRuns.push_back({1,100});
+		std::vector<std::vector<std::vector<double>>> totalRuns;
+		totalRuns.push_back({{1,5}});
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int taille=0;taille<totalRuns.size();taille++) {
@@ -277,30 +247,11 @@ void allRunsBySlotsThirdRun() {
 			printf("Chunk size: %d\n", chunk);
 		}
 		int indexKey = 0;
-		std::vector<std::vector<double>> totalRuns;
-		totalRuns.push_back({1,5});
-		totalRuns.push_back({1,10});
-		totalRuns.push_back({1,15});
-		totalRuns.push_back({1,20});
-		totalRuns.push_back({1,25});
-		totalRuns.push_back({1,30});
-		totalRuns.push_back({1,35});
-		totalRuns.push_back({1,40});
-		totalRuns.push_back({1,45});
-		totalRuns.push_back({1,50});
-		totalRuns.push_back({1,55});
-		totalRuns.push_back({1,60});
-		totalRuns.push_back({1,65});
-		totalRuns.push_back({1,70});
-		totalRuns.push_back({1,75});
-		totalRuns.push_back({1,80});
-		totalRuns.push_back({1,85});
-		totalRuns.push_back({1,90});
-		totalRuns.push_back({1,95});
-		totalRuns.push_back({1,100});
+		std::vector<std::vector<std::vector<double>>> totalRuns;
+		totalRuns.push_back({{1,5}});
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,10,"Stress","Aucun",{},tid);
+				startRunsForAllSlots(key,10,"Stress","Aucun",{{}},tid);
 				for (int taille=0;taille<totalRuns.size();taille++) {
 					startRunsForAllSlots(key,10,"Stress","Aucun",totalRuns[taille],tid);
 				}

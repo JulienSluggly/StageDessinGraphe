@@ -36,23 +36,29 @@ void fillLogsVector() {
 	fillMap();
 }
 
-std::string getParamAsString(std::vector<double> customParam) {
+std::string getParamAsString(std::vector<std::vector<double>>& customParam) {
 	std::stringstream paramStream;
 	paramStream << std::fixed;
 	paramStream << "{";
-	for (int i=0;i<customParam.size();i++) {
-		if (i<=1) { paramStream << std::setprecision(0) << customParam[i]; }
-		else { 
-			if (customParam[i] > 0.1) { paramStream << std::setprecision(2) << customParam[i]; }
-			else { paramStream << std::setprecision(9) << customParam[i]; }
+	for (std::vector<double>& param : customParam) {
+		paramStream << "{";
+		if (param.size() > 0) {
+			for (int i=0;i<param.size();i++) {
+				if (i<=1) { paramStream << std::setprecision(0) << param[i]; }
+				else { 
+					if (param[i] > 0.1) { paramStream << std::setprecision(2) << param[i]; }
+					else { paramStream << std::setprecision(9) << param[i]; }
+				}
+				if (i<param.size()-1) { paramStream << " "; }
+			}
 		}
-		if (i<customParam.size()-1) { paramStream << " "; }
+		paramStream << "}";
 	}
 	paramStream << "}";
 	return paramStream.str();
 }
 
-void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, const std::string& nomGraphe, std::string fileGraph, std::string fileSlots, std::vector<double> customParam={}, int tid=0) {
+void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, const std::string& nomGraphe, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, int tid=0) {
 	bool updateScore = containsString(methodeAlgoName,"Score");
 	bool isGenetique = containsString(methodeAlgoName,"Genetique");
 	bool needTriangulation = containsString(methodeAlgoName,"TRE");
@@ -101,19 +107,26 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		}
 		if (needGrille) {
 			if (customParam.size() > 0) {
-				if (customParam[0] == 10) {
-					int row = (int)(ceil(sqrt(G._noeuds.size()))*customParam[1]);
-					row = max(1,row);
-					G.initGrille(row,row);
-					G.registerSlotsAndEdgesInGrid();
+				bool found = false;
+				for (std::vector<double>& param : customParam) {
+					if (param.size() > 0) {
+						if (param[0] == 10) {
+							int row = (int)(ceil(sqrt(G._noeuds.size()))*param[1]);
+							row = max(1,row);
+							G.initGrille(row,row);
+							G.registerSlotsAndEdgesInGrid();
+							found = true;
+						}
+						else if (param[0] == 11) {
+							int row = (int)(ceil(sqrt(G._aretes.size()))*param[1]);
+							row = max(1,row);
+							G.initGrille(row,row);
+							G.registerSlotsAndEdgesInGrid();
+							found = true;
+						}
+					}
 				}
-				else if (customParam[0] == 11) {
-					int row = (int)(ceil(sqrt(G._aretes.size()))*customParam[1]);
-					row = max(1,row);
-					G.initGrille(row,row);
-					G.registerSlotsAndEdgesInGrid();
-				}
-				else {
+				if (!found) {
 					G.initGrille();
 					G.registerSlotsAndEdgesInGrid();
 				}

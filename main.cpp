@@ -67,7 +67,7 @@ int main() {
 
 	Graphe G(nomFichierGraph);
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
-	G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size(),G._noeuds.size());
+	G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 
 	std::cout << "Debut placement.\n";

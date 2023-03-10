@@ -161,16 +161,16 @@ public:
 	int selectionNoeud(int modeNoeud, int t, bool isScoreUpdated=false);
 
 	// Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
-	int selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<double>& customParam, int iter);
+	int selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<std::vector<double>>& customParam, int iter);
 
 	// Calcule le delay a appliquer lors du recuit si besoin.
-	void calculDelaiRefroidissement(int& delay, std::vector<double>& customParam, int iter);
+	void calculDelaiRefroidissement(int& delay, std::vector<std::vector<double>>& customParam, int iter);
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
 	int calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,Emplacement*& oldEmplacement,bool useGrille, bool useScore);
 
 	// Modifie les parametres du rerecuit en fonction des customParam
-	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<double> customParam={});
+	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam);
 
 	// Effectue une sauvegarde du graphe en fonction de la méthode utilisée.
 	void saveBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, bool useScore, bool useGrille);
@@ -188,15 +188,15 @@ public:
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimule(double &timeBest, std::vector<double> customParam = {}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false);
+	void recuitSimule(double &timeBest, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe si elle etait a jour avant.
-	void stepRecuitSimule(double& t, int& nbCrois, double cool = 0.99999, int modeNoeud = 0, int modeEmplacement = 0,std::vector<double> customParam = {});
+	void stepRecuitSimule(double& t, int& nbCrois, double cool = 0.99999, int modeNoeud = 0, int modeEmplacement = 0,std::vector<std::vector<double>> customParam = {{}});
 
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimule(double &timeBest, int &nombreRecuit, std::vector<double> customParam = {}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false);
+	void rerecuitSimule(double &timeBest, int &nombreRecuit, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false);
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
 	// On parcoure tout les noeuds et on teste chaque deplacement possible et on effectue le meilleur s'il ameliore le score. (O(n²*e))
@@ -539,16 +539,16 @@ public:
 	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
 
 	// Appelle l'algorithme de stress majorization sur le graphe.
-	void stressMajorization(std::vector<double> customParam = {}, int edgeCost=45, int iterations=400);
+	void stressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45, int iterations=400);
 
 	// Effectue le deplacement d'un seul noeud avec l'algorithme de stressMajorization
-	void stepStressMajorization(std::vector<double> customParam = {}, int edgeCost=45);
+	void stepStressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45);
 
 	bool isGrapheConnected();
 
 	void calcMaxAndAverageDegree();
 
-	void placementPivotMDS(std::vector<double> customParam = {}, int edgeCost=45, int nbPivot=50);
+	void placementPivotMDS(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45, int nbPivot=50);
 
 	void rotateNode(double angle, int nodeId, double centerX, double centerY);
 
