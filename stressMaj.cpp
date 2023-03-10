@@ -5,6 +5,8 @@
 #include <algorithm>
 
 void StressMajorization::initMatrices() {
+    shortestPathMatrix.clear();
+    weightMatrix.clear();
     for (int i=0;i<G->_noeuds.size();i++) {
         std::vector<double> tmpArrayPath;
         std::vector<double> tmpArrayWeight;
@@ -20,9 +22,12 @@ void StressMajorization::initMatrices() {
         shortestPathMatrix.push_back(tmpArrayPath);
         weightMatrix.push_back(tmpArrayWeight);
     }
+    bfs_SPAP();
+    if (!G->isGrapheConnected()) { replaceInfinityDistances(m_edgeCosts * sqrt((double)(G->_noeuds.size()))); }
+    calcWeights();
 }
 
-void StressMajorization::bfs_SPSS(int nodeId, std::vector<double>& shortestPathArray, int edgeCosts) {
+void StressMajorization::bfs_SPSS(int nodeId, std::vector<double>& shortestPathArray) {
     std::vector<bool> mark(G->_noeuds.size(),false);
     std::vector<int> bfs;
     bfs.push_back(nodeId);
@@ -32,7 +37,7 @@ void StressMajorization::bfs_SPSS(int nodeId, std::vector<double>& shortestPathA
     int numero = 0;
     while (numero < bfs.size()) {
         int id = bfs[numero];
-        double dist = shortestPathArray[id] + edgeCosts;
+        double dist = shortestPathArray[id] + m_edgeCosts;
         for (Noeud* voisin : G->_noeuds[id].voisins) {
             int voisinId = voisin->_id;
             if (!mark[voisinId]) {
@@ -45,9 +50,9 @@ void StressMajorization::bfs_SPSS(int nodeId, std::vector<double>& shortestPathA
     }
 }
 
-void StressMajorization::bfs_SPAP(int edgeCosts) {
+void StressMajorization::bfs_SPAP() {
     for (int i=0;i<G->_noeuds.size();i++) {
-        bfs_SPSS(i,shortestPathMatrix[i],edgeCosts);
+        bfs_SPSS(i,shortestPathMatrix[i]);
     }
 }
 
@@ -156,7 +161,7 @@ bool StressMajorization::nextIteration(std::vector<double> customParam) {
     return converged;
 }
 
-bool StressMajorization::nextIterationDelay(int iteration,std::vector<double> customParam) {
+bool StressMajorization::nextIterationDelayTest(int iteration,std::vector<double> customParam) {
     double moyenneDist = 0.0;
     double dist = 0.0;
     int nombreDeplacement = 0;
@@ -265,6 +270,81 @@ bool StressMajorization::nextIterationDelay(int iteration,std::vector<double> cu
     return false;
 }
 
+bool StressMajorization::nextIterationDelay(int iteration) {
+    int nombreDeplacement = 0;
+    for (int nodeId=0;nodeId<G->_noeuds.size();nodeId++) {
+		double newXCoord = 0.0;
+		double newYCoord = 0.0;
+		double currXCoord = G->_noeuds[nodeId].stressX;
+		double currYCoord = G->_noeuds[nodeId].stressY;
+		double totalWeight = 0;
+		for (int secondNodeId=0;secondNodeId<G->_noeuds.size();secondNodeId++) {
+			if (nodeId == secondNodeId) {
+				continue;
+			}
+			// calculate euclidean distance between both points
+			double xDiff = currXCoord - G->_noeuds[secondNodeId].stressX;
+			double yDiff = currYCoord - G->_noeuds[secondNodeId].stressY;
+			double euclideanDist = sqrt(xDiff * xDiff + yDiff * yDiff);
+			// get the weight
+			double weight = weightMatrix[nodeId][secondNodeId];
+			// get the desired distance
+			double desDistance = shortestPathMatrix[nodeId][secondNodeId];
+			// reset the voted x coordinate
+            double voteX = G->_noeuds[secondNodeId].stressX;
+            if (euclideanDist != 0) {
+                // calc the vote
+                voteX += desDistance * (currXCoord - voteX) / euclideanDist;
+            }
+            // add the vote
+            newXCoord += weight * voteX;
+			// reset the voted y coordinate
+            double voteY = G->_noeuds[secondNodeId].stressY;
+            if (euclideanDist != 0) {
+                // calc the vote
+                voteY += desDistance * (currYCoord - voteY) / euclideanDist;
+            }
+            newYCoord += weight * voteY;
+			// sum up the weights
+			totalWeight += weight;
+		}
+		// update the positions
+		if (totalWeight != 0) {
+			currXCoord = newXCoord / totalWeight;
+			currYCoord = newYCoord / totalWeight;
+            G->_noeuds[nodeId].stressX = currXCoord;
+            G->_noeuds[nodeId].stressY = currYCoord;
+		}
+	}
+    for (int i=0;i<G->_noeuds.size();i++) {
+        Emplacement* closestEmplacement;
+        double currXCoord = G->_noeuds[i].stressX;
+        double currYCoord = G->_noeuds[i].stressY;
+        if (m_useGrille) {
+            closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord);
+        }
+        else {
+            closestEmplacement = G->getClosestEmplacementFromPoint(currXCoord,currYCoord);
+        }
+        Emplacement* currentEmplacement = G->_noeuds[i].getEmplacement();
+        if (closestEmplacement->_id != currentEmplacement->_id) {
+            nombreDeplacement++;
+            if (closestEmplacement->estDisponible()) {
+                G->_noeuds[i].setEmplacement(closestEmplacement);
+            }
+            else {
+                int idSwappedNode = closestEmplacement->_noeud->_id;
+                G->_noeuds[i].swap(closestEmplacement);
+                G->_noeuds[idSwappedNode].stressX = G->_noeuds[idSwappedNode].getEmplacement()->getX();
+                G->_noeuds[idSwappedNode].stressY = G->_noeuds[idSwappedNode].getEmplacement()->getY();
+            }
+            G->_noeuds[i].stressX = G->_noeuds[i].getEmplacement()->getX();
+            G->_noeuds[i].stressY = G->_noeuds[i].getEmplacement()->getY();
+        }
+    }
+    return nombreDeplacement == 0;
+}
+
 bool StressMajorization::finished(int numberOfPerformedIterations) {
     return numberOfPerformedIterations >= m_iterations;
 }
@@ -274,7 +354,7 @@ void StressMajorization::minimizeStress(std::vector<double> customParam) {
 	do {
         //std::cout << i << std::endl;
 		//converged = nextIteration(customParam);
-		converged = nextIterationDelay(totalIterationDone,customParam);
+		converged = nextIterationDelay(totalIterationDone);
         totalIterationDone++;
 	} while (!converged && !finished(totalIterationDone));
 }
@@ -293,20 +373,12 @@ void StressMajorization::replaceInfinityDistances(double newVal) {
 
 void StressMajorization::runAlgo(std::vector<double> customParam) {
     initMatrices();
-    bfs_SPAP(m_edgeCosts);
-    //computeInitialLayout(G); // Pas obligatoire, aleatoire suffisant?
-    if (!G->isGrapheConnected()) { replaceInfinityDistances(m_edgeCosts * sqrt((double)(G->_noeuds.size()))); }
-    calcWeights();
     minimizeStress();
 }
 
 void StressMajorization::runStepAlgo(std::vector<double> customParam) {
     if (!areVectorsSetup) {
         initMatrices();
-        bfs_SPAP(m_edgeCosts);
-        //computeInitialLayout(G); // Pas obligatoire, aleatoire suffisant?
-        if (!G->isGrapheConnected()) { replaceInfinityDistances(m_edgeCosts * sqrt((double)(G->_noeuds.size()))); }
-        calcWeights();
         m_iterations = 1;
         areVectorsSetup = true;
         totalIterationDone = 0;

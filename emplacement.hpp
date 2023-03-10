@@ -14,7 +14,6 @@ class Emplacement {
 public:
 	Noeud* _noeud = nullptr;
 	int _id;
-	bool _estDisponible = true;
 	int _x, _y;
 
 	// Id des emplacements dans le tableau _emplacementsPossibles
@@ -32,18 +31,14 @@ public:
 	}
 
 	int getId() const { return _id; }
-	bool estDisponible() { return _estDisponible; }
+	bool estDisponible() { return _noeud == nullptr; }
 
 	// NE PAS APPELER CES FONCTIONS
-	void setNoeud(Noeud* noeud)
-	{
+	void setNoeud(Noeud* noeud){
 		_noeud = noeud;
-		_estDisponible = false;
 	}
-	void removeNoeud()
-	{
+	void removeNoeud(){
 		_noeud = nullptr;
-		_estDisponible = true;
 	}
 
 	int getX() const { return _x; }

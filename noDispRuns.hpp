@@ -39,7 +39,7 @@ void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pair
 	}
 }
 
-// A besoin d'au moin 4 threads pour effectuer toutes les executions.
+// A besoin d'au moin slotFiles.size() threads pour effectuer toutes les executions.
 void customRecuit() {
 	fillLogsVector();
 	std::string nomFichierGraph = "graph-11-input";
@@ -55,25 +55,10 @@ void customRecuit() {
 				printf("Number of threads working on training data: %d\n", nthreads);
 			}
 			std::vector<std::vector<double>> totalRuns;
-			totalRuns.push_back({4,1});
-			totalRuns.push_back({4,2});
-			totalRuns.push_back({4,5});
-			totalRuns.push_back({4,10});
-			totalRuns.push_back({4,15});
-			totalRuns.push_back({4,20});
-			totalRuns.push_back({4,25});
-			totalRuns.push_back({4,30});
-			totalRuns.push_back({5,1});
-			totalRuns.push_back({5,3});
-			totalRuns.push_back({5,5});
-			totalRuns.push_back({5,7});
-			totalRuns.push_back({5,9});
-			totalRuns.push_back({5,11});
-			totalRuns.push_back({5,13});
-			totalRuns.push_back({5,15});
 			for (int i=0;i<totalRuns.size();i++) {
 				generateCSV(-1,"Stress","Aucun","graph-11-input",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
 			}
+			generateCSV(10,"Stress","Aucun","graph-11-input",nomFichierGraph,slotFiles[tid],{},tid);
 		}
 		printf("Thread: %d done.\n",tid);
 	}

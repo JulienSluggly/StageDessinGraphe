@@ -111,25 +111,42 @@ std::pair<int,int> Graphe::getCentreGravite() {
 // Retourne le centre de gravite des noeuds place
 std::pair<int,int> Graphe::getCentreGraviteNoeudPlaces() {
     double totalX = 0.0, totalY = 0.0;
+    int nbIter = 0;
     for (int i=0;i<_noeuds.size();i++) {
         if (_noeuds[i].estPlace()){
             totalX += _noeuds[i].getX();
             totalY += _noeuds[i].getY();
+            nbIter++;
         }
     }
-    return std::pair<int,int>(totalX / _emplacements.size(),totalY / _emplacements.size());
+    return std::pair<int,int>(totalX / nbIter,totalY / nbIter);
+}
+
+std::pair<double,double> Graphe::getCentreGraviteDoubleNoeuds() {
+    double totalX = 0.0, totalY = 0.0;
+    double nbIter = 0.0;
+    for (int i=0;i<_noeuds.size();i++) {
+        if (_noeuds[i].estPlace()){
+            totalX += _noeuds[i].getEmplacement()->getX();
+            totalY += _noeuds[i].getEmplacement()->getY();
+            nbIter++;
+        }
+    }
+    return std::pair<double,double>(totalX / nbIter,totalY / nbIter);
 }
 
 // Retourne le centre de gravite des voisins place d'un noeud.
 std::pair<int,int> Graphe::getCentreGraviteVoisin(Noeud* noeud) {
     double totalX = 0.0, totalY = 0.0;
+    int nbIter = 0;
     for (int i=0;i<noeud->voisins.size();i++) {
         if (noeud->voisins[i]->estPlace()) {
             totalX += noeud->voisins[i]->getX();
             totalY += noeud->voisins[i]->getY();
+            nbIter++;
         }
     }
-    return std::pair<int,int>(totalX / _emplacements.size(),totalY / _emplacements.size());
+    return std::pair<int,int>(totalX / nbIter,totalY / nbIter);
 }
 
 // Renvoie l'id du meilleur emplacement disponible
@@ -773,6 +790,12 @@ void Graphe::stepStressMajorization(std::vector<double> customParam, int edgeCos
             }
         }
         _sm.m_edgeCosts = edgeCost;
+    }
+    if ((_noeuds[0].stressX != _noeuds[0].getEmplacement()->getX())||(_noeuds[0].stressY != _noeuds[0].getEmplacement()->getY())) {
+        for (int i=0;i<_noeuds.size();i++) {
+            _noeuds[i].stressX = (double)_noeuds[i].getEmplacement()->getX();
+            _noeuds[i].stressY = (double)_noeuds[i].getEmplacement()->getY();
+        }
     }
     _sm.runStepAlgo();
 }

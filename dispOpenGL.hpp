@@ -13,15 +13,16 @@ bool printRaccourcis = false;
 bool singleKeyPress = false;
 int keyPressFunctionNum = -1;
 
+double windowWidth = 1750.0, windowHeight=900.0;
 int gridWidth, gridHeight, initialGridWidth, initialGridHeight, maxX, maxY;
+double ratioAffichageX, ratioAffichageY;
 
 bool repeatInfinitely = false;
 bool display_genetic = false;
 bool isGeneticSetUp = false;
 bool show_triangulation = false;
-bool show_grid_size = true;
 bool show_cells = false;
-int currentZoom = 0;
+double currentZoom = 0.0;
 bool moving = false;
 int selectedNode = 0;
 bool show_selected_emplacement = false;
@@ -43,9 +44,30 @@ std::vector<int> graphCopy;
 // Parents pour affichage genetique
 Graphe parent1("parent1"), parent2("parent2"), enfant("enfant");
 int nbNoeudATraiter, currentGrapheNumber=0;
+double clicX=0.0, clicY=0.0;
 
 void error_callback(int error, const char* description) {
 	fputs(description, stderr);
+}
+
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+       glfwGetCursorPos(window, &clicX, &clicY);
+	   clicX *= ratioAffichageX;
+	   clicY *= ratioAffichageY;
+	   clicY = (gridHeight - clicY)-1;
+	   clicX -= 1;
+	   std::cout << clicX << " " << clicY << std::endl;
+	   if (show_selected_emplacement) {
+			keyPressFunctionNum = 27; singleKeyPress = true;
+		}
+		else if (show_cells) {
+			// TO DO IF NEEDED
+		}
+		else if (show_selected_node) {
+			keyPressFunctionNum = 26; singleKeyPress = true;
+		}
+    }
 }
 
 // Callback pour OpenGL
@@ -54,8 +76,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		switch (key) {
 			// Fermer l'application
 		case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(window, GLFW_TRUE); break;
-		case GLFW_KEY_R:
-			show_grid_size = !show_grid_size;
+		case GLFW_KEY_R: // Reset Zoom
+			currentZoom = 0.0;
 			break;
 			// GAUCHE,DROITE,HAUT,BAS deplace le point selectionne de 1 case dans la direction de la fleche
 		case GLFW_KEY_LEFT:
@@ -128,7 +150,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_2:
 			keyPressFunctionNum = 6; singleKeyPress = true;
 			break;
-		case GLFW_KEY_3:
+		case GLFW_KEY_3: // Recuit Simule
 			keyPressFunctionNum = 3; singleKeyPress = true;
 			break;
 		case GLFW_KEY_4:
@@ -146,7 +168,17 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_0:
 			showNodes = !showNodes;
 			break;
-		case GLFW_KEY_KP_1:
+		case GLFW_KEY_KP_1: // Copy Graph
+			keyPressFunctionNum = 1; singleKeyPress = true;
+			break;
+		case GLFW_KEY_KP_2: // Load Graph
+			keyPressFunctionNum = 2; singleKeyPress = true;
+			break;
+		case GLFW_KEY_KP_7: // Rotate Graph +5°
+			keyPressFunctionNum = 24; singleKeyPress = true;
+			break;
+		case GLFW_KEY_KP_4: // Rotate Graphe -5°
+			keyPressFunctionNum = 25; singleKeyPress = true;
 			break;
 		case GLFW_KEY_KP_9: // Save Graph
 			keyPressFunctionNum = 0; singleKeyPress = true;
@@ -154,7 +186,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_F1:
 			keyPressFunctionNum = 13; singleKeyPress = true;
 			break;
-		case GLFW_KEY_F2:
+		case GLFW_KEY_F2: // Recuit Low Temp
+			keyPressFunctionNum = 28; singleKeyPress = true;
 			break;
 		case GLFW_KEY_F3:
 			keyPressFunctionNum = 12; singleKeyPress = true;
@@ -187,13 +220,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_F12: // Repeat Infinitely
 			repeatInfinitely = !repeatInfinitely;
+			if (repeatInfinitely) { printf("Mode Repeat: ON\n"); }
+			else { printf("Mode Repeat: OFF\n"); }
 			break;
 		case GLFW_KEY_KP_ADD:
-			//if (currentZoom >= 30)
-			currentZoom = currentZoom - 30;
+			currentZoom -= 0.05;
 			break;
 		case GLFW_KEY_KP_SUBTRACT:
-			currentZoom = currentZoom + 30;
+			currentZoom += 0.05;
 			break;
 		case GLFW_KEY_N:
 			keyPressFunctionNum = 8; singleKeyPress = true;
@@ -219,6 +253,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_T:
 			show_triangulation = !show_triangulation;
 			keyPressFunctionNum = 17; singleKeyPress = true;
+			break;
+		case GLFW_KEY_PAGE_UP: // Ajoute 5 au m_edgecost du SM
+			keyPressFunctionNum = 22; singleKeyPress = true;
+			break;
+		case GLFW_KEY_PAGE_DOWN: // Enleve 5 au m_edgecost du SM
+			keyPressFunctionNum = 23; singleKeyPress = true;
 			break;
 		}
 }
@@ -281,20 +321,7 @@ void openGLShowNodes(Graphe& G) {
 					glVertex2d(G._noeuds[i].getX(), G._noeuds[i].getY());
 				}
 			}
-			if (show_selected_node) {
-				if (G._noeuds[selectedNode].estPlace()) {
-					glColor3f(0.0f, 0.0f, 1.0f);
-					if (moving) {
-						glColor3f(0.0f, 0.5f, 0.0f);
-					}
-					glVertex2d(G._noeuds[selectedNode].getX(), G._noeuds[selectedNode].getY());
-				}
-			}
 			glEnd();
-			if (show_selected_emplacement) {
-				glColor3f(0.5f, 0.0f, 0.0f);
-				glVertex2d(G._emplacements[selectedEmplacement].getX(), G._emplacements[selectedEmplacement].getY());
-			}
 		}
 	}
 }
@@ -426,6 +453,25 @@ void openGLShowCells(Graphe& G) {
 	}
 }
 
+void openGLShowSelected(Graphe& G) {
+	glPointSize(7);
+	glBegin(GL_POINTS);
+	if (show_selected_node) {
+		if (G._noeuds[selectedNode].estPlace()) {
+			glColor3f(0.0f, 0.0f, 1.0f);
+			if (moving) {
+				glColor3f(0.0f, 0.5f, 0.0f);
+			}
+			glVertex2d(G._noeuds[selectedNode].getX(), G._noeuds[selectedNode].getY());
+		}
+	}
+	if (show_selected_emplacement) {
+		glColor3f(0.5f, 0.0f, 0.0f);
+		glVertex2d(G._emplacements[selectedEmplacement].getX(), G._emplacements[selectedEmplacement].getY());
+	}
+	glEnd();
+}
+
 void openGLShowGrid() {
 	// affichage de la grille avec une marge de 1
 	glLineWidth(2.0f);
@@ -466,13 +512,11 @@ void openGLPrintRaccourcis() {
 }
 
 void openGLDisplay() {
-	if (show_grid_size) {
-		glOrtho(-1 - currentZoom, static_cast<float>(gridWidth) + 1 + currentZoom, -1 - currentZoom, static_cast<float>(gridHeight) + 1 + currentZoom, 1.f, -1.f);
-	}
-	else {
-		//glOrtho(-1, static_cast<float>(maxX) + 1, -1, static_cast<float>(maxY) + 1, 1.f, -1.f);
-		glOrtho(-300, static_cast<float>(maxX) + 60, -300, static_cast<float>(maxY) + 60, 1.f, -1.f);
-	}
+	double startX = -1 - (gridWidth * currentZoom);
+	double endX = gridWidth + 1 +(gridWidth * currentZoom);
+	double startY = -1 - (gridHeight * currentZoom);
+	double endY = gridHeight + 1 + (gridHeight * currentZoom);
+	glOrtho(startX,endX,startY,endY,1.f,-1.f);
 }
 
 void openGLKeyPressFunction(Graphe& G) {
@@ -499,7 +543,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
 			auto start = std::chrono::system_clock::now();
 			double timeBest;
-			G.recuitSimule(timeBest);
+			G.recuitSimule(timeBest,{},0.99999,100.0,0.0001,1,0,2,false,false);
 			auto end = std::chrono::system_clock::now();
 			std::chrono::duration<double> secondsTotal = end - start;
 			std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
@@ -519,7 +563,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 5: {// Placement aleatoire
+		case 5: {// Placement aleatoire (KEY: &)
 			if (display_genetic) {
 				parent1.clearNodeEmplacement();
 				parent2.clearNodeEmplacement();
@@ -553,7 +597,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 7: {// Affiche score
+		case 7: {// Affiche score (KEY: ')
 			if (!display_genetic) {
 				G.getNbCroisementDiff();
 				std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
@@ -720,7 +764,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 20: {// Step Stress Majorization
+		case 20: {// Step Stress Majorization (KEY:5)
 			G.stepStressMajorization();
 			std::cout << G._sm.totalIterationDone << std::endl;
 			break;
@@ -730,6 +774,55 @@ void openGLKeyPressFunction(Graphe& G) {
 			if (isSeedResetting(0)) { std::cout << "R-"; }
 			else { std::cout << "NR-"; }
 			std::cout << getSeed(0) << "\n";
+			break;
+		}
+		case 22: {//Ajoute 5 au m_edgecost du SM (KEY:PageUp)
+			if (G._sm.G != nullptr) {
+				G._sm.m_edgeCosts += 2;
+				std::cout << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
+				G._sm.initMatrices();
+			}
+			break;
+		}
+		case 23: {//Enleve 5 au m_edgecost du SM (KEY:PageDown)
+			if (G._sm.G != nullptr) {
+				G._sm.m_edgeCosts -= 2;
+				std::cout << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
+				G._sm.initMatrices();
+			}
+			break;
+		}
+		case 24: {//Rotate le graphe +5° (KEYPAD:7)
+			G.rotateGraph(5);
+			break;
+		}
+		case 25: {//Rotate le graphe -5° (KEYPAD:4)
+			G.rotateGraph(-5);
+			break;
+		}
+		case 26: {//Selection node (clic gauche avec modeNode)
+			selectedNode = G.getClosestNodeFromPoint(clicX,clicY);
+			break;
+		}
+		case 27: {//Selection emplacement (clic gauche avec modeEmplacement)
+			if (showEmplacement) {
+				selectedEmplacement = G.getClosestEmplacementFromPoint(clicX,clicY)->_id;
+			}
+			else {
+				selectedEmplacement = G._noeuds[G.getClosestNodeFromPoint(clicX,clicY)].getEmplacement()->_id;
+			}
+			break;
+		}
+		case 28: {// Recuit simule a basse temperature (KEY: F2)
+			std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
+			auto start = std::chrono::system_clock::now();
+			double timeBest;
+			G.recuitSimule(timeBest,{},0.99999,0.01,0.0001,1,0,2,false,false);
+			auto end = std::chrono::system_clock::now();
+			std::chrono::duration<double> secondsTotal = end - start;
+			std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+			std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
+			std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
 			break;
 		}
 		default:{
@@ -757,6 +850,7 @@ void openGLShowEverything(Graphe& G) {
 	openGLShowTriangulation(G);
 	openGLShowEmplacement(G);
 	openGLShowNodes(G);
+	openGLShowSelected(G);
 }
 
 void openGLInitGlobalVariables(Graphe& G) {
@@ -766,6 +860,8 @@ void openGLInitGlobalVariables(Graphe& G) {
 	if (maxCellY > 0) {
 		maxCellX = G.grille[0].size()-1;
 	}
+	ratioAffichageX = (double)(G.gridWidth+2) / windowWidth;
+	ratioAffichageY = (double)(G.gridHeight+2) / windowHeight;
 }
 
 void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
@@ -786,7 +882,8 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
 	//fin ogdf
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
-	GLFWwindow* window = glfwCreateWindow(1820, 980, "Fenetre OpenGL", NULL, NULL);
+	//GLFWwindow* window = glfwCreateWindow(1820, 980, "Fenetre OpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Fenetre OpenGL", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -795,6 +892,7 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glfwSetErrorCallback(error_callback);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwMakeContextCurrent(window);
 	int width, height;
 	glLineWidth(3);

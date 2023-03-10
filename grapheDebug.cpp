@@ -81,7 +81,7 @@ int Graphe::afficherAreteDouble(bool display, std::string nom) {
             int id12 = _aretes[j].getNoeud1()->getId();
             int id22 = _aretes[j].getNoeud2()->getId();
             if (((id1 == id12) && (id2 == id22)) || ((id1 == id22) && (id2 == id12))) {
-                std::cout << "Arete: " << i << " & " << j << " Noeud A1: " << id1 << " & " << id2 << " Noeud A2: " << id12 << " & " << id22 << std::endl;
+                std::cout << "Arete double: " << i << " & " << j << " Noeud A1: " << id1 << " & " << id2 << " Noeud A2: " << id12 << " & " << id22 << std::endl;
                 nbAreteDouble++;
             }
         }
@@ -111,7 +111,7 @@ int Graphe::afficherNoeudDouble(bool display, std::string nom) {
                 if (_noeuds[j].getEmplacement() != nullptr) {
                     int id2 = _noeuds[j].getEmplacement()->getId();
                     if (id1 == id2) {
-                        std::cout << "Noeud: " << i << " & " << j << " Emplacement: " << id1 << std::endl;
+                        std::cout << "Noeud double: " << i << " & " << j << " Emplacement: " << id1 << std::endl;
                         nbNoeudDouble++;
                     }
                 }
@@ -146,7 +146,7 @@ int Graphe::afficherEmplacementDouble(bool display, std::string nom) {
         int y = _emplacements[i].getY();
         if (grilleEmp[y][x] == -1) { grilleEmp[y][x] = i; }
         else {
-            std::cout << "Emplacement: " << grilleEmp[y][x] << " & " << i << std::endl;
+            std::cout << "Emplacement double: " << grilleEmp[y][x] << " & " << i << std::endl;
             nbEmplacementDouble++;
         }
     }
@@ -170,7 +170,7 @@ int Graphe::afficherNoeudSeul(bool display, std::string nom) {
     int nbNoeudSeul = 0;
     for (int i = 0; i < _noeuds.size(); i++) {
         if (_noeuds[i]._aretes.size() == 0) {
-            std::cout << "Noeud: " << i << std::endl;
+            std::cout << "Noeud Seul: " << i << std::endl;
             nbNoeudSeul++;
         }
     }
@@ -194,7 +194,7 @@ int Graphe::debugNoeudNonPlace(bool display, std::string nom) {
     long nbFail = 0;
     for (int i = 0; i < _noeuds.size(); i++) {
         if (_noeuds[i].getEmplacement() == nullptr) {
-            std::cout << "Noeud: " << i << std::endl;
+            std::cout << "Noeud non place: " << i << std::endl;
             nbFail++;
         }
     }
@@ -219,7 +219,7 @@ int Graphe::debugDesyncNoeudEmplacement(bool display, std::string nom) {
     for (int i=0;i<_noeuds.size();i++) {
         if (_noeuds[i]._emplacement != nullptr) {
             if (_noeuds[i]._id != _emplacements[_noeuds[i]._emplacement->_id]._noeud->_id) {
-                std::cout << "Noeud: " << i << " NodeEmpId: " << _noeuds[i]._emplacement->_id << " EmpNodeId: " << _emplacements[_noeuds[i]._emplacement->_id]._noeud->_id << std::endl;
+                std::cout << "Sync Noeud: " << i << " NodeEmpId: " << _noeuds[i]._emplacement->_id << " EmpNodeId: " << _emplacements[_noeuds[i]._emplacement->_id]._noeud->_id << std::endl;
                 nbWrongSync++;
             }
         }
@@ -227,7 +227,7 @@ int Graphe::debugDesyncNoeudEmplacement(bool display, std::string nom) {
     for (int i=0;i<_emplacements.size();i++) {
         if (!_emplacements[i].estDisponible()) {
             if (_emplacements[i]._id != _noeuds[_emplacements[i]._noeud->_id]._emplacement->_id) {
-                std::cout << "Emplacement: " << i << " EmpNodeId: " << _emplacements[_noeuds[i]._emplacement->_id]._noeud->_id << " NodeEmpId: " << _noeuds[i]._emplacement->_id << std::endl;
+                std::cout << "Sync Emplacement: " << i << " EmpNodeId: " << _emplacements[_noeuds[i]._emplacement->_id]._noeud->_id << " NodeEmpId: " << _noeuds[i]._emplacement->_id << std::endl;
                 nbWrongSync++;
             }
         }

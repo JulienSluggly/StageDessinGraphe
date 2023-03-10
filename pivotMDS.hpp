@@ -11,8 +11,8 @@ public:
     PivotMDS(){}
     PivotMDS(Graphe* _g){ G = _g; }
 
-    int m_numberOfPivots = 50;
-    int m_edgeCosts = 45;
+    int m_numberOfPivots;
+    int m_edgeCosts;
     int m_iterations = 400;
     double m_epsilon = 1 - 1e-10;
     double m_factor = -0.5;

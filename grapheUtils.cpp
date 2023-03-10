@@ -1187,6 +1187,23 @@ Emplacement* Graphe::getClosestEmplacementFromPoint(double x, double y, bool isF
     return &_emplacements[empId];
 }
 
+int Graphe::getClosestNodeFromPoint(double x, double y) {
+    int nodeId = 0;
+    double minDist = __DBL_MAX__;
+    for (int i=0;i<_noeuds.size();i++) {
+        if (_noeuds[i].estPlace()) {
+            double xDiff = x - (double)_noeuds[i].getEmplacement()->getX();
+            double yDiff = y - (double)_noeuds[i].getEmplacement()->getY();
+            double newDist = xDiff * xDiff + yDiff * yDiff;
+            if (newDist < minDist) {
+                minDist = newDist;
+                nodeId = i;
+            }
+        }
+    }
+    return nodeId;
+}
+
 void Graphe::searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree) {
     for (int& empId : grille[cellY][cellX].vecEmplacementId) {
         if (!isFree||_emplacements[empId].estDisponible()) {
@@ -1290,4 +1307,44 @@ void Graphe::calcMaxAndAverageDegree() {
         avgVoisin += nombreVoisin;
     }
     avgVoisin = avgVoisin / (double)_noeuds.size();
+}
+
+void Graphe::rotateNode(double angle, int nodeId, double centerX,double centerY) {
+    double angleRadian = angle * (M_PI/180.0); 
+    double s = sin(angleRadian);
+    double c = cos(angleRadian);
+
+    // translate point back to origin:
+    _noeuds[nodeId].pivotX -= centerX;
+    _noeuds[nodeId].pivotY -= centerY;
+
+    // rotate point
+    double xnew = _noeuds[nodeId].pivotX * c - _noeuds[nodeId].pivotY * s;
+    double ynew = _noeuds[nodeId].pivotX * s + _noeuds[nodeId].pivotY * c;
+
+    // translate point back:
+    _noeuds[nodeId].pivotX = xnew + centerX;
+    _noeuds[nodeId].pivotY = ynew + centerY;
+}
+
+void Graphe::rotateGraph(double angle) {
+    for (int i=0;i<_noeuds.size();i++) {
+        _noeuds[i].pivotX = _noeuds[i].getEmplacement()->getX();
+        _noeuds[i].pivotY = _noeuds[i].getEmplacement()->getY();
+    }
+    std::pair<double,double> centreGravite = getCentreGraviteDoubleNoeuds();
+    clearNodeEmplacement();
+    for (int i=0;i<_noeuds.size();i++) {
+        rotateNode(angle,i,centreGravite.first,centreGravite.second);
+    }
+    for (int i=0;i<_noeuds.size();i++) {
+        Emplacement* currentEmp;
+        if (grillePtr.size() > 0) {
+            currentEmp = getClosestEmplacementFromPointGrid(_noeuds[i].pivotX,_noeuds[i].pivotY,true);
+        }
+        else {
+            currentEmp = getClosestEmplacementFromPoint(_noeuds[i].pivotX,_noeuds[i].pivotY,true);
+        }
+        _noeuds[i].setEmplacement(currentEmp);
+    }
 }

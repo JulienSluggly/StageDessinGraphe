@@ -25,9 +25,9 @@ public:
 
     void runAlgo(std::vector<double> customParam={});
 
-    void bfs_SPAP(int edgeCosts);
+    void bfs_SPAP();
 
-    void bfs_SPSS(int nodeId, std::vector<double>& shortestPathArray, int edgeCosts);
+    void bfs_SPSS(int nodeId, std::vector<double>& shortestPathArray);
 
     void calcWeights();
 
@@ -35,7 +35,9 @@ public:
 
     bool nextIteration(std::vector<double> customParam={});
 
-    bool nextIterationDelay(int iteration,std::vector<double> customParam={});
+    bool nextIterationDelay(int iteration);
+
+    bool nextIterationDelayTest(int iteration,std::vector<double> customParam={});
 
     bool finished(int numberOfPerformedIterations);
 

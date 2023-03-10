@@ -209,6 +209,9 @@ public:
 	// Selectionne les emplacements different de l'emplacement en parametre a egale distance de celui ci et en renvoie un aleatoirement.
 	Emplacement* getEmplacementPlusProche(Emplacement* origin);
 
+	// Retourne le centre de gravité des noeuds placés en flottant
+	std::pair<double,double> getCentreGraviteDoubleNoeuds();
+
 	// Retourne le centre de gravite des emplacements.
 	std::pair<int,int> getCentreGravite();
 
@@ -529,6 +532,8 @@ public:
 
 	Emplacement* getClosestEmplacementFromPointGrid(double x, double y, bool isFree=false);
 
+	int getClosestNodeFromPoint(double x, double y);
+
 	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree);
 
 	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
@@ -544,6 +549,10 @@ public:
 	void calcMaxAndAverageDegree();
 
 	void placementPivotMDS(std::vector<double> customParam = {}, int edgeCost=45, int nbPivot=50);
+
+	void rotateNode(double angle, int nodeId, double centerX, double centerY);
+
+	void rotateGraph(double angle);
 
 };
 

@@ -58,16 +58,16 @@ int main() {
 	initRandomSeed();
 	//initSameSeed(1462039345);
 	//allRunsSingleThread(); return 0;
-	customRecuit(); return 0;
+	//customRecuit(); return 0;
 
 	std::string nomFichierGraph = "graph-11-input";
-	std::string nomFichierSlots = "11-input-slots";
-	//std::string nomFichierSlots = "Grid";
+	//std::string nomFichierSlots = "3X-11-input-slots";
+	std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph);
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
-	///G.readFromJsonOldGraph(chemin + "automatique/auto21-11.json");
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size(),G._noeuds.size());
 	//ogdfReverse(G);
 
 	std::cout << "Debut placement.\n";
@@ -81,7 +81,7 @@ int main() {
 	G.placementAleatoire();
 	//G.stepStressMajorization(); G.deleteGrille();
 	//G.stressMajorization();
-	//G.placementPivotMDS({},70);
+	//G.placementPivotMDS({},10);
 	//G.stressMajorization();
 	//G.gloutonRevisiteGrid();
 	//G.gloutonRevisite();
@@ -110,7 +110,7 @@ int main() {
 		G.DEBUG_OPENGL = true;
 		int maxX = G.gridWidth, maxY = G.gridHeight;
 		std::cout << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;
-		dispOpenGL(G, G.gridWidth+1, G.gridHeight+1, maxX, maxY);
+		dispOpenGL(G, G.gridWidth, G.gridHeight, maxX, maxY);
 	}
 	return 0;
 }

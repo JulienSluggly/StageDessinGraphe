@@ -51,4 +51,8 @@ Changer edgecost pour les setup qui n'arrivent pas a bien se finir dans le stres
 
 Genetique qui place n/2 noeud iterativement et produit deux enfants
 
-Moyenne des variantes stressMin avec différents parametres
+Stress Maj dynamique, calcul de m_edgecost dynamique opengl, ou pendant l'exec
+
+Ameliorer selection openGL a la souris
+
+Implementer le getRootedPath et PathLayout du pivotmds?
