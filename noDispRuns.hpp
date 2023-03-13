@@ -250,10 +250,10 @@ void allRunsBySlotsThirdRun() {
 		totalRuns.push_back({{1,5}});
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,10,"Stress","Aucun",{{}},tid);
 				for (int taille=0;taille<totalRuns.size();taille++) {
-					startRunsForAllSlots(key,10,"Stress","Aucun",totalRuns[taille],tid);
 				}
+				startRunsForAllSlots(key,-1,"Stress Dyn Stress","Rerecuit Simule Grille TME Cool Delay Temp",{{}},tid);
+				startRunsForAllSlots(key,-1,"Stress Dyn Cross","Rerecuit Simule Grille TME Cool Delay Temp",{{}},tid);
 			}
 			indexKey++;
 		}

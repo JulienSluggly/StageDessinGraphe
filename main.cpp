@@ -58,7 +58,7 @@ int main() {
 	initRandomSeed();
 	//initSameSeed(1462039345);
 	//allRunsSingleThread(); return 0;
-	allRunsBySlots(); allRunsBySlotsSecondRun(); return 0;
+	allRunsBySlots(); allRunsBySlotsSecondRun(); allRunsBySlotsThirdRun(); return 0;
 
 	std::string nomFichierGraph = "graph-9-input";
 	std::string nomFichierSlots = "12-input-slots";

@@ -145,6 +145,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cooler") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.9999999);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999,0.99,100.0,0.0001,2);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay Temp") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999,0.99,0.1,0.0001,2);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
