@@ -733,17 +733,20 @@ void Graphe::completePlacementAleatoireScore(std::vector<int>& vecNode, int tail
     isIntersectionVectorUpdated = false;
 }
 
-void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, int edgeCost, int iterations, bool dynamique) {
+void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, int edgeCost, int iterations, int methode) {
     if (!estPlace()) { placementAleatoire(); }
     for (int i=0;i<_noeuds.size();i++) {
         _noeuds[i].stressX = (double)_noeuds[i].getEmplacement()->getX();
         _noeuds[i].stressY = (double)_noeuds[i].getEmplacement()->getY();
     }
-    if (DEBUG_GRAPHE) std::cout << "Debut Stress Majorization\n";
     if (_sm.G == nullptr) { _sm.G = this; }
     _sm.m_edgeCosts = edgeCost;
     _sm.m_iterations = iterations;
-    bool useGrille = _emplacements.size() > _noeuds.size() * 5;
+    bool useGrille = _emplacements.size() > _noeuds.size() * 2;
+    if (DEBUG_GRAPHE) {
+        if (useGrille) { std::cout << "Debut Stress Majorization avec grille.\n"; }
+        else { std::cout << "Debut Stress Majorization sans grille.\n"; }
+    }
     if (useGrille) {
         _sm.m_useGrille = true;
         initGrilleCarre();
@@ -764,11 +767,14 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
             }
         }
     }
-    if (dynamique) {
-        _sm.runAlgoDyn();
-    }
-    else {
+    if (methode == 0) {
         _sm.runAlgo();
+    }
+    else if (methode == 1) {
+        _sm.runAlgoDynStress();
+    }
+    else if (methode == 2) {
+        _sm.runAlgoDynCross();
     }
     if (useGrille) { deleteGrille(); }
     if (DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";

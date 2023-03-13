@@ -54,3 +54,15 @@ Methode qui ajuste automatiquement le edgecost du stressMin
 Methode qui detecte quand les noeuds sont regroupés sur les bords des emplacements disponibles
 
 Methode qui detecte si une rotation serait utile pour le graphe.
+
+Optimiser la taille de la grille carre pour le stress Maj.
+
+Definir la limite d'emplacement pour utiliser la grille dans le stress Maj.
+
+Comparer stressMajDynStress et stressMajDynCross
+
+Mixer stressMajDynStress et stressMajDynCross?
+
+Ameliorer le temps d'execution du stressMaj et variantes
+
+Changement de repere, ACP

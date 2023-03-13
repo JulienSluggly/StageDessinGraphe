@@ -19,6 +19,8 @@ public:
     bool m_useGrille = true;
     bool areVectorsSetup = false;
 
+    bool DEBUG_STRESS = false;
+
     int totalIterationDone = 0;
 
     void initMatrices();
@@ -33,7 +35,9 @@ public:
 
     void minimizeStress(std::vector<double> customParam={});
 
-    double minimizeStressDyn(int nombreIter=400, std::vector<double> customParam={});
+    double minimizeStressDynStress(int nombreIter=400, std::vector<double> customParam={});
+
+    long minimizeStressDynCross(int nombreIter=400, std::vector<double> customParam={});
 
     bool nextIteration(std::vector<double> customParam={});
 
@@ -49,11 +53,15 @@ public:
 
     double calcStress();
 
-    void runAlgoDyn();
+    void runAlgoDynStress();
 
     void addToEdgeCost(int n);
 
     void setEdgeCost(int n);
+
+    void updateStressCoord();
+
+    void runAlgoDynCross();
 
 };
 

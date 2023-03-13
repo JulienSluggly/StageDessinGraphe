@@ -185,9 +185,8 @@ void allRunsBySlots() {
 		std::vector<std::vector<double>> customParam;
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cooler",{{}},tid);
-				startRunsForAllSlots(key,-1,"Aleatoire","Rerecuit Simule Grille TME Cool Delay",{{}},tid);
-				startRunsForAllSlots(key,-1,"Stress","Rerecuit Simule Grille TME Cooler",{{}},tid);
+				startRunsForAllSlots(key,-1,"Stress Dyn Stress","Aucun",{{}},tid);
+				startRunsForAllSlots(key,-1,"Stress Dyn Cross","Aucun",{{}},tid);
 			}
 			indexKey++;
 		}
@@ -215,12 +214,12 @@ void allRunsBySlotsSecondRun() {
 		}
 		int indexKey = 0;
 		std::vector<std::vector<std::vector<double>>> totalRuns;
-		totalRuns.push_back({{1,5}});
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int taille=0;taille<totalRuns.size();taille++) {
-					startRunsForAllSlots(key,10,"Stress","Rerecuit Simule Grille TME Cool",totalRuns[taille],tid);
 				}
+				startRunsForAllSlots(key,-1,"Stress Dyn Stress","Rerecuit Simule Grille TME Cool Delay",{{}},tid);
+				startRunsForAllSlots(key,-1,"Stress Dyn Cross","Rerecuit Simule Grille TME Cool Delay",{{}},tid);
 			}
 			indexKey++;
 		}

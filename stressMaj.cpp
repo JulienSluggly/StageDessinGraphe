@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <iomanip>
 
 void StressMajorization::initMatrices() {
     shortestPathMatrix.clear();
@@ -359,7 +360,15 @@ void StressMajorization::minimizeStress(std::vector<double> customParam) {
 	} while (!converged && !finished(totalIterationDone));
 }
 
-double StressMajorization::minimizeStressDyn(int nombreIter, std::vector<double> customParam) {
+void StressMajorization::updateStressCoord() {
+    for (int i=0;i<G->_noeuds.size();i++) {
+        G->_noeuds[i].stressX = G->_noeuds[i].getEmplacement()->getX();
+        G->_noeuds[i].stressY = G->_noeuds[i].getEmplacement()->getY();
+    }
+}
+
+double StressMajorization::minimizeStressDynStress(int nombreIter, std::vector<double> customParam) {
+    updateStressCoord();
     double bestStress = calcStress();
     int iter = 0;
     int numberNoUpgrade = 0;
@@ -382,6 +391,32 @@ double StressMajorization::minimizeStressDyn(int nombreIter, std::vector<double>
         }
 	} while (!converged && iter < nombreIter && numberNoUpgrade < 10/nbIterCheckStress);
     return bestStress;
+}
+
+long StressMajorization::minimizeStressDynCross(int nombreIter, std::vector<double> customParam) {
+    updateStressCoord();
+    long bestCross = G->getNbCroisementDiff();
+    int iter = 0;
+    int numberNoUpgrade = 0;
+    bool converged;
+    long cross;
+    int nbIterCheckCross = 5;
+	do {
+		converged = nextIterationDelay(totalIterationDone);
+        totalIterationDone++;
+        iter++;
+        if (iter%nbIterCheckCross == 0) {
+            cross = G->getNbCroisementDiff();
+            if (cross < bestCross) {
+                bestCross = cross;
+                numberNoUpgrade = 0;
+            }
+            else if (cross > bestCross) {
+                numberNoUpgrade++;
+            }
+        }
+	} while (!converged && iter < nombreIter && numberNoUpgrade < 10/nbIterCheckCross);
+    return bestCross;
 }
 
 void StressMajorization::replaceInfinityDistances(double newVal) {
@@ -415,8 +450,8 @@ double StressMajorization::calcStress(){
 	double stress = 0;
     for (int i=0; i<G->_noeuds.size()-1;i++) {
         for (int j=i+1;j<G->_noeuds.size();j++) {
-            double xDiff = G->_noeuds[i].getEmplacement()->getX() - G->_noeuds[j].getEmplacement()->getX();
-            double yDiff = G->_noeuds[i].getEmplacement()->getY() - G->_noeuds[j].getEmplacement()->getY();
+            double xDiff = G->_noeuds[i].stressX - G->_noeuds[j].stressX;
+            double yDiff = G->_noeuds[i].stressY - G->_noeuds[j].stressY;
 			double dist = sqrt(xDiff * xDiff + yDiff * yDiff);
 			if (dist != 0) {
 				stress += weightMatrix[i][j] * (shortestPathMatrix[i][j] - dist) * (shortestPathMatrix[i][j] - dist);
@@ -436,7 +471,7 @@ void StressMajorization::setEdgeCost(int n) {
     initMatrices();
 }
 
-void StressMajorization::runAlgoDyn() {
+void StressMajorization::runAlgoDynStress() {
     setEdgeCost(1);
     int bestEdgeCost = m_edgeCosts;
     double bestStress = calcStress();
@@ -445,22 +480,133 @@ void StressMajorization::runAlgoDyn() {
     double pourcentDiff=100.0;
     int nombreNoUpgrade = 0;
     double seuilAmelioration = 1.0;
-    int seuilNoUpgrade = 3;
+    int seuilNoUpgrade = 10;
+    std::vector<int> GCopy;
+    // Recherche de la bonne taille de m_edgeCosts en trouvant celle qui minimize le stress du graphe.
     do {
-        stress = minimizeStressDyn();
+        stress = minimizeStressDynStress();
         nombreNoUpgrade++;
         if (stress <= bestStress) {
             diffStress = bestStress - stress;
             pourcentDiff = diffStress/bestStress*100;
             bestEdgeCost = m_edgeCosts;
             bestStress = stress;
+            GCopy = G->saveCopy();
             if (pourcentDiff > seuilAmelioration) {
                 nombreNoUpgrade = 0;
             }
         }
-        std::cout << std::fixed << m_edgeCosts << " " << stress << " %: " << pourcentDiff << std::endl;
+        if (DEBUG_STRESS) std::cout << std::fixed << m_edgeCosts << " " << std::setprecision(0) << stress << " %: " << std::setprecision(2) << pourcentDiff << " NoUp: " << nombreNoUpgrade << std::endl;
         addToEdgeCost(1);
-    } while (stress <= bestStress && nombreNoUpgrade < seuilNoUpgrade);
+    } while (nombreNoUpgrade < seuilNoUpgrade);
+    // Rotation complete du graphe en cherchant celle qui minimize le stress du graphe.
+    double bestAngle = 0.0;
+    double increment = 10.0;
+    double bestStressRota = bestStress;
     setEdgeCost(bestEdgeCost);
-    minimizeStressDyn();
+    for (int i=1;i<=35;i++) { // 35 Rotations de 10° d'incrément
+        G->loadCopy(GCopy);
+        G->rotateGraph(increment*i);
+        stress = minimizeStressDynStress();
+        if (stress <= bestStress) {
+            bestStress = stress;
+            bestAngle = increment * i;
+            GCopy = G->saveCopy();
+        }
+        if (DEBUG_STRESS) std::cout << "Rotation: " << increment*i << "°" << " " << std::setprecision(0) << stress << " BestAngle: " << std::setprecision(1) << bestAngle << std::endl;
+    }
+    // Meilleur rotation trouvée, on peut rechercher de nouveau la meilleur longeur de coté
+    G->loadCopy(GCopy);
+    G->rotateGraph(bestAngle);
+    nombreNoUpgrade = 0;
+    do {
+        stress = minimizeStressDynStress();
+        nombreNoUpgrade++;
+        if (stress <= bestStress) {
+            diffStress = bestStress - stress;
+            pourcentDiff = diffStress/bestStress*100;
+            bestEdgeCost = m_edgeCosts;
+            bestStress = stress;
+            GCopy = G->saveCopy();
+            if (pourcentDiff > seuilAmelioration) {
+                nombreNoUpgrade = 0;
+            }
+        }
+        if (DEBUG_STRESS) std::cout << std::fixed << m_edgeCosts << " " << std::setprecision(0) << stress << " %: " << std::setprecision(2) << pourcentDiff << " NoUp: " << nombreNoUpgrade << std::endl;
+        addToEdgeCost(1);
+    } while (nombreNoUpgrade < seuilNoUpgrade);
+    G->loadCopy(GCopy);
+    // Dernier fine tuning avec la meilleur taille.
+    setEdgeCost(bestEdgeCost);
+    minimizeStressDynStress();
+}
+
+void StressMajorization::runAlgoDynCross() {
+    setEdgeCost(1);
+    int bestEdgeCost = m_edgeCosts;
+    long bestCross = G->getNbCroisementDiff();
+    long cross;
+    long diffCross;
+    double pourcentDiff=100.0;
+    int nombreNoUpgrade = 0;
+    double seuilAmelioration = 1.0;
+    int seuilNoUpgrade = 10;
+    std::vector<int> GCopy;
+    // Recherche de la bonne taille de m_edgeCosts en trouvant celle qui minimize le stress du graphe.
+    do {
+        cross = minimizeStressDynCross();
+        nombreNoUpgrade++;
+        if (cross <= bestCross) {
+            diffCross = bestCross - cross;
+            pourcentDiff = (double)diffCross/(double)bestCross*100.0;
+            bestEdgeCost = m_edgeCosts;
+            bestCross = cross;
+            GCopy = G->saveCopy();
+            if (pourcentDiff > seuilAmelioration) {
+                nombreNoUpgrade = 0;
+            }
+        }
+        if (DEBUG_STRESS) std::cout << std::fixed << m_edgeCosts << " " << std::setprecision(0) << cross << " %: " << std::setprecision(2) << pourcentDiff << " NoUp: " << nombreNoUpgrade << std::endl;
+        addToEdgeCost(1);
+    } while (nombreNoUpgrade < seuilNoUpgrade);
+    // Rotation complete du graphe en cherchant celle qui minimize le stress du graphe.
+    double bestAngle = 0.0;
+    double increment = 10.0;
+    double bestCrossRota = bestCross;
+    setEdgeCost(bestEdgeCost);
+    for (int i=1;i<=35;i++) { // 35 Rotations de 10° d'incrément
+        G->loadCopy(GCopy);
+        G->rotateGraph(increment*i);
+        cross = minimizeStressDynCross();
+        if (cross <= bestCross) {
+            bestCross = cross;
+            bestAngle = increment * i;
+            GCopy = G->saveCopy();
+        }
+        if (DEBUG_STRESS) std::cout << "Rotation: " << increment*i << "°" << " " << std::setprecision(0) << cross << " BestAngle: " << std::setprecision(1) << bestAngle << std::endl;
+    }
+    // Meilleur rotation trouvée, on peut rechercher de nouveau la meilleur longeur de coté
+    G->loadCopy(GCopy);
+    G->rotateGraph(bestAngle);
+    nombreNoUpgrade = 0;
+    do {
+        cross = minimizeStressDynCross();
+        nombreNoUpgrade++;
+        if (cross <= bestCross) {
+            diffCross = bestCross - cross;
+            pourcentDiff = (double)diffCross/(double)bestCross*100.0;
+            bestEdgeCost = m_edgeCosts;
+            bestCross = cross;
+            GCopy = G->saveCopy();
+            if (pourcentDiff > seuilAmelioration) {
+                nombreNoUpgrade = 0;
+            }
+        }
+        if (DEBUG_STRESS) std::cout << std::fixed << m_edgeCosts << " " << std::setprecision(0) << cross << " %: " << std::setprecision(2) << pourcentDiff << " NoUp: " << nombreNoUpgrade << std::endl;
+        addToEdgeCost(1);
+    } while (nombreNoUpgrade < seuilNoUpgrade);
+    G->loadCopy(GCopy);
+    // Dernier fine tuning avec la meilleur taille.
+    setEdgeCost(bestEdgeCost);
+    minimizeStressDynCross();
 }

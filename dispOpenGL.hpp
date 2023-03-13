@@ -378,7 +378,7 @@ void openGLShowEdges(Graphe& G) {
 					glEnd();
 				}
 				for (auto &a : G.areteIllSelf) {
-					glColor3f(1.0f, 0.2f, 0.6f);
+					glColor3f(0.3f, 0.2f, 0.5f);
 					glBegin(GL_LINE_STRIP);
 					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
 					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());

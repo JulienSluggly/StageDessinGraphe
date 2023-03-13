@@ -61,6 +61,7 @@ std::string getParamAsString(std::vector<std::vector<double>>& customParam) {
 void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, const std::string& nomGraphe, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, int tid=0) {
 	bool updateScore = containsString(methodeAlgoName,"Score");
 	bool isGenetique = containsString(methodeAlgoName,"Genetique");
+	bool isRecuit = containsString(methodeAlgoName,"Recuit");
 	bool needTriangulation = containsString(methodeAlgoName,"TRE");
 	bool needGrille = containsString(methodeAlgoName,"Grille");
 	double moyenneCroisement, medianCroisement;
@@ -93,6 +94,8 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodePlacementName == "Glouton Voisin") G.gloutonRevisiteVoisin();
 		//else if (methodePlacementName == "OGDF") ogdfPlacementAuPlusProche(G);
 		else if (methodePlacementName == "Stress") { G.stressMajorization(customParam); }
+		else if (methodePlacementName == "Stress Dyn Stress") { G.stressMajorization(customParam,-1,400,1); }
+		else if (methodePlacementName == "Stress Dyn Cross") { G.stressMajorization(customParam,-1,400,2); }
 		else if (methodePlacementName == "Glouton Grille") { G.gloutonRevisiteGrid(); }
 		else if (methodePlacementName == "Aleatoire") G.placementAleatoire();
 		else if (methodePlacementName != "Aucun") {
@@ -217,8 +220,11 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		if (isGenetique) {
 			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
 		}
-		else {
+		else if (isRecuit) {
 			resultats << "," << std::setprecision(1) << nombreRecuitMoyenne;
+		}
+		else {
+			resultats << ",";
 		}
 		resultats << ",";
 		if (isSeedResetting(tid)) { resultats << "R-"; }

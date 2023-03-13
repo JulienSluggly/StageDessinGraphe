@@ -58,10 +58,10 @@ int main() {
 	initRandomSeed();
 	//initSameSeed(1462039345);
 	//allRunsSingleThread(); return 0;
-	//customRecuit(); return 0;
+	allRunsBySlots(); allRunsBySlotsSecondRun(); return 0;
 
-	std::string nomFichierGraph = "graph-11-input";
-	std::string nomFichierSlots = "3X-11-input-slots";
+	std::string nomFichierGraph = "graph-9-input";
+	std::string nomFichierSlots = "12-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
@@ -79,7 +79,8 @@ int main() {
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 
 	G.placementAleatoire();
-	G.stressMajorization({{}},45,400,true);
+	G.stressMajorization({{}},45,400,2);
+	//G.stressMajorization({{}},45,400,1);
 	//G.stepStressMajorization(); G.deleteGrille();
 	//G.stressMajorization();
 	//G.placementPivotMDS({},10);
