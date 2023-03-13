@@ -1,6 +1,8 @@
 Structure arete:
     Liste de marque avec toutes les autres aretes
 
+Gagner de l'espace memoire en remplacant les vecteurs pas toujours utilisés par des pointeurs de vecteurs
+
 Moyenne sur les crossing number?
 
 Iterative edge insertion and optimize at each step the number of crossings
@@ -33,10 +35,6 @@ glouton au depart?
 
 Regarder si il est possible d'implementer l'algo de planarisation d'ogdf avec nos contraintes
 
-separer les composantes connexes
-
-stress min sur graphe non connexe pas bon?
-
 Restructurer le code genetique pour les appels des differentes fonctions
 
 Changer edgecost pour les setup qui n'arrivent pas a bien se finir dans le stressMajorization?
@@ -48,3 +46,11 @@ Stress Maj dynamique, calcul de m_edgecost dynamique opengl, ou pendant l'exec
 Ameliorer selection openGL a la souris
 
 Implementer le getRootedPath et PathLayout du pivotmds?
+
+Methode qui detecte l'optimum local du stress min
+
+Methode qui ajuste automatiquement le edgecost du stressMin
+
+Methode qui detecte quand les noeuds sont regroupés sur les bords des emplacements disponibles
+
+Methode qui detecte si une rotation serait utile pour le graphe.

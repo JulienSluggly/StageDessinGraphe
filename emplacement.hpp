@@ -17,17 +17,22 @@ public:
 	int _x, _y;
 
 	// Id des emplacements dans le tableau _emplacementsPossibles
-	std::vector<int> voisinsDelaunay;
+	std::vector<int>* voisinsDelaunay = nullptr;
 
 	// Id des cellules par rapport a la grille dans le graphe, max 4 cellules par emplacement
 	int idCellule = -1;
 
-	std::vector<int> idCelluleVec;
+	std::vector<int>* idCelluleVec = nullptr;
 
 	Emplacement(int x, int y, int id) {
 		_x = x;
 		_y = y;
 		_id = id;
+	}
+
+	~Emplacement() {
+		delete voisinsDelaunay;
+		delete idCelluleVec;
 	}
 
 	int getId() const { return _id; }

@@ -61,13 +61,13 @@ int main() {
 	//customRecuit(); return 0;
 
 	std::string nomFichierGraph = "graph-11-input";
-	//std::string nomFichierSlots = "3X-11-input-slots";
-	std::string nomFichierSlots = "Grid";
+	std::string nomFichierSlots = "3X-11-input-slots";
+	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph);
-	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
-	G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 
 	std::cout << "Debut placement.\n";
@@ -79,6 +79,7 @@ int main() {
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 
 	G.placementAleatoire();
+	G.stressMajorization({{}},45,400,true);
 	//G.stepStressMajorization(); G.deleteGrille();
 	//G.stressMajorization();
 	//G.placementPivotMDS({},10);

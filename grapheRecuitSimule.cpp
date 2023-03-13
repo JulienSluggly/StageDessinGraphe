@@ -105,25 +105,25 @@ int Graphe::selectionEmplacementTriangulation(int nodeId, int profondeur) {
     int randomId;
     for (int i=0;i<profondeur;i++) {
         if (i == profondeur - 1) {
-            if (arrive->voisinsDelaunay.size() == 1) {
-                if (arrive->voisinsDelaunay[0] == depart->_id) {
+            if (arrive->voisinsDelaunay->size() == 1) {
+                if (arrive->voisinsDelaunay->at(0) == depart->_id) {
                     return arrive->_id;
                 }
             }
             else {
-                randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
-                while (arrive->voisinsDelaunay[randomId] == depart->_id) {
-                    randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
+                randomId = generateRand(arrive->voisinsDelaunay->size() - 1);
+                while (arrive->voisinsDelaunay->at(randomId) == depart->_id) {
+                    randomId = generateRand(arrive->voisinsDelaunay->size() - 1);
                 }
             }
         }
         else {
-            randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
-            while (arrive->voisinsDelaunay[randomId] == depart->_id) {
-                randomId = generateRand(arrive->voisinsDelaunay.size() - 1);
+            randomId = generateRand(arrive->voisinsDelaunay->size() - 1);
+            while (arrive->voisinsDelaunay->at(randomId) == depart->_id) {
+                randomId = generateRand(arrive->voisinsDelaunay->size() - 1);
             }
         }
-        arrive = &_emplacements[arrive->voisinsDelaunay[randomId]];
+        arrive = &_emplacements[arrive->voisinsDelaunay->at(randomId)];
     }
     return arrive->_id;
 }

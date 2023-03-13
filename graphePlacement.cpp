@@ -733,7 +733,7 @@ void Graphe::completePlacementAleatoireScore(std::vector<int>& vecNode, int tail
     isIntersectionVectorUpdated = false;
 }
 
-void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, int edgeCost, int iterations) {
+void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, int edgeCost, int iterations, bool dynamique) {
     if (!estPlace()) { placementAleatoire(); }
     for (int i=0;i<_noeuds.size();i++) {
         _noeuds[i].stressX = (double)_noeuds[i].getEmplacement()->getX();
@@ -764,7 +764,12 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
             }
         }
     }
-    _sm.runAlgo();
+    if (dynamique) {
+        _sm.runAlgoDyn();
+    }
+    else {
+        _sm.runAlgo();
+    }
     if (useGrille) { deleteGrille(); }
     if (DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";
 }
@@ -778,15 +783,6 @@ void Graphe::stepStressMajorization(std::vector<std::vector<double>> customParam
         for (int i=0;i<_noeuds.size();i++) {
             _noeuds[i].stressX = (double)_noeuds[i].getEmplacement()->getX();
             _noeuds[i].stressY = (double)_noeuds[i].getEmplacement()->getY();
-        }
-        bool useGrille = _emplacements.size() > _noeuds.size() * 5;
-        if (useGrille) {
-            initGrilleCarre();
-            registerSlotsInGridNoMove();
-            _sm.m_useGrille = true;
-        }
-        else {
-            _sm.m_useGrille = false;
         }
         if (customParam.size() > 0) {
             for (std::vector<double>& param : customParam) {
@@ -803,6 +799,17 @@ void Graphe::stepStressMajorization(std::vector<std::vector<double>> customParam
         for (int i=0;i<_noeuds.size();i++) {
             _noeuds[i].stressX = (double)_noeuds[i].getEmplacement()->getX();
             _noeuds[i].stressY = (double)_noeuds[i].getEmplacement()->getY();
+        }
+    }
+    if (grillePtr.size() == 0) {
+        bool useGrille = _emplacements.size() > _noeuds.size() * 5;
+        if (useGrille) {
+            initGrilleCarre();
+            registerSlotsInGridNoMove();
+            _sm.m_useGrille = true;
+        }
+        else {
+            _sm.m_useGrille = false;
         }
     }
     _sm.runStepAlgo();

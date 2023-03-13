@@ -33,6 +33,8 @@ public:
 
     void minimizeStress(std::vector<double> customParam={});
 
+    double minimizeStressDyn(int nombreIter=400, std::vector<double> customParam={});
+
     bool nextIteration(std::vector<double> customParam={});
 
     bool nextIterationDelay(int iteration);
@@ -44,6 +46,14 @@ public:
     void replaceInfinityDistances(double newVal);
 
     void runStepAlgo(std::vector<double> customParam={});
+
+    double calcStress();
+
+    void runAlgoDyn();
+
+    void addToEdgeCost(int n);
+
+    void setEdgeCost(int n);
 
 };
 

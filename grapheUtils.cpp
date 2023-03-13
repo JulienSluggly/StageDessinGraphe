@@ -372,6 +372,12 @@ void Graphe::triangulationDelaunay() {
     std::vector<Emplacement*> empPtrVec;
     for (int i=0;i<_emplacements.size();i++) {
         empPtrVec.push_back(&_emplacements[i]);
+        if (_emplacements[i].voisinsDelaunay == nullptr) {
+            _emplacements[i].voisinsDelaunay = new std::vector<int>();
+        }
+        else {
+            _emplacements[i].voisinsDelaunay->clear();
+        }
     }
     std::sort(empPtrVec.begin(), empPtrVec.end(), comparePtrEmplacementTri);
     triangulation(empPtrVec,_c);
@@ -379,8 +385,8 @@ void Graphe::triangulationDelaunay() {
     for (int i=0;i<_c.nbDemiCote();i+=2) {
         Emplacement* e1 = _c.demiCote(i)->sommet();
         Emplacement* e2 = _c.demiCote(i)->oppose()->sommet();
-        e1->voisinsDelaunay.push_back(e2->_id);
-        e2->voisinsDelaunay.push_back(e1->_id);
+        e1->voisinsDelaunay->push_back(e2->_id);
+        e2->voisinsDelaunay->push_back(e1->_id);
     }
     isCarteSetUp = true;
     if (DEBUG_GRAPHE) std::cout << "Triangulation delaunay fini.\n";
@@ -409,7 +415,9 @@ void Graphe::deleteGrille() {
     }
     grille.clear();
     for (int i=0;i<_emplacements.size();i++) {
-        _emplacements[i].idCelluleVec.clear();
+        if (_emplacements[i].idCelluleVec != nullptr) {
+            _emplacements[i].idCelluleVec->clear();
+        }
         _emplacements[i].idCellule = -1;
     }
     for (int i=0;i<_aretes.size();i++) {
@@ -521,6 +529,9 @@ void Graphe::registerSlotsInGridNoMove() {
     int sizeColumn = grille[0][0].getBottomRightX() - grille[0][0].getBottomLeftX();
     int sizeRow = grille[0][0].getTopLeftY() - grille[0][0].getBottomLeftY();
     for (int i=0;i < _emplacements.size();i++) {
+        if (_emplacements[i].idCelluleVec == nullptr) {
+            _emplacements[i].idCelluleVec = new std::vector<int>();
+        }
         int x = _emplacements[i].getX();
         int y = _emplacements[i].getY();
         double dnumX = (double)x/(double)sizeColumn;
@@ -539,33 +550,33 @@ void Graphe::registerSlotsInGridNoMove() {
                 if ((numY2 >= 0)&&(numY2 < grille.size())) { // Ajout numY2 & numX
                     if (numX < grille[0].size()) {
                         id = numY2 * grille[0].size() + numX;
-                        _emplacements[i].idCelluleVec.push_back(id);
+                        _emplacements[i].idCelluleVec->push_back(id);
                         grille[numY2][numX].vecEmplacementId.push_back(i);
                     }
                     if ((numX2 >= 0)&&(numX2 < grille[0].size())) { // Ajout numY2 et numX2
                         id = numY2 * grille[0].size() + numX2;
-                        _emplacements[i].idCelluleVec.push_back(id);
+                        _emplacements[i].idCelluleVec->push_back(id);
                         grille[numY2][numX2].vecEmplacementId.push_back(i);
                     }
                 }
             }
             if ((numX2 >= 0)&&(numX2 < grille[0].size())&&numY < grille.size()) { // Ajout numY et numX2
                 id = numY * grille[0].size() + numX2;
-                _emplacements[i].idCelluleVec.push_back(id);
+                _emplacements[i].idCelluleVec->push_back(id);
                 grille[numY][numX2].vecEmplacementId.push_back(i);
             }
         }
         else if (numY2 != numY) { // Cas juste aligné sur segment horizontal de la grille
             if ((numY2 >= 0)&&(numY2 < grille.size())&&numX < grille[0].size()) { // Ajout numY2 & numX
                 id = numY2 * grille[0].size() + numX;
-                _emplacements[i].idCelluleVec.push_back(id);
+                _emplacements[i].idCelluleVec->push_back(id);
                 grille[numY2][numX].vecEmplacementId.push_back(i);
             }
         }
         // Ajout numY & numX
         if (numY < grille.size() && numX < grille[0].size()) {
             id = numY * grille[0].size() + numX;
-            _emplacements[i].idCelluleVec.push_back(id);
+            _emplacements[i].idCelluleVec->push_back(id);
             grille[numY][numX].vecEmplacementId.push_back(i);
         }
     }

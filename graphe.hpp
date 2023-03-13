@@ -539,7 +539,7 @@ public:
 	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
 
 	// Appelle l'algorithme de stress majorization sur le graphe.
-	void stressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45, int iterations=400);
+	void stressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45, int iterations=400, bool dynamique=false);
 
 	// Effectue le deplacement d'un seul noeud avec l'algorithme de stressMajorization
 	void stepStressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45);

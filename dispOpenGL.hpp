@@ -766,7 +766,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 20: {// Step Stress Majorization (KEY:5)
 			G.stepStressMajorization();
-			std::cout << G._sm.totalIterationDone << std::endl;
+			std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << std::endl;
 			break;
 		}
 		case 21: {// Print current seed
@@ -778,17 +778,15 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 22: {//Ajoute 5 au m_edgecost du SM (KEY:PageUp)
 			if (G._sm.G != nullptr) {
-				G._sm.m_edgeCosts += 2;
+				G._sm.addToEdgeCost(2);
 				std::cout << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
-				G._sm.initMatrices();
 			}
 			break;
 		}
 		case 23: {//Enleve 5 au m_edgecost du SM (KEY:PageDown)
 			if (G._sm.G != nullptr) {
-				G._sm.m_edgeCosts -= 2;
+				G._sm.addToEdgeCost(-2);
 				std::cout << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
-				G._sm.initMatrices();
 			}
 			break;
 		}

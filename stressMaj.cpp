@@ -359,6 +359,31 @@ void StressMajorization::minimizeStress(std::vector<double> customParam) {
 	} while (!converged && !finished(totalIterationDone));
 }
 
+double StressMajorization::minimizeStressDyn(int nombreIter, std::vector<double> customParam) {
+    double bestStress = calcStress();
+    int iter = 0;
+    int numberNoUpgrade = 0;
+    bool converged;
+    double stress;
+    int nbIterCheckStress = 5;
+	do {
+		converged = nextIterationDelay(totalIterationDone);
+        totalIterationDone++;
+        iter++;
+        if (iter%nbIterCheckStress == 0) {
+            stress = calcStress();
+            if (stress < bestStress) {
+                bestStress = stress;
+                numberNoUpgrade = 0;
+            }
+            else if (stress > bestStress) {
+                numberNoUpgrade++;
+            }
+        }
+	} while (!converged && iter < nombreIter && numberNoUpgrade < 10/nbIterCheckStress);
+    return bestStress;
+}
+
 void StressMajorization::replaceInfinityDistances(double newVal) {
     for (int i=0;i<G->_noeuds.size();i++) {
         for (int j=0;j<G->_noeuds.size();j++) {
@@ -384,4 +409,58 @@ void StressMajorization::runStepAlgo(std::vector<double> customParam) {
         totalIterationDone = 0;
     }
     minimizeStress();
+}
+
+double StressMajorization::calcStress(){
+	double stress = 0;
+    for (int i=0; i<G->_noeuds.size()-1;i++) {
+        for (int j=i+1;j<G->_noeuds.size();j++) {
+            double xDiff = G->_noeuds[i].getEmplacement()->getX() - G->_noeuds[j].getEmplacement()->getX();
+            double yDiff = G->_noeuds[i].getEmplacement()->getY() - G->_noeuds[j].getEmplacement()->getY();
+			double dist = sqrt(xDiff * xDiff + yDiff * yDiff);
+			if (dist != 0) {
+				stress += weightMatrix[i][j] * (shortestPathMatrix[i][j] - dist) * (shortestPathMatrix[i][j] - dist);
+			}
+        }
+    }
+	return stress;
+}
+
+void StressMajorization::addToEdgeCost(int n) {
+    m_edgeCosts += n;
+    initMatrices();
+}
+
+void StressMajorization::setEdgeCost(int n) {
+    m_edgeCosts = n;
+    initMatrices();
+}
+
+void StressMajorization::runAlgoDyn() {
+    setEdgeCost(1);
+    int bestEdgeCost = m_edgeCosts;
+    double bestStress = calcStress();
+    double stress;
+    double diffStress;
+    double pourcentDiff=100.0;
+    int nombreNoUpgrade = 0;
+    double seuilAmelioration = 1.0;
+    int seuilNoUpgrade = 3;
+    do {
+        stress = minimizeStressDyn();
+        nombreNoUpgrade++;
+        if (stress <= bestStress) {
+            diffStress = bestStress - stress;
+            pourcentDiff = diffStress/bestStress*100;
+            bestEdgeCost = m_edgeCosts;
+            bestStress = stress;
+            if (pourcentDiff > seuilAmelioration) {
+                nombreNoUpgrade = 0;
+            }
+        }
+        std::cout << std::fixed << m_edgeCosts << " " << stress << " %: " << pourcentDiff << std::endl;
+        addToEdgeCost(1);
+    } while (stress <= bestStress && nombreNoUpgrade < seuilNoUpgrade);
+    setEdgeCost(bestEdgeCost);
+    minimizeStressDyn();
 }
