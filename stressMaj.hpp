@@ -13,7 +13,7 @@ public:
     StressMajorization(){}
     StressMajorization(Graphe* _g){ G = _g; }
 
-    int m_edgeCosts;
+    double m_edgeCosts;
     int m_iterations = 400;
 
     bool m_useGrille = true;
@@ -55,13 +55,15 @@ public:
 
     void runAlgoDynStress();
 
-    void addToEdgeCost(int n);
+    void addToEdgeCost(double n);
 
-    void setEdgeCost(int n);
+    void setEdgeCost(double n);
 
     void updateStressCoord();
 
     void runAlgoDynCross();
+
+    void runAlgoDynDichStress();
 
 };
 

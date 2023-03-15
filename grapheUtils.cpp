@@ -1359,3 +1359,73 @@ void Graphe::rotateGraph(double angle) {
         _noeuds[i].setEmplacement(currentEmp);
     }
 }
+
+double Graphe::distMoyDelaunayVoisins() {
+    if (!isCarteSetUp) {
+        triangulationDelaunay();
+    }
+    double moyenne = 0.0;
+    int totalArete = 0;
+    for (int i=0;i<_emplacements.size()-1;i++) {
+        for (int j=0;j<_emplacements[i].voisinsDelaunay->size();j++) {
+            const int& indexVoisin = _emplacements[i].voisinsDelaunay->at(j);
+            if (indexVoisin > i) {
+                double xDiff = _emplacements[i].getX() - _emplacements[indexVoisin].getX();
+                double yDiff = _emplacements[i].getY() - _emplacements[indexVoisin].getY();
+                moyenne += sqrt(xDiff * xDiff + yDiff * yDiff);
+                totalArete++;
+            }
+        }
+    }
+    return moyenne/(double)totalArete;
+}
+
+double Graphe::distMoyNTirage(int n) {
+    double moyenne = 0.0;
+    for (int i=0;i<n;i++) {
+        int empId1 = generateRand(_emplacements.size() - 1);
+        int empId2 = generateRand(_emplacements.size() - 1);
+        while (empId2 == empId1) {
+            empId2 = generateRand(_emplacements.size() - 1);
+        }
+        double xDiff = _emplacements[empId1].getX() - _emplacements[empId2].getX();
+        double yDiff = _emplacements[empId1].getY() - _emplacements[empId2].getY();
+        moyenne += sqrt(xDiff * xDiff + yDiff * yDiff);
+    }
+    return moyenne/(double)n;
+}
+
+void Graphe::getMinMaxFromNodes() {
+    minXNode=_noeuds[0].getEmplacement()->getX();
+    maxXNode=_noeuds[0].getEmplacement()->getX();
+    minYNode=_noeuds[0].getEmplacement()->getY();
+    maxYNode=_noeuds[0].getEmplacement()->getY();
+    for (int i=1;i<_noeuds.size();i++) {
+        int x = _noeuds[i].getEmplacement()->getX();
+        int y = _noeuds[i].getEmplacement()->getY();
+        if (x < minXNode) { minXNode = x; }
+        else if (x > maxXNode) { maxXNode = x; }
+        if (y < minYNode) { minYNode = y; }
+        else if (y > maxYNode) { maxYNode = y; }
+    }
+}
+
+double Graphe::moyenneLongueurAretes() {
+    double moyenne = 0.0;
+    for (int i=0;i<_aretes.size();i++) {
+        double xDiff = _aretes[i]._noeud1->getEmplacement()->getX() - _aretes[i]._noeud2->getEmplacement()->getX();
+        double yDiff = _aretes[i]._noeud1->getEmplacement()->getY() - _aretes[i]._noeud2->getEmplacement()->getY();
+        moyenne += sqrt(xDiff * xDiff + yDiff * yDiff);
+    }
+    return moyenne/(double)_aretes.size();
+}
+
+double Graphe::moyenneLongueurAretesReel() {
+    double moyenne = 0.0;
+    for (int i=0;i<_aretes.size();i++) {
+        double xDiff = _aretes[i]._noeud1->stressX - _aretes[i]._noeud2->stressX;
+        double yDiff = _aretes[i]._noeud1->stressY - _aretes[i]._noeud2->stressY;
+        moyenne += sqrt(xDiff * xDiff + yDiff * yDiff);
+    }
+    return moyenne/(double)_aretes.size();
+}

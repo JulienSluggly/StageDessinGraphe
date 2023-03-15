@@ -36,7 +36,7 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 }
 
 void runFuncOnAllGraphs() {
-	for (int i=1;i<=12;i++) {
+	for (int i=5;i<=12;i++) {
 		std::cout << "---------------------\n";
 		Graphe G;
 		std::string numero = to_string(i);
@@ -54,14 +54,39 @@ void runFuncOnAllGraphs() {
 	}
 }
 
-int main() {
-	initRandomSeed();
-	//initSameSeed(1462039345);
-	//allRunsSingleThread(); return 0;
-	allRunsBySlots(); allRunsBySlotsSecondRun(); allRunsBySlotsThirdRun(); return 0;
+void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
+	int nbSlot = 4;
+	if (!useGrid) { nbSlot--; }
+	for (int i=5;i<=12;i++) {
+		for (int j=0;j<nbSlot;j++) {
+			std::cout << "---------------------\n";
+			Graphe G;
+			std::string numero = to_string(i);
+			std::string nomFichierGraph = "graph-"+numero+"-input";
+			std::string nomFichierSlots;
+			if (j == 0) { nomFichierSlots = numero+"-input-slots"; }
+			else if (j < 3) { nomFichierSlots = to_string(j+1) + "X-"+numero+"-input-slots"; }
+			else { nomFichierSlots = "Grid"; }
+			std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
-	std::string nomFichierGraph = "graph-9-input";
-	std::string nomFichierSlots = "12-input-slots";
+			G.setupGraphe(nomFichierGraph,nomFichierSlots);
+			G.DEBUG_GRAPHE = true;
+			auto start = std::chrono::system_clock::now();
+			double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
+			std::cout << "Moyenne: " << G.distMoyNTirage(1000000) << std::endl;
+			printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
+		}
+	}
+}
+
+int main() {
+	//initRandomSeed();
+	//runFuncOnAllGraphsAllSlots(); return 0;
+	initSameSeed();
+	//allRunsBySlotsSecondRun(); allRunsBySlotsThirdRun(); return 0;
+
+	std::string nomFichierGraph = "graph-7-input";
+	std::string nomFichierSlots = "3X-11-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
@@ -77,10 +102,12 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-
 	G.placementAleatoire();
-	G.stressMajorization({{}},45,400,2);
-	//G.stressMajorization({{}},45,400,1);
+	//G.stressMajorization();
+	G.stressMajorization({{}},1);
+	//G.initGrille(); G.registerSlotsAndEdgesInGrid();
+	//G.recuitSimule(tempsBest);
+	//G.stressMajorization({{}},1);
 	//G.stepStressMajorization(); G.deleteGrille();
 	//G.stressMajorization();
 	//G.placementPivotMDS({},10);

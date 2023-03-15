@@ -57,6 +57,8 @@ public:
 	long nombreInterIll = -1; // Variable pas à jour
 	long nombreInterIllSelf = -1; // Variable pas à jour;
 
+	int minXNode=-1,maxXNode=-1,minYNode=-1,maxYNode=-1;
+
 	std::string nomGraphe = "Graphe";
 
 	Graphe(){}
@@ -539,7 +541,7 @@ public:
 	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
 
 	// Appelle l'algorithme de stress majorization sur le graphe.
-	void stressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45, int iterations=400, int methode=0);
+	void stressMajorization(std::vector<std::vector<double>> customParam = {{}}, int methode=0);
 
 	// Effectue le deplacement d'un seul noeud avec l'algorithme de stressMajorization
 	void stepStressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45);
@@ -553,6 +555,20 @@ public:
 	void rotateNode(double angle, int nodeId, double centerX, double centerY);
 
 	void rotateGraph(double angle);
+
+	// Renvoie la distance moyenne des aretes de la triangulation de delaunay
+	double distMoyDelaunayVoisins();
+
+	// Renvoie la distance moyenne entre les emplacement apres n tirages aleatoires
+	double distMoyNTirage(int n);
+
+	// Affecte les valeurs a minXNode maxXNode minYNode maxYNode dans le graphe
+	void getMinMaxFromNodes();
+
+	// Renvoie la moyenne des longueurs des aretes du graphe
+	double moyenneLongueurAretes();
+
+	double moyenneLongueurAretesReel();
 
 };
 

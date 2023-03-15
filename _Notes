@@ -66,3 +66,28 @@ Mixer stressMajDynStress et stressMajDynCross?
 Ameliorer le temps d'execution du stressMaj et variantes
 
 Changement de repere, ACP
+
+Trouver la meilleur methode a appliquer apres le stress maj
+
+Retester toutes les methodes sur tout les graphes 
+
+Restester stress maj avec 
+
+calculer des metriques pour approximer la longueur optimales dans le stress maj.
+Moyennes des distances emplacements, delaunay?
+Moyenne des distances dans le delaunay maximal?
+
+Noter la longeur optimale atteinte
+
+mediane sur total inter
+
+recalculer plus efficacement les matrices quand il y a changement de edgeCost
+
+Recherche dichotomique? Probleme d'egalite.
+Recherche bibliographique sur la recherche dichotomique
+
+Dichotomie + aleatoire tant que les intervalles sont a egalites
+
+Resteter avec variante nextIterationDelay
+
+Spring Embedding, Graphviz twopi

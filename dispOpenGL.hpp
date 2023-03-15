@@ -68,6 +68,15 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
 			keyPressFunctionNum = 26; singleKeyPress = true;
 		}
     }
+	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		glfwGetCursorPos(window, &clicX, &clicY);
+		clicX *= ratioAffichageX;
+		clicY *= ratioAffichageY;
+		clicY = (gridHeight - clicY)-1;
+		clicX -= 1;
+		std::cout << clicX << " " << clicY << std::endl;
+		keyPressFunctionNum = 29; singleKeyPress = true;
+	}
 }
 
 // Callback pour OpenGL
@@ -242,9 +251,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			show_cells = !show_cells;
 			break;
 		case GLFW_KEY_S:
-			if (show_selected_emplacement) {
-				keyPressFunctionNum = 11; singleKeyPress = true;
-			}
+			keyPressFunctionNum = 11; singleKeyPress = true;
 			break;
 		case GLFW_KEY_I:
 			showIllegal = !showIllegal;
@@ -521,7 +528,7 @@ void openGLDisplay() {
 
 void openGLKeyPressFunction(Graphe& G) {
 	if (singleKeyPress) {
-		std::cout << "KeyPress: " << keyPressFunctionNum << std::endl;
+		//std::cout << "KeyPress: " << keyPressFunctionNum << std::endl;
 		bool recalcIllegal = false;
 		switch(keyPressFunctionNum) {
 		case 0: {// Save Graphe
@@ -766,7 +773,8 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 20: {// Step Stress Majorization (KEY:5)
 			G.stepStressMajorization();
-			std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << std::endl;
+			std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretes()<< std::endl;
+			//std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretesReel()<< std::endl;
 			break;
 		}
 		case 21: {// Print current seed
@@ -821,6 +829,10 @@ void openGLKeyPressFunction(Graphe& G) {
 			std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
 			std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
 			std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+			break;
+		}
+		case 29: {//Force Selected Emplacement
+			selectedEmplacement = G.getClosestEmplacementFromPoint(clicX,clicY)->_id;
 			break;
 		}
 		default:{

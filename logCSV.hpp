@@ -67,9 +67,9 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	double moyenneCroisement, medianCroisement;
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0, debugValue=-1;
-	std::vector<int> croisementVector;
+	std::vector<int> croisementVector, edgeCostVector;
 	std::vector<double> tempExecVector, tempBestVector; std::vector<int> bestIterationVector, lastIterationVector, nombreRecuitVector, totalInterVector, totalInterIllVector;
-	double tempsExecMoyenne, tempsBestMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne;
+	double tempsExecMoyenne, tempsBestMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne, edgeCostMoyenne;
 	bool saveResult = true;
 	int population, maxIteration;
 	int nombreRecuit, nombreSlots, nombreCellule;
@@ -94,8 +94,8 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodePlacementName == "Glouton Voisin") G.gloutonRevisiteVoisin();
 		//else if (methodePlacementName == "OGDF") ogdfPlacementAuPlusProche(G);
 		else if (methodePlacementName == "Stress") { G.stressMajorization(customParam); }
-		else if (methodePlacementName == "Stress Dyn Stress") { G.stressMajorization(customParam,-1,400,1); }
-		else if (methodePlacementName == "Stress Dyn Cross") { G.stressMajorization(customParam,-1,400,2); }
+		else if (methodePlacementName == "Stress Dyn Stress") { G.stressMajorization(customParam,1); }
+		else if (methodePlacementName == "Stress Dyn Cross") { G.stressMajorization(customParam,2); }
 		else if (methodePlacementName == "Glouton Grille") { G.gloutonRevisiteGrid(); }
 		else if (methodePlacementName == "Aleatoire") G.placementAleatoire();
 		else if (methodePlacementName != "Aucun") {
@@ -141,6 +141,8 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		}
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Temp") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.99999,0.99,0.1);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cooler") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.9999999);
@@ -170,15 +172,10 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		nombreRecuitVector.push_back(nombreRecuit);
 		nombreSlots = G._emplacements.size();
 		nombreCellule = G.grillePtr.size();
-		if (G.isNombreCroisementUpdated) {
-			croisementVector.push_back(G.nombreCroisement);
-		}
-		else {
-			croisementVector.push_back(G.getNbCroisementConst());
-		}
-		if (G.hasIllegalCrossing()) {
-			nbSolutionIllegale++;
-		}
+		if (G.isNombreCroisementUpdated) { croisementVector.push_back(G.nombreCroisement); }
+		else { croisementVector.push_back(G.getNbCroisementConst()); }
+		if (G.hasIllegalCrossing()) { nbSolutionIllegale++; }
+		if (G._sm.G != nullptr) { edgeCostVector.push_back(G._sm.m_edgeCosts); }
 		totalInterVector.push_back(G.getNbCroisementDiff());
 		totalInterIllVector.push_back(G.nombreInterIll + G.nombreInterIllSelf);
 		debugValue = G.debugEverything();
@@ -197,6 +194,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		nombreRecuitMoyenne = moyenneVector(nombreRecuitVector);
 		totalInterMoyenne = moyenneVector(totalInterVector);
 		totalInterIllMoyenne = moyenneVector(totalInterIllVector);
+		edgeCostMoyenne = moyenneVector(edgeCostVector);
 
 		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
@@ -233,7 +231,11 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		resultats << getSeed(tid) << "," << machine;
 		resultats << "," << getParamAsString(customParam);
 		resultats << "," << nombreCellule;
-		resultats << "," << debugValue << "," << date << "\n";
+		resultats << "," << debugValue << "," << date;
+		if (edgeCostVector.size() > 0) {
+			resultats << ",EC:" << edgeCostMoyenne;
+		}
+		resultats << "\n";
 		resultats.close();
 	}
 }
