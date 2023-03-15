@@ -227,6 +227,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_F9: // Print current seed
 			keyPressFunctionNum = 21; singleKeyPress = true;
 			break;
+		case GLFW_KEY_F10: // Generate x2 Emplacements
+			keyPressFunctionNum = 30; singleKeyPress = true;
+			break;
 		case GLFW_KEY_F12: // Repeat Infinitely
 			repeatInfinitely = !repeatInfinitely;
 			if (repeatInfinitely) { printf("Mode Repeat: ON\n"); }
@@ -831,8 +834,12 @@ void openGLKeyPressFunction(Graphe& G) {
 			std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
 			break;
 		}
-		case 29: {//Force Selected Emplacement
+		case 29: {//Force Selected Emplacement (Right Click)
 			selectedEmplacement = G.getClosestEmplacementFromPoint(clicX,clicY)->_id;
+			break;
+		}
+		case 30: {//Generate x2 more emplacement (KEY: F10)
+			G.generateMoreEmplacement(2);
 			break;
 		}
 		default:{

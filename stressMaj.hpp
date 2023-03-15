@@ -18,6 +18,7 @@ public:
 
     bool m_useGrille = true;
     bool areVectorsSetup = false;
+    bool m_useClosest = false;
 
     bool DEBUG_STRESS = false;
 

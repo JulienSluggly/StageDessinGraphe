@@ -733,7 +733,7 @@ void Graphe::completePlacementAleatoireScore(std::vector<int>& vecNode, int tail
     isIntersectionVectorUpdated = false;
 }
 
-void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, int methode) {
+void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, int methode, bool useClosest) {
     if (!estPlace()) { placementAleatoire(); }
     for (int i=0;i<_noeuds.size();i++) {
         _noeuds[i].stressX = (double)_noeuds[i].getEmplacement()->getX();
@@ -753,6 +753,7 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
     else {
         _sm.m_useGrille = false;
     }
+    _sm.m_useClosest = useClosest;
     if (customParam.size() > 0) {
         for (std::vector<double>& param : customParam) {
             if (param.size() > 0) {

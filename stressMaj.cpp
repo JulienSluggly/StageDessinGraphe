@@ -125,10 +125,10 @@ bool StressMajorization::nextIteration(std::vector<double> customParam) {
         moyenneDist += dist;
         Emplacement* closestEmplacement;
         if (m_useGrille) {
-            closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord);
+            closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord,m_useClosest);
         }
         else {
-            closestEmplacement = G->getClosestEmplacementFromPoint(currXCoord,currYCoord);
+            closestEmplacement = G->getClosestEmplacementFromPoint(currXCoord,currYCoord,m_useClosest);
         }
         Emplacement* currentEmplacement = G->_noeuds[nodeId].getEmplacement();
         if (closestEmplacement->_id != currentEmplacement->_id) {
@@ -233,10 +233,10 @@ bool StressMajorization::nextIterationDelayTest(int iteration,std::vector<double
             double currXCoord = G->_noeuds[i].stressX;
             double currYCoord = G->_noeuds[i].stressY;
             if (m_useGrille) {
-                closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord);
+                closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord,m_useClosest);
             }
             else {
-                closestEmplacement = G->getClosestEmplacementFromPoint(currXCoord,currYCoord);
+                closestEmplacement = G->getClosestEmplacementFromPoint(currXCoord,currYCoord,m_useClosest);
             }
             Emplacement* currentEmplacement = G->_noeuds[i].getEmplacement();
             if (closestEmplacement->_id != currentEmplacement->_id) {
@@ -323,10 +323,10 @@ bool StressMajorization::nextIterationDelay(int iteration) {
         double currXCoord = G->_noeuds[i].stressX;
         double currYCoord = G->_noeuds[i].stressY;
         if (m_useGrille) {
-            closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord);
+            closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord,m_useClosest);
         }
         else {
-            closestEmplacement = G->getClosestEmplacementFromPoint(currXCoord,currYCoord);
+            closestEmplacement = G->getClosestEmplacementFromPoint(currXCoord,currYCoord,m_useClosest);
         }
         Emplacement* currentEmplacement = G->_noeuds[i].getEmplacement();
         if (closestEmplacement->_id != currentEmplacement->_id) {
@@ -433,6 +433,7 @@ void StressMajorization::replaceInfinityDistances(double newVal) {
 }
 
 void StressMajorization::runAlgo(std::vector<double> customParam) {
+    m_edgeCosts = 45;
     initMatrices();
     minimizeStress();
 }

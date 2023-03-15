@@ -24,13 +24,24 @@
 #include <ogdf/energybased/FMMMLayout.h>
 #include <ogdf/energybased/GEMLayout.h>
 #include <ogdf/energybased/PivotMDS.h>
-#include <ogdf/energybased/TutteLayout.h>
+#include <ogdf/energybased/SpringEmbedderKK.h>
 
 #include <ogdf/fileformats/GraphIO.h>
+
+#include <ogdf/basic/LayoutStatistics.h>
 
 #include <fstream>
 
 std::vector<ogdf::node> vecNoeudAOGDFNode;
+
+void ogdfPrintNumberOfCrossings(ogdf::GraphAttributes& ogdfGA) {
+	ogdf::ArrayBuffer<int> tmpA = ogdf::LayoutStatistics::numberOfCrossings(ogdfGA);
+	int numberOfCrossings = 0;
+	for (const int& number : tmpA) {
+		numberOfCrossings += number;
+	}
+	std::cout << "OGDF Crossings: " << numberOfCrossings/2 << std::endl;
+}
 
 // Creer un graphe ogdf a partir d'un graphe placé ou non.
 void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph &ogdfG) {
@@ -404,6 +415,7 @@ void ogdfStressMinimization(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::StressMinimization sm;
 	sm.call(ogdfGA);
+	ogdfPrintNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -414,6 +426,7 @@ void ogdfFastMultipoleEmbedder(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::FastMultipoleEmbedder fme;
 	fme.call(ogdfGA);
+	ogdfPrintNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -424,6 +437,7 @@ void ogdfFastMultipoleMultilevelEmbedder(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::FastMultipoleMultilevelEmbedder fmme;
 	fmme.call(ogdfGA);
+	ogdfPrintNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -434,6 +448,7 @@ void ogdfFMMMLayout(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::FMMMLayout fmmml;
 	fmmml.call(ogdfGA);
+	//ogdfPrintNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
@@ -445,6 +460,7 @@ void ogdfGEMLayout(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::GEMLayout geml;
 	geml.call(ogdfGA);
+	ogdfPrintNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -455,6 +471,7 @@ void ogdfPivotMDS(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::PivotMDS pmds;
 	pmds.call(ogdfGA);
+	ogdfPrintNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -463,10 +480,11 @@ void ogdfOther(Graphe& G) {
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
-	ogdf::TutteLayout tl;
-	tl.call(ogdfGA);
-	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
-	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+	ogdf::SpringEmbedderKK segv;
+	segv.call(ogdfGA);
+	ogdfPrintNumberOfCrossings(ogdfGA);
+	//ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
+	//ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
 
 // Fait différents test sur le graphe: connexité, biconnecté, genus, crossing number(SubGraphPlanarize)

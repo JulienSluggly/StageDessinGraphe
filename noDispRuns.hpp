@@ -198,7 +198,8 @@ void allRunsBySlots() {
 void allRunsBySlotsSecondRun() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
-	for (int i = 5; i <= 12; i++) {
+	mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
+	for (int i = 10; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
 	std::cout << "Starting all run logs." << std::endl;

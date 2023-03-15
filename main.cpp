@@ -36,7 +36,7 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 }
 
 void runFuncOnAllGraphs() {
-	for (int i=5;i<=12;i++) {
+	for (int i=1;i<=12;i++) {
 		std::cout << "---------------------\n";
 		Graphe G;
 		std::string numero = to_string(i);
@@ -48,8 +48,7 @@ void runFuncOnAllGraphs() {
 		G.DEBUG_GRAPHE = true;
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
-		G.calcMaxAndAverageDegree();
-		std::cout << "Max Deg: " << G.maxVoisin << " Avg: " << G.avgVoisin << std::endl;
+		ogdfOther(G);
 		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
 	}
 }
@@ -80,14 +79,15 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 }
 
 int main() {
-	//initRandomSeed();
+	initRandomSeed();
 	//runFuncOnAllGraphsAllSlots(); return 0;
-	initSameSeed();
-	//allRunsBySlotsSecondRun(); allRunsBySlotsThirdRun(); return 0;
+	//initSameSeed();
+	//runFuncOnAllGraphs(); return 0;
+	//allRunsBySlotsSecondRun(); return 0;
 
-	std::string nomFichierGraph = "graph-7-input";
-	std::string nomFichierSlots = "3X-11-input-slots";
-	//std::string nomFichierSlots = "Grid";
+	std::string nomFichierGraph = "graph-11-input";
+	//std::string nomFichierSlots = "3X-10-input-slots";
+	std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph);
@@ -102,9 +102,10 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	G.placementAleatoire();
+	//G.placementAleatoire();
+	ogdfFastMultipoleMultilevelEmbedder(G);
 	//G.stressMajorization();
-	G.stressMajorization({{}},1);
+	//G.stressMajorization({{}},1);
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid();
 	//G.recuitSimule(tempsBest);
 	//G.stressMajorization({{}},1);
