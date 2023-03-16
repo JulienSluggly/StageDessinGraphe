@@ -23,6 +23,7 @@ add_executable(dessinGrapheCmake
     src/geometrie.cpp
     src/intersection.cpp
     src/utilitaire.cpp
+    src/ogdfFunctions.cpp
     src/carte.cpp
     src/triangulation.cpp
     src/personnel.cpp

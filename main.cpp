@@ -83,7 +83,7 @@ int main() {
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
 	//runFuncOnAllGraphs(); return 0;
-	//allRunsBySlotsSecondRun(); return 0;
+	allRunsBySlots(); allRunsBySlotsSecondRun(); return 0;
 
 	std::string nomFichierGraph = "graph-12-input";
 	//std::string nomFichierSlots = "10-input-slots";
@@ -102,10 +102,7 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	G.initGrilleCarre();
-    G.registerSlotsInGridNoMove();
 	ogdfFastMultipoleMultilevelEmbedder(G);
-	G.deleteGrille();
 	//G.stressMajorization();
 	//G.stressMajorization({{}},1);
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid();

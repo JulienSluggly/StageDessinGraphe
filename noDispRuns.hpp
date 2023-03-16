@@ -167,7 +167,8 @@ void allRunsLogged() {
 void allRunsBySlots() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
-	for (int i = 5; i <= 12; i++) {
+	mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
+	for (int i = 10; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
 	std::cout << "Starting all run logs." << std::endl;
@@ -185,8 +186,7 @@ void allRunsBySlots() {
 		std::vector<std::vector<double>> customParam;
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,5,"Stress Dyn Stress","Aucun",{{}},tid);
-				startRunsForAllSlots(key,5,"Stress Dyn Cross","Aucun",{{}},tid);
+				startRunsForAllSlots(key,-1,"OGDFFMMM","Rerecuit Simule Grille TME Cool Delay",{{}},tid);
 			}
 			indexKey++;
 		}
@@ -215,14 +215,18 @@ void allRunsBySlotsSecondRun() {
 		}
 		int indexKey = 0;
 		std::vector<std::vector<std::vector<double>>> totalRuns;
+		totalRuns.push_back({{9,0.99999}});
+		totalRuns.push_back({{9,0.99999},{3,0,2}});
+		totalRuns.push_back({{9,0.9999945}});
+		totalRuns.push_back({{9,0.9999945},{3,0,2}});
+		totalRuns.push_back({{9,0.999999}});
+		totalRuns.push_back({{9,0.999999},{3,0,2}});
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
 				for (int taille=0;taille<totalRuns.size();taille++) {
+					startRunsForAllSlots(key,-1,"Stress Dyn Stress","Rerecuit Simule Grille TME Custom",totalRuns[taille],tid);
+					startRunsForAllSlots(key,-1,"OGDFFMMM","Rerecuit Rerecuit Simule Grille TME Custom",totalRuns[taille],tid);
 				}
-				startRunsForAllSlots(key,-1,"Stress Dyn Stress","Rerecuit Simule Grille TME Cool Delay",{{}},tid);
-				startRunsForAllSlots(key,-1,"Stress Dyn Stress","Rerecuit Simule Grille TME",{{}},tid);
-				startRunsForAllSlots(key,-1,"Stress Dyn Stress","Rerecuit Simule Grille TME Cool Delay Temp",{{}},tid);
-				startRunsForAllSlots(key,-1,"Stress Dyn Stress","Rerecuit Simule Grille TME Temp",{{}},tid);
 			}
 			indexKey++;
 		}

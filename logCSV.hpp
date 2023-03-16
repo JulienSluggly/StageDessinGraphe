@@ -8,12 +8,14 @@
 #include <string>
 #include <chrono>
 #include <iomanip>
-//#include "ogdfFunctions.hpp"
+#include "ogdfFunctions.hpp"
 #include "personnel.hpp"
 #include <omp.h>
 #include <climits>
 #include <ctime>
 #include <algorithm>
+
+#define OGDF_INSTALLED 1
 
 std::unordered_map<std::string,std::pair<int,int>> mapGraphPopGen;
 
@@ -92,7 +94,22 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodePlacementName == "Glouton Revisite") G.gloutonRevisite();
 		else if (methodePlacementName == "Glouton Gravite") G.gloutonRevisiteGravite();
 		else if (methodePlacementName == "Glouton Voisin") G.gloutonRevisiteVoisin();
-		//else if (methodePlacementName == "OGDF") ogdfPlacementAuPlusProche(G);
+		else if (methodePlacementName == "OGDF") { 
+#if OGDF_INSTALLED == 1
+			ogdfPlacementAuPlusProche(G);
+#elif
+			std::cout << "OGDF NOT INSTALLED.\n";
+			return;
+#endif
+		}
+		else if (methodePlacementName == "OGDFFMMM") {
+#if OGDF_INSTALLED == 1
+			ogdfFastMultipoleMultilevelEmbedder(G);
+#elif
+			std::cout << "OGDF NOT INSTALLED.\n";
+			return;
+#endif			
+		}
 		else if (methodePlacementName == "Stress") { G.stressMajorization(customParam); }
 		else if (methodePlacementName == "Stress Dyn Stress") { G.stressMajorization(customParam,1); }
 		else if (methodePlacementName == "Stress Dyn Cross") { G.stressMajorization(customParam,2); }
@@ -141,6 +158,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		}
 
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
+		if (methodeAlgoName == "Recuit Simule Grille TME") G.recuitSimule(tempsBest,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Temp") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.99999,0.99,0.1);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
