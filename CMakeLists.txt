@@ -28,6 +28,7 @@ add_executable(dessinGrapheCmake
     src/personnel.cpp
     src/stressMaj.cpp
     src/pivotMDS.cpp
+    src/fmmm.cpp
 )
 
 target_include_directories(dessinGrapheCmake PRIVATE "/home/uha/Documents/OGDF/include")

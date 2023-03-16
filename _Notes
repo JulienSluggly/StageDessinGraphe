@@ -93,3 +93,11 @@ Resteter avec variante nextIterationDelay
 Spring Embedding, Graphviz twopi
 
 Implementer fast multipole multilevel avec nos contraintes?
+
+Restester recuit avec des delai plus fins sur tout les graphes 0.99999 0.9999945 0.9999999
+
+Modifier le recuit pour qu'il prenne en compte le temps total depuis le rerecuit
+
+Fix stressMin trouver emplacement plus proche disponible ne renvoie pas le meme qu'occupe le noeud, clearnodeemplacement avant d'attribuer?
+
+Test avec le FMMM en comparaison avec le stressMin

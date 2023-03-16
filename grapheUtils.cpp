@@ -1429,3 +1429,42 @@ double Graphe::moyenneLongueurAretesReel() {
     }
     return moyenne/(double)_aretes.size();
 }
+
+void Graphe::supprimerArete(int idArete) {
+    int idNoeud1 = _aretes[idArete]._noeud1->_id;
+    int idNoeud2 = _aretes[idArete]._noeud2->_id;
+    for (int i=0;i<_noeuds[idNoeud1]._aretes.size();i++) {
+        if (_noeuds[idNoeud1]._aretes[i] == idArete) {
+            _noeuds[idNoeud1]._aretes[i] = _noeuds[idNoeud1]._aretes[_noeuds[idNoeud1]._aretes.size()-1];
+            _noeuds[idNoeud1]._aretes.pop_back();
+            break;
+        }
+    }
+    for (int i=0;i<_noeuds[idNoeud2]._aretes.size();i++) {
+        if (_noeuds[idNoeud2]._aretes[i] == idArete) {
+            _noeuds[idNoeud2]._aretes[i] = _noeuds[idNoeud2]._aretes[_noeuds[idNoeud2]._aretes.size()-1];
+            _noeuds[idNoeud2]._aretes.pop_back();
+            break;
+        }
+    }
+    int idLastArete = _aretes.size()-1;
+    if (idArete != idLastArete) {
+        int lastIdNoeud1 = _aretes[idLastArete]._noeud1->_id;
+        int lastIdNoeud2 = _aretes[idLastArete]._noeud2->_id;
+        for (int i=0;i<_noeuds[lastIdNoeud1]._aretes.size();i++) {
+            if (_noeuds[lastIdNoeud1]._aretes[i] == idLastArete) {
+                _noeuds[lastIdNoeud1]._aretes[i] = idArete;
+                break;
+            }
+        }
+        for (int i=0;i<_noeuds[lastIdNoeud2]._aretes.size();i++) {
+            if (_noeuds[lastIdNoeud2]._aretes[i] == idLastArete) {
+                _noeuds[lastIdNoeud2]._aretes[i] = idArete;
+                break;
+            }
+        }
+    }
+    _aretes[idArete] = _aretes[idLastArete];
+    _aretes[idLastArete]._id = idArete;
+    _aretes.pop_back();
+}

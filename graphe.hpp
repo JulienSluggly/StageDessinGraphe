@@ -570,6 +570,8 @@ public:
 
 	double moyenneLongueurAretesReel();
 
+	void supprimerArete(int idArete);
+
 };
 
 #endif

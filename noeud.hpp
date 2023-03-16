@@ -25,6 +25,14 @@ public:
 	double pivotX = -1;
 	double pivotY = -1;
 	
+	int areteCommune(Noeud* noeudVoisin) {
+		for (const int& idArete1 : _aretes) {
+			for (const int& idArete2 : noeudVoisin->_aretes) {
+				if (idArete1 == idArete2) { return idArete1; }
+			}
+		}
+		return -1;
+	}
 	bool estPlace() const { return _emplacement != nullptr; }
 	Emplacement* getEmplacement()  const { return _emplacement; }
 	void connect(Noeud* noeud) { voisins.push_back(noeud); }

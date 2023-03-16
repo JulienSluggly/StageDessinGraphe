@@ -30,6 +30,8 @@
 
 #include <ogdf/basic/LayoutStatistics.h>
 
+#include "emplacement.hpp"
+
 #include <fstream>
 
 std::vector<ogdf::node> vecNoeudAOGDFNode;
@@ -134,6 +136,46 @@ void ogdfTranslateOgdfGraphToOrigin(ogdf::Graph& ogdfG, ogdf::GraphAttributes& o
 		ogdfGA.x(n) -= minX;
 		ogdfGA.y(n) -= minY;
 	}
+}
+
+// ogdfGA doit contenir le placement du graphe ogdf, on fait ensuite une translation puis scaling et on place au plus proche
+void ogdfPlacementAuPlusProche(ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG, Graphe& G) {
+	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
+	int maxX=0, maxY=0;
+	for (int i = 0; i < G._emplacements.size(); i++) {
+		if (G._emplacements[i].getX() > maxX) { maxX = G._emplacements[i].getX();  }
+		if (G._emplacements[i].getY() > maxY) { maxY = G._emplacements[i].getY();  }
+	}
+	int ogdfMaxX = 0, ogdfMaxY = 0;
+	int nodeNumber = G._noeuds.size();
+	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
+	int i = 0;
+	for (auto n : ogdfG.nodes) {
+		if (ogdfGA.x(n) > ogdfMaxX) { ogdfMaxX = ogdfGA.x(n); }
+		if (ogdfGA.y(n) > ogdfMaxY) { ogdfMaxY = ogdfGA.y(n); }
+		nodeTab[i] = n;
+		i++;
+	}
+	double ratio = (double)ogdfMaxX / (double)maxX;
+	double ratio2 = (double)ogdfMaxY / (double)maxY;
+	for (auto n : ogdfG.nodes) {
+		ogdfGA.x(n) = ogdfGA.x(n) / ratio;
+		ogdfGA.y(n) = ogdfGA.y(n) / ratio2;
+	}
+	G.clearNodeEmplacement();
+	for (int i=0;i<G._noeuds.size();i++) {
+		double x = ogdfGA.x(nodeTab[i]);
+		double y = ogdfGA.y(nodeTab[i]);
+		Emplacement* closestEmplacement;
+        if (G.grillePtr.size() > 0) {
+            closestEmplacement = G.getClosestEmplacementFromPointGrid(x,y,true);
+        }
+        else {
+            closestEmplacement = G.getClosestEmplacementFromPoint(x,y,true);
+        }
+		G._noeuds[i].setEmplacement(closestEmplacement);
+	}
+	delete[] nodeTab;
 }
 
 // Planarize le graphe avec odgf et essaie de placer les noeuds au plus proche de ses emplacements possible par rapport au grpahe OGDF
@@ -438,8 +480,9 @@ void ogdfFastMultipoleMultilevelEmbedder(Graphe& G) {
 	ogdf::FastMultipoleMultilevelEmbedder fmme;
 	fmme.call(ogdfGA);
 	ogdfPrintNumberOfCrossings(ogdfGA);
-	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
-	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+	//ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
+	//ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
 }
 
 void ogdfFMMMLayout(Graphe& G) {
@@ -447,10 +490,10 @@ void ogdfFMMMLayout(Graphe& G) {
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::FMMMLayout fmmml;
+	fmmml.unitEdgeLength(22);
 	fmmml.call(ogdfGA);
 	//ogdfPrintNumberOfCrossings(ogdfGA);
-	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
-	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
 
