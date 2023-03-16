@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include "pugixml.hpp"
 #include "graphe.hpp"
 
 using nlohmann::json;
@@ -208,6 +207,9 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 	return tmpVec;
 }
 
+#if defined(PUGIXML_INSTALLED)
+#include "pugixml.hpp"
+
 void Graphe::readFromGraphmlGraph(std::string input) {
 	pugi::xml_document doc;
 	if (!doc.load_file(input.c_str())) { std::cout << "Fichier inexistant.\n"; exit(-1); }
@@ -227,3 +229,9 @@ void Graphe::readFromGraphmlGraph(std::string input) {
 		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
     }
 }
+#else
+void Graphe::readFromGraphmlGraph(std::string input) {
+	std::cout << "PUGIXML NOT INSTALLED.\n";
+	exit(1);
+}
+#endif

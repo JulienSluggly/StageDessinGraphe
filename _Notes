@@ -71,11 +71,7 @@ Trouver la meilleur methode a appliquer apres le stress maj
 
 Retester toutes les methodes sur tout les graphes 
 
-Restester stress maj avec 
-
-calculer des metriques pour approximer la longueur optimales dans le stress maj.
-Moyennes des distances emplacements, delaunay?
-Moyenne des distances dans le delaunay maximal?
+Parseur de fichier sans librairie json
 
 Noter la longeur optimale atteinte
 

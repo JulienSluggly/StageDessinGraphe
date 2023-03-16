@@ -1,4 +1,7 @@
 #include "ogdfFunctions.hpp"
+#include "personnel.hpp"
+
+#if defined(OGDF_INSTALLED)
 
 #include <ogdf/basic/GridLayout.h>
 #include <ogdf/basic/Graph_d.h>
@@ -541,3 +544,5 @@ void ogdfRun(Graphe &G) {
 	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
 	std::cout << "Crossing Number: " << crossingModule(ogdfG) << std::endl;
 }
+
+#endif

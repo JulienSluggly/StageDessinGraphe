@@ -1,12 +1,14 @@
 ﻿#ifndef DISPOPENGL_HPP
 #define DISPOPENGL_HPP
 
+#include "personnel.hpp"
+
+#if defined(OPENGL_INSTALLED)
+
 #include <GLFW/glfw3.h>
 #include <GL/gl.h>
-#include <GL/glut.h>
 #include <stdio.h>
 #include <random>
-#include "personnel.hpp"
 #include "graphe.hpp"
 
 bool printRaccourcis = false;
@@ -938,5 +940,12 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
+#else
+	class Graphe;
+	void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
+		std::cout << "OPENGL NOT INSTALLED.\n";
+		return;
+	}
+#endif
 
 #endif

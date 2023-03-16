@@ -15,8 +15,6 @@
 #include <ctime>
 #include <algorithm>
 
-#define OGDF_INSTALLED 1
-
 std::unordered_map<std::string,std::pair<int,int>> mapGraphPopGen;
 
 void fillMap() {
@@ -95,17 +93,17 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodePlacementName == "Glouton Gravite") G.gloutonRevisiteGravite();
 		else if (methodePlacementName == "Glouton Voisin") G.gloutonRevisiteVoisin();
 		else if (methodePlacementName == "OGDF") { 
-#if OGDF_INSTALLED == 1
+#if defined(OGDF_INSTALLED)
 			ogdfPlacementAuPlusProche(G);
-#elif
+#else
 			std::cout << "OGDF NOT INSTALLED.\n";
 			return;
 #endif
 		}
 		else if (methodePlacementName == "OGDFFMMM") {
-#if OGDF_INSTALLED == 1
+#if defined(OGDF_INSTALLED)
 			ogdfFastMultipoleMultilevelEmbedder(G);
-#elif
+#else
 			std::cout << "OGDF NOT INSTALLED.\n";
 			return;
 #endif			

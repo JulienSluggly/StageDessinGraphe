@@ -83,7 +83,7 @@ int main() {
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
 	//runFuncOnAllGraphs(); return 0;
-	allRunsBySlots(); allRunsBySlotsSecondRun(); return 0;
+	//allRunsBySlots(); allRunsBySlotsSecondRun(); return 0;
 
 	std::string nomFichierGraph = "graph-12-input";
 	//std::string nomFichierSlots = "10-input-slots";
