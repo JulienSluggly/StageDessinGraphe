@@ -83,28 +83,34 @@ int main() {
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
 	//runFuncOnAllGraphs(); return 0;
-	//allRunsBySlots(); allRunsBySlotsSecondRun(); return 0;
+	testDimacsGraphs(); allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
 
-	std::string nomFichierGraph = "graph-12-input";
+	std::string nomFichierGraph = "graph-10-input";
 	//std::string nomFichierSlots = "10-input-slots";
 	std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph);
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 
-	std::cout << "Debut placement.\n";
+	G.readFromDimacsGraphClean("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/dimacs/hep-th.graph");
+	//G.readFromDimacsGraphClean("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/dimacs/celegans_metabolic.graph");
+	G.generateGrid();
+
+	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
 	G.DEBUG_GRAPHE = true;
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	ogdfFastMultipoleMultilevelEmbedder(G);
+	//ogdfOtherTest(G);
+	//ogdfFastMultipoleMultilevelEmbedder(G);
 	//G.stressMajorization();
-	//G.stressMajorization({{}},1);
+	return 0;
+	G.stressMajorization({{}},1);
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid();
 	//G.recuitSimule(tempsBest);
 	//G.stressMajorization({{}},1);

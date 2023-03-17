@@ -555,7 +555,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
 			auto start = std::chrono::system_clock::now();
 			double timeBest;
-			G.recuitSimule(timeBest,{},0.99999,100.0,0.0001,1,0,2,false,false);
+			G.recuitSimule(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
 			auto end = std::chrono::system_clock::now();
 			std::chrono::duration<double> secondsTotal = end - start;
 			std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
@@ -675,7 +675,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 11: {// Make Swap
+		case 11: {// Make Swap (KEY: s)
 			G.clearSetAreteInter();
 			if (G._noeuds[selectedNode].getEmplacement()->getId() != selectedEmplacement) {
 				int oldEmplacement = G._noeuds[selectedNode].getEmplacement()->getId();
@@ -696,9 +696,9 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			else {
 				G.afficherInfo();
-				G.afficherNoeuds();
+				//G.afficherNoeuds();
 				G.afficherLiens();
-				G.afficherEmplacement();
+				//G.afficherEmplacement();
 			}
 			break;
 		}
@@ -712,9 +712,9 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			else {
 				G.afficherInfo();
-				G.afficherNoeuds();
+				//G.afficherNoeuds();
 				G.afficherLiens();
-				G.afficherEmplacement();
+				//G.afficherEmplacement();
 			}
 			break;
 		}
@@ -813,6 +813,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 26: {//Selection node (clic gauche avec modeNode)
 			selectedNode = G.getClosestNodeFromPoint(clicX,clicY);
+			std::cout << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode].getEmplacement()->_x << " Y: " << G._noeuds[selectedNode].getEmplacement()->_y << " Degre: " << G._noeuds[selectedNode].voisins.size() << std::endl;
 			break;
 		}
 		case 27: {//Selection emplacement (clic gauche avec modeEmplacement)
@@ -828,7 +829,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
 			auto start = std::chrono::system_clock::now();
 			double timeBest;
-			G.recuitSimule(timeBest,{},0.99999,0.01,0.0001,1,0,2,false,false);
+			G.recuitSimule(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,false,false);
 			auto end = std::chrono::system_clock::now();
 			std::chrono::duration<double> secondsTotal = end - start;
 			std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;

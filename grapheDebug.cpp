@@ -443,6 +443,42 @@ int Graphe::debugDesyncAreteCell(bool display, std::string nom) {
     return retour;
 }
 
+int Graphe::debugOrdreIdVector(bool display, std::string nom) {
+    int retour = 10000;
+    if (display) {
+        std::cout << "-----------------------------------------------" << std::endl;
+        std::cout << "Debug Ordre Id Noeud Arete Emplacement: " << nomGraphe << " " << nom << std::endl;
+    }
+    long nbWrongId = 0;
+    for (int i = 0; i < _noeuds.size(); i++) {
+        if (i!=_noeuds[i]._id) {
+            std::cout << "i: " << i << " Noeud Id: " << _noeuds[i]._id << std::endl;
+            nbWrongId++;
+        }
+    }
+    for (int i=0;i<_aretes.size();i++) {
+        if (i!=_aretes[i]._id) {
+            std::cout << "i: " << i << " Arete Id: " << _aretes[i]._id << std::endl;
+            nbWrongId++;
+        }
+    }
+    for (int i=0;i<_emplacements.size();i++) {
+        if (i!=_emplacements[i]._id) {
+            std::cout << "i: " << i << " Emplacement Id: " << _emplacements[i]._id << std::endl;
+            nbWrongId++;
+        }
+    }
+    if (nbWrongId == 0) {
+        if (display) { std::cout << "Aucun" << std::endl; }
+        retour = 0;
+    }
+    else {
+        if (!display) { std::cout << "-----------------------------------------------" << std::endl; }
+    }
+    if (display) { std::cout << "-----------------------------------------------" << std::endl; }
+    return retour;
+}
+
 int Graphe::debugEverything(bool displayOther, bool displaySelf) {
     int total = 0;
     if (displaySelf) { std::cout << "Debut debug arete double\n"; }
@@ -483,6 +519,8 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
         if (displaySelf) { std::cout << "Debut debug desync arete cellule\n"; }
         total += debugDesyncAreteCell(displayOther);
     }
+    if (displaySelf) { std::cout << "Debug Ordre Id Noeud Arete Emplacement\n"; }
+    total += debugOrdreIdVector(displayOther);
     if (displaySelf) { std::cout << "Debug fini\n"; }
     return total;
 }

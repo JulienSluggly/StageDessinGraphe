@@ -1433,6 +1433,7 @@ double Graphe::moyenneLongueurAretesReel() {
 void Graphe::supprimerArete(int idArete) {
     int idNoeud1 = _aretes[idArete]._noeud1->_id;
     int idNoeud2 = _aretes[idArete]._noeud2->_id;
+    // On enleve l'arete de idNoeud1
     for (int i=0;i<_noeuds[idNoeud1]._aretes.size();i++) {
         if (_noeuds[idNoeud1]._aretes[i] == idArete) {
             _noeuds[idNoeud1]._aretes[i] = _noeuds[idNoeud1]._aretes[_noeuds[idNoeud1]._aretes.size()-1];
@@ -1440,6 +1441,7 @@ void Graphe::supprimerArete(int idArete) {
             break;
         }
     }
+    // On enleve l'arete de idNoeud2
     for (int i=0;i<_noeuds[idNoeud2]._aretes.size();i++) {
         if (_noeuds[idNoeud2]._aretes[i] == idArete) {
             _noeuds[idNoeud2]._aretes[i] = _noeuds[idNoeud2]._aretes[_noeuds[idNoeud2]._aretes.size()-1];
@@ -1447,6 +1449,25 @@ void Graphe::supprimerArete(int idArete) {
             break;
         }
     }
+    // On met a jour les voisins de idNoeud1
+    for (int i=0;i<_noeuds[idNoeud1].voisins.size();i++) {
+        int idVoisin = _noeuds[idNoeud1].voisins[i]->_id;
+        if (idVoisin == idNoeud2) {
+            _noeuds[idNoeud1].voisins[i] = _noeuds[idNoeud1].voisins[_noeuds[idNoeud1].voisins.size()-1];
+            _noeuds[idNoeud1].voisins.pop_back();
+            break;
+        }
+    }
+    // On met a jour les voisins de idNoeud2
+    for (int i=0;i<_noeuds[idNoeud2].voisins.size();i++) {
+        int idVoisin = _noeuds[idNoeud2].voisins[i]->_id;
+        if (idVoisin == idNoeud1) {
+            _noeuds[idNoeud2].voisins[i] = _noeuds[idNoeud2].voisins[_noeuds[idNoeud2].voisins.size()-1];
+            _noeuds[idNoeud2].voisins.pop_back();
+            break;
+        }
+    }
+    // On met a jour le tableau en remplacant l'arete par la derniere
     int idLastArete = _aretes.size()-1;
     if (idArete != idLastArete) {
         int lastIdNoeud1 = _aretes[idLastArete]._noeud1->_id;
@@ -1463,8 +1484,23 @@ void Graphe::supprimerArete(int idArete) {
                 break;
             }
         }
+        _aretes[idArete] = _aretes[idLastArete];
+        _aretes[idArete]._id = idArete;
     }
-    _aretes[idArete] = _aretes[idLastArete];
-    _aretes[idLastArete]._id = idArete;
     _aretes.pop_back();
+}
+
+void Graphe::supprimerNoeud(int idNoeud) {
+    // Suppression des aretes du noeuds
+    for (const int& idArete : _noeuds[idNoeud]._aretes) {
+        supprimerArete(idArete);
+    }
+    // Mise a jour du dernier noeud du tableau
+    int idLastNoeud = _noeuds.size() - 1;
+    if (idNoeud != idLastNoeud) {
+        // A FINIR ICI (maj addresse dans aretes et id dans voisins)
+        _noeuds[idNoeud] = _noeuds[idLastNoeud];
+        _noeuds[idNoeud]._id = idNoeud;
+    }
+    _noeuds.pop_back();
 }

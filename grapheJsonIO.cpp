@@ -235,3 +235,144 @@ void Graphe::readFromGraphmlGraph(std::string input) {
 	exit(1);
 }
 #endif
+
+void Graphe::readFromDimacsGraph(std::string input) {
+	std::ifstream infile(input);
+	std::string line;
+	int numeroLigne = 0;
+	int idArete = 0;
+	bool unSurDeux = false;
+	int idNoeud;
+	while (std::getline(infile, line)) {
+		idNoeud = numeroLigne - 1;
+    	std::istringstream iss(line);
+		int numeroMot = 0;
+		std::string subs;
+		iss >> subs;
+		do {
+			int idVoisin = std::stoi(subs);
+			if (numeroLigne == 0) {
+				if (numeroMot == 0) {
+					for (int i=0;i<idVoisin;i++) {
+						_noeuds.push_back(Noeud(i));
+					}
+				}
+				else if (numeroMot == 2) {
+					if (idVoisin == 1) { unSurDeux = true; }
+				}
+			}
+			else {
+				if ((!unSurDeux)||(numeroMot%2 == 0)) {
+					idVoisin--;
+					if (idVoisin > idNoeud) {
+						_aretes.push_back(Aretes(&_noeuds[idNoeud],&_noeuds[idVoisin],idArete));
+						idArete++;
+					}
+				}
+			}
+			iss >> subs;
+			numeroMot++;
+		} while (iss);
+		numeroLigne++;
+	}
+}
+
+void Graphe::readFromDimacsGraphClean(std::string input) {
+	// Lecture de la premiere ligne
+	std::vector<int> changeIdNode;
+	bool unSurDeux = false;
+	int finalNoeud;
+	std::ifstream fichier(input);
+	std::string ligne;
+	std::getline(fichier, ligne);
+	std::istringstream ligneStream(ligne);
+	std::string mot;
+	ligneStream >> mot;
+	int nombreNoeud = std::stoi(mot);
+	for (int i=0;i<nombreNoeud;i++) {
+		changeIdNode.push_back(i);
+		finalNoeud = nombreNoeud;
+	}
+	ligneStream >> mot;
+	ligneStream >> mot;
+	if (std::stoi(mot) == 1) { unSurDeux = true; }
+	fichier.close();
+
+	int increment = -1;
+	while (increment != 0) {
+		increment = 0;
+		std::ifstream infile1(input);
+		std::string line1;
+		int numeroLigne1 = 0;
+		bool unSurDeux = false;
+		int idNoeud1;
+		while (std::getline(infile1, line1)) {
+			if (numeroLigne1 > 0) {
+				idNoeud1 = numeroLigne1 - 1;
+				if (changeIdNode[idNoeud1] != -1) {
+					changeIdNode[idNoeud1] -= increment;
+					std::istringstream iss(line1);
+					int nombreVoisin = 0, nombreMot = 0;
+					if ((iss)&&(iss.rdbuf()->in_avail() > 0)) {
+						std::string subs;
+						iss >> subs;
+						do {
+							if ((!unSurDeux)||(nombreMot%2==0)) {
+								int idVoisin = std::stoi(subs);
+								idVoisin--;
+								if (changeIdNode[idVoisin] != -1) {
+									nombreVoisin++;
+								}
+							}
+							nombreMot++;
+							iss >> subs;
+						} while (iss);
+					}
+					if (nombreVoisin <= 1) {
+						changeIdNode[idNoeud1] = -1;
+						increment++;
+						finalNoeud--;
+					}
+				}
+			}
+			numeroLigne1++;
+		}
+		infile1.close();
+	}
+
+	for (int i=0;i<finalNoeud;i++) {
+		_noeuds.push_back(Noeud(i));
+	}
+	
+	std::ifstream infile(input);
+	std::string line;
+	int numeroLigne = 0;
+	int idArete = 0;
+	while (std::getline(infile, line)) {
+		if (numeroLigne > 0) {
+			int idNoeud = numeroLigne - 1;
+			int idNoeudReel = changeIdNode[idNoeud];
+			if (idNoeudReel >= 0) {
+				std::istringstream iss(line);
+				int numeroMot = 0;
+				std::string subs;
+				iss >> subs;
+				do {
+					if ((!unSurDeux)||(numeroMot%2 == 0)) {
+						int idVoisin = std::stoi(subs);
+						idVoisin--;
+						int idVoisinReel = changeIdNode[idVoisin];
+						if ((idVoisinReel >= 0)&&(idVoisinReel > idNoeudReel)) {
+							_aretes.push_back(Aretes(&_noeuds[idNoeudReel],&_noeuds[idVoisinReel],idArete));
+							idArete++;
+						}
+					}
+					numeroMot++;
+					iss >> subs;
+				} while (iss);
+			}
+		}
+		numeroLigne++;
+	}
+	infile.close();
+}

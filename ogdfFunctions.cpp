@@ -12,6 +12,8 @@
 #include <ogdf/basic/simple_graph_alg.h>
 
 #include <ogdf/planarity/PlanarizationGridLayout.h>
+#include <ogdf/planarity/PlanarizationLayout.h>
+#include <ogdf/orthogonal/OrthoLayout.h>
 
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
@@ -46,6 +48,18 @@ void ogdfPrintNumberOfCrossings(ogdf::GraphAttributes& ogdfGA) {
 		numberOfCrossings += number;
 	}
 	std::cout << "OGDF Crossings: " << numberOfCrossings/2 << std::endl;
+}
+
+int ogdfTotalNumberOfBends(ogdf::GraphAttributes& ogdfGA) {
+    int total = 0;
+    const ogdf::Graph& ogdfG = ogdfGA.constGraph();
+    ogdf::edge e = ogdfG.firstEdge();
+    while (e != nullptr) {
+        const ogdf::DPolyline& bends = ogdfGA.bends(e);
+        total += bends.size(); 
+        e = e->succ();
+    }
+    return total;
 }
 
 // Creer un graphe ogdf a partir d'un graphe placé ou non.
@@ -531,6 +545,26 @@ void ogdfOther(Graphe& G) {
 	ogdfPrintNumberOfCrossings(ogdfGA);
 	//ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	//ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+}
+
+
+void ogdfOtherTest(Graphe& G) {
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
+    ogdf::PlanarizationLayout pl;
+    ogdf::OrthoLayout* ol = new ogdf::OrthoLayout();
+    ol->bendBound(1);
+    //pl.setPlanarLayouter(ol);
+    pl.setCrossMin(new ogdf::SubgraphPlanarizer());
+
+    pl.call(ogdfGA);
+    ogdfPrintNumberOfCrossings(ogdfGA);
+    ogdf::GraphIO::write(ogdfGA, chemin + "/svgOgdf/output.svg", ogdf::GraphIO::drawSVG);
+    std::cout << "Nb Bends: " << ogdfTotalNumberOfBends(ogdfGA) << std::endl;
+    ogdfGA.clearAllBends();
+    ogdfPrintNumberOfCrossings(ogdfGA);
+    ogdf::GraphIO::write(ogdfGA, chemin + "/svgOgdf/outputNoBend.svg", ogdf::GraphIO::drawSVG);
 }
 
 // Fait différents test sur le graphe: connexité, biconnecté, genus, crossing number(SubGraphPlanarize)

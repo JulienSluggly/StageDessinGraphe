@@ -155,15 +155,15 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 			}
 		}
 
-		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
-		if (methodeAlgoName == "Recuit Simule Grille TME") G.recuitSimule(tempsBest,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Temp") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.99999,0.99,0.1);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cooler") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.9999999);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999,0.99,100.0,0.0001,2);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay Temp") G.rerecuitSimule(tempsBest,nombreRecuit,customParam,-1,0.999999,0.99,0.1,0.0001,2);
+		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
+		if (methodeAlgoName == "Recuit Simule Grille TME") G.recuitSimule(tempsBest,start,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Temp") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,0.1);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cooler") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.9999999);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999,0.99,100.0,0.0001,2);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay Temp") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999,0.99,0.1,0.0001,2);
 		else if (methodeAlgoName == "Best Deplacement") G.bestDeplacement();
 		else if (methodeAlgoName == "Genetique Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true);
 		else if (methodeAlgoName == "Genetique Recuit Random") G.grapheGenetique(tempsBest,bestIteration,lastIteration, population, maxIteration, fileGraph, fileSlots, true, true);
@@ -212,7 +212,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		totalInterIllMoyenne = moyenneVector(totalInterIllVector);
 		edgeCostMoyenne = moyenneVector(edgeCostVector);
 
-		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + ".csv";
+		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + "-" + to_string(nombreSlots) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 
 		char date[80];

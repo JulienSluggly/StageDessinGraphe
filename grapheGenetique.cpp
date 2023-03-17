@@ -62,8 +62,8 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
             if (!result) { numberOfNoChange++; }
             if (useRecuit) { // Le recuit met le nombre de croisement à jour.
                 double tb;
-                if (useGrille) graphes[i].recuitSimule(tb,{},0.99);
-                else graphes[i].recuitSimule(tb,{},0.99);
+                if (useGrille) graphes[i].recuitSimule(tb,start,{},0.99);
+                else graphes[i].recuitSimule(tb,start,{},0.99);
             }
             else if (!graphes[i].isNombreCroisementUpdated){ // Si le nombre de croisement n'est pas à jour, on le recalcule.
                 graphes[i].getNbCroisement();

@@ -167,8 +167,8 @@ void allRunsLogged() {
 void allRunsBySlots() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
-	mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
-	for (int i = 10; i <= 12; i++) {
+	//mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
+	for (int i = 5; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
 	std::cout << "Starting all run logs." << std::endl;
@@ -186,7 +186,7 @@ void allRunsBySlots() {
 		std::vector<std::vector<double>> customParam;
 		for (auto& key : mapGraphSlots) {
 			if (tid == (indexKey % nthreads)) {
-				startRunsForAllSlots(key,-1,"OGDFFMMM","Rerecuit Simule Grille TME Cool Delay",{{}},tid);
+				startRunsForAllSlots(key,-1,"OGDFFMMM","Aucun",{{}},tid);
 			}
 			indexKey++;
 		}
@@ -198,8 +198,8 @@ void allRunsBySlots() {
 void allRunsBySlotsSecondRun() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
-	mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
-	for (int i = 10; i <= 12; i++) {
+	//mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
+	for (int i = 5; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
 	std::cout << "Starting all run logs." << std::endl;
@@ -225,7 +225,7 @@ void allRunsBySlotsSecondRun() {
 			if (tid == (indexKey % nthreads)) {
 				for (int taille=0;taille<totalRuns.size();taille++) {
 					startRunsForAllSlots(key,-1,"Stress Dyn Stress","Rerecuit Simule Grille TME Custom",totalRuns[taille],tid);
-					startRunsForAllSlots(key,-1,"OGDFFMMM","Rerecuit Rerecuit Simule Grille TME Custom",totalRuns[taille],tid);
+					startRunsForAllSlots(key,-1,"OGDFFMMM","Rerecuit Simule Grille TME Custom",totalRuns[taille],tid);
 				}
 			}
 			indexKey++;
@@ -430,7 +430,7 @@ void performanceTest2() {
 }
 
 void testRomeGraphs() {
-	std::string path = chemin + "rome/";
+	std::string path = chemin + "benchGraphs/rome100/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -448,16 +448,55 @@ void testRomeGraphs() {
 				auto start = std::chrono::system_clock::now();
 				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 				G.generateGrid();
-				G.placementAleatoire();
+				G.stressMajorization({},1);
 				G.initGrille();
 				G.registerSlotsAndEdgesInGrid();
-				G.recuitSimule(tempsBest);
+				G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.999999);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
-				std::string nomFichier = chemin + "resultatsRome/" + to_string(tid) + ".csv";
+				std::string nomFichier = chemin + "resultats/resultatsRome/" + to_string(tid) + ".csv";
 				std::ofstream resultats(nomFichier, std::ios_base::app);
-				resultats << dirEntry.path() << "," << to_string(i) << "," << G.nombreCroisement << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+				resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
 				resultats.close();
+			}
+			i++;
+		}
+		printf("Thread %d done.\n",tid);
+	}
+
+}
+
+void testDimacsGraphs() {
+	std::string path = chemin + "benchGraphs/dimacs/";
+		int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		int i=0;
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+			if (i%nthreads == tid) {
+				printf("Tid: %d | i: %d\n",tid,i);
+				Graphe G;
+				G.readFromDimacsGraphClean(dirEntry.path());
+				if (G.isGrapheConnected()) {
+					auto start = std::chrono::system_clock::now();
+					double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
+					G.generateGrid();
+					G.stressMajorization({},1);
+					G.initGrille();
+					G.registerSlotsAndEdgesInGrid();
+					G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.999999);
+					auto end = std::chrono::system_clock::now();
+					std::chrono::duration<double> secondsTotal = end - start;
+					std::string nomFichier = chemin + "resultats/resultatsDimacs/" + to_string(tid) + ".csv";
+					std::ofstream resultats(nomFichier, std::ios_base::app);
+					resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+					resultats.close();
+				}
 			}
 			i++;
 		}

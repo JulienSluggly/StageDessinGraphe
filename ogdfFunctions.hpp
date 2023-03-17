@@ -32,8 +32,6 @@ int ogdfPlacementAuPlusProche(Graphe& G);
 // Planarize le graphe avec odgf et essaie de placer les noeuds au plus proche de ses emplacements possible par rapport au graphe OGDF
 void ogdfPlacementAuPlusProcheStress(Graphe& G);
 
-void ogdfTESTFUNCC();
-
 // Remplace les emplacements du graphe par les emplacements trouvés par la planarizerMaxFace
 int ogdfReverse(Graphe &G);
 
@@ -58,6 +56,10 @@ void ogdfGEMLayout(Graphe& G);
 void ogdfPivotMDS(Graphe& G);
 
 void ogdfOther(Graphe& G);
+
+void ogdfOtherTest(Graphe& G);
+
+int ogdfTotalNumberOfBends(GraphAttributes& ogdfGa);
 
 // Fait différents test sur le graphe: connexité, biconnecté, genus, crossing number(SubGraphPlanarize)
 void ogdfRun(Graphe &G);
