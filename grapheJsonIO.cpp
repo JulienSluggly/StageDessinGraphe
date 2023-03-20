@@ -2,6 +2,9 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include "graphe.hpp"
+#include <unordered_map>
+#include <set>
+#include <map>
 
 using nlohmann::json;
 
@@ -142,6 +145,35 @@ void Graphe::writeToJsonGraph(std::string output) {
 	for (int i = 0; i < edgeNumber; i++) {
 		j["edges"][i]["source"] = _aretes[i].getNoeud1()->getId();
 		j["edges"][i]["target"] = _aretes[i].getNoeud2()->getId();
+	}
+
+	std::ofstream o(output);
+	o << std::setw(4) << j << std::endl;
+}
+
+void Graphe::writeToJsonComposanteConnexe(std::string output, std::vector<int> composante) {
+	json j;
+	std::sort(composante.begin(),composante.end());
+	std::unordered_map<int,int> mapNewIndex;
+	for (int i=0;i<composante.size();i++) {
+		mapNewIndex.insert({composante[i],i});
+	}
+	std::set<std::pair<int,int>> aretesComposante;
+	for (int i=0;i<composante.size();i++) {
+		j["nodes"][i]["id"] = i;
+		if (_noeuds[composante[i]].getEmplacement() != nullptr) { j["nodes"][i]["id_slot"] = _noeuds[composante[i]].getEmplacement()->getId(); }
+		else { j["nodes"][i]["id_slot"] = -1; }
+		for (const int& idArete : _noeuds[composante[i]]._aretes) {
+			int idNoeud1 = mapNewIndex[_aretes[idArete]._noeud1->_id];
+			int idNoeud2 = mapNewIndex[_aretes[idArete]._noeud2->_id];
+			aretesComposante.insert({idNoeud1,idNoeud2});
+		}
+	}
+	int numeroArete = 0;
+	for (const std::pair<int,int>& arete : aretesComposante) {
+		j["edges"][numeroArete]["source"] = arete.first;
+		j["edges"][numeroArete]["target"] = arete.second;
+		numeroArete++;
 	}
 
 	std::ofstream o(output);
@@ -304,7 +336,6 @@ void Graphe::readFromDimacsGraphClean(std::string input) {
 		std::ifstream infile1(input);
 		std::string line1;
 		int numeroLigne1 = 0;
-		bool unSurDeux = false;
 		int idNoeud1;
 		while (std::getline(infile1, line1)) {
 			if (numeroLigne1 > 0) {
@@ -375,4 +406,90 @@ void Graphe::readFromDimacsGraphClean(std::string input) {
 		numeroLigne++;
 	}
 	infile.close();
+}
+
+void Graphe::writeToJsonCleanGraphe(std::string output) {
+	json j;
+	Graphe* G = this;
+	if (!isGrapheConnected()) {
+		std::vector<int> composante = plusGrandeComposanteConnexe();
+		std::sort(composante.begin(),composante.end());
+		std::unordered_map<int,int> mapNewIndex;
+		G = new Graphe();
+		for (int i=0;i<composante.size();i++) {
+			mapNewIndex.insert({composante[i],i});
+			G->_noeuds.push_back(Noeud(i));
+		}
+		std::set<std::pair<int,int>> aretesComposante;
+		for (int i=0;i<composante.size();i++) {
+			for (const int& idArete : _noeuds[composante[i]]._aretes) {
+				int idNoeud1 = mapNewIndex[_aretes[idArete]._noeud1->_id];
+				int idNoeud2 = mapNewIndex[_aretes[idArete]._noeud2->_id];
+				aretesComposante.insert({idNoeud1,idNoeud2});
+			}
+		}
+		int numeroArete = 0;
+		for (const std::pair<int,int>& arete : aretesComposante) {
+			G->_aretes.push_back(Aretes(&G->_noeuds[arete.first],&G->_noeuds[arete.second],numeroArete));
+			numeroArete++;
+		}
+	}
+
+	std::map<int,std::set<int>> mapNoeudVoisins;
+	for (int i=0;i<G->_noeuds.size();i++) {
+		std::set<int> voisins;
+		for (const Noeud* voisinNoeud : G->_noeuds[i].voisins) {
+			voisins.insert(voisinNoeud->_id);
+		}
+		mapNoeudVoisins.insert({i,voisins});
+	}
+	bool suppression = true;
+	std::vector<int> toDelete;
+	while (suppression) {
+		toDelete.clear();
+		suppression = false;
+		for (auto const& [idNoeud, voisins] : mapNoeudVoisins) {
+			if (voisins.size() == 1) {
+				suppression = true;
+				for (const int& idVoisin : voisins) {
+					mapNoeudVoisins[idVoisin].erase(idNoeud);
+				}
+				toDelete.push_back(idNoeud);
+			}
+		}
+		for (const int& idNoeud : toDelete) {
+			mapNoeudVoisins.erase(idNoeud);
+		}
+	}
+
+	std::unordered_map<int,int> mapNewIndex;
+	int i=0;
+	for (auto const& [idNoeud, voisins] : mapNoeudVoisins) {
+		mapNewIndex.insert({idNoeud,i});
+		i++;
+	}
+	std::set<std::pair<int,int>> aretesComposante;
+	i=0;
+	for (auto const& [tmpIdNoeud, voisins] : mapNoeudVoisins) {
+		int idNoeud = mapNewIndex[tmpIdNoeud];
+		j["nodes"][i]["id"] = i;
+		if (G->_noeuds[idNoeud].getEmplacement() != nullptr) { j["nodes"][i]["id_slot"] = _noeuds[idNoeud].getEmplacement()->getId(); }
+		else { j["nodes"][i]["id_slot"] = -1; }
+		for (const int& tmpIdVoisin : voisins) {
+			int idVoisin = mapNewIndex[tmpIdVoisin];
+			int idNoeud1, idNoeud2;
+			if (idNoeud < idVoisin) { idNoeud1 = idNoeud; idNoeud2 = idVoisin; }
+			else { idNoeud1 = idVoisin; idNoeud2 = idNoeud; }
+			aretesComposante.insert({idNoeud1,idNoeud2});
+		}
+		i++;
+	}
+	int numeroArete = 0;
+	for (const std::pair<int,int>& arete : aretesComposante) {
+		j["edges"][numeroArete]["source"] = arete.first;
+		j["edges"][numeroArete]["target"] = arete.second;
+		numeroArete++;
+	}
+	std::ofstream o(output);
+	o << std::setw(4) << j << std::endl;
 }

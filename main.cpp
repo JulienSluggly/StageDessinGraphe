@@ -5,6 +5,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <set>
 
 #include "graphe.hpp"
@@ -33,6 +34,22 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 		G.debugEverything(false,false);
 	}
 	std::cout << "Setup complete!" << std::endl;
+}
+
+void runFuncOnFolder() {
+	std::string path = chemin + "benchGraphs/dimacsClean/";
+	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+		std::cout << "---------------------\n";
+		Graphe G;
+		G.readFromJsonGraph(dirEntry.path());
+		G.generateGrid();
+		std::cout << dirEntry.path() << " Grid" << std::endl;
+		G.DEBUG_GRAPHE = true;
+		auto start = std::chrono::system_clock::now();
+		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
+		std::cout << "Noeud: " << G._noeuds.size() << " Arete: " << G._aretes.size() << std::endl;
+		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
+	}
 }
 
 void runFuncOnAllGraphs() {
@@ -83,24 +100,32 @@ int main() {
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
 	//runFuncOnAllGraphs(); return 0;
-	testDimacsGraphs(); allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
+	//runFuncOnFolder(); return 0;
+	// allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
 
 	std::string nomFichierGraph = "graph-10-input";
-	//std::string nomFichierSlots = "10-input-slots";
-	std::string nomFichierSlots = "Grid";
+	std::string nomFichierSlots = "10-input-slots";
+	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph);
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
-
-	G.readFromDimacsGraphClean("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/dimacs/hep-th.graph");
-	//G.readFromDimacsGraphClean("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/dimacs/celegans_metabolic.graph");
+	std::ifstream file("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/sparceMC/1138_bus.mtx");
+    if (file) {
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        file.close();
+        ogdfReadFromMM(G, buffer);
+    }
+	//std::istringstream graphMM("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/sparceMC/1138_bus.mtx");
+	//ogdfReadFromMM(G, graphMM);
+	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/dimacsClean/celegansneural.graphclean");
+	//G.readFromDimacsGraphClean("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/dimacs/celegansneural.graph");
 	G.generateGrid();
-
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
-	G.DEBUG_GRAPHE = true;
+	G.DEBUG_GRAPHE = true; //G.DEBUG_PROGRESS = true;
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
@@ -108,33 +133,10 @@ int main() {
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 	//ogdfOtherTest(G);
 	//ogdfFastMultipoleMultilevelEmbedder(G);
-	//G.stressMajorization();
-	return 0;
-	G.stressMajorization({{}},1);
-	//G.initGrille(); G.registerSlotsAndEdgesInGrid();
-	//G.recuitSimule(tempsBest);
+	G.stressMajorization();
 	//G.stressMajorization({{}},1);
-	//G.stepStressMajorization(); G.deleteGrille();
-	//G.stressMajorization();
-	//G.placementPivotMDS({},10);
-	//G.stressMajorization();
-	//G.gloutonRevisiteGrid();
-	//G.gloutonRevisite();
-
-	//G.initGrilleCarre();
-	//G.gloutonRevisiteGrid();
-
-	//G.triangulationDelaunay();
-	//ogdfPivotMDS(G);
-	//ogdfRun(G);
-	//ogdfStressMinimization(G);
-	//ogdfOther(G);
-
-	//ogdfReverseNonPlanar(G);
-
-	//G.recuitSimule(tempsBest);
-	//G.rerecuitSimule(tempsBest,nombreRecuit);
-	//G.rerecuitSimule(tempsBest,nombreRecuit,{},-1,0.999999);
+	
+	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 
 	//G.afficherInfo();
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);

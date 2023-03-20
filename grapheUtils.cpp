@@ -1291,6 +1291,7 @@ Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y, bool
 }
 
 bool Graphe::isGrapheConnected() {
+    if (_noeuds.size() == 0) { return false; }
     std::vector<bool> visitedNode(_noeuds.size(),false);
     int totalVisited = 0;
     std::vector<int> nodeIdVec(1,0);
@@ -1503,4 +1504,42 @@ void Graphe::supprimerNoeud(int idNoeud) {
         _noeuds[idNoeud]._id = idNoeud;
     }
     _noeuds.pop_back();
+}
+
+std::vector<int> Graphe::plusGrandeComposanteConnexe() {
+    int totalVisited = 0;
+    int taillePlusGrande = 0;
+    int totalNoeuds = _noeuds.size();
+    int indexMeilleur = -1;
+    std::vector<std::unordered_set<int>> composantesConnexes;
+    std::vector<bool> visitedNode(totalNoeuds,false);
+    while (taillePlusGrande < totalNoeuds-totalVisited) {
+        int idDebut;
+        for (int i=0;i<visitedNode.size();i++) {
+            if (visitedNode[i] == false) {
+                idDebut = i;
+                break;
+            }
+        }
+        std::unordered_set<int> tmpComposante;
+        std::vector<int> nodeIdVec(1,idDebut);
+        tmpComposante.insert(idDebut);
+        for (int i=0;i<nodeIdVec.size();i++) {
+            int nodeId = nodeIdVec[i];
+            if (!visitedNode[nodeId]) {
+                visitedNode[nodeId] = true;
+                totalVisited++;
+                for (Noeud* n : _noeuds[nodeId].voisins) {
+                    if (!visitedNode[n->_id]) { nodeIdVec.push_back(n->_id); tmpComposante.insert(n->_id); }
+                }
+            }
+        }
+        if (tmpComposante.size() > taillePlusGrande) { taillePlusGrande = tmpComposante.size(); indexMeilleur = composantesConnexes.size(); }
+        composantesConnexes.push_back(tmpComposante);
+    }
+    std::vector<int> plusGrandeComposante;
+    for (const int& idNoeud : composantesConnexes[indexMeilleur]) {
+        plusGrandeComposante.push_back(idNoeud);
+    }
+    return plusGrandeComposante;
 }

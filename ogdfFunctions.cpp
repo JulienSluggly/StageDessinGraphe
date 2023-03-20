@@ -41,6 +41,34 @@
 
 std::vector<ogdf::node> vecNoeudAOGDFNode;
 
+void createGrapheFromOGDFGraphe(Graphe &G, ogdf::Graph &ogdfG) {
+	for (int i=0;i<ogdfG.nodes.size();i++) {
+		G._noeuds.push_back(Noeud(i));
+	}
+	std::set<std::pair<int,int>> aretesComposante;
+	for (ogdf::node n : ogdfG.nodes) {
+		ogdf::adjEntry adj = n->firstAdj();
+		if (adj != nullptr) {
+			ogdf::adjEntry nextAdj = adj;
+			do {
+				ogdf::node voisin = nextAdj->twinNode();
+				int idNoeud = n->index();
+				int idVoisin = voisin->index();
+				int idNoeud1, idNoeud2;
+				if (idNoeud < idVoisin) { idNoeud1 = idNoeud; idNoeud2 = idVoisin; }
+				else { idNoeud1 = idVoisin; idNoeud2 = idNoeud; }
+				aretesComposante.insert({idNoeud1,idNoeud2});
+				nextAdj = nextAdj->succ();
+			} while ((nextAdj != adj)&&(nextAdj != nullptr));
+		}
+	}
+	int numeroArete = 0;
+	for (const std::pair<int,int>& arete : aretesComposante) {
+		G._aretes.push_back(Aretes(&G._noeuds[arete.first],&G._noeuds[arete.second],numeroArete));
+		numeroArete++;
+	}
+}
+
 void ogdfPrintNumberOfCrossings(ogdf::GraphAttributes& ogdfGA) {
 	ogdf::ArrayBuffer<int> tmpA = ogdf::LayoutStatistics::numberOfCrossings(ogdfGA);
 	int numberOfCrossings = 0;
@@ -60,6 +88,12 @@ int ogdfTotalNumberOfBends(ogdf::GraphAttributes& ogdfGA) {
         e = e->succ();
     }
     return total;
+}
+
+void ogdfReadFromMM(Graphe& G, std::istream& inStream) {
+	ogdf::Graph ogdfG;
+	ogdf::GraphIO::readMatrixMarket(ogdfG, inStream);
+	createGrapheFromOGDFGraphe(G,ogdfG);
 }
 
 // Creer un graphe ogdf a partir d'un graphe placé ou non.

@@ -97,3 +97,5 @@ Modifier le recuit pour qu'il prenne en compte le temps total depuis le rerecuit
 Fix stressMin trouver emplacement plus proche disponible ne renvoie pas le meme qu'occupe le noeud, clearnodeemplacement avant d'attribuer?
 
 Test avec le FMMM en comparaison avec le stressMin
+
+ogdfFMMM suivi du stressMin?

@@ -9,6 +9,10 @@ class GridLayout;
 class Graph;
 class Graphe;
 
+void ogdfReadFromMM(Graphe& G, std::istream& inStream);
+
+void createGrapheFromOGDFGraphe(Graphe& G, Graph& ogdfG);
+
 void ogdfPrintNumberOfCrossings(GraphAttributes& ogdfGA);
 
 // Creer un graphe ogdf a partir d'un graphe placé ou non.

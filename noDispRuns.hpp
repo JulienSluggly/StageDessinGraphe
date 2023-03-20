@@ -466,8 +466,21 @@ void testRomeGraphs() {
 
 }
 
-void testDimacsGraphs() {
+void cleanDimacsGraphs() {
 	std::string path = chemin + "benchGraphs/dimacs/";
+	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+		if (!containsString(dirEntry.path(),"clean")) {
+			Graphe G;
+			G.readFromDimacsGraphClean(dirEntry.path());
+			std::string output = dirEntry.path();
+			output = output + "clean";
+			G.writeToJsonComposanteConnexe(output,G.plusGrandeComposanteConnexe());
+		}
+	}
+}
+
+void testDimacsGraphs() {
+	std::string path = chemin + "benchGraphs/dimacsClean/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -479,24 +492,22 @@ void testDimacsGraphs() {
 		}
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			if (i%nthreads == tid) {
-				printf("Tid: %d | i: %d\n",tid,i);
+				printf("Tid: %d | i: %d | File: %s\n",tid,i,dirEntry.path().c_str());
 				Graphe G;
-				G.readFromDimacsGraphClean(dirEntry.path());
-				if (G.isGrapheConnected()) {
-					auto start = std::chrono::system_clock::now();
-					double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
-					G.generateGrid();
-					G.stressMajorization({},1);
-					G.initGrille();
-					G.registerSlotsAndEdgesInGrid();
-					G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.999999);
-					auto end = std::chrono::system_clock::now();
-					std::chrono::duration<double> secondsTotal = end - start;
-					std::string nomFichier = chemin + "resultats/resultatsDimacs/" + to_string(tid) + ".csv";
-					std::ofstream resultats(nomFichier, std::ios_base::app);
-					resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
-					resultats.close();
-				}
+				G.readFromJsonGraph(dirEntry.path());
+				auto start = std::chrono::system_clock::now();
+				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
+				G.generateGrid();
+				G.stressMajorization({},1);
+				G.initGrille();
+				G.registerSlotsAndEdgesInGrid();
+				G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.999999);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> secondsTotal = end - start;
+				std::string nomFichier = chemin + "resultats/resultatsDimacs/" + to_string(tid) + ".csv";
+				std::ofstream resultats(nomFichier, std::ios_base::app);
+				resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+				resultats.close();
 			}
 			i++;
 		}

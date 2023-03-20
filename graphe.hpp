@@ -458,6 +458,10 @@ public:
 
 	void writeToJsonGraph(std::string output);
 
+	void writeToJsonComposanteConnexe(std::string output, std::vector<int> composante);
+
+	void writeToJsonCleanGraphe(std::string output);
+
 	// ----- CREATION D'UN Graph A PARTIR D'UN FICHIER JSON -----
 	// Creer les emplacements a partir des anciennes coord
 	// Les noeuds doivent avoir des coordonn�es
@@ -581,6 +585,9 @@ public:
 	void supprimerArete(int idArete);
 
 	void supprimerNoeud(int idNoeud);
+
+	// Renvoie les identifiants des noeuds présents dans la plus grande composante connexe
+	std::vector<int> plusGrandeComposanteConnexe();
 
 };
 
