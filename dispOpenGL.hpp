@@ -813,7 +813,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 26: {//Selection node (clic gauche avec modeNode)
 			selectedNode = G.getClosestNodeFromPoint(clicX,clicY);
-			std::cout << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode].getEmplacement()->_x << " Y: " << G._noeuds[selectedNode].getEmplacement()->_y << " Degre: " << G._noeuds[selectedNode].voisins.size() << std::endl;
+			std::cout << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode].getEmplacement()->_x << " Y: " << G._noeuds[selectedNode].getEmplacement()->_y << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
 			break;
 		}
 		case 27: {//Selection emplacement (clic gauche avec modeEmplacement)

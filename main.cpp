@@ -37,12 +37,20 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 }
 
 void runFuncOnFolder() {
-	std::string path = chemin + "benchGraphs/dimacsClean/";
+	std::string path = chemin + "benchGraphs/sparceMC/";
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 		std::cout << "---------------------\n";
 		Graphe G;
-		G.readFromJsonGraph(dirEntry.path());
-		G.generateGrid();
+		std::ifstream file(dirEntry.path());
+		if (file) {
+			std::stringstream buffer;
+			buffer << file.rdbuf();
+			file.close();
+			ogdfReadFromMM(G, buffer);
+			std::string output = dirEntry.path();
+			output = output + "clean";
+			G.writeToJsonCleanGraphe(output);
+		}
 		std::cout << dirEntry.path() << " Grid" << std::endl;
 		G.DEBUG_GRAPHE = true;
 		auto start = std::chrono::system_clock::now();
@@ -99,8 +107,9 @@ int main() {
 	initRandomSeed();
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
+	testCleanGraphs(); return 0;
 	//runFuncOnAllGraphs(); return 0;
-	//runFuncOnFolder(); return 0;
+	
 	// allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
 
 	std::string nomFichierGraph = "graph-10-input";
@@ -112,18 +121,8 @@ int main() {
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
-	std::ifstream file("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/sparceMC/1138_bus.mtx");
-    if (file) {
-        std::stringstream buffer;
-        buffer << file.rdbuf();
-        file.close();
-        ogdfReadFromMM(G, buffer);
-    }
-	//std::istringstream graphMM("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/sparceMC/1138_bus.mtx");
-	//ogdfReadFromMM(G, graphMM);
-	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/dimacsClean/celegansneural.graphclean");
-	//G.readFromDimacsGraphClean("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/dimacs/celegansneural.graph");
-	G.generateGrid();
+	G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/sparceMCClean/commanche_dual.mtxclean");
+	G.generateGrid(6000,6000);
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
 	G.DEBUG_GRAPHE = true; //G.DEBUG_PROGRESS = true;
 	auto start = std::chrono::system_clock::now();
@@ -135,7 +134,6 @@ int main() {
 	//ogdfFastMultipoleMultilevelEmbedder(G);
 	G.stressMajorization();
 	//G.stressMajorization({{}},1);
-	
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 
 	//G.afficherInfo();

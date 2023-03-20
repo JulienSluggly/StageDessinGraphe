@@ -354,8 +354,6 @@ bool StressMajorization::finished(int numberOfPerformedIterations) {
 void StressMajorization::minimizeStress(std::vector<double> customParam) {
     bool converged;
 	do {
-        //std::cout << i << std::endl;
-		//converged = nextIteration(customParam);
 		converged = nextIterationDelay(totalIterationDone);
         totalIterationDone++;
 	} while (!converged && !finished(totalIterationDone));

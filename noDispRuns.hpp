@@ -479,8 +479,8 @@ void cleanDimacsGraphs() {
 	}
 }
 
-void testDimacsGraphs() {
-	std::string path = chemin + "benchGraphs/dimacsClean/";
+void testCleanGraphs() {
+	std::string path = chemin + "benchGraphs/runs/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -496,15 +496,19 @@ void testDimacsGraphs() {
 				Graphe G;
 				G.readFromJsonGraph(dirEntry.path());
 				auto start = std::chrono::system_clock::now();
-				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
-				G.generateGrid();
+				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
+				int nbNoeud = 2 * G._noeuds.size();
+				if (G._noeuds.size() > 3000) {
+					nbNoeud = 6000;
+				}
+				G.generateGrid(nbNoeud,nbNoeud);
 				G.stressMajorization({},1);
 				G.initGrille();
 				G.registerSlotsAndEdgesInGrid();
-				G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.999999);
+				G.rerecuitSimule(tempsBest,nombreRecuit,start,{{9,0.9999945},{3,0,2}});
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
-				std::string nomFichier = chemin + "resultats/resultatsDimacs/" + to_string(tid) + ".csv";
+				std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
 				std::ofstream resultats(nomFichier, std::ios_base::app);
 				resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
 				resultats.close();
@@ -513,7 +517,6 @@ void testDimacsGraphs() {
 		}
 		printf("Thread %d done.\n",tid);
 	}
-
 }
 
 #endif

@@ -115,6 +115,9 @@ public:
 	// Indique pour les noeuds,aretes et emplacements si leur ordre dans le vecteur correspond bien a son ID.
 	int debugOrdreIdVector(bool display=true, std::string nom="");
 
+	// Indique si un noeud a une arete vers lui meme
+	int debugSelfLoop(bool display=true, std::string nom="");
+
 	// Appelle toutes les fonctions de debug et renvoie un entier en fonction de si un bug a été détecté.
 	int debugEverything(bool displayOther=false, bool displaySelf=false);
 

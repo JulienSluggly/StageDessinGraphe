@@ -423,9 +423,14 @@ void Graphe::writeToJsonCleanGraphe(std::string output) {
 		std::set<std::pair<int,int>> aretesComposante;
 		for (int i=0;i<composante.size();i++) {
 			for (const int& idArete : _noeuds[composante[i]]._aretes) {
-				int idNoeud1 = mapNewIndex[_aretes[idArete]._noeud1->_id];
-				int idNoeud2 = mapNewIndex[_aretes[idArete]._noeud2->_id];
-				aretesComposante.insert({idNoeud1,idNoeud2});
+				int idNoeud = mapNewIndex[_aretes[idArete]._noeud1->_id];
+				int idVoisin = mapNewIndex[_aretes[idArete]._noeud2->_id];
+				if (idNoeud != idVoisin) {
+					int idNoeud1, idNoeud2;
+					if (idNoeud < idVoisin) { idNoeud1 = idNoeud; idNoeud2 = idVoisin; }
+					else { idNoeud1 = idVoisin; idNoeud2 = idNoeud; }
+					aretesComposante.insert({idNoeud1,idNoeud2});
+				}
 			}
 		}
 		int numeroArete = 0;
@@ -439,7 +444,9 @@ void Graphe::writeToJsonCleanGraphe(std::string output) {
 	for (int i=0;i<G->_noeuds.size();i++) {
 		std::set<int> voisins;
 		for (const Noeud* voisinNoeud : G->_noeuds[i].voisins) {
-			voisins.insert(voisinNoeud->_id);
+			if (G->_noeuds[i]._id != voisinNoeud->_id) {
+				voisins.insert(voisinNoeud->_id);
+			}
 		}
 		mapNoeudVoisins.insert({i,voisins});
 	}
@@ -449,7 +456,7 @@ void Graphe::writeToJsonCleanGraphe(std::string output) {
 		toDelete.clear();
 		suppression = false;
 		for (auto const& [idNoeud, voisins] : mapNoeudVoisins) {
-			if (voisins.size() == 1) {
+			if (voisins.size() <= 1) {
 				suppression = true;
 				for (const int& idVoisin : voisins) {
 					mapNoeudVoisins[idVoisin].erase(idNoeud);

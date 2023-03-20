@@ -42,8 +42,8 @@
 std::vector<ogdf::node> vecNoeudAOGDFNode;
 
 void createGrapheFromOGDFGraphe(Graphe &G, ogdf::Graph &ogdfG) {
-	for (int i=0;i<ogdfG.nodes.size();i++) {
-		G._noeuds.push_back(Noeud(i));
+	for (ogdf::node n : ogdfG.nodes) {
+		G._noeuds.push_back(Noeud(n->index()));
 	}
 	std::set<std::pair<int,int>> aretesComposante;
 	for (ogdf::node n : ogdfG.nodes) {

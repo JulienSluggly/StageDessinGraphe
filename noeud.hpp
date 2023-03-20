@@ -3,6 +3,8 @@
 
 #include "emplacement.hpp"
 #include <vector>
+#include <iostream>
+#include <sstream>
 
 class Noeud {
 public:
@@ -97,6 +99,17 @@ public:
 		n2->clearEmplacement();
 		this->setEmplacement(emp2);
 		n2->setEmplacement(emp1);
+	}
+
+	std::string voisinString() {
+		std::stringstream paramStream;
+		paramStream << "{";
+		for (int i=0;i<voisins.size();i++) {
+			paramStream << voisins[i]->_id;
+			if (i<voisins.size()-1) { paramStream << " "; }
+		}
+		paramStream << "}";
+		return paramStream.str();
 	}
 
 };
