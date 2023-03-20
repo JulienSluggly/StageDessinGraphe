@@ -2,7 +2,12 @@
 #define PERSO_HPP
 #include <string>
 
-std::string chemin = "/home/uha/Documents/DessinGrapheCmake/src/";
-std::string cheminGitHub = "";
+#define OGDF_INSTALLED
+#define OPENGL_INSTALLED
+#define PUGIXML_INSTALLED
+
+extern std::string chemin;
+extern std::string cheminGitHub;
+extern std::string machine;
 
 #endif

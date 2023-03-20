@@ -1,0 +1,16 @@
+0=Tournoi Multiple Emplacement {x,x,x}
+1=Stress Majorization EdgeCost {x,x}
+2=Stress Majorization Iterations {x,x}
+3=Delai {x,x,x}
+4=StressMin Delai {x,x}
+5=StressMin Partie Graphe {x,x}
+6=
+7=
+8=Température de départ 't' {x,x}
+9=Valeur de Refroidissement 'cool' {x,x}
+10=Refroidissement de la rechauffe 'coolt' {x,x}
+11=Seuil du recuit simule 'seuil' {x,x}
+12=
+13=
+14=
+15=

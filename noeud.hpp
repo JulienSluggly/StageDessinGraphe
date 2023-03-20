@@ -2,39 +2,56 @@
 #define NOEUD_HPP
 
 #include "emplacement.hpp"
+#include <vector>
 
 class Noeud {
 public:
 	Emplacement* _emplacement = nullptr;
-	std::vector<int> _aretes; // Contient les indices des aretes contenant ce noeud
+	// Contient les indices des aretes contenant ce noeud
+	std::vector<int> _aretes;
 	int _id;
 	std::vector<Noeud*> voisins;
 	Noeud(int id) {
 		_id = id;
 	}
+	// Score d'intersection du noeud
+	// Attention ce score n'est pas toujours a jour!
+	long score = -1;
+
+	int ogdfId = -1;
+
+	double stressX = -1;
+	double stressY = -1;
+	double pivotX = -1;
+	double pivotY = -1;
 	
+	int areteCommune(Noeud* noeudVoisin) {
+		for (const int& idArete1 : _aretes) {
+			for (const int& idArete2 : noeudVoisin->_aretes) {
+				if (idArete1 == idArete2) { return idArete1; }
+			}
+		}
+		return -1;
+	}
 	bool estPlace() const { return _emplacement != nullptr; }
 	Emplacement* getEmplacement()  const { return _emplacement; }
 	void connect(Noeud* noeud) { voisins.push_back(noeud); }
 	std::vector<Noeud*> getVoisins() const { return voisins; }
 	bool voisinsSontPlaces() const {
-		for (Noeud* noeud : voisins)
-		{
-			if (!noeud->estPlace()) return false;
+		for (int i=0;i<voisins.size();i++) {
+			if (!voisins[i]->estPlace()) return false;
 		}
 		return true;
 	}
 	int getVoisinsPlaces() const {
 		int nbVoisinPlaces = 0;
-		for (Noeud* noeud : voisins)
-		{
-			if (noeud->estPlace()) ++nbVoisinPlaces;
+		for (int i=0;i<voisins.size();i++) {
+			if (voisins[i]->estPlace()) ++nbVoisinPlaces;
 		}
 		return nbVoisinPlaces;
 	}
 	int getX()  const { return _emplacement->getX(); }
 	int getY()  const { return _emplacement->getY(); }
-	Point getPosition() const { return _emplacement->getPosition(); }
 	// Indique si deux noeuds ont les mêmes coordonnées
 	bool compare(const Noeud* noeud) const {
 		return ((getX() == noeud->getX()) && (getY() == noeud->getY()));
@@ -50,15 +67,20 @@ public:
 		emplacement->setNoeud(this);
 	}
 
-	void ecraseNoeud(Emplacement& emplacement) {
+	// Force le noeud à l'emplacement en enlevant l'ancien noeud s'il y en avait un.
+	// Renvoie l'id de l'ancien noeud présent sur l'emplacement ou -1 s'il n'y en avait pas.
+	int ecraseNoeud(Emplacement& emplacement) {
+		int oldNodeId = -1;
 		if (_emplacement != nullptr) {
 			_emplacement->removeNoeud();
 		}
 		if (emplacement._noeud != nullptr) {
+			oldNodeId = emplacement._noeud->getId();
 			emplacement._noeud->clearEmplacement();
 		}
 		_emplacement = &emplacement;
 		emplacement.setNoeud(this);
+		return oldNodeId;
 	}
 
 	void clearEmplacement() {
