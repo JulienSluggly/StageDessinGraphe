@@ -740,7 +740,7 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
         _noeuds[i].stressY = (double)_noeuds[i].getEmplacement()->getY();
     }
     if (_sm.G == nullptr) { _sm.G = this; }
-    bool useGrille = _emplacements.size() > _noeuds.size() * 2;
+    bool useGrille = _emplacements.size() >= _noeuds.size() * 2;
     if (DEBUG_GRAPHE) {
         if (useGrille) { std::cout << "Debut Stress Majorization avec grille.\n"; }
         else { std::cout << "Debut Stress Majorization sans grille.\n"; }
@@ -810,7 +810,7 @@ void Graphe::stepStressMajorization(std::vector<std::vector<double>> customParam
         }
     }
     if (grillePtr.size() == 0) {
-        bool useGrille = _emplacements.size() > _noeuds.size() * 5;
+        bool useGrille = _emplacements.size() >= _noeuds.size() * 5;
         if (useGrille) {
             initGrilleCarre();
             registerSlotsInGridNoMove();

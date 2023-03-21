@@ -107,10 +107,8 @@ int main() {
 	initRandomSeed();
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	compareStressFMMM(); return 0;
-	//runFuncOnAllGraphs(); return 0;
-	
-	// allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
+	compareStressFMMM();
+	allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
 
 	std::string nomFichierGraph = "graph-10-input";
 	std::string nomFichierSlots = "10-input-slots";

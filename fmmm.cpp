@@ -398,8 +398,7 @@ void FastMultipoleEmbedder::runSingle() {
 }
 
 
-void FastMultipoleEmbedder::allocate()
-{
+void FastMultipoleEmbedder::allocate() {
 	m_pOptions = new FMEGlobalOptions();
 	m_pGraph = new Graphe();
 	initOptions();

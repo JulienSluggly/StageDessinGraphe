@@ -199,7 +199,7 @@ void allRunsBySlotsSecondRun() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	//mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
-	for (int i = 5; i <= 12; i++) {
+	for (int i = 9; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
 	std::cout << "Starting all run logs." << std::endl;
@@ -540,15 +540,15 @@ void compareStressFMMM() {
 				int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 				G.generateActivationGrid(nbNoeud,nbNoeud,9);
 				for (int methode=0;methode<=2;methode++) {
+					G._emplacements.clear();
 					for (int slots=-3;slots<=9;slots++) {
 						G.clearNodeEmplacement();
-						G._emplacements.clear();
 						if (slots < 0) {
 							if (slots == -3) { G.generateEmplacements(); }
-							else if (slots == -2) { G.generateEmplacements(G._noeuds.size()*2); }
-							else { G.generateEmplacements(G._noeuds.size()*3); }
+							else if (slots == -2) { G.generateEmplacements(); }
+							else { G.generateEmplacements(); }
 						}
-						else { G.activateSlotsGridUntil(slots); }
+						else { G._emplacements.clear(); G.activateSlotsGridUntil(slots); }
 						auto start = std::chrono::system_clock::now();
 						if (methode == 0) { G.stressMajorization({},1); }
 						else if (methode == 1) { G.stressMajorization(); }
