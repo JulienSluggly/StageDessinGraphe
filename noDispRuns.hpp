@@ -503,15 +503,64 @@ void testCleanGraphs() {
 				}
 				G.generateGrid(nbNoeud,nbNoeud);
 				G.stressMajorization({},1);
+				auto finPlacement = std::chrono::system_clock::now();
 				G.initGrille();
 				G.registerSlotsAndEdgesInGrid();
 				G.rerecuitSimule(tempsBest,nombreRecuit,start,{{9,0.9999945},{3,0,2}});
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
+				std::chrono::duration<double> secondsPlacement = finPlacement - start;
 				std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
 				std::ofstream resultats(nomFichier, std::ios_base::app);
-				resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+				resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << "," << secondsPlacement.count()<< std::endl;
 				resultats.close();
+			}
+			i++;
+		}
+		printf("Thread %d done.\n",tid);
+	}
+}
+
+void compareStressFMMM() {
+	std::string path = chemin + "benchGraphs/runs/";
+		int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		int i=0;
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+			if (i%nthreads == tid) {
+				Graphe G;
+				printf("Tid: %d | i: %d | File: %s\n",tid,i,dirEntry.path().c_str());
+				G.readFromJsonGraph(dirEntry.path());
+				int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
+				G.generateActivationGrid(nbNoeud,nbNoeud,9);
+				for (int methode=0;methode<=2;methode++) {
+					for (int slots=-3;slots<=9;slots++) {
+						G.clearNodeEmplacement();
+						G._emplacements.clear();
+						if (slots < 0) {
+							if (slots == -3) { G.generateEmplacements(); }
+							else if (slots == -2) { G.generateEmplacements(G._noeuds.size()*2); }
+							else { G.generateEmplacements(G._noeuds.size()*3); }
+						}
+						else { G.activateSlotsGridUntil(slots); }
+						auto start = std::chrono::system_clock::now();
+						if (methode == 0) { G.stressMajorization({},1); }
+						else if (methode == 1) { G.stressMajorization(); }
+						else if (methode == 2) { ogdfFastMultipoleMultilevelEmbedder(G); }
+						auto finPlacement = std::chrono::system_clock::now();
+						std::chrono::duration<double> secondsPlacement = finPlacement - start;
+						std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
+						std::ofstream resultats(nomFichier, std::ios_base::app);
+						resultats << dirEntry.path() << "," << methode << "," << slots << "," << G.getNbCroisementDiff() << "," << secondsPlacement.count() << std::endl;
+						resultats.close();
+					}
+				}
 			}
 			i++;
 		}

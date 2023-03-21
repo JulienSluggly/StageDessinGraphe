@@ -68,8 +68,8 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0, debugValue=-1;
 	std::vector<int> croisementVector, edgeCostVector;
-	std::vector<double> tempExecVector, tempBestVector; std::vector<int> bestIterationVector, lastIterationVector, nombreRecuitVector, totalInterVector, totalInterIllVector;
-	double tempsExecMoyenne, tempsBestMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne, edgeCostMoyenne;
+	std::vector<double> tempExecVector, tempBestVector, tempsPlacementVector; std::vector<int> bestIterationVector, lastIterationVector, nombreRecuitVector, totalInterVector, totalInterIllVector, placementInterVector;
+	double tempsExecMoyenne, tempsBestMoyenne, tempsPlacementMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne, edgeCostMoyenne, placementInterMoyenne;
 	bool saveResult = true;
 	int population, maxIteration;
 	int nombreRecuit, nombreSlots, nombreCellule;
@@ -155,6 +155,9 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 			}
 		}
 
+		auto finPlacement = std::chrono::system_clock::now();
+		if (methodePlacementName != "Aucun") { placementInterVector.push_back(G.getNbCroisementDiff()); }
+
 		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
 		if (methodeAlgoName == "Recuit Simule Grille TME") G.recuitSimule(tempsBest,start,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam);
@@ -180,9 +183,11 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 
 		auto end = std::chrono::system_clock::now();
 		std::chrono::duration<double> secondsTotal = end - start;
+		std::chrono::duration<double> secondsPlacement = finPlacement - start;
 		secondsTotalExec = end - totalStart;
 		tempExecVector.push_back(secondsTotal.count());
 		tempBestVector.push_back(tempsBest);
+		tempsPlacementVector.push_back(secondsPlacement.count());
 		bestIterationVector.push_back(bestIteration);
 		lastIterationVector.push_back(lastIteration);
 		nombreRecuitVector.push_back(nombreRecuit);
@@ -203,6 +208,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		meilleurCroisement = croisementVector[0];
 		moyenneCroisement = moyenneVector(croisementVector);
 		medianCroisement = medianeVector(croisementVector);
+		tempsPlacementMoyenne = moyenneVector(tempsPlacementVector);
 		tempsExecMoyenne = moyenneVector(tempExecVector);
 		tempsBestMoyenne = moyenneVector(tempBestVector);
 		bestIterationMoyenne = moyenneVector(bestIterationVector);
@@ -211,6 +217,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		totalInterMoyenne = moyenneVector(totalInterVector);
 		totalInterIllMoyenne = moyenneVector(totalInterIllVector);
 		edgeCostMoyenne = moyenneVector(edgeCostVector);
+		placementInterMoyenne = moyenneVector(placementInterVector);
 
 		std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + "-" + to_string(nombreSlots) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
@@ -231,7 +238,8 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else { resultats << std::setprecision(1) << moyenneCroisement << ","; }
 		if (medianCroisement > 100) { resultats << std::setprecision(0) << medianCroisement << ","; }
 		else { resultats << std::setprecision(1) << medianCroisement << ","; }
-		resultats << std::setprecision(0) << tempsBestMoyenne << "," << tempsExecMoyenne;
+		resultats << placementInterMoyenne << ",";
+		resultats << std::setprecision(0) << tempsPlacementMoyenne << "," << tempsBestMoyenne << "," << tempsExecMoyenne;
 		if (isGenetique) {
 			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
 		}

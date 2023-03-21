@@ -137,17 +137,11 @@ void Graphe::generateGrid(int gridW, int gridH) {
 void Graphe::generateEmplacements(int n) {
     int nbEmplacement = n;
     if (nbEmplacement == -1) {
-        gridWidth = _noeuds.size();
-        gridHeight = _noeuds.size();
+        gridWidth = std::min(6000,(int)_noeuds.size());
+        gridHeight = gridWidth;
         nbEmplacement = _noeuds.size();
     }
-    else {
-        int nbTotal = gridWidth * gridHeight;
-        if (n + _emplacements.size() > nbTotal) {
-            if (DEBUG_GRAPHE) std::cout << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacements.size() << std::endl;
-            return;
-        }
-    }
+    nbEmplacement = std::min(nbEmplacement,(gridWidth*gridHeight)-(int)_emplacements.size());
 
     std::vector<std::vector<bool>> marque;
     for (int i = 0; i <= gridHeight; i++) {
@@ -1542,4 +1536,35 @@ std::vector<int> Graphe::plusGrandeComposanteConnexe() {
         plusGrandeComposante.push_back(idNoeud);
     }
     return plusGrandeComposante;
+}
+
+void Graphe::generateActivationGrid(int gridWidth,int gridHeight,int etape) {
+    activationGrid.clear();
+    for (int i=0;i<=etape;i++) {
+        std::vector<std::pair<int,int>> tmpVec;
+        activationGrid.push_back(tmpVec);
+    }
+    for (int y=0;y<gridHeight;y++) {
+        for (int x=0;x<gridWidth;x++) {
+            int randNum = generateRand(etape);
+            std::pair<int,int> tmpPair(x,y);
+            activationGrid[randNum].push_back(tmpPair);
+        }
+    }
+}
+
+// Ajoute les emplacement dont l'index d'activation est egal a l'index en parametre
+void Graphe::activateSlotsGrid(int index) {
+    int indexEmplacement = _emplacements.size();
+    for (const std::pair<int,int>& coord : activationGrid[index]) {
+        _emplacements.push_back(Emplacement(coord.first,coord.second,indexEmplacement));
+        indexEmplacement++;
+    }
+}
+
+// Ajoute les emplacement dont l'index d'activation est inferieur ou egal a l'index en parametre
+void Graphe::activateSlotsGridUntil(int index) {
+    for (int i=0;i<=index;i++) {
+        activateSlotsGrid(i);
+    }
 }

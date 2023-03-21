@@ -32,6 +32,8 @@ public:
 	std::vector<std::vector<Cellule>> grille;
 	std::vector<Cellule*> grillePtr;
 
+	std::vector<std::vector<std::pair<int,int>>> activationGrid;
+
 	int PENALITE_MAX = 1000;
 	int PENALITE_MAX_SELF = 1001;
 	int gridHeight = 10;
@@ -591,6 +593,15 @@ public:
 
 	// Renvoie les identifiants des noeuds présents dans la plus grande composante connexe
 	std::vector<int> plusGrandeComposanteConnexe();
+
+	// Numerote les emplacement dans la grille avec un numero entre 0 et index.
+	void generateActivationGrid(int gridWidth,int gridHeight,int index);
+
+	// Ajoute les emplacement dont l'index d'activation est egal a l'index en parametre
+	void activateSlotsGrid(int index);
+
+	// Ajoute les emplacement dont l'index d'activation est inferieur ou egal a l'index en parametre
+	void activateSlotsGridUntil(int index);
 
 };
 

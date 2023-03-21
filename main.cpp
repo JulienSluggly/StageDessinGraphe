@@ -107,7 +107,7 @@ int main() {
 	initRandomSeed();
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	testCleanGraphs(); return 0;
+	compareStressFMMM(); return 0;
 	//runFuncOnAllGraphs(); return 0;
 	
 	// allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
