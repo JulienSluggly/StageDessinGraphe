@@ -4,6 +4,11 @@
 #include <iostream>
 #include <climits>
 
+void Graphe::tirageCoordReel(std::pair<double,double>& coord) {
+    coord.first = generateDoubleRand(gridWidth);
+    coord.second = generateDoubleRand(gridHeight);
+}
+
 // Place les noeuds aleatoirement sur les emplacements disponibles.
 // Ne tient pas a jour le score des noeuds ou du graphe.
 void Graphe::placementAleatoire() {
@@ -14,6 +19,25 @@ void Graphe::placementAleatoire() {
             emplacementId = (emplacementId + 1) % _emplacements.size();
         }
         _noeuds[i].setEmplacement(&_emplacements[emplacementId]);
+    }
+    isNombreCroisementUpdated = false;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
+}
+
+void Graphe::placementAleatoireReel() {
+    if (DEBUG_GRAPHE) std::cout << "Placement aleatoire coord reel" << std::endl;
+    if ((gridWidth == 10)&&(gridHeight == 10)) {
+        gridWidth = std::min((int)_noeuds.size()*2,6000);
+        gridHeight = gridWidth;
+    }
+    for (int i = 0; i < _noeuds.size(); ++i) {
+        int randLargeur = generateRand(gridWidth-1);
+        int randHauteur = generateRand(gridHeight-1);
+        double incrementX = generateDoubleRand(1);
+        double incrementY = generateDoubleRand(1);
+        _noeuds[i]._xreel = (double)randLargeur + incrementX;
+        _noeuds[i]._yreel = (double)randHauteur + incrementY;
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -779,6 +803,14 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
         _sm.runAlgoDynDichStress();
     }
     if (useGrille) { deleteGrille(); }
+    if (DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";
+}
+
+void Graphe::stressMajorizationReel() {
+    _sm.G = this;
+    if ((_noeuds[0]._xreel == -12345)&&(_noeuds[0]._yreel == -12345)) { placementAleatoireReel(); }
+    if (DEBUG_GRAPHE) { std::cout << "Debut Stress Majorization Reel.\n"; }
+    _sm.runAlgoReel();
     if (DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";
 }
 

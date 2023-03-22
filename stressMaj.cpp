@@ -162,6 +162,58 @@ bool StressMajorization::nextIteration(std::vector<double> customParam) {
     return converged;
 }
 
+bool StressMajorization::nextIterationReel() {
+    int nombreDeplacement = 0;
+    for (int nodeId=0;nodeId<G->_noeuds.size();nodeId++) {
+		double newXCoord = 0.0;
+		double newYCoord = 0.0;
+		double currXCoord = G->_noeuds[nodeId]._xreel;
+		double currYCoord = G->_noeuds[nodeId]._yreel;
+		double totalWeight = 0;
+		for (int secondNodeId=0;secondNodeId<G->_noeuds.size();secondNodeId++) {
+			if (nodeId == secondNodeId) {
+				continue;
+			}
+			// calculate euclidean distance between both points
+			double xDiff = currXCoord - G->_noeuds[secondNodeId]._xreel;
+			double yDiff = currYCoord - G->_noeuds[secondNodeId]._yreel;
+			double euclideanDist = sqrt(xDiff * xDiff + yDiff * yDiff);
+			// get the weight
+			double weight = weightMatrix[nodeId][secondNodeId];
+			// get the desired distance
+			double desDistance = shortestPathMatrix[nodeId][secondNodeId];
+			// reset the voted x coordinate
+            double voteX = G->_noeuds[secondNodeId]._xreel;
+            if (euclideanDist != 0) {
+                // calc the vote
+                voteX += desDistance * (currXCoord - voteX) / euclideanDist;
+            }
+            // add the vote
+            newXCoord += weight * voteX;
+			// reset the voted y coordinate
+            double voteY = G->_noeuds[secondNodeId]._yreel;
+            if (euclideanDist != 0) {
+                // calc the vote
+                voteY += desDistance * (currYCoord - voteY) / euclideanDist;
+            }
+            newYCoord += weight * voteY;
+			// sum up the weights
+			totalWeight += weight;
+		}
+		// update the positions
+		if (totalWeight != 0) {
+			currXCoord = newXCoord / totalWeight;
+			currYCoord = newYCoord / totalWeight;
+            if ((currXCoord != G->_noeuds[nodeId]._xreel)||(currYCoord != G->_noeuds[nodeId]._yreel)) {
+                nombreDeplacement++;
+                G->_noeuds[nodeId]._xreel = currXCoord;
+                G->_noeuds[nodeId]._yreel = currYCoord;
+            }
+		}
+	}
+    return nombreDeplacement==0;
+}
+
 bool StressMajorization::nextIterationDelayTest(int iteration,std::vector<double> customParam) {
     double moyenneDist = 0.0;
     double dist = 0.0;
@@ -362,6 +414,18 @@ void StressMajorization::minimizeStress(std::vector<double> customParam) {
 	} while (!converged && !finished(totalIterationDone));
 }
 
+void StressMajorization::minimizeStressReel() {
+    bool converged;
+    double curStress = calcStressReel();
+    double prevStress;
+	do {
+        prevStress = curStress;
+		converged = nextIterationReel();
+        curStress = calcStressReel();
+        totalIterationDone++;
+	} while (!converged && !(curStress == 0 || prevStress - curStress < prevStress * m_epsilon));
+}
+
 void StressMajorization::updateStressCoord() {
     for (int i=0;i<G->_noeuds.size();i++) {
         G->_noeuds[i].stressX = G->_noeuds[i].getEmplacement()->getX();
@@ -439,6 +503,12 @@ void StressMajorization::runAlgo(std::vector<double> customParam) {
     minimizeStress();
 }
 
+void StressMajorization::runAlgoReel() {
+    m_edgeCosts = 45;
+    initMatrices();
+    minimizeStressReel();
+}
+
 void StressMajorization::runStepAlgo(std::vector<double> customParam) {
     if (!areVectorsSetup) {
         initMatrices();
@@ -455,6 +525,21 @@ double StressMajorization::calcStress(){
         for (int j=i+1;j<G->_noeuds.size();j++) {
             double xDiff = G->_noeuds[i].stressX - G->_noeuds[j].stressX;
             double yDiff = G->_noeuds[i].stressY - G->_noeuds[j].stressY;
+			double dist = sqrt(xDiff * xDiff + yDiff * yDiff);
+			if (dist != 0) {
+				stress += weightMatrix[i][j] * (shortestPathMatrix[i][j] - dist) * (shortestPathMatrix[i][j] - dist);
+			}
+        }
+    }
+	return stress;
+}
+
+double StressMajorization::calcStressReel(){
+	double stress = 0;
+    for (int i=0; i<G->_noeuds.size()-1;i++) {
+        for (int j=i+1;j<G->_noeuds.size();j++) {
+            double xDiff = G->_noeuds[i]._xreel - G->_noeuds[j]._xreel;
+            double yDiff = G->_noeuds[i]._yreel - G->_noeuds[j]._yreel;
 			double dist = sqrt(xDiff * xDiff + yDiff * yDiff);
 			if (dist != 0) {
 				stress += weightMatrix[i][j] * (shortestPathMatrix[i][j] - dist) * (shortestPathMatrix[i][j] - dist);

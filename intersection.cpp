@@ -49,13 +49,11 @@ bool seCroisent(int ax, int ay,int bx,int by,int cx,int cy,int dx,int dy, bool& 
 	return false;
 }
 
-bool seCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *s, bool& isIllegal)
-{
+bool seCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *s, bool& isIllegal) {
 	return seCroisent(p->getX(), p->getY(), q->getX(), q->getY(), r->getX(), r->getY(), s->getX(), s->getY(),isIllegal);
 }
 
-bool seCroisent(const Aretes &aretes1, const Aretes &aretes2, bool& isIllegal)
-{
+bool seCroisent(const Aretes &aretes1, const Aretes &aretes2, bool& isIllegal) {
 	return seCroisent(aretes1.getNoeud1()->getEmplacement(), aretes1.getNoeud2()->getEmplacement(), aretes2.getNoeud1()->getEmplacement(), aretes2.getNoeud2()->getEmplacement(),isIllegal);
 }
 
@@ -146,7 +144,61 @@ bool oldSeCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *
 	return oldSeCroisent(p->getX(), p->getY(), q->getX(), q->getY(), r->getX(), r->getY(), s->getX(), s->getY());
 }
 
-bool oldSeCroisent(const Aretes &aretes1, const Aretes &aretes2)
-{
+bool oldSeCroisent(const Aretes &aretes1, const Aretes &aretes2) {
 	return oldSeCroisent(aretes1.getNoeud1()->getEmplacement(), aretes1.getNoeud2()->getEmplacement(), aretes2.getNoeud1()->getEmplacement(), aretes2.getNoeud2()->getEmplacement());
+}
+
+double area2Reel(double ax, double ay, double bx, double by, double cx, double cy) {
+	return (bx-ax)*(cy-ay)-(cx-ax)*(by-ay);
+}
+
+bool leftReel(double ax, double ay, double bx, double by, double cx, double cy) {
+	return area2Reel(ax,ay,bx,by,cx,cy) > 0;
+}
+
+bool collinearReel(double ax,double ay,double bx, double by, double cx, double cy) {
+	return area2Reel(ax,ay,bx,by,cx,cy) == 0;
+}
+
+bool intersectPropReel(double ax, double ay, double bx, double by, double cx, double cy,double dx,double dy) {
+	if (collinearReel(ax,ay,bx,by,cx,cy)||collinearReel(ax,ay,bx,by,dx,dy)||collinearReel(cx,cy,dx,dy,ax,ay)||collinearReel(cx,cy,dx,dy,bx,by))
+		return false;
+	return xorBool(leftReel(ax,ay,bx,by,cx,cy),leftReel(ax,ay,bx,by,dx,dy))&&xorBool(leftReel(cx,cy,dx,dy,ax,ay),leftReel(cx,cy,dx,dy,bx,by));
+}
+
+bool betweenReel(double ax,double ay,double bx, double by, double cx, double cy) {
+	if (!collinearReel(ax,ay,bx,by,cx,cy))
+		return false;
+	if (ax != bx)
+		return ((ax <= cx)&&(cx <= bx))||((ax >= cx)&&(cx >= bx));
+	else
+		return ((ay <= cy)&&(cy <= by)||((ay >= cy)&&(cy >= by)));
+}
+
+bool seCroisentReel(double ax, double ay,double bx,double by,double cx,double cy,double dx,double dy, bool& isIllegal) {
+	if (intersectPropReel(ax,ay,bx,by,cx,cy,dx,dy))
+		return true;
+	else if (betweenReel(ax,ay,bx,by,cx,cy)||betweenReel(ax,ay,bx,by,dx,dy)||betweenReel(cx,cy,dx,dy,ax,ay)||betweenReel(cx,cy,dx,dy,bx,by)) {
+		isIllegal = true;
+		return true;
+	}
+	return false;
+}
+
+bool seCroisentReel(const Aretes &aretes1, const Aretes &aretes2, bool& isIllegal) {
+	return seCroisentReel(aretes1.getNoeud1()->_xreel,aretes1.getNoeud1()->_yreel, aretes1.getNoeud2()->_xreel,aretes1.getNoeud2()->_yreel, aretes2.getNoeud1()->_xreel,aretes2.getNoeud1()->_yreel, aretes2.getNoeud2()->_xreel,aretes2.getNoeud2()->_yreel,isIllegal);
+}
+
+// Renvoie vrai si c est sur le segment ab
+bool surSegmentReel(double ax, double ay, double bx, double by, double cx, double cy) {
+	if (!collinearReel(ax,ay,bx,by,cx,cy))
+		return false;
+	if (ax != bx)
+		return ((ax <= cx)&&(cx <= bx))||((ax >= cx)&&(cx >= bx));
+	else
+		return ((ay <= cy)&&(cy <= by)||((ay >= cy)&&(cy >= by)));
+}
+
+bool surSegmentReel(const Aretes& lien, const Noeud& noeud) {
+	return surSegmentReel(lien.getNoeud1()->_xreel,lien.getNoeud1()->_yreel,lien.getNoeud2()->_xreel,lien.getNoeud2()->_yreel, noeud._xreel,noeud._yreel);
 }

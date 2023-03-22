@@ -36,8 +36,7 @@ public:
 	void setNoeud1(Noeud* noeud1) { _noeud1 = noeud1; }
 	void setNoeud2(Noeud* noeud2) { _noeud2 = noeud2; }
 
-	bool contains(Noeud* noeud) const
-	{
+	bool contains(Noeud* noeud) const {
 		return (_noeud1->getId() == noeud->getId() || _noeud2->getId() == noeud->getId());
 	}
 

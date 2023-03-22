@@ -536,6 +536,20 @@ void ogdfFastMultipoleMultilevelEmbedder(Graphe& G) {
 	G.deleteGrille();
 }
 
+void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
+	ogdf::FastMultipoleMultilevelEmbedder fmme;
+	fmme.call(ogdfGA);
+	int i=0;
+	for (auto n : ogdfG.nodes) {
+		G._noeuds[i]._xreel = ogdfGA.x(n);
+		G._noeuds[i]._yreel = ogdfGA.y(n);
+		i++;
+	}
+}
+
 void ogdfFMMMLayout(Graphe& G) {
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };

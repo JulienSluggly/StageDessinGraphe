@@ -44,6 +44,7 @@ public:
 	bool isNodeScoreUpdated = false; // Indique les les scores stockés dans les noeuds sont à jour.
 	bool isIntersectionVectorUpdated = false; // Indique si les vecteurs d'intersections dans les edge sont à jour.
 	bool isCarteSetUp = false; // Indique si la triangulation de delaunay sur le graphe a été faite.
+	bool useCoordReel = false; // Indique si les noeuds ne sont pas attribués a des emplacements mais ont des coord réelles.
 
 	int maxVoisin = -1; // Nombre maximum de voisin d'un noeud dans le graphe. Pas forcément à jour.
 	double avgVoisin = -1; // Nombre moyen de voisin d'un noeud dans le graphe. Pas forcément à jour.
@@ -130,6 +131,10 @@ public:
 	// Ne tient pas a jour le score des noeuds ou du graphe.
 	void placementAleatoire();
 
+	// Place les noeuds aleatoirement en coordonnée reel dans la grille
+	// Ne tient pas a jour le score des noeuds ou du graphe.
+	void placementAleatoireReel();
+
 	// Place les noeuds sur l'emplacement de meme ID
 	// Ne tient pas a jour le score des noeuds ou du graphe.
 	void placementFixe();
@@ -143,6 +148,9 @@ public:
 
 	// Calcule le score d'intersection du graphe et le met a jour.
 	long getNbCroisement();
+
+	// Calcule le score d'intersection du graphe en coordonnée flottantes et le met a jour.
+	long getNbCroisementReel();
 
 	// Calcule le score d'intersection pour un graphe qui n'est pas forcement entierement place
 	// Ne met pas a jour le nombre de croisement.
@@ -174,11 +182,17 @@ public:
 	// Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
 	int selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<std::vector<double>>& customParam, int iter);
 
+	// Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
+	std::pair<double,double> selectionEmplacementReel(int modeEmplacement, int nodeId, int t, std::vector<std::vector<double>>& customParam, int iter);
+
 	// Calcule le delay a appliquer lors du recuit si besoin.
 	void calculDelaiRefroidissement(int& delay, std::vector<std::vector<double>>& customParam, int iter);
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
-	int calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,Emplacement*& oldEmplacement,bool useGrille, bool useScore);
+	int calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,bool useGrille, bool useScore);
+
+	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
+	int calculImproveReel(int nodeId, std::pair<double,double>& randCoord,bool useGrille, bool useScore);
 
 	// Modifie les parametres du rerecuit en fonction des customParam
 	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam);
@@ -186,14 +200,20 @@ public:
 	// Effectue une sauvegarde du graphe en fonction de la méthode utilisée.
 	void saveBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, bool useScore, bool useGrille);
 
+	// Effectue une sauvegarde des coordonnées flottantes des noeuds en graphe
+	void saveBestResultRecuitReel(std::vector<std::pair<double,double>>& bestResultVector);
+
 	// Charge la sauvegarde du graphe en fonction de la méthode utilisée.
 	void loadBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, long bestNbCroisement, bool useScore, bool useGrille);
+
+	// Charge la sauvegarde du graphe en coordonnées flottantes
+	void loadBestResultRecuitReel(std::vector<std::pair<double,double>>& bestResultVector, long bestNbCroisement);
 
 	// Met a jour les variables importantes du graphe pour indiquer ce qui est stocké
 	void updateGraphDataRecuit(bool useScore, bool useGrille);
 
 	// Calcule le score du noeud en fonction de la méthode choisie.
-	long calculScoreNodeMethode(int nodeId,int idSwappedNode, bool swapped, bool useGrille, bool useScore);
+	long calculScoreNodeMethode(int nodeId,int idSwappedNode, bool swapped, bool useGrille, bool useScore, bool useReel=false);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe.
@@ -208,6 +228,17 @@ public:
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
 	void rerecuitSimule(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false);
+
+	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection en coordonnée flottantes
+	// Met à jour la variable nombreCroisement du graphe.
+	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
+	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
+	void recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false);
+
+	// Applique le recuit simulé en coordonnée flottantes plusieurs fois
+	// Met a jour le nombre de croisement du graphe.
+	void rerecuitSimuleReel(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false);
+
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
 	// On parcoure tout les noeuds et on teste chaque deplacement possible et on effectue le meilleur s'il ameliore le score. (O(n²*e))
@@ -265,6 +296,11 @@ public:
 
 	void completePlacementAleatoireScore(std::vector<int>& vecNode, int tailleMax);
 
+	double distanceReel(std::pair<double,double>& randCoord,std::pair<double,double>& nodeCoord);
+
+	// Fait un tirage de coordonne flottantes et les enregistre dans coord
+	void tirageCoordReel(std::pair<double,double>& coord);
+
 	// Indique s'il reste au moin un emplacement disponible
 	bool emplacementRestant();
 
@@ -316,14 +352,20 @@ public:
 	// Calcule le score de l'enfant en fonction de la grille chez l'enfant
 	long getNodeScoreEnfantGrille(Graphe& G, int nodeIndex);
 
-	// Calcule le score du noeud en parametre.
+	// Calcule le score du noeud en parametre. N'utilise pas la grille.
 	long getScoreCroisementNode(int nodeIndex);
+
+	// Calcule le score du noeud en parametre en coordonnée flottante. N'utilise pas la grille.
+	long getScoreCroisementNodeReel(int nodeIndex);
 
 	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
 	long getScoreCroisementNode(int nodeIndex, int swapIndex);
 
 	// Calcule le score du noeud en parametre. Utilise la grille
 	long getScoreCroisementNodeGrid(int nodeIndex);
+
+	// Calcule le score du noeud en parametre en coordonnée flottantes. Utilise la grille
+	long getScoreCroisementNodeGridReel(int nodeIndex);
 
 	// Calcule le score du noeud en parametre. Le graphe peut ne pas etre placé entierement.
 	long getScoreCroisementNodeGlouton(int nodeIndex);
@@ -403,12 +445,22 @@ public:
 	// Modifie le vecteur de noeuds en commun et le vecteur de noeud non commun en parametre
 	void separateNodesInCommon(Graphe &G, std::vector<int>& commonNodeVec, std::vector<int>& otherNodeVec, std::vector<int>& indexNodeInOtherVec);
 
+	// Renvoie le score d'intersection, n'utilise pas la grille
 	long getNbCroisementConst() const;
 
+	// Renvoie le score d'intersection en coordonnées flottatnes, n'utilise pas la grille
+	long getNbCroisementReelConst() const;
+
+	// Renvoie le nombre d'intersection total sans malus, n'utilise pas la grille
 	long getNbCroisementDiff();
 
+	// Renvoie le nombre d'intersection total sans malus, n'utilise pas la grille, utilise les coordonnées flottantes
+	long getNbCroisementDiffReel();
+
+	// Renvoie le nombre d'intersection total sans malus, utilise la grille
 	long getNbCroisementDiffGrid();
 
+	// Ancienne methode de calcul de score, n'utilise pas la grille
 	long getNbCroisementOldMethodConst() const;
 
 	// Ne met pas a jour le nombre de croisement du graphe
@@ -545,6 +597,8 @@ public:
 
 	void translateGrapheToOrigin();
 
+	void translateGrapheToOriginReel(double marge=0);
+
 	void scaleGraph(int n);
 
 	Emplacement* getClosestEmplacementFromPoint(double x, double y, bool isFree=false);
@@ -559,6 +613,8 @@ public:
 
 	// Appelle l'algorithme de stress majorization sur le graphe.
 	void stressMajorization(std::vector<std::vector<double>> customParam = {{}}, int methode=0, bool useClosest=false);
+
+	void stressMajorizationReel();
 
 	// Effectue le deplacement d'un seul noeud avec l'algorithme de stressMajorization
 	void stepStressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45);

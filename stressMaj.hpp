@@ -23,10 +23,13 @@ public:
     bool DEBUG_STRESS = false;
 
     int totalIterationDone = 0;
+    double m_epsilon = 10e-8;
 
     void initMatrices();
 
     void runAlgo(std::vector<double> customParam={});
+
+    void runAlgoReel();
 
     void bfs_SPAP();
 
@@ -36,6 +39,8 @@ public:
 
     void minimizeStress(std::vector<double> customParam={});
 
+    void minimizeStressReel();
+
     double minimizeStressDynStress(int nombreIter=400, std::vector<double> customParam={});
 
     long minimizeStressDynCross(int nombreIter=400, std::vector<double> customParam={});
@@ -43,6 +48,8 @@ public:
     bool nextIteration(std::vector<double> customParam={});
 
     bool nextIterationDelay(int iteration);
+
+    bool nextIterationReel();
 
     bool nextIterationDelayTest(int iteration,std::vector<double> customParam={});
 
@@ -53,6 +60,8 @@ public:
     void runStepAlgo(std::vector<double> customParam={});
 
     double calcStress();
+
+    double calcStressReel();
 
     void runAlgoDynStress();
 

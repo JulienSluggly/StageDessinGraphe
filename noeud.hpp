@@ -26,6 +26,8 @@ public:
 	double stressY = -1;
 	double pivotX = -1;
 	double pivotY = -1;
+	double _xreel = -12345;
+	double _yreel = -12345;
 	
 	int areteCommune(Noeud* noeudVoisin) {
 		for (const int& idArete1 : _aretes) {
@@ -67,6 +69,11 @@ public:
 		}
 		_emplacement = emplacement;
 		emplacement->setNoeud(this);
+	}
+
+	void setCoordReel(std::pair<double,double>& coord) {
+		_xreel = coord.first;
+		_yreel = coord.second;
 	}
 
 	// Force le noeud à l'emplacement en enlevant l'ancien noeud s'il y en avait un.

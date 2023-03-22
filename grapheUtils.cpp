@@ -1165,6 +1165,42 @@ void Graphe::translateGrapheToOrigin() {
     gridHeight -= minY;
 }
 
+void Graphe::translateGrapheToOriginReel(double marge) {
+    double minX, minY;
+    double maxX, maxY;
+    bool dynMarge = false;
+    if (marge == -1) {
+        marge = 0; dynMarge = true;
+    }
+    minX = _noeuds[0]._xreel;
+    minY = _noeuds[0]._yreel;
+    maxX = _noeuds[0]._xreel;
+    maxY = _noeuds[0]._yreel;
+    for (int i=1;i<_noeuds.size();i++) {
+        if (_noeuds[i]._xreel < minX) { minX = _noeuds[i]._xreel; }
+        else if (_noeuds[i]._xreel > maxX) { maxX = _noeuds[i]._xreel; }
+
+        if (_noeuds[i]._yreel < minY) { minY = _noeuds[i]._yreel; }
+        else if (_noeuds[i]._yreel > maxY) { maxY = _noeuds[i]._yreel; }
+    }
+    for (int i=0;i<_noeuds.size();i++) {
+        _noeuds[i]._xreel = _noeuds[i]._xreel - minX + marge;
+        _noeuds[i]._yreel = _noeuds[i]._yreel - minY + marge;
+    }
+    gridWidth = maxX-minX + 2*marge;
+    gridHeight = maxY-minY + 2*marge;
+    if (dynMarge) {
+        double margeX = gridWidth / 2.0;
+        double margeY = gridHeight / 2.0;
+        for (int i=0;i<_noeuds.size();i++) {
+            _noeuds[i]._xreel += margeX;
+            _noeuds[i]._yreel += margeY;
+        }
+        gridWidth = gridWidth+(2*margeX);
+        gridHeight = gridHeight+(2*margeY);
+    }
+}
+
 void Graphe::scaleGraph(int n) {
     for (int i=0;i<_emplacements.size();i++) {
         _emplacements[i]._x *= n;
@@ -1557,7 +1593,7 @@ void Graphe::generateActivationGrid(int gWidth,int gHeight,int etape) {
 // Ajoute les emplacement dont l'index d'activation est egal a l'index en parametre
 void Graphe::activateSlotsGrid(int index) {
     int indexEmplacement = _emplacements.size();
-    for (std::pair<int,int> coord : activationGrid[index]) {
+    for (const std::pair<int,int>& coord : activationGrid[index]) {
         _emplacements.push_back(Emplacement(coord.first,coord.second,indexEmplacement));
         indexEmplacement++;
     }
@@ -1568,4 +1604,11 @@ void Graphe::activateSlotsGridUntil(int index) {
     for (int i=0;i<=index;i++) {
         activateSlotsGrid(i);
     }
+}
+
+// Retourne la distance sans la racine
+double Graphe::distanceReel(std::pair<double,double>& randCoord,std::pair<double,double>& nodeCoord) {
+    double xDiff = randCoord.first - nodeCoord.first;
+    double yDiff = randCoord.second - nodeCoord.second;
+    return xDiff * xDiff + yDiff * yDiff;
 }

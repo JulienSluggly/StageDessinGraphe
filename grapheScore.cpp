@@ -75,6 +75,41 @@ long Graphe::getNbCroisement() {
     return total;
 }
 
+// Calcule le score d'intersection du graphe et le met a jour.
+long Graphe::getNbCroisementReel() {
+    long total = 0;
+    for (int i = 0; i < _aretes.size() - 1; ++i) {
+        for (int j = i + 1; j < _aretes.size(); ++j) {
+            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                bool isIllegal = false;
+                if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
+                    if (isIllegal) {
+                        total += PENALITE_MAX;
+                    }
+                    else {
+                        ++total;
+                    }
+                }
+            }
+            else {
+                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
+                    total += PENALITE_MAX_SELF;
+                }
+                else {
+                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                    if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
+                        total += PENALITE_MAX_SELF;
+                    }
+                }
+            }
+        }
+    }
+    nombreCroisement = total;
+    isNombreCroisementUpdated = true;
+    return total;
+}
+
 // Calcule le score d'intersection pour un graphe qui n'est pas forcement entierement place
 // Ne met pas a jour le nombre de croisement.
 long Graphe::getNbCroisementGlouton() {
@@ -333,6 +368,44 @@ long Graphe::getScoreCroisementNode(int nodeIndex) {
     return score;
 }
 
+// Calcule le score du noeud en parametre.
+long Graphe::getScoreCroisementNodeReel(int nodeIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        for (int j = 0; j < _aretes.size(); ++j) {
+            if ((index != j) && (!isInVector(indexPasse, j))) {
+                if (!(_aretes[index].contains(_aretes[j].getNoeud1()) || _aretes[index].contains(_aretes[j].getNoeud2()))) {
+                    bool isIllegal = false;
+                    if (seCroisentReel(_aretes[index], _aretes[j],isIllegal)) {
+                        if (isIllegal) {
+                            score += PENALITE_MAX;
+                        }
+                        else {
+                            score++;
+                        }
+                    }
+                }
+                else {
+                    Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[index]);
+                    if (surSegmentReel(_aretes[index], *nodeNotInCommon)) {
+                        score += PENALITE_MAX_SELF;
+                    }
+                    else {
+                        nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[j]);
+                        if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
+                            score += PENALITE_MAX_SELF;
+                        }
+                    }
+                }
+            }
+        }
+        indexPasse.push_back(index);
+    }
+    return score;
+}
+
 // Calcule le score du noeud en parametre. Le graphe peut ne pas etre placé entierement
 long Graphe::getScoreCroisementNodeGlouton(int nodeIndex) {
     long score = 0;
@@ -445,6 +518,49 @@ long Graphe::getScoreCroisementNodeGrid(int nodeIndex) {
                         else {
                             nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[vecId[k]]);
                             if (surSegment(_aretes[vecId[k]], *nodeNotInCommon)) {
+                                score += PENALITE_MAX_SELF;
+                            }
+                        }
+                    }
+                    indexPasseCellule.push_back(vecId[k]);
+                }
+            }
+        }
+        indexPasse.push_back(index);
+    }
+    return score;
+}
+
+// Calcule le score du noeud en parametre.
+long Graphe::getScoreCroisementNodeGridReel(int nodeIndex) {
+    long score = 0;
+    std::vector<int> indexPasse;
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        std::vector<int> indexPasseCellule;
+        for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
+            std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
+            for (int k=0; k < vecId.size();k++) {
+                if ((index != vecId[k]) && (!isInVector(indexPasse, vecId[k]) && (!isInVector(indexPasseCellule,vecId[k])))) {
+                    if (!(_aretes[index].contains(_aretes[vecId[k]].getNoeud1()) || _aretes[index].contains(_aretes[vecId[k]].getNoeud2()))) {
+                        bool isIllegal = false;
+                        if (seCroisentReel(_aretes[index], _aretes[vecId[k]],isIllegal)) {
+                            if (isIllegal) {
+                                score += PENALITE_MAX;
+                            }
+                            else {
+                                score++;
+                            }
+                        }
+                    }
+                    else {
+                        Noeud* nodeNotInCommon = _aretes[vecId[k]].nodeNotInCommon(&_aretes[index]);
+                        if (surSegmentReel(_aretes[index], *nodeNotInCommon)) {
+                            score += PENALITE_MAX_SELF;
+                        }
+                        else {
+                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[vecId[k]]);
+                            if (surSegmentReel(_aretes[vecId[k]], *nodeNotInCommon)) {
                                 score += PENALITE_MAX_SELF;
                             }
                         }
@@ -795,6 +911,40 @@ long Graphe::getNbCroisementConst() const {
 }
 
 // Ne modifie pas le score
+long Graphe::getNbCroisementReelConst() const {
+    long total = 0;
+    for (int i = 0; i < _aretes.size() - 1; ++i) {
+        for (int j = i + 1; j < _aretes.size(); ++j) {
+            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                bool isIllegal = false;
+                if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
+                    if (isIllegal) {
+                        total += PENALITE_MAX;
+                    }
+                    else {
+                        ++total;
+                    }
+                }
+            }
+            else {
+                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                if (surSegmentReel(_aretes[i], *nodeNotInCommon))
+                {
+                    total += PENALITE_MAX_SELF;
+                }
+                else {
+                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                    if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
+                        total += PENALITE_MAX_SELF;
+                    }
+                }
+            }
+        }
+    }
+    return total;
+}
+
+// Ne modifie pas le score
 long Graphe::getNbCroisementDiff() {
     nombreInter = 0;
     nombreInterIll = 0;
@@ -822,6 +972,43 @@ long Graphe::getNbCroisementDiff() {
                 else {
                     nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
                     if (surSegment(_aretes[j], *nodeNotInCommon)) {
+                        nombreInterIllSelf++;
+                    }
+                }
+            }
+        }
+    }
+    return nombreInter+nombreInterIll+nombreInterIllSelf;
+}
+
+// Ne modifie pas le score
+long Graphe::getNbCroisementDiffReel() {
+    nombreInter = 0;
+    nombreInterIll = 0;
+    nombreInterIllSelf = 0;
+    for (int i = 0; i < _aretes.size() - 1; ++i) {
+        for (int j = i + 1; j < _aretes.size(); ++j) {
+            //Aretes aretes1 = _aretes[i], aretes2 = _aretes[j];
+            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                bool isIllegal = false;
+                if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
+                    if (isIllegal) {
+                        nombreInterIll++;
+                    }
+                    else {
+                        nombreInter++;
+                    }
+                }
+            }
+            else {
+                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                if (surSegmentReel(_aretes[i], *nodeNotInCommon))
+                {
+                    nombreInterIllSelf++;
+                }
+                else {
+                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                    if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
                         nombreInterIllSelf++;
                     }
                 }

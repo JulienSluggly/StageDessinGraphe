@@ -17,10 +17,12 @@
 #include "utilitaire.hpp"
 #include "stressMaj.hpp"
 
-void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIteration, int nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start) {
+void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIteration, int nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::chrono::time_point<std::chrono::system_clock> finPlacement) {
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotal = end - start;
-	std::cout << std::fixed << secondsTotal.count() << "s for placement.\n";
+	std::chrono::duration<double> secondsPlacement = finPlacement - start;
+	std::chrono::duration<double> secondsAlgo = end - finPlacement;
+	std::cout << std::fixed << secondsPlacement.count() << "s placement. " << secondsAlgo.count() << "s algo. " << secondsTotal.count() << "s total.\n";
 	if (tempsBest != -1) std::cout << tempsBest << "s meilleur resultat.\n";
 	if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
 	if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
@@ -31,7 +33,7 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 			G.getNbCroisementDiff();
 			std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
 		}
-		G.debugEverything(false,false);
+		if (!G.useCoordReel) { G.debugEverything(false,false); }
 	}
 	std::cout << "Setup complete!" << std::endl;
 }
@@ -56,7 +58,8 @@ void runFuncOnFolder() {
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 		std::cout << "Noeud: " << G._noeuds.size() << " Arete: " << G._aretes.size() << std::endl;
-		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
+		auto finPlacement = std::chrono::system_clock::now();
+		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 	}
 }
 
@@ -74,7 +77,8 @@ void runFuncOnAllGraphs() {
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 		ogdfOther(G);
-		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
+		auto finPlacement = std::chrono::system_clock::now();
+		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 	}
 }
 
@@ -98,32 +102,37 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 			auto start = std::chrono::system_clock::now();
 			double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 			std::cout << "Moyenne: " << G.distMoyNTirage(1000000) << std::endl;
-			printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
+			auto finPlacement = std::chrono::system_clock::now();
+			printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 		}
 	}
 }
 
 int main() {
-	initRandomSeed();
+	//initRandomSeed();
 	//runFuncOnAllGraphsAllSlots(); return 0;
-	//initSameSeed();
-	compareStressFMMM();
-	allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
+	initSameSeed();
+	//compareStressFMMM();
+	//allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
 
-	std::string nomFichierGraph = "graph-10-input";
-	std::string nomFichierSlots = "10-input-slots";
+	bool useCoordReel = true;
+	std::string nomFichierGraph = "graph-11-input";
+	std::string nomFichierSlots = "11-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
-	Graphe G(nomFichierGraph);
+	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
+	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 	G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/football.graphclean");
+	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/commanche_dual.mtxclean");
+	//G.readFromJsonGraph(pathGraph);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
-	G.generateGrid(nbNoeud,nbNoeud);
+	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
-	G.DEBUG_GRAPHE = true; //G.DEBUG_PROGRESS = true;
+	G.DEBUG_GRAPHE = true; G.DEBUG_PROGRESS = true;
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
@@ -131,12 +140,18 @@ int main() {
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 	//ogdfOtherTest(G);
 	//ogdfFastMultipoleMultilevelEmbedder(G);
-	G.stressMajorization();
+	//G.stressMajorization();
 	//G.stressMajorization({{}},1);
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 
+	ogdfFastMultipoleMultilevelEmbedderReel(G);
+	//G.stressMajorizationReel();
+	G.translateGrapheToOriginReel(-1);
+	auto finPlacement = std::chrono::system_clock::now();
+	G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,false,false);
+
 	//G.afficherInfo();
-	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start);
+	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 	
 	// OpenGL
 	bool useOpenGL = true;
@@ -144,7 +159,7 @@ int main() {
 		G.DEBUG_OPENGL = true;
 		int maxX = G.gridWidth, maxY = G.gridHeight;
 		std::cout << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;
-		dispOpenGL(G, G.gridWidth, G.gridHeight, maxX, maxY);
+		dispOpenGL(G, G.gridWidth, G.gridHeight, maxX, maxY,useCoordReel);
 	}
 	return 0;
 }

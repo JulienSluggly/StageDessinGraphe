@@ -53,6 +53,8 @@ void ogdfFastMultipoleEmbedder(Graphe& G);
 
 void ogdfFastMultipoleMultilevelEmbedder(Graphe& G);
 
+void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G);
+
 void ogdfFMMMLayout(Graphe& G);
 
 void ogdfGEMLayout(Graphe& G);

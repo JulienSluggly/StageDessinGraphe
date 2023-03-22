@@ -11,6 +11,7 @@
 #include <random>
 #include "graphe.hpp"
 
+bool useReel = false;
 bool printRaccourcis = false;
 bool singleKeyPress = false;
 int keyPressFunctionNum = -1;
@@ -338,6 +339,20 @@ void openGLShowNodes(Graphe& G) {
 	}
 }
 
+void openGLShowNodesReel(Graphe& G) {
+	if (showNodes) {
+		if (!display_genetic) {
+			glPointSize(7);
+			glBegin(GL_POINTS);
+			glColor3f(1.0f, 0.0f, 0.0f);
+			for (int i = 0; i < G._noeuds.size(); i++) {
+				glVertex2d(G._noeuds[i]._xreel, G._noeuds[i]._yreel);
+			}
+			glEnd();
+		}
+	}
+}
+
 void openGLShowEdges(Graphe& G) {
 	if (showEdges) {
 		glLineWidth(3.0f);
@@ -394,6 +409,44 @@ void openGLShowEdges(Graphe& G) {
 					glBegin(GL_LINE_STRIP);
 					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
 					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
+					glEnd();
+				}
+			}
+		}
+	}
+}
+
+void openGLShowEdgesReel(Graphe& G) {
+	if (showEdges) {
+		glLineWidth(3.0f);
+		if (!display_genetic) {
+			glColor3f(1.0f, 1.0f, 1.0f);
+			for (int i = 0; i < G._aretes.size(); i++) {
+				glBegin(GL_LINE_STRIP);
+				glVertex2d(G._aretes[i].getNoeud1()->_xreel, G._aretes[i].getNoeud1()->_yreel);
+				glVertex2d(G._aretes[i].getNoeud2()->_xreel, G._aretes[i].getNoeud2()->_yreel);
+				glEnd();
+			}
+			if (showIllegal) {
+				for (auto &a : G.areteInter) {
+					glColor3f(1.0f, 0.0f, 0.0f);
+					glBegin(GL_LINE_STRIP);
+					glVertex2d(a->getNoeud1()->_xreel, a->getNoeud1()->_yreel);
+					glVertex2d(a->getNoeud2()->_xreel, a->getNoeud2()->_yreel);
+					glEnd();
+				}
+				for (auto &a : G.areteIll) {
+					glColor3f(1.0f, 0.0f, 1.0f);
+					glBegin(GL_LINE_STRIP);
+					glVertex2d(a->getNoeud1()->_xreel, a->getNoeud1()->_yreel);
+					glVertex2d(a->getNoeud2()->_xreel, a->getNoeud2()->_yreel);
+					glEnd();
+				}
+				for (auto &a : G.areteIllSelf) {
+					glColor3f(0.3f, 0.2f, 0.5f);
+					glBegin(GL_LINE_STRIP);
+					glVertex2d(a->getNoeud1()->_xreel, a->getNoeud1()->_yreel);
+					glVertex2d(a->getNoeud2()->_xreel, a->getNoeud2()->_yreel);
 					glEnd();
 				}
 			}
@@ -587,8 +640,13 @@ void openGLKeyPressFunction(Graphe& G) {
 				nbNoeudATraiter = parent1._noeuds.size() - parent1.nbNoeudEnCommun(parent2);
 			}
 			else {
-				G.clearNodeEmplacement();
-				G.placementAleatoire();
+				if (!useReel) {
+					G.clearNodeEmplacement();
+					G.placementAleatoire();
+				}
+				else {
+					G.placementAleatoireReel();
+				}
 			}
 			break;
 		}
@@ -611,24 +669,30 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 7: {// Affiche score (KEY: ')
 			if (!display_genetic) {
-				G.getNbCroisementDiff();
-				std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
-				//std::cout << "Selected Node: " << selectedNode << " emplacement: " << G._noeuds[selectedNode].getEmplacement()->_id << " Selected Emplacement: " << selectedEmplacement << std::endl;
-				std::cout << "Nb Intersection: " << G.getNbCroisement() << std::endl;
-				//std::cout << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
-				if (show_selected_emplacement) {
-					if (!G._emplacements[selectedEmplacement].estDisponible()) {
-						int swapId = G._emplacements[selectedEmplacement]._noeud->getId();
-						std::cout << "Selected emplacement score: " << G.getScoreCroisementNode(swapId) << std::endl;
-						int score = G.getScoreCroisementNode(selectedNode);
-						score += G.getScoreCroisementNode(swapId, selectedNode);
-						std::cout << "Score before swap: " << score << std::endl;
-						G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
-						score = G.getScoreCroisementNode(selectedNode);
-						score += G.getScoreCroisementNode(swapId, selectedNode);
-						std::cout << "Score after swap: " << score << std::endl;
-						G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
+				if (!useReel) {
+					G.getNbCroisementDiff();
+					std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
+					//std::cout << "Selected Node: " << selectedNode << " emplacement: " << G._noeuds[selectedNode].getEmplacement()->_id << " Selected Emplacement: " << selectedEmplacement << std::endl;
+					std::cout << "Nb Intersection: " << G.getNbCroisement() << std::endl;
+					//std::cout << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
+					if (show_selected_emplacement) {
+						if (!G._emplacements[selectedEmplacement].estDisponible()) {
+							int swapId = G._emplacements[selectedEmplacement]._noeud->getId();
+							std::cout << "Selected emplacement score: " << G.getScoreCroisementNode(swapId) << std::endl;
+							int score = G.getScoreCroisementNode(selectedNode);
+							score += G.getScoreCroisementNode(swapId, selectedNode);
+							std::cout << "Score before swap: " << score << std::endl;
+							G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
+							score = G.getScoreCroisementNode(selectedNode);
+							score += G.getScoreCroisementNode(swapId, selectedNode);
+							std::cout << "Score after swap: " << score << std::endl;
+							G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
+						}
 					}
+				}
+				else {
+					G.getNbCroisementDiffReel();
+					std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
 				}
 			}
 			else {
@@ -777,9 +841,13 @@ void openGLKeyPressFunction(Graphe& G) {
 			break;
 		}
 		case 20: {// Step Stress Majorization (KEY:5)
-			G.stepStressMajorization();
-			std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretes()<< std::endl;
-			//std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretesReel()<< std::endl;
+			if (!useReel) {
+				G.stepStressMajorization();
+				std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretes()<< std::endl;
+			}
+			else {
+				G.stressMajorizationReel();
+			}
 			break;
 		}
 		case 21: {// Print current seed
@@ -865,15 +933,22 @@ void openGLKeyPressFunction(Graphe& G) {
 
 void openGLShowEverything(Graphe& G) {
 	openGLShowGrid();
-	openGLShowCells(G);
-	openGLShowEdges(G);
-	openGLShowTriangulation(G);
-	openGLShowEmplacement(G);
-	openGLShowNodes(G);
-	openGLShowSelected(G);
+	if (!useReel) {
+		openGLShowCells(G);
+		openGLShowEdges(G);
+		openGLShowTriangulation(G);
+		openGLShowEmplacement(G);
+		openGLShowNodes(G);
+		openGLShowSelected(G);
+	}
+	else {
+		openGLShowEdgesReel(G);
+		openGLShowNodesReel(G);
+	}
 }
 
-void openGLInitGlobalVariables(Graphe& G) {
+void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
+	useReel = useReelCoord;
 	maxNodeIndex = G._noeuds.size() - 1;
 	maxEmplacementIndex = G._emplacements.size() - 1;
 	maxCellY = G.grille.size()-1;
@@ -884,7 +959,7 @@ void openGLInitGlobalVariables(Graphe& G) {
 	ratioAffichageY = (double)(G.gridHeight+2) / windowHeight;
 }
 
-void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
+void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false) {
 	gridWidth = w; gridHeight = h; initialGridWidth = gridWidth; initialGridHeight = gridHeight; maxX = mx; maxY = my;
 
 	if (G._emplacements.size() >= (G._noeuds.size() * G._noeuds.size())/2) { showEmplacement = false; }
@@ -895,7 +970,7 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
 	// NB tour pour le stockage de donnee pour les graphiques, a supprimer lors de vrai executions
 	unsigned long long totalTurn = 0;
 	unsigned long long lastWrittenTurn = 0;
-	openGLInitGlobalVariables(G);
+	openGLInitGlobalVariables(G,useReelCoord);
 
 	openGLPrintRaccourcis();
 
