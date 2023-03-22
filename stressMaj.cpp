@@ -322,6 +322,9 @@ bool StressMajorization::nextIterationDelay(int iteration) {
         Emplacement* closestEmplacement;
         double currXCoord = G->_noeuds[i].stressX;
         double currYCoord = G->_noeuds[i].stressY;
+        if (m_useClosest) {
+            G->clearNodeEmplacement();
+        }
         if (m_useGrille) {
             closestEmplacement = G->getClosestEmplacementFromPointGrid(currXCoord,currYCoord,m_useClosest);
         }

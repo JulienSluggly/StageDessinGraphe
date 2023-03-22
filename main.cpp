@@ -119,8 +119,9 @@ int main() {
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
-	G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/sparceMCClean/commanche_dual.mtxclean");
-	G.generateGrid(6000,6000);
+	G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/football.graphclean");
+	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
+	G.generateGrid(nbNoeud,nbNoeud);
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
 	G.DEBUG_GRAPHE = true; //G.DEBUG_PROGRESS = true;
 	auto start = std::chrono::system_clock::now();

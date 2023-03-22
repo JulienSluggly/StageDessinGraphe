@@ -137,20 +137,19 @@ void Graphe::generateGrid(int gridW, int gridH) {
 void Graphe::generateEmplacements(int n) {
     int nbEmplacement = n;
     if (nbEmplacement == -1) {
-        gridWidth = std::min(6000,(int)_noeuds.size());
+        gridWidth = std::min((int)_noeuds.size()*2,6000);
         gridHeight = gridWidth;
         nbEmplacement = _noeuds.size();
     }
     nbEmplacement = std::min(nbEmplacement,(gridWidth*gridHeight)-(int)_emplacements.size());
-
     std::vector<std::vector<bool>> marque;
     for (int i = 0; i <= gridHeight; i++) {
         std::vector<bool> tmpVec(gridWidth + 1);
         marque.push_back(tmpVec);
     }
     for (int i = 0; i < _emplacements.size(); i++) {
-        int x = _emplacements[i].getX();
-        int y = _emplacements[i].getY();
+        int x = _emplacements[i]._x;
+        int y = _emplacements[i]._y;
         marque[y][x] = true;
     }
     int x, y;
@@ -162,7 +161,6 @@ void Graphe::generateEmplacements(int n) {
         marque[y][x] = true;
         _emplacements.push_back(Emplacement(x,y,_emplacements.size()));
     }
-
 }
 
 // Sauvegarde dans un vecteur les id des emplacements auquels les noeuds sont assignés
@@ -410,7 +408,8 @@ void Graphe::deleteGrille() {
     grille.clear();
     for (int i=0;i<_emplacements.size();i++) {
         if (_emplacements[i].idCelluleVec != nullptr) {
-            _emplacements[i].idCelluleVec->clear();
+            delete _emplacements[i].idCelluleVec;
+            _emplacements[i].idCelluleVec = nullptr;
         }
         _emplacements[i].idCellule = -1;
     }
@@ -1538,14 +1537,16 @@ std::vector<int> Graphe::plusGrandeComposanteConnexe() {
     return plusGrandeComposante;
 }
 
-void Graphe::generateActivationGrid(int gridWidth,int gridHeight,int etape) {
+void Graphe::generateActivationGrid(int gWidth,int gHeight,int etape) {
+    gridWidth = gWidth;
+    gridHeight = gHeight;
     activationGrid.clear();
     for (int i=0;i<=etape;i++) {
         std::vector<std::pair<int,int>> tmpVec;
         activationGrid.push_back(tmpVec);
     }
-    for (int y=0;y<gridHeight;y++) {
-        for (int x=0;x<gridWidth;x++) {
+    for (int y=0;y<gHeight;y++) {
+        for (int x=0;x<gWidth;x++) {
             int randNum = generateRand(etape);
             std::pair<int,int> tmpPair(x,y);
             activationGrid[randNum].push_back(tmpPair);
@@ -1556,7 +1557,7 @@ void Graphe::generateActivationGrid(int gridWidth,int gridHeight,int etape) {
 // Ajoute les emplacement dont l'index d'activation est egal a l'index en parametre
 void Graphe::activateSlotsGrid(int index) {
     int indexEmplacement = _emplacements.size();
-    for (const std::pair<int,int>& coord : activationGrid[index]) {
+    for (std::pair<int,int> coord : activationGrid[index]) {
         _emplacements.push_back(Emplacement(coord.first,coord.second,indexEmplacement));
         indexEmplacement++;
     }

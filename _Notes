@@ -99,3 +99,7 @@ Fix stressMin trouver emplacement plus proche disponible ne renvoie pas le meme 
 Test avec le FMMM en comparaison avec le stressMin
 
 ogdfFMMM suivi du stressMin?
+
+Tester avec tout en reel, reprendre la methode d'intersection d'ogdf?
+
+Refaire les methodes en coord reel

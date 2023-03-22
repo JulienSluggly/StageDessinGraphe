@@ -534,21 +534,22 @@ void compareStressFMMM() {
 		}
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			if (i%nthreads == tid) {
-				Graphe G;
+				resetSeed(tid,true,true);
 				printf("Tid: %d | i: %d | File: %s\n",tid,i,dirEntry.path().c_str());
-				G.readFromJsonGraph(dirEntry.path());
-				int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
-				G.generateActivationGrid(nbNoeud,nbNoeud,9);
 				for (int methode=0;methode<=2;methode++) {
-					G._emplacements.clear();
 					for (int slots=-3;slots<=9;slots++) {
-						G.clearNodeEmplacement();
+						Graphe G;
+						G.readFromJsonGraph(dirEntry.path());
+						int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
+						G.generateActivationGrid(nbNoeud,nbNoeud,9);
+						G.gridWidth = nbNoeud;
+						G.gridWidth = nbNoeud;
 						if (slots < 0) {
-							if (slots == -3) { G.generateEmplacements(); }
-							else if (slots == -2) { G.generateEmplacements(); }
-							else { G.generateEmplacements(); }
+							if (slots == -3) { G.generateEmplacements(G._noeuds.size()); }
+							else if (slots == -2) { G.generateEmplacements(G._noeuds.size()*2); }
+							else if (slots == -1) { G.generateEmplacements(G._noeuds.size()*3); }
 						}
-						else { G._emplacements.clear(); G.activateSlotsGridUntil(slots); }
+						else { G.activateSlotsGridUntil(slots); }
 						auto start = std::chrono::system_clock::now();
 						if (methode == 0) { G.stressMajorization({},1); }
 						else if (methode == 1) { G.stressMajorization(); }
@@ -557,7 +558,7 @@ void compareStressFMMM() {
 						std::chrono::duration<double> secondsPlacement = finPlacement - start;
 						std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
 						std::ofstream resultats(nomFichier, std::ios_base::app);
-						resultats << dirEntry.path() << "," << methode << "," << slots << "," << G.getNbCroisementDiff() << "," << secondsPlacement.count() << std::endl;
+						resultats << dirEntry.path() << "," << methode << "," << slots << "," << G._emplacements.size() << "," << G.getNbCroisementDiff() << "," << secondsPlacement.count() << "," << G.debugEverything() << std::endl;
 						resultats.close();
 					}
 				}
