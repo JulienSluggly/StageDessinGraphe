@@ -588,7 +588,9 @@ void testGraphsReel() {
 				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
 				G.placementAleatoireReel();
 				ogdfFastMultipoleMultilevelEmbedderReel(G);
-				G.rerecuitSimuleReel(tempsBest, nombreRecuit, start, {},-1,0.999999,0.99,100.0,0.0001,1,0,2,false,false);
+				G.translateGrapheToOriginReel(-1);
+				G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
+				G.rerecuitSimuleReel(tempsBest, nombreRecuit, start, {},-1,0.999999,0.99,100.0,0.0001,1,0,2);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
 				std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";

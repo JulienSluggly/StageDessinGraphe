@@ -392,12 +392,29 @@ void Graphe::reinitGrille() {
     registerEdgesInGrid();
 }
 
+void Graphe::reinitGrilleReel() {
+    clearGrilleReel();
+    registerNodesAndEdgesInGrid();
+}
+
 void Graphe::clearGrille() {
     for (int i=0;i<grillePtr.size();i++) {
         grillePtr[i]->vecAreteId.clear();
     }
     for (int i=0;i<_aretes.size();i++) {
         _aretes[i].vecIdCellules.clear();
+    }
+}
+
+void Graphe::clearGrilleReel() {
+    for (int i=0;i<grillePtr.size();i++) {
+        grillePtr[i]->vecAreteId.clear();
+    }
+    for (int i=0;i<_aretes.size();i++) {
+        _aretes[i].vecIdCellules.clear();
+    }
+    for (int i=0;i<_noeuds.size();i++) {
+        _noeuds[i].idCelluleVec->clear();
     }
 }
 

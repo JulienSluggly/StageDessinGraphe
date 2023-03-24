@@ -553,8 +553,14 @@ public:
 	// Supprime la grille courante et la reinitialise
 	void reinitGrille();
 
+	// Supprime la grille courante et la reinitialise
+	void reinitGrilleReel();
+
 	// Vide la grille courante
 	void clearGrille();
+
+	// Vide la grille courante
+	void clearGrilleReel();
 
 	// Supprime la grille courante
 	void deleteGrille();

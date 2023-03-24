@@ -597,7 +597,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
     auto totalEnd = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
     while ((numberOfNoUpgrade < maxIter)&&(!RECUIT_LIMIT_3600||secondsTotalExec.count() < 3600)) {
-        if (useGrille) { if (i>1) { reinitGrille(); } }
+        if (useGrille) { if (i>1) { reinitGrilleReel(); } }
         if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         nombreRecuit++;
         recuitSimuleReel(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore);

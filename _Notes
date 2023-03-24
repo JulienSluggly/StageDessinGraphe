@@ -109,3 +109,5 @@ Restructurer les methodes de graphe, ne garder en methode de classe que celle qu
 Ajouter getNbCroisementConst en mode grille
 
 Recuit reel: tirer dans une boite autour du noeud, cette boite reduit au court de l'execution
+
+Implementer le recuit only improve et best deplacement a la fin des 1h d'execution

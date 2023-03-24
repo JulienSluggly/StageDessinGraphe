@@ -72,13 +72,15 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
 		}
     }
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-		glfwGetCursorPos(window, &clicX, &clicY);
-		clicX *= ratioAffichageX;
-		clicY *= ratioAffichageY;
-		clicY = (gridHeight - clicY)-1;
-		clicX -= 1;
-		std::cout << clicX << " " << clicY << std::endl;
-		keyPressFunctionNum = 29; singleKeyPress = true;
+		if (!useReel) {
+			glfwGetCursorPos(window, &clicX, &clicY);
+			clicX *= ratioAffichageX;
+			clicY *= ratioAffichageY;
+			clicY = (gridHeight - clicY)-1;
+			clicX -= 1;
+			std::cout << clicX << " " << clicY << std::endl;
+			keyPressFunctionNum = 29; singleKeyPress = true;
+		}
 	}
 }
 
