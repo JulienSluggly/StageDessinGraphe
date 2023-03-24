@@ -1546,14 +1546,18 @@ void Graphe::applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int n
 }
 
 void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
-    std::string pathGraph = chemin + "exemple/Graphe/" + fileGraphe + ".json";
+    std::string pathGraph = fileGraphe;
+    if (!containsString(fileGraphe,chemin)) {
+        pathGraph = chemin + "exemple/Graphe/" + fileGraphe + ".json";
+    }
     std::string pathSlot;
     readFromJsonGraph(pathGraph);
-    if ((fileSlot != "GRID")&&(fileSlot != "Grid")) {
+    if (!containsString(fileSlot,"Grid")) {
         pathSlot = chemin + "exemple/Slots/" + fileSlot + ".json";
         readFromJsonSlots(pathSlot);
     }
     else {
+        int nbNoeud = std::min((int)_noeuds.size()*2,6000);
         generateGrid();
     }
 }

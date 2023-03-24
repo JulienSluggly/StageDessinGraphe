@@ -15,23 +15,15 @@ Variante recuit qui modifie la probabilité d'acceptation
 
 Faire une version ogdf placement au plus proche qui place les voisins d'un noeud au plus proche recursivement parcour en largeur?
 
-Faire tests recuit avec les differents placements au plus proche d'ogdf
-
 Refaire le recuit score en intégrant la grille
 
 Utilisation d'un solver, branch and bound?
-
-Ameliorer recherche plus proche dans cellule carre?
-
-Faire des tests avec autre qu'un depart aleatoire, max planar graph? glouton?
 
 Faire des tests sur le placement de depart avec stressMin en variant edgeCost, comparer avec placement aleatoire et glouton
 
 Variante Stress Maj qui minimise le nombre d'intersection au moment de la recherche du plus proche.
 
 n*sqrt(2) pire cas recherche, prendre la vraie longueur et chercher dans une profondeur egale a la longueur.
-
-glouton au depart?
 
 Regarder si il est possible d'implementer l'algo de planarisation d'ogdf avec nos contraintes
 
@@ -41,11 +33,7 @@ Changer edgecost pour les setup qui n'arrivent pas a bien se finir dans le stres
 
 Genetique qui place n/2 noeud iterativement et produit deux enfants
 
-Stress Maj dynamique, calcul de m_edgecost dynamique opengl, ou pendant l'exec
-
 Ameliorer selection openGL a la souris
-
-Implementer le getRootedPath et PathLayout du pivotmds?
 
 Methode qui detecte l'optimum local du stress min
 
@@ -59,10 +47,6 @@ Optimiser la taille de la grille carre pour le stress Maj.
 
 Definir la limite d'emplacement pour utiliser la grille dans le stress Maj.
 
-Comparer stressMajDynStress et stressMajDynCross
-
-Mixer stressMajDynStress et stressMajDynCross?
-
 Ameliorer le temps d'execution du stressMaj et variantes
 
 Changement de repere, ACP
@@ -73,16 +57,9 @@ Retester toutes les methodes sur tout les graphes
 
 Parseur de fichier sans librairie json
 
-Noter la longeur optimale atteinte
-
-mediane sur total inter
+calcul ecart type
 
 recalculer plus efficacement les matrices quand il y a changement de edgeCost
-
-Recherche dichotomique? Probleme d'egalite.
-Recherche bibliographique sur la recherche dichotomique
-
-Dichotomie + aleatoire tant que les intervalles sont a egalites
 
 Resteter avec variante nextIterationDelay
 
@@ -92,17 +69,9 @@ Implementer fast multipole multilevel avec nos contraintes?
 
 Restester recuit avec des delai plus fins sur tout les graphes 0.99999 0.9999945 0.9999999
 
-Modifier le recuit pour qu'il prenne en compte le temps total depuis le rerecuit
-
-Fix stressMin trouver emplacement plus proche disponible ne renvoie pas le meme qu'occupe le noeud, clearnodeemplacement avant d'attribuer?
-
 Test avec le FMMM en comparaison avec le stressMin
 
 ogdfFMMM suivi du stressMin?
-
-Tester avec tout en reel, reprendre la methode d'intersection d'ogdf?
-
-Refaire les methodes en coord reel
 
 Restructurer les methodes de graphe, ne garder en methode de classe que celle qui font sens
 

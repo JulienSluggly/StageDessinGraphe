@@ -58,7 +58,12 @@ std::string getParamAsString(std::vector<std::vector<double>>& customParam) {
 	return paramStream.str();
 }
 
-void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, const std::string& nomGraphe, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, int tid=0) {
+void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, int tid=0) {
+	string nomGraphe = fileGraph;
+	std::reverse(nomGraphe.begin(), nomGraphe.end());
+	nomGraphe = nomGraphe.substr(nomGraphe.find(".") + 1);
+	nomGraphe = nomGraphe.substr(0, nomGraphe.find('/'));
+	std::reverse(nomGraphe.begin(), nomGraphe.end());
 	bool updateScore = containsString(methodeAlgoName,"Score");
 	bool isGenetique = containsString(methodeAlgoName,"Genetique");
 	bool isRecuit = containsString(methodeAlgoName,"Recuit");

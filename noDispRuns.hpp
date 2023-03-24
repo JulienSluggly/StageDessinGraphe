@@ -35,7 +35,7 @@ void readOldFiles(Graphe& G) {
 
 void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pairGraphSlots, int nbRun, std::string methodePlacement, std::string methodeAlgo,std::vector<std::vector<double>> customParam, int tid) {
 	for (int i = 0; i < pairGraphSlots.second.size(); i++) {
-		generateCSV(nbRun, methodePlacement, methodeAlgo, pairGraphSlots.first, pairGraphSlots.first, pairGraphSlots.second[i],customParam,tid);
+		generateCSV(nbRun, methodePlacement, methodeAlgo, pairGraphSlots.first, pairGraphSlots.second[i],customParam,tid);
 	}
 }
 
@@ -56,9 +56,9 @@ void customRecuit() {
 			}
 			std::vector<std::vector<std::vector<double>>> totalRuns;
 			for (int i=0;i<totalRuns.size();i++) {
-				generateCSV(-1,"Stress","Aucun","graph-11-input",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
+				generateCSV(-1,"Stress","Aucun",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
 			}
-			generateCSV(10,"Stress","Aucun","graph-11-input",nomFichierGraph,slotFiles[tid],{},tid);
+			generateCSV(10,"Stress","Aucun",nomFichierGraph,slotFiles[tid],{},tid);
 		}
 		printf("Thread: %d done.\n",tid);
 	}
@@ -85,9 +85,8 @@ void customRecuitAllRuns() {
 				for (int numSlot = 0; numSlot < key.second.size(); numSlot++) {
 					std::vector<std::vector<std::vector<double>>> totalRuns;
 					totalRuns.push_back({{10,1}});
-					std::string nomFichierLog = key.first;
 					for (int i=0;i<totalRuns.size();i++) {
-						generateCSV(2,"Aleatoire","Recuit Simule Grille TME",nomFichierLog,key.first,key.second[numSlot],totalRuns[i],tid);
+						generateCSV(2,"Aleatoire","Recuit Simule Grille TME",key.first,key.second[numSlot],totalRuns[i],tid);
 					}
 				}
 			}
@@ -118,7 +117,7 @@ void allRunsSingleThread() {
 				std::cout << "--------------------------" << std::endl;
 				for (int k = 0; k < methodesAlgo.size(); k++) {
 					std::cout << "Placement: " << methodesPlacement[j] << " Algo: " << methodesAlgo[k] << std::endl;
-					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], key.first, key.first, key.second[i]);
+					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], key.first, key.second[i]);
 				}
 			}
 		}
@@ -152,7 +151,7 @@ void allRunsLogged() {
 				for (int i = 0; i < key.second.size(); i++) {
 					for (int j = 0; j < methodesPlacement.size(); j++) {
 						for (int k = 0; k < methodesAlgo.size(); k++) {
-							generateCSV(runMethodesAlgo[k], methodesPlacement[j], methodesAlgo[k], key.first, key.first, key.second[i],{},tid);
+							generateCSV(runMethodesAlgo[k], methodesPlacement[j], methodesAlgo[k], key.first, key.second[i],{},tid);
 						}
 					}
 				}
@@ -265,6 +264,39 @@ void allRunsBySlotsThirdRun() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+}
+
+void allRunsByOnFolder() {
+	fillLogsVector();
+	std::cout << "Starting all run logs." << std::endl;
+	std::string path = chemin + "benchGraphs/runs/";
+	std::string slots = "Grid";
+	int nthreads, tid;
+	std::vector<std::vector<std::vector<double>>> totalRuns;
+	totalRuns.push_back({{9,0.99999}});
+	totalRuns.push_back({{9,0.99999},{3,0,2}});
+	totalRuns.push_back({{9,0.9999945}});
+	totalRuns.push_back({{9,0.9999945},{3,0,2}});
+	totalRuns.push_back({{9,0.999999}});
+	totalRuns.push_back({{9,0.999999},{3,0,2}});
+#pragma omp parallel private(tid)
+	{
+		int indexKey = 0;
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+			if (tid == (indexKey % nthreads)) {
+				for (int numeroParam=0;numeroParam<totalRuns.size();numeroParam++) {
+					generateCSV(-1, "Stress Dyn Stress", "Rerecuit Simule Grille TME Custom", dirEntry.path().string(), slots,totalRuns[numeroParam],tid);
+				}
+			}
+			indexKey++;
+		}
+		printf("Thread %d done.\n", tid);
+	}
 }
 
 // Multithreading sur un seul graphe pour differentes methodes

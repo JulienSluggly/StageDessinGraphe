@@ -110,12 +110,12 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 
 int main() {
 	initRandomSeed();
+	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	//compareStressFMMM(); return 0;
-	//allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
+	allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
 
-	bool useCoordReel = true;
+	bool useCoordReel = false;
 	std::string nomFichierGraph = "graph-10-input";
 	std::string nomFichierSlots = "10-input-slots";
 	//std::string nomFichierSlots = "Grid";
@@ -127,7 +127,7 @@ int main() {
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
-	G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/commanche_dual.mtxclean");
+	G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/1138_bus.mtxclean");
 	//G.readFromJsonGraph(pathGraph);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
@@ -139,14 +139,15 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 	//ogdfOtherTest(G);
-	//ogdfFastMultipoleMultilevelEmbedder(G);
+	ogdfFastMultipoleMultilevelEmbedder(G);
 	//G.stressMajorization();
 	//G.stressMajorization({{}},1);
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
-	ogdfFastMultipoleMultilevelEmbedderReel(G);
+	//G.placementAleatoireReel();
+	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
-	G.translateGrapheToOriginReel(-1);
-	G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
+	//G.translateGrapheToOriginReel(-1);
+	//G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
 	auto finPlacement = std::chrono::system_clock::now();
 	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,true);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
