@@ -107,3 +107,5 @@ Refaire les methodes en coord reel
 Restructurer les methodes de graphe, ne garder en methode de classe que celle qui font sens
 
 Ajouter getNbCroisementConst en mode grille
+
+Recuit reel: tirer dans une boite autour du noeud, cette boite reduit au court de l'execution
