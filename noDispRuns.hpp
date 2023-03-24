@@ -430,6 +430,7 @@ void performanceTest2() {
 }
 
 void testRomeGraphs() {
+#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/rome100/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -463,10 +464,11 @@ void testRomeGraphs() {
 		}
 		printf("Thread %d done.\n",tid);
 	}
-
+#endif
 }
 
 void cleanDimacsGraphs() {
+#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/dimacs/";
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 		if (!containsString(dirEntry.path(),"clean")) {
@@ -477,9 +479,11 @@ void cleanDimacsGraphs() {
 			G.writeToJsonComposanteConnexe(output,G.plusGrandeComposanteConnexe());
 		}
 	}
+#endif
 }
 
 void testCleanGraphs() {
+#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/runs/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -519,9 +523,11 @@ void testCleanGraphs() {
 		}
 		printf("Thread %d done.\n",tid);
 	}
+#endif
 }
 
 void compareStressFMMM() {
+#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/runs/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -567,6 +573,7 @@ void compareStressFMMM() {
 		}
 		printf("Thread %d done.\n",tid);
 	}
+#endif
 }
 
 #endif

@@ -4,6 +4,9 @@
 #include "triangulation.h"
 #include <iostream>
 #include <algorithm>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 Graphe::Graphe(std::string nom) {
     nomGraphe = nom;
@@ -1211,7 +1214,7 @@ void Graphe::scaleGraph(int n) {
 }
 
 Emplacement* Graphe::getClosestEmplacementFromPoint(double x, double y, bool isFree) {
-    double minDist = __DBL_MAX__;
+    double minDist = std::numeric_limits<double>::max();
     int empId = -1;
     for (int i=0;i<_emplacements.size();i++) {
         if (!isFree||_emplacements[i].estDisponible()) {
@@ -1229,7 +1232,7 @@ Emplacement* Graphe::getClosestEmplacementFromPoint(double x, double y, bool isF
 
 int Graphe::getClosestNodeFromPoint(double x, double y) {
     int nodeId = 0;
-    double minDist = __DBL_MAX__;
+    double minDist = std::numeric_limits<double>::max();
     for (int i=0;i<_noeuds.size();i++) {
         if (_noeuds[i].estPlace()) {
             double xDiff = x - (double)_noeuds[i].getEmplacement()->getX();
@@ -1306,7 +1309,7 @@ Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y, bool
     //std::cout << "dnumX: " << dnumX << " dnumY: " << dnumY << std::endl;
     //std::cout << "numX: " << numX << " numY: " << numY << std::endl;
     //std::cout << "StartX: " << startX << " EndX: " << endX << " StartY: " << startY << " EndY: " << endY << std::endl;
-    double minDist = __DBL_MAX__;
+    double minDist = std::numeric_limits<double>::max();
     int closestEmpId = -1;
     while (closestEmpId == -1) {
         for (std::pair<int,int>& cellCoord : searchVector) {

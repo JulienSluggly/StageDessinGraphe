@@ -223,8 +223,10 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 
 		char date[80];
+#if defined(LINUX_OS)
 		time_t t = time(0);
     	strftime(date, 80, "%d/%m/%Y", localtime(&t));
+#endif
 
 		resultats << std::fixed;
 		resultats << methodePlacementName << ","
