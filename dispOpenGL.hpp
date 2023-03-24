@@ -518,6 +518,53 @@ void openGLShowCells(Graphe& G) {
 	}
 }
 
+void openGLShowCellsReel(Graphe& G) {
+	if (show_cells) {
+		glLineWidth(2.0f);
+		glColor3f(0.8f, 0.7f, 0.6f);
+		for (int i=0;i<G.grille.size();i++) {
+			for (int j=0;j<G.grille[i].size();j++) {
+				double x1 = G.grille[i][j].getBottomRightXReel();
+				double y1 = G.grille[i][j].getBottomRightYReel();
+				double x2 = G.grille[i][j].getBottomLeftXReel();
+				double y2 = G.grille[i][j].getTopRightYReel();
+				glBegin(GL_LINE_STRIP);
+				glVertex2d(x1, y1);
+				glVertex2d(x2, y1);
+				glEnd();
+				glBegin(GL_LINE_STRIP);
+				glVertex2d(x1, y1);
+				glVertex2d(x1, y2);
+				glEnd();
+				if (j == 0) {
+					glBegin(GL_LINE_STRIP);
+					glVertex2d(x2, y1);
+					glVertex2d(x2, y2);
+					glEnd();
+				}
+				if (i == G.grille.size()-1) {
+					glBegin(GL_LINE_STRIP);
+					glVertex2d(x2, y2);
+					glVertex2d(x1, y2);
+					glEnd();
+				}
+			}
+		}
+		if (show_selected_cell) {
+			double x1 = G.grille[selectedCellY][selectedCellX].getTopLeftXReel();
+			double y1 = G.grille[selectedCellY][selectedCellX].getTopLeftYReel();
+			double x2 = G.grille[selectedCellY][selectedCellX].getBottomRightXReel();
+			double y2 = G.grille[selectedCellY][selectedCellX].getBottomRightYReel();
+			glBegin(GL_QUADS);
+			glVertex2f(x1, y1);
+			glVertex2f(x2, y1);
+			glVertex2f(x2, y2);
+			glVertex2f(x1, y2);
+			glEnd();
+		}
+	}
+}
+
 void openGLShowSelected(Graphe& G) {
 	glPointSize(7);
 	glBegin(GL_POINTS);
@@ -533,6 +580,19 @@ void openGLShowSelected(Graphe& G) {
 	if (show_selected_emplacement) {
 		glColor3f(0.5f, 0.0f, 0.0f);
 		glVertex2d(G._emplacements[selectedEmplacement].getX(), G._emplacements[selectedEmplacement].getY());
+	}
+	glEnd();
+}
+
+void openGLShowSelectedReel(Graphe& G) {
+	glPointSize(7);
+	glBegin(GL_POINTS);
+	if (show_selected_node) {
+		glColor3f(0.0f, 0.0f, 1.0f);
+		if (moving) {
+			glColor3f(0.0f, 0.5f, 0.0f);
+		}
+		glVertex2d(G._noeuds[selectedNode]._xreel, G._noeuds[selectedNode]._yreel);
 	}
 	glEnd();
 }
@@ -829,8 +889,30 @@ void openGLKeyPressFunction(Graphe& G) {
 			break;
 		}
 		case 19: {// Affiche le contenu de la cellule (KEY:F8)
+			if (show_selected_emplacement) {
+				std::cout << "Selected Emplacement: " << selectedEmplacement;
+				if (selectedEmplacement >= 0) {
+					if (G._emplacements[selectedEmplacement]._noeud != nullptr) {
+						std::cout << " Non Disponible. Node Id: " << G._emplacements[selectedEmplacement]._noeud->_id << std::endl;
+					}
+					else {
+						std::cout << " Disponible.\n";
+					}
+				}
+			}
+			if (show_selected_node) {
+				std::cout << "Selected Node: " << selectedNode;
+				if (selectedNode >= 0) {
+					if (G._noeuds[selectedNode]._emplacement != nullptr) {
+						std::cout << " Emplacement Id: " << G._noeuds[selectedNode]._emplacement->_id << std::endl;
+					}
+					else if (G.useCoordReel) {
+						std::cout << " Coord: X: " << G._noeuds[selectedNode]._xreel << " Y: " << G._noeuds[selectedNode]._yreel << std::endl;
+					}
+				}
+			}
 			if (show_cells && show_selected_cell) {
-				std::cout << "Cellule: " << selectedCellY << " " << selectedCellX << " id: " << selectedCellY * G.grille[0].size() + selectedCellX << std::endl;
+				std::cout << "Selected Cellule: " << selectedCellY << " " << selectedCellX << " id: " << selectedCellY * G.grille[0].size() + selectedCellX << std::endl;
 				for (const int& id : G.grille[selectedCellY][selectedCellX].vecEmplacementId) {
 					std::cout << "	Emplacement: " << id << " Noeud: " << G._emplacements[id]._noeud->_id << std::endl;
 				}
@@ -942,8 +1024,10 @@ void openGLShowEverything(Graphe& G) {
 		openGLShowSelected(G);
 	}
 	else {
+		openGLShowCellsReel(G);
 		openGLShowEdgesReel(G);
 		openGLShowNodesReel(G);
+		openGLShowSelectedReel(G);
 	}
 }
 

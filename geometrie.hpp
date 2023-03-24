@@ -12,6 +12,9 @@ bool aGauche(int sx, int sy, int tx, int ty, int cx, int cy);
 //si c est � gauche de (s;t) renvoie 1, si c est � droite de (s;t) renvoie -1, si c,s et t sont align�s renvoie 0
 int aGaucheInt(int sx, int sy, int tx, int ty, int cx, int cy);
 
+//si c est � gauche de (s;t) renvoie 1, si c est � droite de (s;t) renvoie -1, si c,s et t sont align�s renvoie 0
+int aGaucheIntReel(double sx, double sy, double tx, double ty, double cx, double cy);
+
 // Renvoie vrai si c est dans le rectangle form� par st
 bool dansRectangle(int sx,int sy,int tx,int ty,int cx,int cy);
 

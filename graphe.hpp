@@ -544,6 +544,8 @@ public:
 	// Pareil que initGrilleNoMove, les cellules ont la meme largeur et hauteur
 	void initGrilleCarre();
 
+	void initGrilleReel(int row=-1,int column=-1);
+
 	// Remplie la grille de cellules, nombre de ligne et nombre de colones.
 	// Chaque emplacement est associé a 1,2 ou 4 cellules.
 	void initGrilleNoMove(int row=-1,int column=-1);
@@ -557,11 +559,20 @@ public:
 	// Supprime la grille courante
 	void deleteGrille();
 
+	// Avec coord flottantes uniquement
+	void registerNodesInGrid();
+
+	// Avec coord flottantes uniquement
+	void registerNodesAndEdgesInGrid();
+
 	// Enregistre les emplacements et les aretes dans la grille
 	void registerSlotsAndEdgesInGrid();
 
 	// Enregistre les aretes dans la grille
 	void registerEdgesInGrid();
+
+	// Enregistre les aretes dans la grille en coord flottantes
+	void registerEdgesInGridReel();
 
 	// Enregistre avec alignements d'emplacements
 	void registerSlotsInGrid();
@@ -575,11 +586,24 @@ public:
 	//0=R,1=TR,2=T,3=TL,4=L,5=BL,6=B,7=BR
 	int getDirectionArete(int idArete);
 
+	// Renvoie un entier indiquant la direction de l'arete noeud1 vers noeud2.
+	//0=R,1=TR,2=T,3=TL,4=L,5=BL,6=B,7=BR
+	int getDirectionAreteReel(int idArete);
+
 	// Met a jour les cellules passée par l'arete areteId
 	void recalcAreteCellule(int areteId);
 
+	// Met a jour les cellules passée par l'arete areteId
+	void recalcAreteCelluleReel(int areteId);
+
 	// Met a jour les aretes du noeud dans les cellules
 	void recalcNodeCellule(int nodeId);
+
+	// Met a jour les aretes du noeud dans les cellules
+	void recalcNodeCelluleReel(int nodeId);
+
+	// Met a jour les cellules dans le noeud uniquement
+	void recalcSpecificNodeCell(int nodeId);
 
 	// Ajoute les id dans les cellules et dans l'arete
 	void initAreteCellule(int areteId);

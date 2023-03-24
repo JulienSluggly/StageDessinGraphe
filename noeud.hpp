@@ -28,6 +28,7 @@ public:
 	double pivotY = -1;
 	double _xreel = -12345;
 	double _yreel = -12345;
+	std::vector<int>* idCelluleVec = nullptr;
 	
 	int areteCommune(Noeud* noeudVoisin) {
 		for (const int& idArete1 : _aretes) {

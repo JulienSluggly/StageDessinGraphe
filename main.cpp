@@ -39,7 +39,6 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 }
 
 void runFuncOnFolder() {
-#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/sparceMC/";
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 		std::cout << "---------------------\n";
@@ -62,7 +61,6 @@ void runFuncOnFolder() {
 		auto finPlacement = std::chrono::system_clock::now();
 		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 	}
-#endif
 }
 
 void runFuncOnAllGraphs() {
@@ -111,30 +109,30 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 }
 
 int main() {
-	initRandomSeed();
+	//initRandomSeed();
 	//runFuncOnAllGraphsAllSlots(); return 0;
-	//initSameSeed();
+	initSameSeed();
 	//compareStressFMMM(); return 0;
 	//allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
 
-	bool useCoordReel = false;
-	std::string nomFichierGraph = "graph-11-input";
-	//std::string nomFichierSlots = "11-input-slots";
-	std::string nomFichierSlots = "Grid";
+	bool useCoordReel = true;
+	std::string nomFichierGraph = "graph-10-input";
+	std::string nomFichierSlots = "11-input-slots";
+	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
-	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/football.graphclean");
+	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/commanche_dual.mtxclean");
-	//G.readFromJsonGraph(pathGraph);
+	G.readFromJsonGraph(pathGraph);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
-	G.DEBUG_GRAPHE = true; G.DEBUG_PROGRESS = true;
+	G.DEBUG_GRAPHE = false; G.DEBUG_PROGRESS = false;
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
@@ -145,12 +143,13 @@ int main() {
 	//G.stressMajorization();
 	//G.stressMajorization({{}},1);
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
-	G.placementAleatoire();
-	//ogdfFastMultipoleMultilevelEmbedderReel(G);
+	ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
-	//G.translateGrapheToOriginReel(-1);
+	G.translateGrapheToOriginReel(-1);
+	G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
 	auto finPlacement = std::chrono::system_clock::now();
-	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,false,false);
+	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,true);
+	G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
 	//G.afficherInfo();
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);

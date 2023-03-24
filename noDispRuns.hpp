@@ -430,7 +430,6 @@ void performanceTest2() {
 }
 
 void testRomeGraphs() {
-#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/rome100/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -445,7 +444,7 @@ void testRomeGraphs() {
 			if (i%nthreads == tid) {
 				printf("Tid: %d | i: %d\n",tid,i);
 				Graphe G;
-				G.readFromGraphmlGraph(dirEntry.path());
+				G.readFromGraphmlGraph(dirEntry.path().string());
 				auto start = std::chrono::system_clock::now();
 				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 				G.generateGrid();
@@ -457,33 +456,29 @@ void testRomeGraphs() {
 				std::chrono::duration<double> secondsTotal = end - start;
 				std::string nomFichier = chemin + "resultats/resultatsRome/" + to_string(tid) + ".csv";
 				std::ofstream resultats(nomFichier, std::ios_base::app);
-				resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+				resultats << dirEntry.path().string() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
 				resultats.close();
 			}
 			i++;
 		}
 		printf("Thread %d done.\n",tid);
 	}
-#endif
 }
 
 void cleanDimacsGraphs() {
-#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/dimacs/";
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		if (!containsString(dirEntry.path(),"clean")) {
+		if (!containsString(dirEntry.path().string(),"clean")) {
 			Graphe G;
-			G.readFromDimacsGraphClean(dirEntry.path());
-			std::string output = dirEntry.path();
+			G.readFromDimacsGraphClean(dirEntry.path().string());
+			std::string output = dirEntry.path().string();
 			output = output + "clean";
 			G.writeToJsonComposanteConnexe(output,G.plusGrandeComposanteConnexe());
 		}
 	}
-#endif
 }
 
 void testCleanGraphs() {
-#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/runs/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -496,9 +491,9 @@ void testCleanGraphs() {
 		}
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			if (i%nthreads == tid) {
-				printf("Tid: %d | i: %d | File: %s\n",tid,i,dirEntry.path().c_str());
+				printf("Tid: %d | i: %d | File: %s\n",tid,i,dirEntry.path().string().c_str());
 				Graphe G;
-				G.readFromJsonGraph(dirEntry.path());
+				G.readFromJsonGraph(dirEntry.path().string());
 				auto start = std::chrono::system_clock::now();
 				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 				int nbNoeud = 2 * G._noeuds.size();
@@ -516,18 +511,16 @@ void testCleanGraphs() {
 				std::chrono::duration<double> secondsPlacement = finPlacement - start;
 				std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
 				std::ofstream resultats(nomFichier, std::ios_base::app);
-				resultats << dirEntry.path() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << "," << secondsPlacement.count()<< std::endl;
+				resultats << dirEntry.path().string() << "," << to_string(i) << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << "," << secondsPlacement.count()<< std::endl;
 				resultats.close();
 			}
 			i++;
 		}
 		printf("Thread %d done.\n",tid);
 	}
-#endif
 }
 
 void compareStressFMMM() {
-#if defined(LINUX_OS)
 	std::string path = chemin + "benchGraphs/runs/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -541,11 +534,11 @@ void compareStressFMMM() {
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			if (i%nthreads == tid) {
 				resetSeed(tid,true,true);
-				printf("Tid: %d | i: %d | File: %s\n",tid,i,dirEntry.path().c_str());
+				printf("Tid: %d | i: %d | File: %s\n",tid,i,dirEntry.path().string().c_str());
 				for (int methode=0;methode<=2;methode++) {
 					for (int slots=-3;slots<=9;slots++) {
 						Graphe G;
-						G.readFromJsonGraph(dirEntry.path());
+						G.readFromJsonGraph(dirEntry.path().string());
 						int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 						G.generateActivationGrid(nbNoeud,nbNoeud,9);
 						G.gridWidth = nbNoeud;
@@ -564,7 +557,7 @@ void compareStressFMMM() {
 						std::chrono::duration<double> secondsPlacement = finPlacement - start;
 						std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
 						std::ofstream resultats(nomFichier, std::ios_base::app);
-						resultats << dirEntry.path() << "," << methode << "," << slots << "," << G._emplacements.size() << "," << G.getNbCroisementDiff() << "," << secondsPlacement.count() << "," << G.debugEverything() << std::endl;
+						resultats << dirEntry.path().string() << "," << methode << "," << slots << "," << G._emplacements.size() << "," << G.getNbCroisementDiff() << "," << secondsPlacement.count() << "," << G.debugEverything() << std::endl;
 						resultats.close();
 					}
 				}
@@ -573,7 +566,40 @@ void compareStressFMMM() {
 		}
 		printf("Thread %d done.\n",tid);
 	}
-#endif
+}
+
+void testGraphsReel() {
+	std::string path = chemin + "benchGraphs/runs/";
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		int i = 0;
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+			if (i % nthreads == tid) {
+				printf("Tid: %d | i: %d | File: %s\n", tid, i, dirEntry.path().string().c_str());
+				Graphe G;
+				G.readFromJsonGraph(dirEntry.path().string());
+				auto start = std::chrono::system_clock::now();
+				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
+				G.placementAleatoireReel();
+				ogdfFastMultipoleMultilevelEmbedderReel(G);
+				G.rerecuitSimuleReel(tempsBest, nombreRecuit, start, {},-1,0.999999,0.99,100.0,0.0001,1,0,2,false,false);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> secondsTotal = end - start;
+				std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
+				std::ofstream resultats(nomFichier, std::ios_base::app);
+				resultats << dirEntry.path().string() << "," << G.getNbCroisementDiffReel() << "," << tempsBest << "," << secondsTotal.count() << "," << std::endl;
+				resultats.close();
+			}
+			i++;
+		}
+		printf("Thread %d done.\n", tid);
+	}
 }
 
 #endif

@@ -10,12 +10,20 @@ public:
     int _x1, _y1; // Coin haut gauche
     int _x2, _y2; // Coin bas droite
 
+    double _x1reel, _y1reel; // Coin haut gauche
+    double _x2reel, _y2reel; // Coin bas droite
+
     std::vector<int> vecEmplacementId;
     std::vector<int> vecAreteId;
 
     Cellule(int id, int nx, int ny, int x1, int y1, int x2, int y2) {
         _id = id; _numeroX = nx; _numeroY = ny;
         _x1 = x1; _x2 = x2; _y1 = y1; _y2 = y2;
+    }
+
+    Cellule(int id, int nx, int ny, double x1, double y1, double x2, double y2) {
+        _id = id; _numeroX = nx; _numeroY = ny;
+        _x1reel = x1; _x2reel = x2; _y1reel = y1; _y2reel = y2;
     }
 
     int getTopLeftX() { return _x1; }
@@ -26,6 +34,15 @@ public:
     int getBottomLeftY() { return _y2; }
     int getBottomRightX() { return _x2; }
     int getBottomRightY() { return _y2; }
+
+    double getTopLeftXReel() { return _x1reel; }
+    double getTopLeftYReel() { return _y1reel; }
+    double getTopRightXReel() { return _x2reel; }
+    double getTopRightYReel() { return _y1reel; }
+    double getBottomLeftXReel() { return _x1reel; }
+    double getBottomLeftYReel() { return _y2reel; }
+    double getBottomRightXReel() { return _x2reel; }
+    double getBottomRightYReel() { return _y2reel; }
 
 };
 

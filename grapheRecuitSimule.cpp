@@ -354,7 +354,7 @@ int Graphe::calculImproveReel(int nodeId,std::pair<double,double>& randCoord, bo
     _noeuds[nodeId].setCoordReel(randCoord);
     if (useScore) { changeUpdateValue(nodeId); }
     if (useScore) { updateNodeScore(nodeId); }
-    if (useGrille) { recalcNodeCellule(nodeId); }
+    if (useGrille) { recalcNodeCelluleReel(nodeId); }
     long newScoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore,true);
     return newScoreNode - scoreNode;
 }
@@ -562,7 +562,7 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
                     if (useScore) { changeUpdateValue(nodeId); }
                     else { _noeuds[nodeId].setCoordReel(oldCoord); }
                     if (useScore) { updateNodeScore(nodeId); }
-                    if (useGrille) { recalcNodeCellule(nodeId); }
+                    if (useGrille) { recalcNodeCelluleReel(nodeId); }
                 }
                 else {
                     nbCroisement += improve;
