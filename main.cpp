@@ -113,12 +113,13 @@ int main() {
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	allRunsBySlotsSecondRun(); testRomeGraphs(); return 0;
+	testGraphsCompletReel(); return 0;
+	//testRomeGraphs(); return 0;
 
-	bool useCoordReel = false;
+	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
-	std::string nomFichierSlots = "10-input-slots";
-	//std::string nomFichierSlots = "Grid";
+	//std::string nomFichierSlots = "10-input-slots";
+	std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
@@ -127,8 +128,9 @@ int main() {
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
-	G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/1138_bus.mtxclean");
+	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/adjnoun.graphclean");
 	//G.readFromJsonGraph(pathGraph);
+	G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
@@ -138,23 +140,24 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	//ogdfOtherTest(G);
-	ogdfFastMultipoleMultilevelEmbedder(G);
-	//G.stressMajorization();
+	//ogdfFastMultipoleMultilevelEmbedder(G);
 	//G.stressMajorization({{}},1);
-	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
+	//G.stressMajorization();
+	//ogdfOther(G);
 	//G.placementAleatoireReel();
-	//ogdfFastMultipoleMultilevelEmbedderReel(G);
+	ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
-	//G.translateGrapheToOriginReel(-1);
+	G.translateGrapheToOriginReel(-1);
 	//G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
 	auto finPlacement = std::chrono::system_clock::now();
-	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,true);
+	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
+	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
+	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.1,0.0001,1,0,2,true);
+	G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,false);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
 	//G.afficherInfo();
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
-	
 	// OpenGL
 	bool useOpenGL = true;
 	if (useOpenGL) {

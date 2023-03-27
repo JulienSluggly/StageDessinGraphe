@@ -65,6 +65,8 @@ void ogdfOther(Graphe& G);
 
 void ogdfOtherTest(Graphe& G);
 
+void ogdfGutwenger(Graphe& G);
+
 int ogdfTotalNumberOfBends(GraphAttributes& ogdfGa);
 
 // Fait différents test sur le graphe: connexité, biconnecté, genus, crossing number(SubGraphPlanarize)

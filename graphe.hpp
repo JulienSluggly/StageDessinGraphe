@@ -75,6 +75,8 @@ public:
 
 	void afficherNoeuds(std::string nom = "");
 
+	void afficherNoeudsReel(std::string nom = "");
+
 	void afficherEmplacement(std::string nom = "");
 
 	void afficherInfo(std::string nom = "");
@@ -469,6 +471,8 @@ public:
 	// Renvoie le nombre de noeud non place
 	int nbNoeudNonPlace();
 
+	void initCompleteGraph(int n, bool setup=false);
+
 	// Met a jour le score du graphe et de ses noeuds ainsi que les vecteurs d'intersections des aretes
 	void initGraphAndNodeScoresAndCrossings();
 
@@ -636,6 +640,8 @@ public:
 	Emplacement* getClosestEmplacementFromPointGrid(double x, double y, bool isFree=false);
 
 	int getClosestNodeFromPoint(double x, double y);
+
+	int getClosestNodeFromPointReel(double x, double y);
 
 	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree);
 

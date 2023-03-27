@@ -36,7 +36,7 @@ int generateRand(int n) {
 }
 
 void initSameSeed(unsigned int n, bool resetting) {
-    std::cout << "---------- SEED FIXE: 0 ----------\n";
+    std::cout << "---------- SEED FIXE: " << n << " ----------\n";
     typeSeed = "FIXE";
     isSeedRandom = false;
     seed = n;
@@ -50,7 +50,6 @@ void initSameSeed(unsigned int n, bool resetting) {
 }
 
 void initRandomSeed(bool resetting) {
-    std::cout << "---------- SEED RANDOM ----------\n";
     typeSeed = "RANDOM";
     isSeedRandom = true;
     genVector.clear();
@@ -62,6 +61,7 @@ void initRandomSeed(bool resetting) {
         seedThread.push_back(tmpSeed);
         resetSeedThread.push_back(resetting);
     }
+    std::cout << "---------- SEED RANDOM: " << getSeed(0) << " ----------\n";
 }
 
 void resetSeed(int numThread, bool resetSameSeed, bool forceReset) {

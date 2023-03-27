@@ -636,4 +636,37 @@ void testGraphsReel() {
 	}
 }
 
+void testGraphsCompletReel() {
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		for (int i = 16;i<60;i++) {
+			if (i % nthreads == tid) {
+				printf("Tid: %d | K%d\n", tid, i);
+				Graphe G;
+				G.initCompleteGraph(i);
+				auto start = std::chrono::system_clock::now();
+				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
+				ogdfFastMultipoleMultilevelEmbedderReel(G);
+				G.translateGrapheToOriginReel(-1);
+				G.rerecuitSimuleReel(tempsBest, nombreRecuit, start, {},-1,0.999999,0.99,100.0,0.0001,1,0,2,false);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> secondsTotal = end - start;
+				std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
+				std::ofstream resultats(nomFichier, std::ios_base::app);
+				resultats << "K" << i << "," << G.getNbCroisementDiffReel() << "," << tempsBest << "," << secondsTotal.count() << "," << std::endl;
+				resultats.close();
+			}
+		}
+		printf("Thread %d done.\n", tid);
+	}
+	printf("All Threads done.\n");
+}
+
 #endif

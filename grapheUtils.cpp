@@ -1675,6 +1675,21 @@ int Graphe::getClosestNodeFromPoint(double x, double y) {
     return nodeId;
 }
 
+int Graphe::getClosestNodeFromPointReel(double x, double y) {
+    int nodeId = 0;
+    double minDist = std::numeric_limits<double>::max();
+    for (int i=0;i<_noeuds.size();i++) {
+        double xDiff = x - _noeuds[i]._xreel;
+        double yDiff = y - _noeuds[i]._yreel;
+        double newDist = xDiff * xDiff + yDiff * yDiff;
+        if (newDist < minDist) {
+            minDist = newDist;
+            nodeId = i;
+        }
+    }
+    return nodeId;
+}
+
 void Graphe::searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree) {
     for (int& empId : grille[cellY][cellX].vecEmplacementId) {
         if (!isFree||_emplacements[empId].estDisponible()) {
@@ -2042,4 +2057,21 @@ double Graphe::distanceReel(std::pair<double,double>& randCoord,std::pair<double
     double xDiff = randCoord.first - nodeCoord.first;
     double yDiff = randCoord.second - nodeCoord.second;
     return xDiff * xDiff + yDiff * yDiff;
+}
+
+void Graphe::initCompleteGraph(int n, bool setup) {
+    for (int i=0;i<n;i++) {
+        _noeuds.push_back(Noeud(i));
+    }
+    int nbArete = 0;
+    for (int i=0;i<_noeuds.size()-1;i++) {
+        for (int j=i+1;j<_noeuds.size();j++) {
+            _aretes.push_back(Aretes(&_noeuds[i],&_noeuds[j],nbArete));
+            nbArete++;
+        }
+    }
+    if (setup) {
+        int nbNoeud = std::min((int)_noeuds.size()*2,6000);
+	    generateGrid(nbNoeud,nbNoeud);
+    }
 }

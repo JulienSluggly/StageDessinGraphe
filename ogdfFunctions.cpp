@@ -12,12 +12,14 @@
 #include <ogdf/basic/simple_graph_alg.h>
 
 #include <ogdf/planarity/PlanarizationGridLayout.h>
+#include <ogdf/planarlayout/PlanarStraightLayout.h>
 #include <ogdf/planarity/PlanarizationLayout.h>
 #include <ogdf/orthogonal/OrthoLayout.h>
 
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
+#include <ogdf/planarity/VariableEmbeddingInserterBase.h>
 #include <ogdf/planarity/VariableEmbeddingInserterDyn.h>
 #include <ogdf/planarity/PlanarizerStarReinsertion.h>
 #include <ogdf/planarity/PlanarizerMixedInsertion.h>
@@ -29,6 +31,8 @@
 #include <ogdf/energybased/GEMLayout.h>
 #include <ogdf/energybased/PivotMDS.h>
 #include <ogdf/energybased/SpringEmbedderKK.h>
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>
+#include <ogdf/energybased/SpringEmbedderFRExact.h>
 
 #include <ogdf/fileformats/GraphIO.h>
 
@@ -588,11 +592,30 @@ void ogdfOther(Graphe& G) {
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
-	ogdf::SpringEmbedderKK segv;
+	ogdf::SpringEmbedderFRExact segv;
 	segv.call(ogdfGA);
 	ogdfPrintNumberOfCrossings(ogdfGA);
 	//ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	//ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+}
+
+void ogdfGutwenger(Graphe& G) {
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
+	ogdf::PlanRep pr(ogdfGA);
+	ogdf::SubgraphPlanarizer sp = ogdf::SubgraphPlanarizer();
+	sp.permutations(20);
+	ogdf::VariableEmbeddingInserter* veib = new ogdf::VariableEmbeddingInserter();
+	veib->removeReinsert(ogdf::RemoveReinsertType::MostCrossed);
+	sp.setInserter(veib);
+	int crossingNumber;
+	sp.call(pr,0,crossingNumber);
+	printf("%d\n",crossingNumber);
+	ogdfPrintNumberOfCrossings(ogdfGA);
+	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
+	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
+	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
 
 

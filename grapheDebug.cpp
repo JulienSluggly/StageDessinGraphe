@@ -41,6 +41,16 @@ void Graphe::afficherNoeuds(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
 }
 
+void Graphe::afficherNoeudsReel(std::string nom) {
+    std::cout << "-----------------------------------------------" << std::endl;
+    std::cout << "Affichage DEBUG Noeuds: " << nomGraphe << " " << nom << std::endl;
+    std::cout << "Nb Noeuds: " << _noeuds.size() << std::endl;
+    for (int i = 0; i < _noeuds.size(); i++) {
+        std::cout << "id: " << _noeuds[i].getId() << " xreel: " << _noeuds[i]._xreel << " yreel: " << _noeuds[i]._yreel << std::endl;
+    }
+    std::cout << "-----------------------------------------------" << std::endl;
+}
+
 void Graphe::afficherEmplacement(std::string nom) {
     std::cout << "-----------------------------------------------" << std::endl;
     std::cout << "Affichage DEBUG Emplacements: " << nomGraphe << " " << nom << std::endl;

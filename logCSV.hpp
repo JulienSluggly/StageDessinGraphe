@@ -44,7 +44,7 @@ std::string getParamAsString(std::vector<std::vector<double>>& customParam) {
 		paramStream << "{";
 		if (param.size() > 0) {
 			for (int i=0;i<param.size();i++) {
-				if (i<=1) { paramStream << std::setprecision(0) << param[i]; }
+				if (i==0) { paramStream << std::setprecision(0) << param[i]; }
 				else { 
 					if (param[i] > 1) { paramStream << std::setprecision(2) << param[i]; }
 					else { paramStream << std::setprecision(9) << param[i]; }

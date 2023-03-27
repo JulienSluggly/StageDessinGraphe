@@ -54,33 +54,27 @@ void error_callback(int error, const char* description) {
 }
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+	glfwGetCursorPos(window, &clicX, &clicY);
+	clicX *= ratioAffichageX;
+	clicY *= ratioAffichageY;
+	clicY = (gridHeight - clicY)-1;
+	clicX -= 1;
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-       glfwGetCursorPos(window, &clicX, &clicY);
-	   clicX *= ratioAffichageX;
-	   clicY *= ratioAffichageY;
-	   clicY = (gridHeight - clicY)-1;
-	   clicX -= 1;
-	   std::cout << clicX << " " << clicY << std::endl;
 	   if (show_selected_emplacement) {
 			keyPressFunctionNum = 27; singleKeyPress = true;
+			std::cout << clicX << " " << clicY << std::endl;
 		}
 		else if (show_cells) {
 			// TO DO IF NEEDED
 		}
 		else if (show_selected_node) {
 			keyPressFunctionNum = 26; singleKeyPress = true;
+			std::cout << clicX << " " << clicY << std::endl;
 		}
     }
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-		if (!useReel) {
-			glfwGetCursorPos(window, &clicX, &clicY);
-			clicX *= ratioAffichageX;
-			clicY *= ratioAffichageY;
-			clicY = (gridHeight - clicY)-1;
-			clicX -= 1;
-			std::cout << clicX << " " << clicY << std::endl;
-			keyPressFunctionNum = 29; singleKeyPress = true;
-		}
+		keyPressFunctionNum = 29; singleKeyPress = true;
+		std::cout << clicX << " " << clicY << std::endl;
 	}
 }
 
@@ -667,15 +661,21 @@ void openGLKeyPressFunction(Graphe& G) {
 			break;
 		}
 		case 3: {// Recuit simule
-			std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
-			auto start = std::chrono::system_clock::now();
-			double timeBest;
-			G.recuitSimule(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
-			auto end = std::chrono::system_clock::now();
-			std::chrono::duration<double> secondsTotal = end - start;
-			std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
-			std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
-			std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+			if (useReel) {
+
+			}
+			else {
+				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
+				auto start = std::chrono::system_clock::now();
+				double timeBest;
+				bool useGrille = G.grillePtr.size() > 0;
+				G.recuitSimule(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,useGrille,false);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> secondsTotal = end - start;
+				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
+				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+			}
 			break;
 		}
 		case 4: {// Step Recuit Simule
@@ -815,16 +815,21 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 12: {// Debug All Info
+		case 12: {// Debug All Info (KEY: F3)
 			if (display_genetic) {
 				parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
 				parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
 			}
 			else {
-				G.afficherInfo();
-				//G.afficherNoeuds();
-				G.afficherLiens();
-				//G.afficherEmplacement();
+				if (useReel) {
+					G.afficherNoeudsReel();
+				}
+				else {
+					G.afficherInfo();
+					//G.afficherNoeuds();
+					G.afficherLiens();
+					//G.afficherEmplacement();
+				}
 			}
 			break;
 		}
@@ -886,7 +891,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 18: {// Recalc Illegal
+		case 18: {// Recalc Illegal (KEY: I)
 			recalcIllegal = true;
 			break;
 		}
@@ -964,8 +969,14 @@ void openGLKeyPressFunction(Graphe& G) {
 			break;
 		}
 		case 26: {//Selection node (clic gauche avec modeNode)
-			selectedNode = G.getClosestNodeFromPoint(clicX,clicY);
-			std::cout << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode].getEmplacement()->_x << " Y: " << G._noeuds[selectedNode].getEmplacement()->_y << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
+			if (useReel) { 
+				selectedNode = G.getClosestNodeFromPointReel(clicX,clicY); 
+				std::cout << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode]._xreel << " Y: " << G._noeuds[selectedNode]._yreel << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
+			}
+			else { 
+				selectedNode = G.getClosestNodeFromPoint(clicX,clicY);
+				std::cout << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode].getEmplacement()->_x << " Y: " << G._noeuds[selectedNode].getEmplacement()->_y << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
+			}
 			break;
 		}
 		case 27: {//Selection emplacement (clic gauche avec modeEmplacement)
@@ -978,19 +989,30 @@ void openGLKeyPressFunction(Graphe& G) {
 			break;
 		}
 		case 28: {// Recuit simule a basse temperature (KEY: F2)
-			std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
-			auto start = std::chrono::system_clock::now();
-			double timeBest;
-			G.recuitSimule(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,false,false);
-			auto end = std::chrono::system_clock::now();
-			std::chrono::duration<double> secondsTotal = end - start;
-			std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
-			std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
-			std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+			if (useReel) {
+
+			}
+			else {
+				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
+				auto start = std::chrono::system_clock::now();
+				double timeBest;
+				G.recuitSimule(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,false,false);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> secondsTotal = end - start;
+				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
+				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+			}
 			break;
 		}
-		case 29: {//Force Selected Emplacement (Right Click)
-			selectedEmplacement = G.getClosestEmplacementFromPoint(clicX,clicY)->_id;
+		case 29: {//Force Selected Emplacement, (UseReel) Change selected node coord (Right Click)
+			if (!useReel) {
+				selectedEmplacement = G.getClosestEmplacementFromPoint(clicX,clicY)->_id;
+			}
+			else {
+				G._noeuds[selectedNode]._xreel = clicX;
+				G._noeuds[selectedNode]._yreel = clicY;
+			}
 			break;
 		}
 		case 30: {//Generate x2 more emplacement (KEY: F10)
