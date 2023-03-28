@@ -113,7 +113,7 @@ int main() {
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	//testGraphsCompletReel(); return 0;
+	testGraphsCompletReel(); return 0;
 	//testRomeGraphs(); return 0;
 
 	bool useCoordReel = true;
