@@ -117,7 +117,7 @@ int main() {
 	//testRomeGraphs(); return 0;
 
 	bool useCoordReel = true;
-	std::string nomFichierGraph = "graph-10-input";
+	std::string nomFichierGraph = "graph-12-input";
 	//std::string nomFichierSlots = "10-input-slots";
 	std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;

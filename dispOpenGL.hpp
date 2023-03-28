@@ -50,7 +50,7 @@ std::vector<int> graphCopy;
 Graphe parent1("parent1"), parent2("parent2"), enfant("enfant");
 int nbNoeudATraiter, currentGrapheNumber=0;
 double initialClicX, initialClicY;
-double sensiDrag = 10.0;
+double sensiDrag;
 double clicX=0.0, clicY=0.0;
 double cursorPosX, cursorPosY;
 double margeXDebut = 1, margeXFin = 1, margeYDebut = 1, margeYFin = 1;
@@ -1122,6 +1122,7 @@ void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
 	ratioAffichageY = (double)(G.gridHeight+margeYDebut+margeYFin) / windowHeight;
 	updateOrtho();
 	originalOrthoStartX = orthoStartX; originalOrthoStartY = orthoStartY; originalOrthoEndX = orthoEndX; originalOrthoEndY = orthoEndY;
+	sensiDrag = 10.0/(gridWidth/280.0);
 }
 
 void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false) {
