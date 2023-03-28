@@ -12,7 +12,6 @@
 #include "graphe.hpp"
 
 bool useReel = false;
-bool printRaccourcis = false;
 bool singleKeyPress = false;
 int keyPressFunctionNum = -1;
 
@@ -435,7 +434,7 @@ void openGLShowEdges(Graphe& G) {
 			}
 			if (showIllegal) {
 				for (auto &a : G.areteInter) {
-					glColor3f(1.0f, 0.0f, 0.0f);
+					glColor3f(0.75f, 0.0f, 0.0f);
 					glBegin(GL_LINE_STRIP);
 					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
 					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
@@ -473,7 +472,7 @@ void openGLShowEdgesReel(Graphe& G) {
 			}
 			if (showIllegal) {
 				for (auto &a : G.areteInter) {
-					glColor3f(1.0f, 0.0f, 0.0f);
+					glColor3f(0.75f, 0.0f, 0.0f);
 					glBegin(GL_LINE_STRIP);
 					glVertex2d(a->getNoeud1()->_xreel, a->getNoeud1()->_yreel);
 					glVertex2d(a->getNoeud2()->_xreel, a->getNoeud2()->_yreel);
@@ -654,7 +653,7 @@ void openGLShowGrid() {
 	glEnd();
 }
 
-void openGLPrintRaccourcis() {
+void openGLPrintRaccourcis(bool printRaccourcis) {
 	if (printRaccourcis) {
 		std::cout << "-------------------------------------" << std::endl;
 		std::cout << "RACCOURCIS CLAVIER POUR INTERRACTION OPENGL" << std::endl;
@@ -685,7 +684,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		//std::cout << "KeyPress: " << keyPressFunctionNum << std::endl;
 		bool recalcIllegal = false;
 		switch(keyPressFunctionNum) {
-		case 0: {// Save Graphe
+		case 0: {// Save Graphe to JSON
 			G.writeToJsonGraph("currentGraphe.json");
 			G.writeToJsonSlots("currentGrapheSlots.json");
 			break;
@@ -698,6 +697,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		case 2: {// Load copy
 			if (graphCopy.size() == G._noeuds.size()) { G.loadCopy(graphCopy); }
 			else { std::cout << "Copy failed.\n"; }
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 3: {// Recuit simule
@@ -750,6 +750,7 @@ void openGLKeyPressFunction(Graphe& G) {
 					G.placementAleatoireReel();
 				}
 			}
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 6: {// Placement Glouton Revisite
@@ -767,6 +768,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				G.clearNodeEmplacement();
 				G.gloutonRevisite();
 			}
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 7: {// Affiche score (KEY: ')
@@ -853,6 +855,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				}
 				selectedEmplacement = oldEmplacement;
 			}
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 12: {// Debug All Info (KEY: F3)
@@ -977,6 +980,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			else {
 				G.stressMajorizationReel();
 			}
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 21: {// Print current seed
@@ -1002,10 +1006,12 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 24: {//Rotate le graphe +5° (KEYPAD:7)
 			G.rotateGraph(5);
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 25: {//Rotate le graphe -5° (KEYPAD:4)
 			G.rotateGraph(-5);
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 26: {//Selection node (clic gauche avec modeNode)
@@ -1030,19 +1036,30 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 28: {// Recuit simule a basse temperature (KEY: F2)
 			if (useReel) {
-
+				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisementReelConst() << std::endl;
+				auto start = std::chrono::system_clock::now();
+				double timeBest;
+				bool useGrille = G.grillePtr.size() > 0;
+				G.recuitSimuleReel(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,useGrille,false);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> secondsTotal = end - start;
+				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
+				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
 			}
 			else {
 				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
 				auto start = std::chrono::system_clock::now();
 				double timeBest;
-				G.recuitSimule(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,false,false);
+				bool useGrille = G.grillePtr.size() > 0;
+				G.recuitSimule(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,useGrille,false);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
 				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
 				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
 				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
 			}
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 29: {//Force Selected Emplacement, (UseReel) Change selected node coord (Right Click)
@@ -1052,6 +1069,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			else {
 				G._noeuds[selectedNode]._xreel = clicX;
 				G._noeuds[selectedNode]._yreel = clicY;
+				if (showIllegal) recalcIllegal = true;
 			}
 			break;
 		}
@@ -1065,9 +1083,8 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		if (recalcIllegal) {
 			G.clearSetAreteInter();
-			for (int i = 0; i < G._noeuds.size(); i++) {
-				G.recalculateIllegalIntersections(i);
-			}
+			if (useReel) { G.recalculateIllegalIntersectionsReel(); }
+			else { G.recalculateIllegalIntersections(); }
 			recalcIllegal = false;
 		}
 		if (!repeatInfinitely) {
@@ -1111,6 +1128,7 @@ void openGLDisplay() {
 }
 
 void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
+	if (G._emplacements.size() >= (G._noeuds.size() * G._noeuds.size())/2) { showEmplacement = false; }
 	useReel = useReelCoord;
 	maxNodeIndex = G._noeuds.size() - 1;
 	maxEmplacementIndex = G._emplacements.size() - 1;
@@ -1128,28 +1146,12 @@ void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
 void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false) {
 	gridWidth = w; gridHeight = h; initialGridWidth = gridWidth; initialGridHeight = gridHeight; maxX = mx; maxY = my;
 
-	if (G._emplacements.size() >= (G._noeuds.size() * G._noeuds.size())/2) { showEmplacement = false; }
-
-	// Chrono pour le temps d'exec, utilise pour le stockage de donnee pour la creation de graphiques, a supprimer lors de vrai tests
-	auto start = std::chrono::system_clock::now();
-	auto lastWritten = std::chrono::system_clock::now();
-	// NB tour pour le stockage de donnee pour les graphiques, a supprimer lors de vrai executions
-	unsigned long long totalTurn = 0;
-	unsigned long long lastWrittenTurn = 0;
 	openGLInitGlobalVariables(G,useReelCoord);
+	openGLPrintRaccourcis(false);
 
-	openGLPrintRaccourcis();
-
-	//fin ogdf
-	if (!glfwInit())
-		exit(EXIT_FAILURE);
-	//GLFWwindow* window = glfwCreateWindow(1820, 980, "Fenetre OpenGL", NULL, NULL);
+	if (!glfwInit()) { exit(EXIT_FAILURE); }
 	GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "Fenetre OpenGL", NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	}
+	if (!window) { glfwTerminate(); exit(EXIT_FAILURE); }
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glfwSetErrorCallback(error_callback);
 	glfwSetKeyCallback(window, key_callback);
@@ -1158,11 +1160,8 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwMakeContextCurrent(window);
 	int width, height;
-	glLineWidth(3);
 	while (!glfwWindowShouldClose(window)) {
-		float ratio;
 		glfwGetFramebufferSize(window, &width, &height);
-		ratio = width / (float)height;
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);

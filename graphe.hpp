@@ -387,7 +387,9 @@ public:
 	// Met a jour les vecteurs de la grille et des aretes
 	void applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int nodeIndex);
 
-	void recalculateIllegalIntersections(int i);
+	void recalculateIllegalIntersections();
+
+	void recalculateIllegalIntersectionsReel();
 
 	// Effectue le croisement entre deux parents,
 	// Renvoie vrai si les deux parents ne sont pas identique

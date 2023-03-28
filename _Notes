@@ -1,5 +1,4 @@
-Structure arete:
-    Liste de marque avec toutes les autres aretes
+Liste de marque avec toutes les autres aretes
 
 Gagner de l'espace memoire en remplacant les vecteurs pas toujours utilisés par des pointeurs de vecteurs
 
@@ -9,7 +8,7 @@ Iterative edge insertion and optimize at each step the number of crossings
 
 Selection de noeud pas au hasard mais ordonnée par score? ordonné, avant puis arriere?
 
-Tester sur les romes graphs, AT&T, Triangulation+X
+Tester AT&T, Triangulation+X
 
 Variante recuit qui modifie la probabilité d'acceptation
 
@@ -29,19 +28,7 @@ Regarder si il est possible d'implementer l'algo de planarisation d'ogdf avec no
 
 Restructurer le code genetique pour les appels des differentes fonctions
 
-Changer edgecost pour les setup qui n'arrivent pas a bien se finir dans le stressMajorization?
-
 Genetique qui place n/2 noeud iterativement et produit deux enfants
-
-Ameliorer selection openGL a la souris
-
-Methode qui detecte l'optimum local du stress min
-
-Methode qui ajuste automatiquement le edgecost du stressMin
-
-Methode qui detecte quand les noeuds sont regroupés sur les bords des emplacements disponibles
-
-Methode qui detecte si une rotation serait utile pour le graphe.
 
 Optimiser la taille de la grille carre pour le stress Maj.
 
@@ -67,15 +54,9 @@ Spring Embedding, Graphviz twopi
 
 Implementer fast multipole multilevel avec nos contraintes?
 
-Restester recuit avec des delai plus fins sur tout les graphes 0.99999 0.9999945 0.9999999
-
-Test avec le FMMM en comparaison avec le stressMin
-
 ogdfFMMM suivi du stressMin?
 
 Restructurer les methodes de graphe, ne garder en methode de classe que celle qui font sens
-
-Ajouter getNbCroisementConst en mode grille
 
 Recuit reel: tirer dans une boite autour du noeud, cette boite reduit au court de l'execution
 

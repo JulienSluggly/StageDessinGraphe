@@ -116,20 +116,20 @@ int main() {
 	//testGraphsCompletReel(); return 0;
 	//testRomeGraphs(); return 0;
 
-	bool useCoordReel = true;
-	std::string nomFichierGraph = "graph-12-input";
+	bool useCoordReel = false;
+	std::string nomFichierGraph = "graph-1-input";
 	//std::string nomFichierSlots = "10-input-slots";
 	std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/adjnoun.graphclean");
-	G.readFromJsonGraph(pathGraph);
+	//G.readFromJsonGraph(pathGraph);
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
@@ -140,14 +140,14 @@ int main() {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	//ogdfFastMultipoleMultilevelEmbedder(G);
+	ogdfFastMultipoleMultilevelEmbedder(G);
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
 	//ogdfOther(G);
 	//G.placementAleatoireReel();
-	ogdfFastMultipoleMultilevelEmbedderReel(G);
+	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
-	G.translateGrapheToOriginReel(-1);
+	//G.translateGrapheToOriginReel(-1);
 	//G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
 	auto finPlacement = std::chrono::system_clock::now();
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);

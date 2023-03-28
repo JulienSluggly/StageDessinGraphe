@@ -3,40 +3,63 @@
 #include "geometrie.hpp"
 #include <iostream>
 
-void Graphe::recalculateIllegalIntersections(int nodeIndex) {
-    std::vector<int> indexPasse;
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
-        for (int j = 0; j < _aretes.size(); ++j) {
-            if ((index != j) && (!isInVector(indexPasse, j))) {
-                if (!(_aretes[index].contains(_aretes[j].getNoeud1()) || _aretes[index].contains(_aretes[j].getNoeud2()))) {
-                    if (oldSeCroisent(_aretes[index], _aretes[j])) {
-                        if (oldSurSegment(_aretes[index], *_aretes[j].getNoeud1()) || oldSurSegment(_aretes[index], *_aretes[j].getNoeud2())) {
-                            areteIll.insert(&_aretes[index]);
-                        }
-                        else if (oldSurSegment(_aretes[j], *_aretes[index].getNoeud1()) || oldSurSegment(_aretes[j], *_aretes[index].getNoeud2())) {
-                            areteIll.insert(&_aretes[index]);
-                        }
-                        else {
-                            areteInter.insert(&_aretes[index]);
-                        }
-                    }
-                }
-                else {
-                    Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[index]);
-                    if (oldSurSegment(_aretes[index], *nodeNotInCommon)) {
-                        areteIllSelf.insert(&_aretes[index]);
+void Graphe::recalculateIllegalIntersections() {
+    for (int i = 0; i < _aretes.size() - 1; ++i) {
+        for (int j = i + 1; j < _aretes.size(); ++j) {
+            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                bool isIllegal = false;
+                if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
+                    if (isIllegal) {
+                        areteIll.insert(&_aretes[i]); areteIll.insert(&_aretes[j]);
                     }
                     else {
-                        nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[j]);
-                        if (oldSurSegment(_aretes[j], *nodeNotInCommon)) {
-                            areteIllSelf.insert(&_aretes[index]);
-                        }
+                        areteInter.insert(&_aretes[i]); areteInter.insert(&_aretes[j]);
+                    }
+                }
+            }
+            else {
+                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                if (surSegment(_aretes[i], *nodeNotInCommon)) {
+                    areteIllSelf.insert(&_aretes[i]); areteIllSelf.insert(&_aretes[j]);
+                }
+                else {
+                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
+                        areteIllSelf.insert(&_aretes[i]); areteIllSelf.insert(&_aretes[j]);
                     }
                 }
             }
         }
-        indexPasse.push_back(index);
+    }
+}
+
+void Graphe::recalculateIllegalIntersectionsReel() {
+    for (int i = 0; i < _aretes.size() - 1; ++i) {
+        for (int j = i + 1; j < _aretes.size(); ++j) {
+            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                bool isIllegal = false;
+                if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
+                    if (isIllegal) {
+                        areteIll.insert(&_aretes[i]); areteIll.insert(&_aretes[j]);
+                    }
+                    else {
+                        areteInter.insert(&_aretes[i]); areteInter.insert(&_aretes[j]);
+                    }
+                }
+            }
+            else {
+                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
+                    areteIllSelf.insert(&_aretes[i]); areteIllSelf.insert(&_aretes[j]);
+                }
+                else {
+                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                    if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
+                        areteIllSelf.insert(&_aretes[i]); areteIllSelf.insert(&_aretes[j]);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -894,8 +917,7 @@ long Graphe::getNbCroisementConst() const {
             }
             else {
                 Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegment(_aretes[i], *nodeNotInCommon))
-                {
+                if (surSegment(_aretes[i], *nodeNotInCommon)) {
                     total += PENALITE_MAX_SELF;
                 }
                 else {
@@ -928,8 +950,7 @@ long Graphe::getNbCroisementReelConst() const {
             }
             else {
                 Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegmentReel(_aretes[i], *nodeNotInCommon))
-                {
+                if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
                     total += PENALITE_MAX_SELF;
                 }
                 else {
@@ -951,7 +972,6 @@ long Graphe::getNbCroisementDiff() {
     nombreInterIllSelf = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            //Aretes aretes1 = _aretes[i], aretes2 = _aretes[j];
             if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
                 bool isIllegal = false;
                 if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
@@ -988,7 +1008,6 @@ long Graphe::getNbCroisementDiffReel() {
     nombreInterIllSelf = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            //Aretes aretes1 = _aretes[i], aretes2 = _aretes[j];
             if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
                 bool isIllegal = false;
                 if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
@@ -1002,8 +1021,7 @@ long Graphe::getNbCroisementDiffReel() {
             }
             else {
                 Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegmentReel(_aretes[i], *nodeNotInCommon))
-                {
+                if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
                     nombreInterIllSelf++;
                 }
                 else {
