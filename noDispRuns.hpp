@@ -646,7 +646,7 @@ void testGraphsCompletReel() {
 		if (tid == 0) {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
-		for (int i = 16;i<60;i++) {
+		for (int i = 24;i<100;i++) {
 			if (i % nthreads == tid) {
 				printf("Tid: %d | K%d\n", tid, i);
 				Graphe G;

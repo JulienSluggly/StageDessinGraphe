@@ -41,40 +41,81 @@ bool showEmplacement = true;
 bool showEdges = true;
 bool showNodes = true;
 bool stepSetup = false;
+bool isCursorDraging = false, dragModeOn = false;
+double dragOriginX, dragOriginY;
 double stepT;
 int stepNbCrois;
 std::vector<int> graphCopy;
 // Parents pour affichage genetique
 Graphe parent1("parent1"), parent2("parent2"), enfant("enfant");
 int nbNoeudATraiter, currentGrapheNumber=0;
+double initialClicX, initialClicY;
+double sensiDrag = 10.0;
 double clicX=0.0, clicY=0.0;
+double cursorPosX, cursorPosY;
+double margeXDebut = 1, margeXFin = 1, margeYDebut = 1, margeYFin = 1;
+double orthoStartX, orthoStartY, orthoEndX, orthoEndY;
+double originalOrthoStartX, originalOrthoStartY, originalOrthoEndX, originalOrthoEndY;
+
+void updateOrtho() {
+	orthoStartX = -margeXDebut - (gridWidth * currentZoom);
+	orthoEndX = gridWidth + margeXFin +(gridWidth * currentZoom);
+	orthoStartY = -margeYDebut - (gridHeight * currentZoom);
+	orthoEndY = gridHeight + margeYFin + (gridHeight * currentZoom);
+}
 
 void error_callback(int error, const char* description) {
 	fputs(description, stderr);
 }
 
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+	cursorPosX = xpos;
+	cursorPosY = ypos;
+}
+
+
+static void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+	if ((int)yoffset == -1) { // Dezoom
+		currentZoom += 0.01;
+	}
+	else if ((int)yoffset == 1) { // Zoom
+		currentZoom -= 0.01;
+	}
+	updateOrtho();
+}
+
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-	glfwGetCursorPos(window, &clicX, &clicY);
-	clicX *= ratioAffichageX;
-	clicY *= ratioAffichageY;
-	clicY = (gridHeight - clicY)-1;
-	clicX -= 1;
+	glfwGetCursorPos(window, &initialClicX, &initialClicY);
+	clicY = windowHeight-initialClicY;
+	clicX = (orthoEndX-orthoStartX)*(initialClicX/windowWidth)+(orthoStartX-originalOrthoStartX)-1;
+	clicY = (orthoEndY-orthoStartY)*(clicY/windowHeight)+(orthoStartY-originalOrthoStartY)-1;
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-	   if (show_selected_emplacement) {
-			keyPressFunctionNum = 27; singleKeyPress = true;
-			std::cout << clicX << " " << clicY << std::endl;
+		if (dragModeOn) {
+			isCursorDraging = true;
+			dragOriginX = initialClicX; dragOriginY = initialClicY;
 		}
-		else if (show_cells) {
-			// TO DO IF NEEDED
-		}
-		else if (show_selected_node) {
-			keyPressFunctionNum = 26; singleKeyPress = true;
-			std::cout << clicX << " " << clicY << std::endl;
+		else {
+			if (show_selected_emplacement) {
+				keyPressFunctionNum = 27; singleKeyPress = true;
+			}
+			else if (show_cells) {
+				// TO DO IF NEEDED
+			}
+			else if (show_selected_node) {
+				keyPressFunctionNum = 26; singleKeyPress = true;
+			}
 		}
     }
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+		isCursorDraging = false;
+	}
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-		keyPressFunctionNum = 29; singleKeyPress = true;
-		std::cout << clicX << " " << clicY << std::endl;
+		if (show_selected_node) {
+			keyPressFunctionNum = 29; singleKeyPress = true;
+		}
+	}
+	else if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
+		dragModeOn = !dragModeOn;
 	}
 }
 
@@ -86,6 +127,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(window, GLFW_TRUE); break;
 		case GLFW_KEY_R: // Reset Zoom
 			currentZoom = 0.0;
+			gridWidth = initialGridWidth;
+			gridHeight = initialGridHeight;
+			margeXDebut = 1; margeXFin = 1; margeYDebut = 1; margeYFin = 1;
+			orthoStartX = originalOrthoStartX; orthoEndX = originalOrthoEndX; orthoStartY = originalOrthoStartY; orthoEndY = originalOrthoEndY;
+			sensiDrag = 10.0;
 			break;
 			// GAUCHE,DROITE,HAUT,BAS deplace le point selectionne de 1 case dans la direction de la fleche
 		case GLFW_KEY_LEFT:
@@ -235,10 +281,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			else { printf("Mode Repeat: OFF\n"); }
 			break;
 		case GLFW_KEY_KP_ADD:
-			currentZoom -= 0.05;
+			sensiDrag = sensiDrag / 2;
+			std::cout << sensiDrag << std::endl;
 			break;
 		case GLFW_KEY_KP_SUBTRACT:
-			currentZoom += 0.05;
+			sensiDrag *= 2;
+			std::cout << sensiDrag << std::endl;
 			break;
 		case GLFW_KEY_N:
 			keyPressFunctionNum = 8; singleKeyPress = true;
@@ -630,14 +678,6 @@ void openGLPrintRaccourcis() {
 		std::cout << "Touche I: Active/Desactive l'affichage de croisements(rouge) et croisements illegaux(violet)" << std::endl;
 		std::cout << "-------------------------------------" << std::endl;
 	}
-}
-
-void openGLDisplay() {
-	double startX = -1 - (gridWidth * currentZoom);
-	double endX = gridWidth + 1 +(gridWidth * currentZoom);
-	double startY = -1 - (gridHeight * currentZoom);
-	double endY = gridHeight + 1 + (gridHeight * currentZoom);
-	glOrtho(startX,endX,startY,endY,1.f,-1.f);
 }
 
 void openGLKeyPressFunction(Graphe& G) {
@@ -1035,6 +1075,17 @@ void openGLKeyPressFunction(Graphe& G) {
 			keyPressFunctionNum = -1;
 		}
 	}
+	if (isCursorDraging) {
+		double diffX = (cursorPosX - dragOriginX)/(sensiDrag);
+		double diffY = (cursorPosY - dragOriginY)/(sensiDrag);
+		margeXDebut += diffX;
+		margeXFin -= diffX;
+		margeYDebut -= diffY;
+		margeYFin += diffY;
+		dragOriginX = cursorPosX;
+		dragOriginY = cursorPosY;
+		updateOrtho();
+	}
 }
 
 void openGLShowEverything(Graphe& G) {
@@ -1055,6 +1106,10 @@ void openGLShowEverything(Graphe& G) {
 	}
 }
 
+void openGLDisplay() {
+	glOrtho(orthoStartX,orthoEndX,orthoStartY,orthoEndY,1.f,-1.f);
+}
+
 void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
 	useReel = useReelCoord;
 	maxNodeIndex = G._noeuds.size() - 1;
@@ -1063,8 +1118,10 @@ void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
 	if (maxCellY > 0) {
 		maxCellX = G.grille[0].size()-1;
 	}
-	ratioAffichageX = (double)(G.gridWidth+2) / windowWidth;
-	ratioAffichageY = (double)(G.gridHeight+2) / windowHeight;
+	ratioAffichageX = (double)(G.gridWidth+margeXDebut+margeXFin) / windowWidth;
+	ratioAffichageY = (double)(G.gridHeight+margeYDebut+margeYFin) / windowHeight;
+	updateOrtho();
+	originalOrthoStartX = orthoStartX; originalOrthoStartY = orthoStartY; originalOrthoEndX = orthoEndX; originalOrthoEndY = orthoEndY;
 }
 
 void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false) {
@@ -1096,6 +1153,8 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false
 	glfwSetErrorCallback(error_callback);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetScrollCallback(window,mouse_scroll_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwMakeContextCurrent(window);
 	int width, height;
 	glLineWidth(3);
@@ -1117,7 +1176,6 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false
 
 		openGLShowEverything(G);
 
-		glEnd();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

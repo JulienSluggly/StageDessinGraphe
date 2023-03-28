@@ -113,7 +113,7 @@ int main() {
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	testGraphsCompletReel(); return 0;
+	//testGraphsCompletReel(); return 0;
 	//testRomeGraphs(); return 0;
 
 	bool useCoordReel = true;
@@ -129,8 +129,8 @@ int main() {
 	//ogdfReverse(G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/adjnoun.graphclean");
-	//G.readFromJsonGraph(pathGraph);
-	G.initCompleteGraph(9);
+	G.readFromJsonGraph(pathGraph);
+	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
@@ -153,7 +153,7 @@ int main() {
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
 	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.1,0.0001,1,0,2,true);
-	G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,false);
+	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,false);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
 	//G.afficherInfo();

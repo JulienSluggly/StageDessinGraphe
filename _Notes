@@ -80,8 +80,3 @@ Ajouter getNbCroisementConst en mode grille
 Recuit reel: tirer dans une boite autour du noeud, cette boite reduit au court de l'execution
 
 Implementer le recuit only improve et best deplacement a la fin des 1h d'execution
-
-OpenGL en reel drag un noeud avec le clic droit
-
-Deplacement a la google map sur l'affichage opengl, avec zoom
-(zoom a la molette?)
