@@ -92,8 +92,8 @@ public:
 	}
 
 
-	DemiCote* d_demiCote; // l'un des demi-c�t�s issus du sommet
-	int d_indice;       // la position du sommet dans le tableau d_tabSommet
+	DemiCote* d_demiCote=nullptr; // l'un des demi-c�t�s issus du sommet
+	int d_indice=-1;       // la position du sommet dans le tableau d_tabSommet
 
 	// Renvoie un demi-c�t� issu du sommet
     DemiCote* demiCote() const {return d_demiCote;}

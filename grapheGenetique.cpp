@@ -344,6 +344,9 @@ bool Graphe::croisementBestOfBoth(Graphe& originalGraphe1, Graphe& originalGraph
     graphe1.copyFromGraphe(originalGraphe1);
     graphe2.copyFromGraphe(originalGraphe2);
     Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
+    int currentGrapheNumber = generateRand(1);
+    if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
+    else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
 
     std::vector<int> nodeToUpdate;
     std::vector<int> nodeToRelocate;
@@ -682,7 +685,6 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
         int bestNbVoisinsPlace = -1;
         int bestNbVoisin = -1;
         int bestNodeIndexInVec = -1;
-        int nbRencontre = 0;
         for (int i=0;i<nbNoeudATraiter;i++) {
             if (currentGraphe->_noeuds[otherNodeVec[i]].estPlace()) {
                 if (_emplacements[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
@@ -697,7 +699,6 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
                         bestNbVoisin = nodeNbVoisins;
                         bestScore = -1;
                         bestNodeIndexInVec = i;
-                        nbRencontre = 0;
                     }
                     else if (nodeNbVoisinsPlace == bestNbVoisinsPlace) {
                         if (bestScore == -1) {
@@ -710,7 +711,6 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
                             bestNbVoisin = nodeNbVoisins;
                             bestScore = nodeScore;
                             bestNodeIndexInVec = i;
-                            nbRencontre = 0;
                         }
                         else if (nodeScore == bestScore) {
                             if (nodeNbVoisins > bestNbVoisin) {
@@ -719,7 +719,6 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
                                 bestNbVoisin = nodeNbVoisins;
                                 bestScore = nodeScore;
                                 bestNodeIndexInVec = i;
-                                nbRencontre = 0;
                             }
                         }
                     }
@@ -1048,7 +1047,6 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
         int bestNbVoisinsPlace = -1;
         int bestNbVoisin = -1;
         int bestNodeIndexInVec = -1;
-        int nbRencontre = 0;
         for (int i=0;i<nbNoeudATraiter;i++) {
             if (currentGraphe->_noeuds[otherNodeVec[i]].estPlace()) {
                 if (_emplacements[currentGraphe->_noeuds[otherNodeVec[i]].getEmplacement()->_id].estDisponible()) {
@@ -1063,7 +1061,6 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
                         bestNbVoisin = nodeNbVoisins;
                         bestScore = -1;
                         bestNodeIndexInVec = i;
-                        nbRencontre = 0;
                     }
                     else if (nodeNbVoisinsPlace == bestNbVoisinsPlace) {
                         if (bestScore == -1) {
@@ -1076,7 +1073,6 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
                             bestNbVoisin = nodeNbVoisins;
                             bestScore = nodeScore;
                             bestNodeIndexInVec = i;
-                            nbRencontre = 0;
                         }
                         else if (nodeScore == bestScore) {
                             if (nodeNbVoisins > bestNbVoisin) {
@@ -1085,7 +1081,6 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
                                 bestNbVoisin = nodeNbVoisins;
                                 bestScore = nodeScore;
                                 bestNodeIndexInVec = i;
-                                nbRencontre = 0;
                             }
                         }
                     }

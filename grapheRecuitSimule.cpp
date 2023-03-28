@@ -102,7 +102,7 @@ int Graphe::selectionEmplacementTournoiMultiple(int n, int nodeId) {
 int Graphe::selectionEmplacementTriangulation(int nodeId, int profondeur) {
     Emplacement* depart = _noeuds[nodeId].getEmplacement();
     Emplacement* arrive = depart;
-    int randomId;
+    int randomId=-1;
     for (int i=0;i<profondeur;i++) {
         if (i == profondeur - 1) {
             if (arrive->voisinsDelaunay->size() == 1) {
@@ -130,7 +130,7 @@ int Graphe::selectionEmplacementTriangulation(int nodeId, int profondeur) {
 
 // Effectue la selection du noeud en fonction de modeNoeud, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple
 int Graphe::selectionNoeud(int modeNoeud, int t, bool isScoreUpdated) {
-    int nodeId;
+    int nodeId=-1;
     if (modeNoeud == 0)
         nodeId = generateRand(_noeuds.size() - 1);
     else if (modeNoeud == 1) {
@@ -145,7 +145,7 @@ int Graphe::selectionNoeud(int modeNoeud, int t, bool isScoreUpdated) {
 
 // Effectue la selection de l'emplacement en fonction de modeEmplacement, 0=Aleatoire,1=TournoiBinaire,2=TournoiMultiple,3=Triangulation
 int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<std::vector<double>>& customParam, int iter) {
-    int slotId;
+    int slotId = -1;
     switch (modeEmplacement) {
     case 0: {
         slotId = generateRand(_emplacements.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
@@ -160,7 +160,7 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         break;
     }
     case 2: {
-        int nbTirage;
+        int nbTirage = (iter / 100000) + 3;
         if (customParam.size() > 0) {
             for (std::vector<double>& param : customParam) {
                 if (param.size() > 0) {
@@ -181,7 +181,6 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
                 }
             }
         }
-        nbTirage = (iter / 100000) + 3;
         slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
         break;
     }
@@ -226,7 +225,7 @@ std::pair<double,double> Graphe::selectionEmplacementReel(int modeEmplacement, i
         return randCoord;
     }
     case 2: {
-        int nbTirage;
+        int nbTirage = (iter / 100000) + 3;
         if (customParam.size() > 0) {
             for (std::vector<double>& param : customParam) {
                 if (param.size() > 0) {
@@ -247,7 +246,6 @@ std::pair<double,double> Graphe::selectionEmplacementReel(int modeEmplacement, i
                 }
             }
         }
-        nbTirage = (iter / 100000) + 3;
         std::pair<double,double> nodeCoord({_noeuds[nodeId]._xreel,_noeuds[nodeId]._yreel});
         tirageCoordReel(randCoord);
         double closestDistance = distanceReel(randCoord,nodeCoord);
@@ -492,7 +490,7 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
     if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
     else { lastCroisement = getNbCroisementConst(); }
     int i=1;
-    double recuitTimeBest;
+    double recuitTimeBest = -1.0;
     auto totalEnd = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
     while ((numberOfNoUpgrade < maxIter)&&(noLimit||secondsTotalExec.count() < 3600)) {
@@ -591,7 +589,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
     if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
     else { lastCroisement = getNbCroisementReelConst(); }
     int i=1;
-    double recuitTimeBest;
+    double recuitTimeBest = -1.0;
     auto totalEnd = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
     while ((numberOfNoUpgrade < maxIter)&&(noLimit||secondsTotalExec.count() < 3600)) {

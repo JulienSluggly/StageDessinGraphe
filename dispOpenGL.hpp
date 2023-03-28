@@ -16,8 +16,7 @@ bool singleKeyPress = false;
 int keyPressFunctionNum = -1;
 
 double windowWidth = 1750.0, windowHeight=900.0;
-int gridWidth, gridHeight, initialGridWidth, initialGridHeight, maxX, maxY;
-double ratioAffichageX, ratioAffichageY;
+int gridWidth, gridHeight, initialGridWidth, initialGridHeight;
 
 bool repeatInfinitely = false;
 bool display_genetic = false;
@@ -52,7 +51,8 @@ double initialClicX, initialClicY;
 double sensiDrag;
 double clicX=0.0, clicY=0.0;
 double cursorPosX, cursorPosY;
-double margeXDebut = 1, margeXFin = 1, margeYDebut = 1, margeYFin = 1;
+double initialMargeXDebut = 1, initialMargeXFin = 1, initialMargeYDebut = 1, initialMargeYFin = 1;
+double margeXDebut, margeXFin, margeYDebut, margeYFin;
 double orthoStartX, orthoStartY, orthoEndX, orthoEndY;
 double originalOrthoStartX, originalOrthoStartY, originalOrthoEndX, originalOrthoEndY;
 
@@ -65,6 +65,10 @@ void updateOrtho() {
 
 void error_callback(int error, const char* description) {
 	fputs(description, stderr);
+}
+
+void window_size_callback(GLFWwindow* window, int width, int height) {
+	windowWidth = width; windowHeight = height;
 }
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -128,7 +132,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			currentZoom = 0.0;
 			gridWidth = initialGridWidth;
 			gridHeight = initialGridHeight;
-			margeXDebut = 1; margeXFin = 1; margeYDebut = 1; margeYFin = 1;
+			margeXDebut = initialMargeXDebut, margeXFin = initialMargeXFin, margeYDebut = initialMargeYDebut, margeYFin = initialMargeYFin;
 			orthoStartX = originalOrthoStartX; orthoEndX = originalOrthoEndX; orthoStartY = originalOrthoStartY; orthoEndY = originalOrthoEndY;
 			sensiDrag = 10.0;
 			break;
@@ -1085,7 +1089,6 @@ void openGLKeyPressFunction(Graphe& G) {
 			G.clearSetAreteInter();
 			if (useReel) { G.recalculateIllegalIntersectionsReel(); }
 			else { G.recalculateIllegalIntersections(); }
-			recalcIllegal = false;
 		}
 		if (!repeatInfinitely) {
 			singleKeyPress = false;
@@ -1128,6 +1131,7 @@ void openGLDisplay() {
 }
 
 void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
+	margeXDebut = initialMargeXDebut, margeXFin = initialMargeXFin, margeYDebut = initialMargeYDebut, margeYFin = initialMargeYFin;
 	if (G._emplacements.size() >= (G._noeuds.size() * G._noeuds.size())/2) { showEmplacement = false; }
 	useReel = useReelCoord;
 	maxNodeIndex = G._noeuds.size() - 1;
@@ -1136,15 +1140,13 @@ void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
 	if (maxCellY > 0) {
 		maxCellX = G.grille[0].size()-1;
 	}
-	ratioAffichageX = (double)(G.gridWidth+margeXDebut+margeXFin) / windowWidth;
-	ratioAffichageY = (double)(G.gridHeight+margeYDebut+margeYFin) / windowHeight;
 	updateOrtho();
 	originalOrthoStartX = orthoStartX; originalOrthoStartY = orthoStartY; originalOrthoEndX = orthoEndX; originalOrthoEndY = orthoEndY;
 	sensiDrag = 10.0/(gridWidth/280.0);
 }
 
-void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false) {
-	gridWidth = w; gridHeight = h; initialGridWidth = gridWidth; initialGridHeight = gridHeight; maxX = mx; maxY = my;
+void dispOpenGL(Graphe& G, int w, int h, bool useReelCoord=false) {
+	gridWidth = w; gridHeight = h; initialGridWidth = gridWidth; initialGridHeight = gridHeight;
 
 	openGLInitGlobalVariables(G,useReelCoord);
 	openGLPrintRaccourcis(false);
@@ -1158,19 +1160,16 @@ void dispOpenGL(Graphe& G, int w, int h, int mx, int my, bool useReelCoord=false
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetScrollCallback(window,mouse_scroll_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetWindowSizeCallback(window, window_size_callback);
 	glfwMakeContextCurrent(window);
 	int width, height;
 	while (!glfwWindowShouldClose(window)) {
 		glfwGetFramebufferSize(window, &width, &height);
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 
 		openGLDisplay();
-		
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
 
 		openGLKeyPressFunction(G);
 

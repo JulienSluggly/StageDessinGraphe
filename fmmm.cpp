@@ -364,12 +364,12 @@ void FastMultipoleEmbedder::run(uint32_t numIterations) {
 	}
 
 	if (m_randomize) {
-		double avgNodeSize = 0.0;
+		//double avgNodeSize = 0.0;
 		for (uint32_t i = 0; i < m_pGraph->_noeuds.size(); i++) {
 			//avgNodeSize += m_pGraph->nodeSize()[i];
 		}
 
-		avgNodeSize = (avgNodeSize / (double)m_pGraph->_noeuds.size());
+		//avgNodeSize = (avgNodeSize / (double)m_pGraph->_noeuds.size());
 		for (uint32_t i = 0; i < m_pGraph->_noeuds.size(); i++) {
 			//m_pGraph->nodeXPos()[i] = (float)(randomDouble(-(double)m_pGraph->numNodes(), (double)m_pGraph->numNodes())*avgNodeSize*2);
 			//m_pGraph->nodeYPos()[i] = (float)(randomDouble(-(double)m_pGraph->numNodes(), (double)m_pGraph->numNodes())*avgNodeSize*2);

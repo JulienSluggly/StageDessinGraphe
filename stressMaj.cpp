@@ -590,7 +590,6 @@ void StressMajorization::runAlgoDynStress() {
     // Rotation complete du graphe en cherchant celle qui minimize le stress du graphe.
     double bestAngle = 0.0;
     double increment = 10.0;
-    double bestStressRota = bestStress;
     setEdgeCost(bestEdgeCost);
     for (int i=1;i<=35;i++) { // 35 Rotations de 10° d'incrément
         G->loadCopy(GCopy);
@@ -660,7 +659,6 @@ void StressMajorization::runAlgoDynCross() {
     // Rotation complete du graphe en cherchant celle qui minimize le stress du graphe.
     double bestAngle = 0.0;
     double increment = 10.0;
-    double bestCrossRota = bestCross;
     setEdgeCost(bestEdgeCost);
     for (int i=1;i<=35;i++) { // 35 Rotations de 10° d'incrément
         G->loadCopy(GCopy);
@@ -705,7 +703,7 @@ void StressMajorization::runAlgoDynDichStress() {
     double m1, m2;
     m1 = (borneSup-borneInf)/3.0 + borneInf;
     m2 = 2.0*((borneSup-borneInf)/3.0) + borneInf;
-    double stressM1 = -1.0, stressM2 = stressM1;
+    double stressM1 = -1.0, stressM2;
     double seuilLimite = 0.01;
     double bestStress = -1.0;
     int tirageAleatoire = 0;
@@ -748,7 +746,6 @@ void StressMajorization::runAlgoDynDichStress() {
     // Rotation complete du graphe en cherchant celle qui minimize le stress du graphe.
     double bestAngle = 0.0;
     double increment = 10.0;
-    double bestStressRota = bestStress;
     double stress;
     double diffStress;
     double pourcentDiff=100.0;

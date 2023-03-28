@@ -213,23 +213,9 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 	int id1, id2;
 	std::vector<int> tmpVec;
 	int nbArete = 0;
-	for (int i = 0, index = nodeNumber; i < edgeNumber; i++) {
+	for (int i = 0; i < edgeNumber; i++) {
 		id1 = j["edges"][i]["source"];
 		tmpVec.push_back(id1);
-		if (j["edges"][i]["bends"] != nullptr) {
-			int bendsNumber = static_cast<int>(j["edges"][i]["bends"].size());
-			for (int k=0; k < bendsNumber; k++, index++) {
-				x = j["edges"][i]["bends"][k]["x"];
-				y = j["edges"][i]["bends"][k]["y"];
-				id2 = index;
-				tmpVec.push_back(id2);
-				tmpVec.push_back(id2);
-				_noeuds.push_back(Noeud(index));
-				if (areNodePlaced) { _emplacements.push_back(Emplacement(x,y,index)); }
-				nbArete++;
-				id1 = id2;
-			}
-		}
 		id2 = j["edges"][i]["target"];
 		tmpVec.push_back(id2);
 	}

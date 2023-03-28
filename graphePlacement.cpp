@@ -178,7 +178,7 @@ std::pair<int,int> Graphe::getCentreGraviteVoisin(Noeud* noeud) {
 int Graphe::getMeilleurEmplacement(Noeud& meilleurNoeud) {
     int nbRencontre = 0;
     long bestScore = INT_MAX;
-    int bestId;
+    int bestId = -1;
     for (int j = 0; j < _emplacements.size(); j++) {
         if (_emplacements[j].estDisponible()) {
             meilleurNoeud.setEmplacement(&_emplacements[j]);
@@ -242,7 +242,7 @@ int Graphe::getMeilleurEmplacementGravite(Noeud* meilleurNoeud, std::pair<int,in
     int nbRencontre = 0;
     int bestId = -1;
     long bestScore = INT_MAX;
-    long bestDistance;
+    long bestDistance = INT_MAX;
     for (int i = 0; i < _emplacements.size(); i++) {
         if (_emplacements[i].estDisponible()) {
             meilleurNoeud->setEmplacement(&_emplacements[i]);
@@ -303,7 +303,7 @@ void Graphe::gloutonRevisite() {
     int idNoeud = 0;
     int nbRencontre = 0;
     for (int i = 1; i < _noeuds.size(); ++i) {
-        if (!_noeuds[i].getVoisins().size() > _noeuds[idNoeud].getVoisins().size()) {
+        if (!(_noeuds[i].getVoisins().size() > _noeuds[idNoeud].getVoisins().size())) {
             idNoeud = i;
             nbRencontre = 1;
         }
@@ -336,38 +336,39 @@ void Graphe::gloutonRevisite() {
                 }
             }
         }
-
-        int bestId = -1;
-        long bestScore = -1;
-        nbRencontre = 0;
-        for (int i=0;i<_emplacements.size();i++) {
-            if (_emplacements[i].estDisponible()) {
-                if (bestId == -1) {
-                    bestId = i;
-                }
-                else {
-                    if (bestScore == -1) {
-                        meilleurNoeud->setEmplacement(&_emplacements[bestId]);
-                        bestScore = getScoreCroisementNodeGlouton(meilleurNoeud->_id);
-                    }
-                    meilleurNoeud->setEmplacement(&_emplacements[i]);
-                    long newScore = getScoreCroisementNodeGlouton(meilleurNoeud->_id);
-                    if (newScore < bestScore) {
-                        bestScore = newScore;
+        if (meilleurNoeud != nullptr) {
+            int bestId = -1;
+            long bestScore = -1;
+            nbRencontre = 0;
+            for (int i=0;i<_emplacements.size();i++) {
+                if (_emplacements[i].estDisponible()) {
+                    if (bestId == -1) {
                         bestId = i;
-                        nbRencontre = 0;
                     }
-                    else if (newScore == bestScore) {
-                        nbRencontre++;
-                        if (generateRand(nbRencontre) == 1) {
+                    else {
+                        if (bestScore == -1) {
+                            meilleurNoeud->setEmplacement(&_emplacements[bestId]);
+                            bestScore = getScoreCroisementNodeGlouton(meilleurNoeud->_id);
+                        }
+                        meilleurNoeud->setEmplacement(&_emplacements[i]);
+                        long newScore = getScoreCroisementNodeGlouton(meilleurNoeud->_id);
+                        if (newScore < bestScore) {
                             bestScore = newScore;
                             bestId = i;
+                            nbRencontre = 0;
+                        }
+                        else if (newScore == bestScore) {
+                            nbRencontre++;
+                            if (generateRand(nbRencontre) == 1) {
+                                bestScore = newScore;
+                                bestId = i;
+                            }
                         }
                     }
                 }
             }
+            meilleurNoeud->setEmplacement(&_emplacements[bestId]);
         }
-        meilleurNoeud->setEmplacement(&_emplacements[bestId]);
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -381,7 +382,7 @@ void Graphe::gloutonRevisiteGrid() {
     int idNoeud = 0;
     int nbRencontre = 0;
     for (int i = 1; i < _noeuds.size(); ++i) {
-        if (!_noeuds[i].getVoisins().size() > _noeuds[idNoeud].getVoisins().size()) {
+        if (!(_noeuds[i].getVoisins().size() > _noeuds[idNoeud].getVoisins().size())) {
             idNoeud = i;
             nbRencontre = 1;
         }
@@ -414,42 +415,43 @@ void Graphe::gloutonRevisiteGrid() {
                 }
             }
         }
-
-        int bestId = -1;
-        long bestScore = -1;
-        nbRencontre = 0;
-        for (int i=0;i<_emplacements.size();i++) {
-            if (_emplacements[i].estDisponible()) {
-                if (bestId == -1) {
-                    bestId = i;
-                }
-                else {
-                    if (bestScore == -1) {
-                        meilleurNoeud->setEmplacement(&_emplacements[bestId]);
-                        initNodeCellule(meilleurNoeud->_id);
-                        bestScore = getScoreCroisementNodeGloutonGrid(meilleurNoeud->_id);
-                    }
-                    meilleurNoeud->setEmplacement(&_emplacements[i]);
-                    recalcNodeCellule(meilleurNoeud->_id);
-                    long newScore = getScoreCroisementNodeGloutonGrid(meilleurNoeud->_id);
-                    if (newScore < bestScore) {
-                        bestScore = newScore;
+        if (meilleurNoeud != nullptr) {
+            int bestId = -1;
+            long bestScore = -1;
+            nbRencontre = 0;
+            for (int i=0;i<_emplacements.size();i++) {
+                if (_emplacements[i].estDisponible()) {
+                    if (bestId == -1) {
                         bestId = i;
-                        nbRencontre = 0;
                     }
-                    else if (newScore == bestScore) {
-                        nbRencontre++;
-                        if (generateRand(nbRencontre) == 1) {
+                    else {
+                        if (bestScore == -1) {
+                            meilleurNoeud->setEmplacement(&_emplacements[bestId]);
+                            initNodeCellule(meilleurNoeud->_id);
+                            bestScore = getScoreCroisementNodeGloutonGrid(meilleurNoeud->_id);
+                        }
+                        meilleurNoeud->setEmplacement(&_emplacements[i]);
+                        recalcNodeCellule(meilleurNoeud->_id);
+                        long newScore = getScoreCroisementNodeGloutonGrid(meilleurNoeud->_id);
+                        if (newScore < bestScore) {
                             bestScore = newScore;
                             bestId = i;
+                            nbRencontre = 0;
+                        }
+                        else if (newScore == bestScore) {
+                            nbRencontre++;
+                            if (generateRand(nbRencontre) == 1) {
+                                bestScore = newScore;
+                                bestId = i;
+                            }
                         }
                     }
                 }
             }
+            meilleurNoeud->setEmplacement(&_emplacements[bestId]);
+            if (bestScore == -1) { initNodeCellule(meilleurNoeud->_id); }
+            else { recalcNodeCellule(meilleurNoeud->_id); }
         }
-        meilleurNoeud->setEmplacement(&_emplacements[bestId]);
-        if (bestScore == -1) { initNodeCellule(meilleurNoeud->_id); }
-        else { recalcNodeCellule(meilleurNoeud->_id); }
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
@@ -627,8 +629,10 @@ void Graphe::completeBasicGlouton() {
                 }
             }
         }
-        meilleurNoeud->setEmplacement(&_emplacements[getMeilleurEmplacement(*meilleurNoeud)]);
-        nbNode--;
+        if (meilleurNoeud != nullptr) {
+            meilleurNoeud->setEmplacement(&_emplacements[getMeilleurEmplacement(*meilleurNoeud)]);
+            nbNode--;
+        }
     }
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;

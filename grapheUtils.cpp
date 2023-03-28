@@ -902,9 +902,6 @@ void Graphe::registerEdgesInGridReel() {
             _aretes[i].vecIdCellules.push_back(tmpIdCell);
         }
         int idCell = _aretes[i].getNoeud1()->idCelluleVec->at(0);
-        int idCellArrive = _aretes[i].getNoeud2()->idCelluleVec->at(0);
-        idCellX = idCell % grille[0].size();
-        idCellY = idCell / grille[0].size();
         std::vector<int>* vecCellArrive = _aretes[i].getNoeud2()->idCelluleVec;
         while (!isInVector(*vecCellArrive,idCell)) {
             switch(direction) {
@@ -1558,7 +1555,7 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
     }
     else {
         int nbNoeud = std::min((int)_noeuds.size()*2,6000);
-        generateGrid();
+        generateGrid(nbNoeud,nbNoeud);
     }
 }
 
@@ -1577,7 +1574,7 @@ void Graphe::getSortedEmpVecFromGraphe(std::vector<int>& sortedIdVec, Graphe& G)
 }
 
 void Graphe::translateGrapheToOrigin() {
-    double minX, minY;
+    double minX=0.0, minY=0.0;
     for (int i=0;i<_emplacements.size();i++) {
         if (i==0) {
             minX = _emplacements[i].getX();

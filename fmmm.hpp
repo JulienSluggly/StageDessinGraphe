@@ -154,8 +154,6 @@ private:
     bool m_randomize;
     float m_defaultEdgeLength;
     float m_defaultNodeSize;
-    uint32_t m_numberOfThreads;
-    uint32_t m_maxNumberOfThreads;
     FMEGlobalOptions* m_pOptions;
 };
 
