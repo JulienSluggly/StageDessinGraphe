@@ -147,7 +147,7 @@ int Graphe::selectionNoeud(int modeNoeud, int t, bool isScoreUpdated) {
 int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::vector<std::vector<double>>& customParam, int iter) {
     int slotId = -1;
     switch (modeEmplacement) {
-    case 0: {
+    case 0: { // Random
         slotId = generateRand(_emplacements.size() - 1); // Selection aléatoire d'un emplacement disponible (pas tres équiprobable)
         // on retire si on pioche le meme emplacement
         while (_noeuds[nodeId].getEmplacement()->getId() == slotId) {
@@ -155,11 +155,11 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         }
         break;
     }
-    case 1: {
+    case 1: { // Tournoi Binaire
         slotId = selectionEmplacementTournoiBinaire(nodeId);
         break;
     }
-    case 2: {
+    case 2: { // Tournoi Multiple
         int nbTirage = (iter / 100000) + 3;
         if (customParam.size() > 0) {
             for (std::vector<double>& param : customParam) {
@@ -184,7 +184,7 @@ int Graphe::selectionEmplacement(int modeEmplacement, int nodeId, int t, std::ve
         slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
         break;
     }
-    case 3: {
+    case 3: { // Voisin Triangulation
         int profondeur = (iter / 100000) + 10;
         if (customParam.size() > 0) {
             for (std::vector<double>& param : customParam) {
@@ -261,6 +261,12 @@ std::pair<double,double> Graphe::selectionEmplacementReel(int modeEmplacement, i
         return randCoord;
         break;
     }
+    case 4: { // Boite autour du noeud
+        double sizeX = boiteXSizeDepart - diffXBoiteIter * iter;
+        double sizeY = boiteYSizeDepart - diffYBoiteIter * iter;
+        randCoord.first =  std::min(std::max(_noeuds[nodeId]._xreel + generateDoubleRand(sizeX*2)-sizeX,0.0),(double)gridWidth);
+        randCoord.second =  std::min(std::max(_noeuds[nodeId]._yreel + generateDoubleRand(sizeY*2)-sizeY,0.0),(double)gridHeight);
+    }
     }
     return randCoord;
 }
@@ -289,6 +295,17 @@ void Graphe::calculDelaiRefroidissement(int& delay, std::vector<std::vector<doub
     }
     else if (delay == -1) {
         delay = std::min((int)ceil((double)_noeuds.size() / 20.0) + 1,5);
+    }
+}
+
+void Graphe::setupSelectionEmplacement(int modeEmplacement, double t, double cool, double seuil) {
+    if (modeEmplacement == 4) {
+        std::pair<double,double> sizeGraphe = sizeOfGraphe();
+        int nbIterationRecuit = nombreIterationRecuit(t, cool, seuil) ;
+        boiteXSizeDepart = sizeGraphe.first;
+        boiteYSizeDepart = sizeGraphe.second;
+        diffXBoiteIter = (boiteXSizeDepart - (sizeGraphe.first/10.0))/(double)nbIterationRecuit;
+        diffYBoiteIter = (boiteYSizeDepart - (sizeGraphe.second/10.0))/(double)nbIterationRecuit;
     }
 }
 
@@ -532,6 +549,7 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
     else { nbCroisement = getNbCroisementReel(); }
     long bestCroisement = nbCroisement;
     calculDelaiRefroidissement(delay,customParam,0);
+    setupSelectionEmplacement(modeEmplacement,t,cool,seuil);
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     int nodeId, idSwappedNode, improve;
     std::pair<double,double> randCoord;
@@ -609,13 +627,13 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
             else {
                 lastCroisement = newCroisement;
                 numberOfNoUpgrade = 0;
+                timeBest = recuitTimeBest;
             }
         }
         i++;
         totalEnd = std::chrono::system_clock::now();
         secondsTotalExec = totalEnd - start;
     }
-    timeBest = recuitTimeBest;
 }
 
 // Applique l'algorithme meilleur deplacement sur le graphe.

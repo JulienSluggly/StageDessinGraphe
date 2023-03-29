@@ -310,7 +310,10 @@ int Graphe::debugScoreGraphe(bool display, bool useArray, std::string nom) {
         std::cout << "Affichage DEBUG Score Graphe: " << nomGraphe << " " << nom << std::endl;
     }
     bool scoreFaux = true;
-    long scoreReel = getNbCroisementConst();
+    long scoreReel;
+    if (useCoordReel) { scoreReel = getNbCroisementReelConst(); }
+    else { scoreReel = getNbCroisementConst(); }
+
     if (useArray) {
         long scoreArray = getNbCroisementArray();
         if ((nombreCroisement != scoreReel)||(nombreCroisement != scoreArray)) {
@@ -519,18 +522,20 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
     int total = 0;
     if (displaySelf) { std::cout << "Debut debug arete double\n"; }
     total += afficherAreteDouble(displayOther);
-    if (displaySelf) { std::cout << "Debut debug noeud double\n"; }
-    total += afficherNoeudDouble(displayOther);
-    if (displaySelf) { std::cout << "Debut debug emplacement double\n"; }
-    total += afficherEmplacementDouble(displayOther);
-    if (displaySelf) { std::cout << "Debut debug noeud seul\n"; }
-    total += afficherNoeudSeul(displayOther);
-    if (displaySelf) { std::cout << "Debut debug noeud non place\n"; }
-    total += debugNoeudNonPlace(displayOther);
-    if (displaySelf) { std::cout << "Debut debug desync noeud emplacement\n"; }
-    total += debugDesyncNoeudEmplacement(displayOther);
-    if (displaySelf) { std::cout << "Debut debug methode intersection\n"; }
-    total += debugOldCroisement(displayOther);
+    if (!useCoordReel) {
+        if (displaySelf) { std::cout << "Debut debug noeud double\n"; }
+        total += afficherNoeudDouble(displayOther);
+        if (displaySelf) { std::cout << "Debut debug emplacement double\n"; }
+        total += afficherEmplacementDouble(displayOther);
+        if (displaySelf) { std::cout << "Debut debug noeud seul\n"; }
+        total += afficherNoeudSeul(displayOther);
+        if (displaySelf) { std::cout << "Debut debug noeud non place\n"; }
+        total += debugNoeudNonPlace(displayOther);
+        if (displaySelf) { std::cout << "Debut debug desync noeud emplacement\n"; }
+        total += debugDesyncNoeudEmplacement(displayOther);
+        if (displaySelf) { std::cout << "Debut debug methode intersection\n"; }
+        total += debugOldCroisement(displayOther);
+    }
     if (isNodeScoreUpdated) {
         if (displaySelf) { std::cout << "Debut debug score noeud\n"; }
         total += debugScoreNoeud(displayOther);
@@ -550,8 +555,10 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
         total += debugInterArrays(displayOther);
     }
     if (grille.size() > 0) {
-        if (displaySelf) { std::cout << "Debut debug desync emplacement cellule\n"; }
-        total += debugDesyncEmplacementCell(displayOther);
+        if (!useCoordReel) {
+            if (displaySelf) { std::cout << "Debut debug desync emplacement cellule\n"; }
+            total += debugDesyncEmplacementCell(displayOther);
+        }
         if (displaySelf) { std::cout << "Debut debug desync arete cellule\n"; }
         total += debugDesyncAreteCell(displayOther);
     }

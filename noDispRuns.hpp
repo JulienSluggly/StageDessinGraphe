@@ -65,6 +65,29 @@ void customRecuit() {
 	printf("All Threads done.\n");
 }
 
+void customRecuitFlottants() {
+	fillLogsVector();
+	std::string nomFichierGraph = "graph-10-input";
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		std::vector<std::vector<std::vector<double>>> totalRuns;
+		for (int i=0;i<totalRuns.size();i++) {
+		}
+		if (tid == 0) generateCSV(10,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
+		if (1%nthreads == tid) generateCSV(10,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",{},true,tid);
+		if (2%nthreads == tid) generateCSV(10,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",{},true,tid);
+		if (3%nthreads == tid) generateCSV(10,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
+		printf("Thread: %d done.\n",tid);
+	}
+	printf("All Threads done.\n");
+}
+
 void customRecuitAllRuns() {
 	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
@@ -646,7 +669,7 @@ void testGraphsCompletReel() {
 		if (tid == 0) {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
-		for (int i = 24;i<100;i++) {
+		for (int i = 32;i<100;i++) {
 			if (i % nthreads == tid) {
 				printf("Tid: %d | K%d\n", tid, i);
 				Graphe G;
@@ -660,10 +683,40 @@ void testGraphsCompletReel() {
 				std::chrono::duration<double> secondsTotal = end - start;
 				std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
 				std::ofstream resultats(nomFichier, std::ios_base::app);
-				resultats << "K" << i << "," << G.getNbCroisementDiffReel() << "," << tempsBest << "," << secondsTotal.count() << "," << std::endl;
+				resultats << "K" << i << "," << G.getNbCroisementDiffReel() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
 				resultats.close();
 			}
 		}
+		printf("Thread %d done.\n", tid);
+	}
+	printf("All Threads done.\n");
+}
+
+void testThreads() {
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		std::string nomFichierGraph = "graph-10-input";
+		std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
+		Graphe G;
+		G.readFromJsonGraph(pathGraph);
+		auto start = std::chrono::system_clock::now();
+		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
+		ogdfFastMultipoleMultilevelEmbedderReel(G);
+		G.translateGrapheToOriginReel(-1);
+		G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
+		G.recuitSimuleReel(tempsBest, start, {},0.99999,100.0,0.0001,1,0,2,true,false,false);
+		auto end = std::chrono::system_clock::now();
+		std::chrono::duration<double> secondsTotal = end - start;
+		std::string nomFichier = chemin + "resultats/" + to_string(tid) + ".csv";
+		std::ofstream resultats(nomFichier, std::ios_base::app);
+		resultats << tid << "," << G.getNbCroisementDiffReel() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+		resultats.close();
 		printf("Thread %d done.\n", tid);
 	}
 	printf("All Threads done.\n");

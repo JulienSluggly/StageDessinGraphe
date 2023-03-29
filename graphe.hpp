@@ -61,7 +61,9 @@ public:
 	long nombreInterIll = -1; // Variable pas à jour
 	long nombreInterIllSelf = -1; // Variable pas à jour;
 
-	int minXNode=-1,maxXNode=-1,minYNode=-1,maxYNode=-1;
+	int minXNode=-1,maxXNode=-1,minYNode=-1,maxYNode=-1; // Coord max des noeuds, pas forcément à jour.
+
+	double boiteXSizeDepart=-1.0, boiteYSizeDepart=-1.0, diffXBoiteIter=-1.0, diffYBoiteIter=-1.0;
 
 	std::string nomGraphe = "Graphe";
 
@@ -189,6 +191,12 @@ public:
 
 	// Calcule le delay a appliquer lors du recuit si besoin.
 	void calculDelaiRefroidissement(int& delay, std::vector<std::vector<double>>& customParam, int iter);
+
+	// Calcul les parametres a utiliser pour la selection des emplacements
+	void setupSelectionEmplacement(int modeEmplacement, double t, double cool, double seuil);
+
+	// Renvoie la taille maximale en largeur et en hauteur du graphe.
+	std::pair<double,double> sizeOfGraphe();
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
 	int calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,bool useGrille, bool useScore);
@@ -630,6 +638,8 @@ public:
 	void calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int nodeId);
 
 	void setupGraphe(std::string fileGraphe, std::string fileSlot);
+
+	void setupGrapheReel(std::string fileGraphe);
 
 	void translateGrapheToOrigin();
 

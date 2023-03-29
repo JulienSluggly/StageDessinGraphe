@@ -58,7 +58,7 @@ std::string getParamAsString(std::vector<std::vector<double>>& customParam) {
 	return paramStream.str();
 }
 
-void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, int tid=0) {
+void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0) {
 	string nomGraphe = fileGraph;
 	std::reverse(nomGraphe.begin(), nomGraphe.end());
 	nomGraphe = nomGraphe.substr(nomGraphe.find(".") + 1);
@@ -77,29 +77,26 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	double tempsExecMoyenne, tempsBestMoyenne, tempsPlacementMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne, edgeCostMoyenne, placementInterMoyenne;
 	bool saveResult = true;
 	int population, maxIteration;
-	int nombreRecuit, nombreSlots, nombreCellule;
+	int nombreRecuit=0, nombreSlots, nombreCellule;
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
-	getParamAsString(customParam);
 	for (int i = 1; ((((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600))&&(i <= 100)); ++i) {
 		resetSeed(tid,true);
 		auto start = std::chrono::system_clock::now();
-		Graphe G;
-		G.setupGraphe(fileGraph,fileSlots);
+		Graphe G(nomGraphe);
+		if (!useReel) { G.setupGraphe(fileGraph,fileSlots); }
+		else { G.setupGrapheReel(fileGraph); G.useCoordReel = true; }
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
-		if (isGenetique) {
-			population = mapGraphPopGen[nomGraphe].first;
-			maxIteration = mapGraphPopGen[nomGraphe].second;
-		}
+		if (isGenetique) { population = mapGraphPopGen[nomGraphe].first; maxIteration = mapGraphPopGen[nomGraphe].second; }
 		saveResult = true;
-		printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Param: %s | TotalRun: %.1fs\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),getParamAsString(customParam).c_str(),secondsTotalExec.count());
-		if (methodePlacementName == "Glouton") G.glouton();
-		else if (methodePlacementName == "Glouton Revisite") G.gloutonRevisite();
-		else if (methodePlacementName == "Glouton Gravite") G.gloutonRevisiteGravite();
-		else if (methodePlacementName == "Glouton Voisin") G.gloutonRevisiteVoisin();
+		printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Nodes: %lu | Param: %s | TotalRun: %.1fs | Seed: %u\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),G._noeuds.size(),getParamAsString(customParam).c_str(),secondsTotalExec.count(),getSeed(tid));
+		if (methodePlacementName == "Glouton") { if (!useReel) { G.glouton(); } }
+		else if (methodePlacementName == "Glouton Revisite") { if (!useReel) { G.gloutonRevisite(); } }
+		else if (methodePlacementName == "Glouton Gravite") { if (!useReel) { G.gloutonRevisiteGravite(); } }
+		else if (methodePlacementName == "Glouton Voisin") { if (!useReel) { G.gloutonRevisiteVoisin(); } }
 		else if (methodePlacementName == "OGDF") { 
 #if defined(OGDF_INSTALLED)
-			ogdfPlacementAuPlusProche(G);
+			if (!useReel) { ogdfPlacementAuPlusProche(G); }
 #else
 			std::cout << "OGDF NOT INSTALLED.\n";
 			return;
@@ -107,30 +104,28 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		}
 		else if (methodePlacementName == "OGDFFMMM") {
 #if defined(OGDF_INSTALLED)
-			ogdfFastMultipoleMultilevelEmbedder(G);
+			if (!useReel) { ogdfFastMultipoleMultilevelEmbedder(G); } else { ogdfFastMultipoleMultilevelEmbedderReel(G); }
 #else
 			std::cout << "OGDF NOT INSTALLED.\n";
 			return;
 #endif			
 		}
-		else if (methodePlacementName == "Stress") { G.stressMajorization(customParam); }
-		else if (methodePlacementName == "Stress Dyn Stress") { G.stressMajorization(customParam,1); }
-		else if (methodePlacementName == "Stress Dyn Cross") { G.stressMajorization(customParam,2); }
-		else if (methodePlacementName == "Glouton Grille") { G.gloutonRevisiteGrid(); }
-		else if (methodePlacementName == "Aleatoire") G.placementAleatoire();
+		else if (methodePlacementName == "Stress") { if (!useReel) { G.stressMajorization(customParam); } else { G.stressMajorizationReel(); } }
+		else if (methodePlacementName == "Stress Dyn Stress") { if (!useReel) { G.stressMajorization(customParam,1); } }
+		else if (methodePlacementName == "Stress Dyn Cross") { if (!useReel) { G.stressMajorization(customParam,2); } }
+		else if (methodePlacementName == "Glouton Grille") { if (!useReel) { G.gloutonRevisiteGrid(); } }
+		else if (methodePlacementName == "Aleatoire") { if (!useReel) { G.placementAleatoire(); } else { G.placementAleatoireReel(); } }
 		else if (methodePlacementName != "Aucun") {
 			std::cout << "ERROR Aucune methode " << methodePlacementName << " trouve !\n";
 			return;
 		}
-		if (updateScore) {
-			G.initGraphAndNodeScoresAndCrossings();
-		}
-		if (needTriangulation) {
-			G.triangulationDelaunay();
-		}
+
+		if (useReel) { G.translateGrapheToOriginReel(-1); }
+		if (updateScore) { G.initGraphAndNodeScoresAndCrossings(); }
+		if (needTriangulation) { G.triangulationDelaunay(); }
 		if (needGrille) {
+			bool found = false;
 			if (customParam.size() > 0) {
-				bool found = false;
 				for (std::vector<double>& param : customParam) {
 					if (param.size() > 0) {
 						if (param[0] == 10) {
@@ -149,23 +144,20 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 						}
 					}
 				}
-				if (!found) {
-					G.initGrille();
-					G.registerSlotsAndEdgesInGrid();
-				}
 			}
-			else {
-				G.initGrille();
-				G.registerSlotsAndEdgesInGrid();
+			if (!found) {
+				if (useReel) { G.initGrilleReel(); G.registerNodesAndEdgesInGrid(); }
+				else { G.initGrille(); G.registerSlotsAndEdgesInGrid(); }
 			}
 		}
-
 		auto finPlacement = std::chrono::system_clock::now();
-		if (methodePlacementName != "Aucun") { placementInterVector.push_back(G.getNbCroisementDiff()); }
+		if (methodePlacementName != "Aucun") { if (!useReel) { placementInterVector.push_back(G.getNbCroisementDiff()); } else { placementInterVector.push_back(G.getNbCroisementDiffReel()); } }
 
-		if (methodeAlgoName == "Recuit Simule") G.recuitSimule(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false);
-		if (methodeAlgoName == "Recuit Simule Grille TME") G.recuitSimule(tempsBest,start,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam);
+		if (methodeAlgoName == "Recuit Simule") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false); } else { G.recuitSimuleReel(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false,false); } }
+		else if (methodeAlgoName == "Recuit Simule Grille TME") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam); } else { G.recuitSimuleReel(tempsBest,start,customParam); } }
+		else if (methodeAlgoName == "Recuit Simule Grille BOX") { if (useReel) { G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,4,true); } }
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME")  { if (!useReel) { G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam); } else { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam); } }
+		else if (methodeAlgoName == "Rerecuit Simule Grille BOX") { if (useReel) { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,100.0,0.0001,1,0,4,true,false,false); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Temp") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,0.1);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999);
@@ -199,10 +191,10 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		nombreSlots = G._emplacements.size();
 		nombreCellule = G.grillePtr.size();
 		if (G.isNombreCroisementUpdated) { croisementVector.push_back(G.nombreCroisement); }
-		else { croisementVector.push_back(G.getNbCroisementConst()); }
+		else { if (!useReel) { croisementVector.push_back(G.getNbCroisementConst()); } else { croisementVector.push_back(G.getNbCroisementReelConst()); } }
 		if (G.hasIllegalCrossing()) { nbSolutionIllegale++; }
 		if (G._sm.G != nullptr) { edgeCostVector.push_back(G._sm.m_edgeCosts); }
-		totalInterVector.push_back(G.getNbCroisementDiff());
+		if (!useReel) { totalInterVector.push_back(G.getNbCroisementDiff()); } else { totalInterVector.push_back(G.getNbCroisementDiffReel()); }
 		totalInterIllVector.push_back(G.nombreInterIll + G.nombreInterIllSelf);
 		debugValue = G.debugEverything();
 		if (debugValue > 0) { break; }
@@ -234,38 +226,31 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 #endif
 
 		resultats << std::fixed;
-		resultats << methodePlacementName << ","
-			<< methodeAlgoName << ","
-			<< std::setprecision(0) << croisementVector.size() << ","
-			<< nombreSlots << ","
-			<< nbSolutionIllegale << ","
-			<< totalInterMoyenne << "," << totalInterIllMoyenne << ","
-			<< meilleurCroisement << ",";
-		if (moyenneCroisement > 100) { resultats << std::setprecision(0) << moyenneCroisement << ","; }
-		else { resultats << std::setprecision(1) << moyenneCroisement << ","; }
-		if (medianCroisement > 100) { resultats << std::setprecision(0) << medianCroisement << ","; }
-		else { resultats << std::setprecision(1) << medianCroisement << ","; }
-		resultats << placementInterMoyenne << ",";
-		resultats << std::setprecision(0) << tempsPlacementMoyenne << "," << tempsBestMoyenne << "," << tempsExecMoyenne;
-		if (isGenetique) {
-			resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne;
-		}
-		else if (isRecuit) {
-			resultats << "," << std::setprecision(1) << nombreRecuitMoyenne;
-		}
-		else {
-			resultats << ",";
-		}
+		resultats << methodePlacementName << "," // ALGO PLACEMENT
+			<< methodeAlgoName << "," // ALGO DEPLACEMENT
+			<< std::setprecision(0) << croisementVector.size() << ","; // NOMBRE RUN
+		if (nombreSlots > 0) { resultats << nombreSlots << ","; } // NOMBRE EMPLACEMENT OU FLOTTANTS
+		else { resultats << "FLOTTANTS,"; } // NOMBRE EMPLACEMENT OU FLOTTANTS
+		resultats << nbSolutionIllegale << "," // NOMBRE DE RUN AVEC RESULTATS ILLEGAL
+			<< totalInterMoyenne << "," << totalInterIllMoyenne << "," // NOMBRE TOTAL INTER ET NOMBRE TOTAL INTER ILLEGAL
+			<< meilleurCroisement << ","; // MEILLEUR SCORE PARMIS LES RUNS
+		if (moyenneCroisement > 100) { resultats << std::setprecision(0) << moyenneCroisement << ","; } // MOYENNE SCORE DES RUNS
+		else { resultats << std::setprecision(1) << moyenneCroisement << ","; } // MOYENNE SCORE DES RUNS
+		if (medianCroisement > 100) { resultats << std::setprecision(0) << medianCroisement << ","; } // MEDIANE SCORE DES RUNS
+		else { resultats << std::setprecision(1) << medianCroisement << ","; } // MEDIANE SCORE DES RUNS
+		resultats << placementInterMoyenne << ","; // MOYENNE INTERSECTION APRES PLACEMENT DES RUNS
+		resultats << std::setprecision(0) << tempsPlacementMoyenne << "," << tempsBestMoyenne << "," << tempsExecMoyenne; // TEMPS MOYEN (PLACEMENT, MEILLEUR RESULTATS ALGO, TOTAL ALGO) DES RUNS
+		if (isGenetique) { resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne; } // GENETIQUE POPULATION, MAX ITERATION, BEST ITERATION, LAST ITERATION
+		else if (isRecuit) { resultats << "," << std::setprecision(1) << nombreRecuitMoyenne; } // NOMBRE RECHAUFFE RECUIT
+		else { resultats << ","; }
 		resultats << ",";
-		if (isSeedResetting(tid)) { resultats << "R-"; }
-		else { resultats << "NR-"; }
-		resultats << getSeed(tid) << "," << machine;
-		resultats << "," << getParamAsString(customParam);
-		resultats << "," << nombreCellule;
-		resultats << "," << debugValue << "," << date;
-		if (edgeCostVector.size() > 0) {
-			resultats << ",EC:" << edgeCostMoyenne;
-		}
+		if (isSeedResetting(tid)) { resultats << "R-"; } // SEED RESET
+		else { resultats << "NR-"; } // SEED NO RESET
+		resultats << getSeed(tid) << "," << machine; // SEED
+		resultats << "," << getParamAsString(customParam); // CUSTOM PARAMS
+		resultats << "," << nombreCellule; // NOMBRE CELLULE
+		resultats << "," << debugValue << "," << date; // DEBUG VALUE ET DATE
+		if (edgeCostVector.size() > 0) { resultats << ",EC:" << edgeCostMoyenne; } // MOYENNE EDGE COST
 		resultats << "\n";
 		resultats.close();
 	}

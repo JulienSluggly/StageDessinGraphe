@@ -30,29 +30,59 @@ void Graphe::clearNodeEmplacement() {
 
 // Indique si le graphe contient une intersection illegale.
 bool Graphe::hasIllegalCrossing() {
-    for (int i = 0; i < _aretes.size() - 1; ++i) {
-        for (int j = i + 1; j < _aretes.size(); ++j) {
-            //Aretes aretes1 = _aretes[i], aretes2 = _aretes[j];
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
-                bool isIllegal = false;
-                if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
-                    if (surSegment(_aretes[i], *_aretes[j].getNoeud1()) || surSegment(_aretes[i], *_aretes[j].getNoeud2())) {
+    if(useCoordReel) {
+        for (int i = 0; i < _aretes.size() - 1; ++i) {
+            for (int j = i + 1; j < _aretes.size(); ++j) {
+                if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                    bool isIllegal = false;
+                    if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
+                        if (surSegmentReel(_aretes[i], *_aretes[j].getNoeud1()) || surSegmentReel(_aretes[i], *_aretes[j].getNoeud2())) {
+                            return true;
+                        }
+                        else if (surSegmentReel(_aretes[j], *_aretes[i].getNoeud1()) || surSegmentReel(_aretes[j], *_aretes[i].getNoeud2())) {
+                            return true;
+                        }
+                    }
+                }
+                else {
+                    Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                    if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
                         return true;
                     }
-                    else if (surSegment(_aretes[j], *_aretes[i].getNoeud1()) || surSegment(_aretes[j], *_aretes[i].getNoeud2())) {
-                        return true;
+                    else {
+                        nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                        if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
+                            return true;
+                        }
                     }
                 }
             }
-            else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegment(_aretes[i], *nodeNotInCommon)) {
-                    return true;
+        }
+    }
+    else {
+        for (int i = 0; i < _aretes.size() - 1; ++i) {
+            for (int j = i + 1; j < _aretes.size(); ++j) {
+                if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                    bool isIllegal = false;
+                    if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
+                        if (surSegment(_aretes[i], *_aretes[j].getNoeud1()) || surSegment(_aretes[i], *_aretes[j].getNoeud2())) {
+                            return true;
+                        }
+                        else if (surSegment(_aretes[j], *_aretes[i].getNoeud1()) || surSegment(_aretes[j], *_aretes[i].getNoeud2())) {
+                            return true;
+                        }
+                    }
                 }
                 else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
+                    Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
+                    if (surSegment(_aretes[i], *nodeNotInCommon)) {
                         return true;
+                    }
+                    else {
+                        nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
+                        if (surSegment(_aretes[j], *nodeNotInCommon)) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -1547,8 +1577,8 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
     if (!containsString(fileGraphe,chemin)) {
         pathGraph = chemin + "exemple/Graphe/" + fileGraphe + ".json";
     }
-    std::string pathSlot;
     readFromJsonGraph(pathGraph);
+    std::string pathSlot;
     if (!containsString(fileSlot,"Grid")) {
         pathSlot = chemin + "exemple/Slots/" + fileSlot + ".json";
         readFromJsonSlots(pathSlot);
@@ -1557,6 +1587,14 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
         int nbNoeud = std::min((int)_noeuds.size()*2,6000);
         generateGrid(nbNoeud,nbNoeud);
     }
+}
+
+void Graphe::setupGrapheReel(std::string fileGraphe) {
+    std::string pathGraph = fileGraphe;
+    if (!containsString(fileGraphe,chemin)) {
+        pathGraph = chemin + "exemple/Graphe/" + fileGraphe + ".json";
+    }
+    readFromJsonGraph(pathGraph);
 }
 
 void Graphe::getSortedEmpVecFromGraphe(std::vector<int>& sortedIdVec, Graphe& G) {
@@ -1618,8 +1656,8 @@ void Graphe::translateGrapheToOriginReel(double marge) {
     gridWidth = maxX-minX + 2*marge;
     gridHeight = maxY-minY + 2*marge;
     if (dynMarge) {
-        double margeX = gridWidth / 2.0;
-        double margeY = gridHeight / 2.0;
+        double margeX = (double)gridWidth;
+        double margeY = (double)gridHeight;
         for (int i=0;i<_noeuds.size();i++) {
             _noeuds[i]._xreel += margeX;
             _noeuds[i]._yreel += margeY;
@@ -2071,4 +2109,23 @@ void Graphe::initCompleteGraph(int n, bool setup) {
         int nbNoeud = std::min((int)_noeuds.size()*2,6000);
 	    generateGrid(nbNoeud,nbNoeud);
     }
+}
+
+std::pair<double,double> Graphe::sizeOfGraphe() {
+    if (useCoordReel) {
+        double minX = _noeuds[0]._xreel;
+        double maxX = minX;
+        double minY = _noeuds[0]._yreel;
+        double maxY = minY;
+        for (int i=1;i<_noeuds.size();i++) {
+            if (_noeuds[i]._xreel < minX) { minX = _noeuds[i]._xreel; }
+            else if (_noeuds[i]._xreel > maxX) { maxX = _noeuds[i]._xreel; }
+            if (_noeuds[i]._yreel < minY) { minY = _noeuds[i]._yreel; }
+            else if (_noeuds[i]._yreel > maxY) { maxY = _noeuds[i]._yreel; }
+        }
+        double sizeX = maxX - minX;
+        double sizeY = maxY - minY;
+        return std::make_pair(sizeX,sizeY);
+    }
+    return std::make_pair(-1.0,-1.0);
 }

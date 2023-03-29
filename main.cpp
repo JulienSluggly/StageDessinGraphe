@@ -27,13 +27,16 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 	if (bestIteration != -1) std::cout << "A la " << bestIteration << "eme iteration\n";
 	if (lastIteration != -1) std::cout << "Max iteration: " << lastIteration << "\n";
 	if (nombreRecuit != 0) std::cout << "Nombre de rechauffe: " << nombreRecuit << "\n";
-	if (G.estPlace()) { std::cout << "Nombre intersection apres placement: " << G.getNbCroisementConst() << std::endl;
-		if (G.hasIllegalCrossing())  { 
+	if ((G.useCoordReel)||(G.estPlace())) { 
+		std::cout << "Nombre intersection apres placement: ";
+		if (!G.useCoordReel) { std::cout << G.getNbCroisementConst() << std::endl; }
+		else { std::cout << G.getNbCroisementReelConst() << std::endl; }
+		if (G.hasIllegalCrossing())  {
 			std::cout << "Solution illegale.\n";
-			G.getNbCroisementDiff();
+			if (!G.useCoordReel) { G.getNbCroisementDiff(); } else { G.getNbCroisementDiffReel(); }
 			std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
 		}
-		if (!G.useCoordReel) { G.debugEverything(false,false); }
+		G.debugEverything(false,false);
 	}
 	std::cout << "Setup complete!" << std::endl;
 }
@@ -113,7 +116,9 @@ int main() {
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	testGraphsCompletReel(); return 0;
+	//testGraphsCompletReel(); return 0;
+	//customRecuitFlottants(); return 0;
+	testThreads(); return 0;
 	//testRomeGraphs(); return 0;
 
 	bool useCoordReel = true;
@@ -152,7 +157,7 @@ int main() {
 	auto finPlacement = std::chrono::system_clock::now();
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
-	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.1,0.0001,1,0,2,true);
+	G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,4,true);
 	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,false);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
