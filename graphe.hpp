@@ -67,6 +67,10 @@ public:
 
 	std::string nomGraphe = "Graphe";
 
+	std::vector<double> recuitDistanceAll;
+	std::vector<std::pair<int,double>> recuitDistanceUpgrade;
+	std::vector<std::pair<int,double>> recuitDistanceUpgradeGlobal;
+
 	Graphe(){}
 
 	Graphe(std::string nom);
@@ -193,7 +197,7 @@ public:
 	void calculDelaiRefroidissement(int& delay, std::vector<std::vector<double>>& customParam, int iter);
 
 	// Calcul les parametres a utiliser pour la selection des emplacements
-	void setupSelectionEmplacement(int modeEmplacement, double t, double cool, double seuil);
+	void setupSelectionEmplacement(int modeEmplacement, double t, double cool, double seuil, std::vector<std::vector<double>>& customParam);
 
 	// Renvoie la taille maximale en largeur et en hauteur du graphe.
 	std::pair<double,double> sizeOfGraphe();
@@ -307,6 +311,8 @@ public:
 	void completePlacementAleatoireScore(std::vector<int>& vecNode, int tailleMax);
 
 	double distanceReel(std::pair<double,double>& randCoord,std::pair<double,double>& nodeCoord);
+
+	double distanceReelSqrt(std::pair<double,double>& randCoord,std::pair<double,double>& nodeCoord);
 
 	// Fait un tirage de coordonne flottantes et les enregistre dans coord
 	void tirageCoordReel(std::pair<double,double>& coord);

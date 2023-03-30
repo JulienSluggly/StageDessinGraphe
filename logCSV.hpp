@@ -58,6 +58,43 @@ std::string getParamAsString(std::vector<std::vector<double>>& customParam) {
 	return paramStream.str();
 }
 
+void saveGrapheDistanceCSV(Graphe& G, int tid) {
+	if (G.recuitDistanceAll.size() > 0) {
+		/*
+		int nbFichier = 10;
+		for (int num=0;num<nbFichier;num++) {
+			std::string nomFichier = chemin + "/resultats/" + to_string(tid) + "-recuitDistAllP" + to_string(num) + ".csv";
+			std::ofstream resultats(nomFichier, std::ios_base::app);
+			for (int i=(G.recuitDistanceAll.size()/nbFichier)*num;i<(G.recuitDistanceAll.size()/nbFichier)*(num+1);i++) {
+				resultats << i << "," << G.recuitDistanceAll[i] << std::endl;
+			}
+			resultats.close();
+		}*/
+		std::string nomFichier = chemin + "/resultats/" + to_string(tid) + "-recuitDistAll.csv";
+		std::ofstream resultats(nomFichier, std::ios_base::app);
+		for (int i=0;i<G.recuitDistanceAll.size();i+=100) {
+			resultats << i << "," << G.recuitDistanceAll[i] << std::endl;
+		}
+		resultats.close();
+	}
+	if (G.recuitDistanceUpgrade.size() > 0) {
+		std::string nomFichier = chemin + "/resultats/" + to_string(tid) + "-recuitDistUp.csv";
+		std::ofstream resultats(nomFichier, std::ios_base::app);
+		for (int i=0;i<G.recuitDistanceUpgrade.size();i++) {
+			resultats << G.recuitDistanceUpgrade[i].first << "," << G.recuitDistanceUpgrade[i].second << std::endl;
+		}
+		resultats.close();
+	}
+	if (G.recuitDistanceUpgradeGlobal.size() > 0) {
+		std::string nomFichier = chemin + "/resultats/" + to_string(tid) + "-recuitDistUpG.csv";
+		std::ofstream resultats(nomFichier, std::ios_base::app);
+		for (int i=0;i<G.recuitDistanceUpgradeGlobal.size();i++) {
+			resultats << G.recuitDistanceUpgradeGlobal[i].first << "," << G.recuitDistanceUpgradeGlobal[i].second << std::endl;
+		}
+		resultats.close();
+	}
+}
+
 void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0) {
 	string nomGraphe = fileGraph;
 	std::reverse(nomGraphe.begin(), nomGraphe.end());
@@ -155,6 +192,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		if (methodePlacementName != "Aucun") { if (!useReel) { placementInterVector.push_back(G.getNbCroisementDiff()); } else { placementInterVector.push_back(G.getNbCroisementDiffReel()); } }
 
 		if (methodeAlgoName == "Recuit Simule") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false); } else { G.recuitSimuleReel(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false,false); } }
+		if (methodeAlgoName == "Recuit Simule Grille") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,true,false); } else { G.recuitSimuleReel(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,true,false,false); } }
 		else if (methodeAlgoName == "Recuit Simule Grille TME") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam); } else { G.recuitSimuleReel(tempsBest,start,customParam); } }
 		else if (methodeAlgoName == "Recuit Simule Grille BOX") { if (useReel) { G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,4,true); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME")  { if (!useReel) { G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam); } else { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam); } }
@@ -180,6 +218,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		}
 
 		auto end = std::chrono::system_clock::now();
+		//saveGrapheDistanceCSV(G,tid);
 		std::chrono::duration<double> secondsTotal = end - start;
 		std::chrono::duration<double> secondsPlacement = finPlacement - start;
 		secondsTotalExec = end - totalStart;

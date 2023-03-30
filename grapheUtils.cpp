@@ -2094,6 +2094,13 @@ double Graphe::distanceReel(std::pair<double,double>& randCoord,std::pair<double
     return xDiff * xDiff + yDiff * yDiff;
 }
 
+// Retourne la distance sans la racine
+double Graphe::distanceReelSqrt(std::pair<double,double>& randCoord,std::pair<double,double>& nodeCoord) {
+    double xDiff = randCoord.first - nodeCoord.first;
+    double yDiff = randCoord.second - nodeCoord.second;
+    return sqrt(xDiff * xDiff + yDiff * yDiff);
+}
+
 void Graphe::initCompleteGraph(int n, bool setup) {
     for (int i=0;i<n;i++) {
         _noeuds.push_back(Noeud(i));

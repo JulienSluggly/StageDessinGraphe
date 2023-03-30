@@ -160,13 +160,14 @@ int main() {
 	//ogdfOther(G);
 	//G.placementAleatoireReel();
 	ogdfFastMultipoleMultilevelEmbedderReel(G);
+	//G.forcePlacement();
 	//G.stressMajorizationReel();
 	G.translateGrapheToOriginReel(-1);
-	G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
+	//G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
 	auto finPlacement = std::chrono::system_clock::now();
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
-	G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,4,true);
+	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,4,true);
 	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,false);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 

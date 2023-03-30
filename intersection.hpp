@@ -36,4 +36,6 @@ bool surSegmentReel(double sx, double sy, double tx, double ty, double cx, doubl
 
 bool surSegmentReel(const Aretes& lien, const Noeud& noeud);
 
+bool seCroisentForce(double ax, double ay, double bx, double by, double cx, double cy, double dx, double dy, double& ix, double& iy);
+
 #endif

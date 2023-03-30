@@ -454,50 +454,6 @@ void ogdfCrossingNumbers(std::vector<std::string> graphFiles) {
 		std::string nomFichier = chemin + "/resultats/" + nomFichierGraph + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 		int crossingNumber;
-
-		/*
-		ogdf::SubgraphPlanarizer sp = ogdf::SubgraphPlanarizer();
-		sp.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		sp.setInserter(new ogdf::FixedEmbeddingInserter);
-		sp.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		sp.setInserter(new ogdf::MultiEdgeApproxInserter);
-		sp.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		sp.setInserter(new ogdf::VariableEmbeddingInserter);
-		sp.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		sp.setInserter(new ogdf::VariableEmbeddingInserterDyn);
-		sp.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-
-		ogdf::PlanarizerChordlessCycle pcc = ogdf::PlanarizerChordlessCycle();
-		pcc.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-
-		ogdf::PlanarizerMixedInsertion pmi = ogdf::PlanarizerMixedInsertion();
-		pmi.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::Random);
-		pmi.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::HigherDegree);
-		pmi.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::LowerDegree);
-		pmi.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::HigherNonPlanarDegree);
-		pmi.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::LowerNonPlanarDegree);
-		pmi.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		pmi.nodeSelectionMethod(ogdf::PlanarizerMixedInsertion::NodeSelectionMethod::BothEndpoints);
-		pmi.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-		*/
 		ogdf::PlanarizerStarReinsertion psr = ogdf::PlanarizerStarReinsertion();
 		psr.call(pr,0,crossingNumber);
 		resultats << crossingNumber << std::endl;
@@ -649,5 +605,25 @@ void ogdfRun(Graphe &G) {
 	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
 	std::cout << "Crossing Number: " << crossingModule(ogdfG) << std::endl;
 }
+
+#else
+
+void ogdfReadFromMM(Graphe& G, std::istream& inStream) { printf("OGDF NOT INSTALLED.\n"); }
+int ogdfPlacementAuPlusProche(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfPlacementAuPlusProcheStress(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+int ogdfReverse(Graphe &G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfReverseNonPlanar(Graphe &G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfCrossingNumbers(std::vector<std::string> graphFiles) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfStressMinimization(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfFastMultipoleEmbedder(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfFastMultipoleMultilevelEmbedder(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfFMMMLayout(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfGEMLayout(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfPivotMDS(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfOther(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfOtherTest(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfGutwenger(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
+void ogdfRun(Graphe &G) { printf("OGDF NOT INSTALLED.\n"); }
 
 #endif

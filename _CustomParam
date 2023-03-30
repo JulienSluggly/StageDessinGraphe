@@ -4,8 +4,8 @@
 3=Delai {x,x,x}
 4=StressMin Delai {x,x}
 5=StressMin Partie Graphe {x,x}
-6=
-7=
+6=Box Depart Coeff {x,x}
+7=Box Arrive Coeff {x,x}
 8=Température de départ 't' {x,x}
 9=Valeur de Refroidissement 'cool' {x,x}
 10=Refroidissement de la rechauffe 'coolt' {x,x}

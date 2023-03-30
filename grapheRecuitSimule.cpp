@@ -298,14 +298,27 @@ void Graphe::calculDelaiRefroidissement(int& delay, std::vector<std::vector<doub
     }
 }
 
-void Graphe::setupSelectionEmplacement(int modeEmplacement, double t, double cool, double seuil) {
+void Graphe::setupSelectionEmplacement(int modeEmplacement, double t, double cool, double seuil, std::vector<std::vector<double>>& customParam) {
     if (modeEmplacement == 4) {
         std::pair<double,double> sizeGraphe = sizeOfGraphe();
         int nbIterationRecuit = nombreIterationRecuit(t, cool, seuil) ;
-        boiteXSizeDepart = sizeGraphe.first;
-        boiteYSizeDepart = sizeGraphe.second;
-        diffXBoiteIter = (boiteXSizeDepart - (sizeGraphe.first/10.0))/(double)nbIterationRecuit;
-        diffYBoiteIter = (boiteYSizeDepart - (sizeGraphe.second/10.0))/(double)nbIterationRecuit;
+        double coeffDepart = 1.0, coeffArrivee = 1.0;
+        if (customParam.size() > 0) {
+            for (std::vector<double>& param : customParam) {
+                if (param.size() > 0) {
+                    if (param[0] == 6) {
+                        coeffDepart = param[1];
+                    }
+                    else if (param[0] == 7) {
+                        coeffArrivee = param[1];
+                    }
+                }
+            }
+        }
+        boiteXSizeDepart = sizeGraphe.first*coeffDepart;
+        boiteYSizeDepart = sizeGraphe.second*coeffDepart;
+        diffXBoiteIter = (boiteXSizeDepart - coeffArrivee*(boiteXSizeDepart/10.0))/(double)nbIterationRecuit;
+        diffYBoiteIter = (boiteYSizeDepart - coeffArrivee*(boiteYSizeDepart/10.0))/(double)nbIterationRecuit;
     }
 }
 
@@ -549,7 +562,7 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
     else { nbCroisement = getNbCroisementReel(); }
     long bestCroisement = nbCroisement;
     calculDelaiRefroidissement(delay,customParam,0);
-    setupSelectionEmplacement(modeEmplacement,t,cool,seuil);
+    setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     int nodeId, idSwappedNode, improve;
     std::pair<double,double> randCoord;
@@ -560,10 +573,14 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
             nodeId = selectionNoeud(modeNoeud, t);
             std::pair<double,double> oldCoord({_noeuds[nodeId]._xreel,_noeuds[nodeId]._yreel});
             randCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
+            //double TMPDISTANCE = distanceReelSqrt(randCoord,oldCoord);
+            //recuitDistanceAll.push_back(TMPDISTANCE);
             improve = calculImproveReel(nodeId,randCoord,useGrille,useScore);
             if (improve < 0) {
                 nbCroisement += improve;
+                //recuitDistanceUpgrade.push_back(make_pair(iter,TMPDISTANCE));
                 if (nbCroisement < bestCroisement) {
+                    //recuitDistanceUpgradeGlobal.push_back(make_pair(iter,TMPDISTANCE));
                     bestCroisement = nbCroisement;
                     saveBestResultRecuitReel(bestResultVector);
                     bestEnd = std::chrono::system_clock::now();

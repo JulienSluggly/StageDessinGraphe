@@ -202,3 +202,20 @@ bool surSegmentReel(double ax, double ay, double bx, double by, double cx, doubl
 bool surSegmentReel(const Aretes& lien, const Noeud& noeud) {
 	return surSegmentReel(lien.getNoeud1()->_xreel,lien.getNoeud1()->_yreel,lien.getNoeud2()->_xreel,lien.getNoeud2()->_yreel, noeud._xreel,noeud._yreel);
 }
+
+// compute the intersection point of two edges
+bool seCroisentForce(double ax, double ay, double bx, double by, double cx, double cy, double dx, double dy, double& ix, double& iy) {
+    double denominator = (bx - ax)*(dy - cy) - (by - ay)*(dx - cx);
+    if (denominator == 0) {
+        return false;
+    }
+    double t = ((cy - ay)*(dx - cx) - (cx - ax)*(dy - cy)) / denominator;
+    double u = ((by - ay)*(dx - cx) - (bx - ax)*(dy - cy)) / denominator;
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+        ix = ax + t*(bx - ax);
+        iy = ay + t*(by - ay);
+        return true;
+    } else {
+        return false;
+    }
+}

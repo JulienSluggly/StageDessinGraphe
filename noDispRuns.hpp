@@ -77,12 +77,39 @@ void customRecuitFlottants() {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
 		std::vector<std::vector<std::vector<double>>> totalRuns;
+		totalRuns.push_back({{6,1.0},{7,1.0}});
+		totalRuns.push_back({{6,0.5},{7,1.0}});
+		totalRuns.push_back({{6,0.25},{7,1.0}});
+		totalRuns.push_back({{6,1.25},{7,1.0}});
+		totalRuns.push_back({{6,1.5},{7,1.0}});
+		totalRuns.push_back({{6,2.0},{7,1.0}});
+
+		totalRuns.push_back({{6,1.0},{7,2}});
+		totalRuns.push_back({{6,0.5},{7,2}});
+		totalRuns.push_back({{6,0.25},{7,2}});
+		totalRuns.push_back({{6,1.25},{7,2}});
+		totalRuns.push_back({{6,1.5},{7,2}});
+		totalRuns.push_back({{6,2.0},{7,2}});
+
+		totalRuns.push_back({{6,1.0},{7,0.5}});
+		totalRuns.push_back({{6,0.5},{7,0.5}});
+		totalRuns.push_back({{6,0.25},{7,0.5}});
+		totalRuns.push_back({{6,1.25},{7,0.5}});
+		totalRuns.push_back({{6,1.5},{7,0.5}});
+		totalRuns.push_back({{6,2.0},{7,0.5}});
+
+		totalRuns.push_back({{6,1.0},{7,3.0}});
+		totalRuns.push_back({{6,0.5},{7,3.0}});
+		totalRuns.push_back({{6,0.25},{7,3.0}});
+		totalRuns.push_back({{6,1.25},{7,3.0}});
+		totalRuns.push_back({{6,1.5},{7,3.0}});
+		totalRuns.push_back({{6,2.0},{7,3.0}});
+
 		for (int i=0;i<totalRuns.size();i++) {
+			if (i%nthreads == tid) {
+				generateCSV(-1,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",totalRuns[i],true,tid);
+			}
 		}
-		if (tid == 0) generateCSV(10,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
-		if (1%nthreads == tid) generateCSV(10,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",{},true,tid);
-		if (2%nthreads == tid) generateCSV(10,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",{},true,tid);
-		if (3%nthreads == tid) generateCSV(10,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
@@ -608,6 +635,7 @@ void compareStressFMMM() {
 						if (methode == 0) { G.stressMajorization({},1); }
 						else if (methode == 1) { G.stressMajorization(); }
 						else if (methode == 2) { ogdfFastMultipoleMultilevelEmbedder(G); }
+						sched_setaffinity(0, sizeof(cpuset), &cpuset);
 						auto finPlacement = std::chrono::system_clock::now();
 						std::chrono::duration<double> secondsPlacement = finPlacement - start;
 						std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
@@ -643,6 +671,7 @@ void testGraphsReel() {
 				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
 				G.placementAleatoireReel();
 				ogdfFastMultipoleMultilevelEmbedderReel(G);
+				sched_setaffinity(0, sizeof(cpuset), &cpuset);
 				G.translateGrapheToOriginReel(-1);
 				G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
 				G.rerecuitSimuleReel(tempsBest, nombreRecuit, start, {},-1,0.999999,0.99,100.0,0.0001,1,0,2);
@@ -677,6 +706,7 @@ void testGraphsCompletReel() {
 				auto start = std::chrono::system_clock::now();
 				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
 				ogdfFastMultipoleMultilevelEmbedderReel(G);
+				sched_setaffinity(0, sizeof(cpuset), &cpuset);
 				G.translateGrapheToOriginReel(-1);
 				G.rerecuitSimuleReel(tempsBest, nombreRecuit, start, {},-1,0.999999,0.99,100.0,0.0001,1,0,2,false,false,true);
 				auto end = std::chrono::system_clock::now();
@@ -745,6 +775,7 @@ void testThreads2() {
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
 		ogdfFastMultipoleMultilevelEmbedder(G);
+		sched_setaffinity(0, sizeof(cpuset), &cpuset);
 		G.initGrille(); G.registerSlotsAndEdgesInGrid();
 		G.recuitSimule(tempsBest, start, {},0.99999,100.0,0.0001,1,0,2,true,false);
 		auto end = std::chrono::system_clock::now();
