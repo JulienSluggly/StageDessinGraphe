@@ -5,6 +5,8 @@
 #include <random>
 #include "emplacement.hpp"
 
+static cpu_set_t cpuset;
+
 // Retourne une valeur réelle comprise dans [0.0,n[
 double generateDoubleRand(double n);
 

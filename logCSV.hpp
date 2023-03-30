@@ -119,6 +119,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 			std::cout << "ERROR Aucune methode " << methodePlacementName << " trouve !\n";
 			return;
 		}
+		sched_setaffinity(0, sizeof(cpuset), &cpuset);
 
 		if (useReel) { G.translateGrapheToOriginReel(-1); }
 		if (updateScore) { G.initGraphAndNodeScoresAndCrossings(); }

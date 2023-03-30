@@ -1,6 +1,7 @@
 #include "graphe.hpp"
 #include "stressMaj.hpp"
 #include "pivotMDS.hpp"
+#include "ogdfFunctions.hpp"
 #include <iostream>
 #include <climits>
 

@@ -42,7 +42,7 @@ void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pair
 // A besoin d'au moin slotFiles.size() threads pour effectuer toutes les executions.
 void customRecuit() {
 	fillLogsVector();
-	std::string nomFichierGraph = "graph-11-input";
+	std::string nomFichierGraph = "graph-10-input";
 	std::vector<std::string> slotFiles = { "11-input-slots", "2X-11-input-slots", "3X-11-input-slots", "GRID" };
 	int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -58,7 +58,7 @@ void customRecuit() {
 			for (int i=0;i<totalRuns.size();i++) {
 				generateCSV(-1,"Stress","Aucun",nomFichierGraph,slotFiles[tid],totalRuns[i],tid);
 			}
-			generateCSV(10,"Stress","Aucun",nomFichierGraph,slotFiles[tid],{},tid);
+			generateCSV(10,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,slotFiles[tid],{},false,tid);
 		}
 		printf("Thread: %d done.\n",tid);
 	}
@@ -109,7 +109,7 @@ void customRecuitAllRuns() {
 					std::vector<std::vector<std::vector<double>>> totalRuns;
 					totalRuns.push_back({{10,1}});
 					for (int i=0;i<totalRuns.size();i++) {
-						generateCSV(2,"Aleatoire","Recuit Simule Grille TME",key.first,key.second[numSlot],totalRuns[i],tid);
+						generateCSV(2,"Aleatoire","Recuit Simule Grille TME",key.first,key.second[numSlot],totalRuns[i],false,tid);
 					}
 				}
 			}
@@ -701,21 +701,57 @@ void testThreads() {
 		if (tid == 0) {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
+		if (tid < 4) {
+			printf("Tid: %d | CPU: %d\n", tid, sched_getcpu());
+			std::string nomFichierGraph = "graph-10-input";
+			std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
+			Graphe G;
+			G.readFromJsonGraph(pathGraph);
+			auto start = std::chrono::system_clock::now();
+			double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
+			//G.placementAleatoireReel();
+			ogdfFastMultipoleMultilevelEmbedderReel(G);
+			sched_setaffinity(0, sizeof(cpuset), &cpuset);
+			printf("Placement done Tid: %d | CPU: %d\n", tid, sched_getcpu());
+			G.translateGrapheToOriginReel(-1);
+			G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
+			G.recuitSimuleReel(tempsBest, start, {},0.99999,100.0,0.0001,1,0,2,true,false,false);
+			auto end = std::chrono::system_clock::now();
+			std::chrono::duration<double> secondsTotal = end - start;
+			std::string nomFichier = chemin + "resultats/" + to_string(tid) + ".csv";
+			std::ofstream resultats(nomFichier, std::ios_base::app);
+			resultats << tid << "," << G.getNbCroisementDiffReel() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+			resultats.close();
+		}
+		printf("Thread %d done.\n", tid);
+	}
+	printf("All Threads done.\n");
+}
+
+void testThreads2() {
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
 		std::string nomFichierGraph = "graph-10-input";
 		std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 		Graphe G;
 		G.readFromJsonGraph(pathGraph);
+		G.generateGrid();
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
-		ogdfFastMultipoleMultilevelEmbedderReel(G);
-		G.translateGrapheToOriginReel(-1);
-		G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
-		G.recuitSimuleReel(tempsBest, start, {},0.99999,100.0,0.0001,1,0,2,true,false,false);
+		ogdfFastMultipoleMultilevelEmbedder(G);
+		G.initGrille(); G.registerSlotsAndEdgesInGrid();
+		G.recuitSimule(tempsBest, start, {},0.99999,100.0,0.0001,1,0,2,true,false);
 		auto end = std::chrono::system_clock::now();
 		std::chrono::duration<double> secondsTotal = end - start;
 		std::string nomFichier = chemin + "resultats/" + to_string(tid) + ".csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
-		resultats << tid << "," << G.getNbCroisementDiffReel() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
+		resultats << tid << "," << G.getNbCroisementDiff() << "," << tempsBest << "," << secondsTotal.count() << std::endl;
 		resultats.close();
 		printf("Thread %d done.\n", tid);
 	}

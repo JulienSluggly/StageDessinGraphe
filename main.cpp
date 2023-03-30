@@ -17,6 +17,14 @@
 #include "utilitaire.hpp"
 #include "stressMaj.hpp"
 
+void initCPUSet() {
+    int num_threads = ::omp_get_max_threads();
+    CPU_ZERO(&cpuset);
+    for (int i = 0; i < num_threads; i++) {
+      CPU_SET(i, &cpuset);
+    }
+}
+
 void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIteration, int nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::chrono::time_point<std::chrono::system_clock> finPlacement) {
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotal = end - start;
@@ -46,17 +54,17 @@ void runFuncOnFolder() {
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 		std::cout << "---------------------\n";
 		Graphe G;
-		std::ifstream file(dirEntry.path());
+		std::ifstream file(dirEntry.path().string());
 		if (file) {
 			std::stringstream buffer;
 			buffer << file.rdbuf();
 			file.close();
 			ogdfReadFromMM(G, buffer);
-			std::string output = dirEntry.path();
+			std::string output = dirEntry.path().string();
 			output = output + "clean";
 			G.writeToJsonCleanGraphe(output);
 		}
-		std::cout << dirEntry.path() << " Grid" << std::endl;
+		std::cout << dirEntry.path().string() << " Grid" << std::endl;
 		G.DEBUG_GRAPHE = true;
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
@@ -112,13 +120,14 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 }
 
 int main() {
+	initCPUSet();
 	initRandomSeed();
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
 	//testGraphsCompletReel(); return 0;
-	//customRecuitFlottants(); return 0;
-	testThreads(); return 0;
+	customRecuitFlottants(); return 0;
+	//testThreads(); return 0;
 	//testRomeGraphs(); return 0;
 
 	bool useCoordReel = true;
