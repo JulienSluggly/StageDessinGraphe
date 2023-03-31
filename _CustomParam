@@ -1,16 +1,22 @@
-0=Tournoi Multiple Emplacement {x,x,x}
-1=Stress Majorization EdgeCost {x,x}
-2=Stress Majorization Iterations {x,x}
-3=Delai {x,x,x}
-4=StressMin Delai {x,x}
-5=StressMin Partie Graphe {x,x}
-6=Box Depart Coeff {x,x}
-7=Box Arrive Coeff {x,x}
-8=Température de départ 't' {x,x}
-9=Valeur de Refroidissement 'cool' {x,x}
-10=Refroidissement de la rechauffe 'coolt' {x,x}
-11=Seuil du recuit simule 'seuil' {x,x}
+CustomParams:
+
+0=Tournoi Multiple Emplacement {0,x,x}
+1=Stress Majorization EdgeCost {1,x}
+2=Stress Majorization Iterations {2,x}
+3=Delai {3,x,x}
+4=StressMin Delai {4,x}
+5=StressMin Partie Graphe {5,x}
+6=Box Depart Coeff {6,x}
+7=Box Arrive Coeff {7,x}
+8=Température de départ 't' {8,x}
+9=Valeur de Refroidissement 'cool' {9,x}
+10=Refroidissement de la rechauffe 'coolt' {10,x}
+11=Seuil du recuit simule 'seuil' {11,x}
 12=
 13=
 14=
 15=
+
+Historique:
+
+0=Deplacement Noeud Reel {0,idNode,oldCoordX,oldCoordY}

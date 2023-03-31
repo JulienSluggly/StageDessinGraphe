@@ -1837,37 +1837,44 @@ void Graphe::rotateNode(double angle, int nodeId, double centerX,double centerY)
     double c = cos(angleRadian);
 
     // translate point back to origin:
-    _noeuds[nodeId].pivotX -= centerX;
-    _noeuds[nodeId].pivotY -= centerY;
+    _noeuds[nodeId]._xreel -= centerX;
+    _noeuds[nodeId]._yreel -= centerY;
 
     // rotate point
-    double xnew = _noeuds[nodeId].pivotX * c - _noeuds[nodeId].pivotY * s;
-    double ynew = _noeuds[nodeId].pivotX * s + _noeuds[nodeId].pivotY * c;
+    double xnew = _noeuds[nodeId]._xreel * c - _noeuds[nodeId]._yreel * s;
+    double ynew = _noeuds[nodeId]._xreel * s + _noeuds[nodeId]._yreel * c;
 
     // translate point back:
-    _noeuds[nodeId].pivotX = xnew + centerX;
-    _noeuds[nodeId].pivotY = ynew + centerY;
+    _noeuds[nodeId]._xreel = xnew + centerX;
+    _noeuds[nodeId]._yreel = ynew + centerY;
 }
 
 void Graphe::rotateGraph(double angle) {
-    for (int i=0;i<_noeuds.size();i++) {
-        _noeuds[i].pivotX = _noeuds[i].getEmplacement()->getX();
-        _noeuds[i].pivotY = _noeuds[i].getEmplacement()->getY();
-    }
     std::pair<double,double> centreGravite = getCentreGraviteDoubleNoeuds();
-    clearNodeEmplacement();
-    for (int i=0;i<_noeuds.size();i++) {
-        rotateNode(angle,i,centreGravite.first,centreGravite.second);
+    if (useCoordReel) {
+        for (int i=0;i<_noeuds.size();i++) {
+            rotateNode(angle,i,centreGravite.first,centreGravite.second);
+        }
     }
-    for (int i=0;i<_noeuds.size();i++) {
-        Emplacement* currentEmp;
-        if (grillePtr.size() > 0) {
-            currentEmp = getClosestEmplacementFromPointGrid(_noeuds[i].pivotX,_noeuds[i].pivotY,true);
+    else {
+        for (int i=0;i<_noeuds.size();i++) {
+            _noeuds[i]._xreel = _noeuds[i].getEmplacement()->getX();
+            _noeuds[i]._yreel = _noeuds[i].getEmplacement()->getY();
         }
-        else {
-            currentEmp = getClosestEmplacementFromPoint(_noeuds[i].pivotX,_noeuds[i].pivotY,true);
+        clearNodeEmplacement();
+        for (int i=0;i<_noeuds.size();i++) {
+            rotateNode(angle,i,centreGravite.first,centreGravite.second);
         }
-        _noeuds[i].setEmplacement(currentEmp);
+        for (int i=0;i<_noeuds.size();i++) {
+            Emplacement* currentEmp;
+            if (grillePtr.size() > 0) {
+                currentEmp = getClosestEmplacementFromPointGrid(_noeuds[i].pivotX,_noeuds[i].pivotY,true);
+            }
+            else {
+                currentEmp = getClosestEmplacementFromPoint(_noeuds[i].pivotX,_noeuds[i].pivotY,true);
+            }
+            _noeuds[i].setEmplacement(currentEmp);
+        }
     }
 }
 

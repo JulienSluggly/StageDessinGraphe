@@ -55,6 +55,7 @@ double initialMargeXDebut = 1, initialMargeXFin = 1, initialMargeYDebut = 1, ini
 double margeXDebut, margeXFin, margeYDebut, margeYFin;
 double orthoStartX, orthoStartY, orthoEndX, orthoEndY;
 double originalOrthoStartX, originalOrthoStartY, originalOrthoEndX, originalOrthoEndY;
+std::vector<std::vector<double>> historiqueOpenGL;
 
 void updateOrtho() {
 	orthoStartX = -margeXDebut - (gridWidth * currentZoom);
@@ -298,7 +299,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			moving = !moving;
 			break;
 		case GLFW_KEY_E:
-			show_selected_emplacement = !show_selected_emplacement;
+			if (!useReel) { show_selected_emplacement = !show_selected_emplacement; }
 			break;
 		case GLFW_KEY_G:
 			show_cells = !show_cells;
@@ -319,6 +320,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_PAGE_DOWN: // Enleve 5 au m_edgecost du SM
 			keyPressFunctionNum = 23; singleKeyPress = true;
+			break;
+		case GLFW_KEY_BACKSPACE: // CTRL + Z
+			keyPressFunctionNum = 31; singleKeyPress = true;
 			break;
 		}
 }
@@ -1071,6 +1075,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				selectedEmplacement = G.getClosestEmplacementFromPoint(clicX,clicY)->_id;
 			}
 			else {
+				historiqueOpenGL.push_back({0.0,(double)selectedNode,G._noeuds[selectedNode]._xreel,G._noeuds[selectedNode]._yreel});
 				G._noeuds[selectedNode]._xreel = clicX;
 				G._noeuds[selectedNode]._yreel = clicY;
 				if (showIllegal) recalcIllegal = true;
@@ -1079,6 +1084,18 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 30: {//Generate x2 more emplacement (KEY: F10)
 			G.generateMoreEmplacement(2);
+			break;
+		}
+		case 31: {//CTRL + Z (KEY: Backspace)
+			int lastIndex = historiqueOpenGL.size()-1;
+			if (lastIndex >= 0) {
+				if ((int)historiqueOpenGL[lastIndex][0] == 0) {
+					int nodeId = (int)historiqueOpenGL[lastIndex][1];
+					G._noeuds[nodeId]._xreel = historiqueOpenGL[lastIndex][2];
+					G._noeuds[nodeId]._yreel = historiqueOpenGL[lastIndex][3];
+					historiqueOpenGL.pop_back();
+				}
+			}
 			break;
 		}
 		default:{

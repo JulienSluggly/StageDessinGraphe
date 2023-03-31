@@ -194,7 +194,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		if (methodeAlgoName == "Recuit Simule") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false); } else { G.recuitSimuleReel(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,false,false,false); } }
 		if (methodeAlgoName == "Recuit Simule Grille") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,true,false); } else { G.recuitSimuleReel(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,0,true,false,false); } }
 		else if (methodeAlgoName == "Recuit Simule Grille TME") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam); } else { G.recuitSimuleReel(tempsBest,start,customParam); } }
-		else if (methodeAlgoName == "Recuit Simule Grille BOX") { if (useReel) { G.recuitSimuleReel(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,4,true); } }
+		else if (methodeAlgoName == "Recuit Simule Grille BOX") { if (useReel) { G.recuitSimuleReel(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,4,true); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME")  { if (!useReel) { G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam); } else { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille BOX") { if (useReel) { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,100.0,0.0001,1,0,4,true,false,false); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Temp") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,0.1);

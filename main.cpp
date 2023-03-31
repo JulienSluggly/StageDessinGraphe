@@ -126,9 +126,7 @@ int main() {
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
 	//testGraphsCompletReel(); return 0;
-	customRecuitFlottants(); return 0;
-	//testThreads(); return 0;
-	//testRomeGraphs(); return 0;
+	//customRecuitFlottants(); return 0;
 
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";

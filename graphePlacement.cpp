@@ -150,11 +150,20 @@ std::pair<int,int> Graphe::getCentreGraviteNoeudPlaces() {
 std::pair<double,double> Graphe::getCentreGraviteDoubleNoeuds() {
     double totalX = 0.0, totalY = 0.0;
     double nbIter = 0.0;
-    for (int i=0;i<_noeuds.size();i++) {
-        if (_noeuds[i].estPlace()){
-            totalX += _noeuds[i].getEmplacement()->getX();
-            totalY += _noeuds[i].getEmplacement()->getY();
+    if (useCoordReel) {
+        for (int i=0;i<_noeuds.size();i++) {
+            totalX += _noeuds[i]._xreel;
+            totalY += _noeuds[i]._yreel;
             nbIter++;
+        }
+    }
+    else {
+        for (int i=0;i<_noeuds.size();i++) {
+            if (_noeuds[i].estPlace()){
+                totalX += _noeuds[i].getEmplacement()->getX();
+                totalY += _noeuds[i].getEmplacement()->getY();
+                nbIter++;
+            }
         }
     }
     return std::pair<double,double>(totalX / nbIter,totalY / nbIter);
