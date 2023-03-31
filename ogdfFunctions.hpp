@@ -13,7 +13,7 @@ void ogdfReadFromMM(Graphe& G, std::istream& inStream);
 
 void createGrapheFromOGDFGraphe(Graphe& G, Graph& ogdfG);
 
-void ogdfPrintNumberOfCrossings(GraphAttributes& ogdfGA);
+int ogdfNumberOfCrossings(GraphAttributes& ogdfGA);
 
 // Creer un graphe ogdf a partir d'un graphe placé ou non.
 void createOGDFGraphFromGraphe(Graphe &G, GridLayout &ogdfGL, Graph &ogdfG);
@@ -54,6 +54,8 @@ void ogdfFastMultipoleEmbedder(Graphe& G);
 void ogdfFastMultipoleMultilevelEmbedder(Graphe& G);
 
 void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G);
+
+void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G);
 
 void ogdfFMMMLayout(Graphe& G);
 

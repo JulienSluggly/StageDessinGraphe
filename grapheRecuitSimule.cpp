@@ -262,8 +262,8 @@ std::pair<double,double> Graphe::selectionEmplacementReel(int modeEmplacement, i
         break;
     }
     case 4: { // Boite autour du noeud
-        double sizeX = boiteXSizeDepart - diffXBoiteIter * iter;
-        double sizeY = boiteYSizeDepart - diffYBoiteIter * iter;
+        double sizeX = boiteXSizeDepart - (diffXBoiteIter * iter);
+        double sizeY = boiteYSizeDepart - (diffYBoiteIter * iter);
         randCoord.first =  std::min(std::max(_noeuds[nodeId]._xreel + generateDoubleRand(sizeX*2)-sizeX,0.0),(double)gridWidth);
         randCoord.second =  std::min(std::max(_noeuds[nodeId]._yreel + generateDoubleRand(sizeY*2)-sizeY,0.0),(double)gridHeight);
     }

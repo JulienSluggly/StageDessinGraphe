@@ -79,35 +79,63 @@ void customRecuitFlottants() {
 		std::vector<std::vector<std::vector<double>>> totalRuns;
 		totalRuns.push_back({{6,1.0},{7,1.0}});
 		totalRuns.push_back({{6,0.5},{7,1.0}});
+		totalRuns.push_back({{6,0.75},{7,1.0}});
 		totalRuns.push_back({{6,0.25},{7,1.0}});
 		totalRuns.push_back({{6,1.25},{7,1.0}});
 		totalRuns.push_back({{6,1.5},{7,1.0}});
 		totalRuns.push_back({{6,2.0},{7,1.0}});
 
-		totalRuns.push_back({{6,1.0},{7,2}});
-		totalRuns.push_back({{6,0.5},{7,2}});
-		totalRuns.push_back({{6,0.25},{7,2}});
-		totalRuns.push_back({{6,1.25},{7,2}});
-		totalRuns.push_back({{6,1.5},{7,2}});
-		totalRuns.push_back({{6,2.0},{7,2}});
+		totalRuns.push_back({{6,1.0},{7,2.0}});
+		totalRuns.push_back({{6,0.75},{7,2.0}});
+		totalRuns.push_back({{6,0.5},{7,2.0}});
+		totalRuns.push_back({{6,0.25},{7,2.0}});
+		totalRuns.push_back({{6,1.25},{7,2.0}});
+		totalRuns.push_back({{6,1.5},{7,2.0}});
+		totalRuns.push_back({{6,2.0},{7,2.0}});
 
 		totalRuns.push_back({{6,1.0},{7,0.5}});
+		totalRuns.push_back({{6,0.75},{7,0.5}});
 		totalRuns.push_back({{6,0.5},{7,0.5}});
 		totalRuns.push_back({{6,0.25},{7,0.5}});
 		totalRuns.push_back({{6,1.25},{7,0.5}});
 		totalRuns.push_back({{6,1.5},{7,0.5}});
 		totalRuns.push_back({{6,2.0},{7,0.5}});
 
+		totalRuns.push_back({{6,1.0},{7,0.25}});
+		totalRuns.push_back({{6,0.75},{7,0.25}});
+		totalRuns.push_back({{6,0.5},{7,0.25}});
+		totalRuns.push_back({{6,0.25},{7,0.25}});
+		totalRuns.push_back({{6,1.25},{7,0.25}});
+		totalRuns.push_back({{6,1.5},{7,0.25}});
+		totalRuns.push_back({{6,2.0},{7,0.25}});
+
+		totalRuns.push_back({{6,1.0},{7,1.5}});
+		totalRuns.push_back({{6,0.75},{7,1.5}});
+		totalRuns.push_back({{6,0.5},{7,1.5}});
+		totalRuns.push_back({{6,0.25},{7,1.5}});
+		totalRuns.push_back({{6,1.25},{7,1.5}});
+		totalRuns.push_back({{6,1.5},{7,1.5}});
+		totalRuns.push_back({{6,2.0},{7,1.5}});
+
 		totalRuns.push_back({{6,1.0},{7,3.0}});
+		totalRuns.push_back({{6,0.75},{7,3.0}});
 		totalRuns.push_back({{6,0.5},{7,3.0}});
 		totalRuns.push_back({{6,0.25},{7,3.0}});
 		totalRuns.push_back({{6,1.25},{7,3.0}});
 		totalRuns.push_back({{6,1.5},{7,3.0}});
 		totalRuns.push_back({{6,2.0},{7,3.0}});
 
+		totalRuns.push_back({{6,1.0},{7,10.0}});
+		totalRuns.push_back({{6,0.75},{7,10.0}});
+		totalRuns.push_back({{6,0.5},{7,10.0}});
+		totalRuns.push_back({{6,0.25},{7,10.0}});
+		totalRuns.push_back({{6,1.25},{7,10.0}});
+		totalRuns.push_back({{6,1.5},{7,10.0}});
+		totalRuns.push_back({{6,2.0},{7,10.0}});
+
 		for (int i=0;i<totalRuns.size();i++) {
 			if (i%nthreads == tid) {
-				generateCSV(-1,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",totalRuns[i],true,tid);
+				generateCSV(-1,"OGDFFMMMM","Recuit Simule Grille BOX",nomFichierGraph,"",totalRuns[i],true,tid);
 			}
 		}
 		printf("Thread: %d done.\n",tid);

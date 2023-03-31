@@ -16,6 +16,7 @@
 #include "logCSV.hpp"
 #include "utilitaire.hpp"
 #include "stressMaj.hpp"
+#include "solver.hpp"
 
 void initCPUSet() {
     int num_threads = ::omp_get_max_threads();
@@ -125,8 +126,8 @@ int main() {
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	//testGraphsCompletReel(); return 0;
-	//customRecuitFlottants(); return 0;
+	
+	customRecuitFlottants(); testGraphsCompletReel(); return 0;
 
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
@@ -141,6 +142,7 @@ int main() {
 	//ogdfReverse(G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/adjnoun.graphclean");
+	//solve(G); return 0;
 	G.readFromJsonGraph(pathGraph);
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
@@ -157,7 +159,8 @@ int main() {
 	//G.stressMajorization();
 	//ogdfOther(G);
 	//G.placementAleatoireReel();
-	ogdfFastMultipoleMultilevelEmbedderReel(G);
+	//ogdfFastMultipoleMultilevelEmbedderReel(G);
+	ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
 	//G.forcePlacement();
 	//G.stressMajorizationReel();
 	G.translateGrapheToOriginReel(-1);

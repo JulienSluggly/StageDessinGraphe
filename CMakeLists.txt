@@ -10,6 +10,7 @@ find_package(OpenGL REQUIRED)
 find_package(OGDF CONFIG PATHS "/home/uha/Documents/OGDF")
 find_package(nlohmann_json REQUIRED CONFIG PATHS "/home/uha/Documents/json-develop")
 find_package(OpenMP)
+find_package(Ceres REQUIRED)
 
 add_executable(dessinGrapheCmake 
     src/main.cpp
@@ -30,6 +31,7 @@ add_executable(dessinGrapheCmake
     src/stressMaj.cpp
     src/pivotMDS.cpp
     src/fmmm.cpp
+    src/solver.cpp
 )
 
 target_include_directories(dessinGrapheCmake PRIVATE "/home/uha/Documents/OGDF/include")
@@ -45,4 +47,5 @@ target_link_libraries(dessinGrapheCmake
     OpenMP::OpenMP_CXX
     gomp
     -lstdc++fs
+    Ceres::ceres
 )

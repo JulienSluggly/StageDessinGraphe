@@ -1868,10 +1868,10 @@ void Graphe::rotateGraph(double angle) {
         for (int i=0;i<_noeuds.size();i++) {
             Emplacement* currentEmp;
             if (grillePtr.size() > 0) {
-                currentEmp = getClosestEmplacementFromPointGrid(_noeuds[i].pivotX,_noeuds[i].pivotY,true);
+                currentEmp = getClosestEmplacementFromPointGrid(_noeuds[i]._xreel,_noeuds[i]._yreel,true);
             }
             else {
-                currentEmp = getClosestEmplacementFromPoint(_noeuds[i].pivotX,_noeuds[i].pivotY,true);
+                currentEmp = getClosestEmplacementFromPoint(_noeuds[i]._xreel,_noeuds[i]._yreel,true);
             }
             _noeuds[i].setEmplacement(currentEmp);
         }

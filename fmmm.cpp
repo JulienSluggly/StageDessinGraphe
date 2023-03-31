@@ -74,8 +74,8 @@ void FMMM::assignPositionsFromPrevLevel() {
 
 void FMMM::writeCurrentToGraphAttributes() {
     for (int i=0;i<m_pCurrentGraph->_noeuds.size();i++) {
-        G->_noeuds[i].stressX = (*m_pCurrentNodeXPos)[i];
-        G->_noeuds[i].stressY = (*m_pCurrentNodeYPos)[i];
+        G->_noeuds[i]._xreel = (*m_pCurrentNodeXPos)[i];
+        G->_noeuds[i]._yreel = (*m_pCurrentNodeYPos)[i];
     }
 }
 
@@ -321,11 +321,32 @@ void FastMultipoleEmbedder::initOptions() {
 	m_pOptions->multipolePrecision = m_precisionParameter;
 }
 
+void readFrom(Graphe* m_pG, const Graphe& G, std::vector<float>& xPos, std::vector<float>& yPos, const std::vector<float>& edgeLength, const std::vector<float>& nodeSize) {
+	for (int i=0;i<G._noeuds.size();i++) {
+		m_pG->_noeuds.push_back(Noeud(i));
+		m_pG->_noeuds[i]._xreel = (float)xPos[i];
+		m_pG->_noeuds[i]._yreel = (float)yPos[i];
+	}
+	for (int i=0;i<G._aretes.size();i++) {
+		int id1 = G._aretes[i]._noeud1->_id;
+		int id2 = G._aretes[i]._noeud2->_id;
+		m_pG->_aretes.push_back(Aretes(&m_pG->_noeuds[id1],&m_pG->_noeuds[id2],i));
+		m_pG->_aretes[i].edgeLength = (float)edgeLength[i];
+	}
+}
+
+void writeTo(Graphe* m_pG, std::vector<float>& xPos, std::vector<float>& yPos){
+	for (int i=0;i<m_pG->_noeuds.size();i++) {
+		xPos[i] = m_pG->_noeuds[i]._xreel;
+		yPos[i] = m_pG->_noeuds[i]._yreel;
+	}
+}
+
 void FastMultipoleEmbedder::call(const Graphe& G,std::vector<float>& nodeXPosition, std::vector<float>& nodeYPosition,const std::vector<float>& edgeLength, const std::vector<float>& nodeSize) {
 	allocate();
-	//m_pGraph->readFrom(G, nodeXPosition, nodeYPosition, edgeLength, nodeSize);
+	readFrom(m_pGraph, G, nodeXPosition, nodeYPosition, edgeLength, nodeSize);
 	run(m_numIterations);
-	//m_pGraph->writeTo(G, nodeXPosition, nodeYPosition);
+	writeTo(m_pGraph, nodeXPosition, nodeYPosition);
 	deallocate();
 }
 
@@ -358,26 +379,21 @@ void FastMultipoleEmbedder::call(Graphe &GA, const std::vector<float>& edgeLengt
 void FastMultipoleEmbedder::run(uint32_t numIterations) {
 	if (m_pGraph->_noeuds.size() == 0) return;
 	if (m_pGraph->_noeuds.size() == 1) {
-		//m_pGraph->nodeXPos()[0] = 0.0f;
-		//m_pGraph->nodeYPos()[0] = 0.0f;
+		m_pGraph->_noeuds[0]._xreel = 0.0f;
+		m_pGraph->_noeuds[0]._yreel = 0.0f;
 		return;
 	}
 
+	double avgNodeSize = 1.0;
 	if (m_randomize) {
-		//double avgNodeSize = 0.0;
-		for (uint32_t i = 0; i < m_pGraph->_noeuds.size(); i++) {
-			//avgNodeSize += m_pGraph->nodeSize()[i];
-		}
-
-		//avgNodeSize = (avgNodeSize / (double)m_pGraph->_noeuds.size());
-		for (uint32_t i = 0; i < m_pGraph->_noeuds.size(); i++) {
-			//m_pGraph->nodeXPos()[i] = (float)(randomDouble(-(double)m_pGraph->numNodes(), (double)m_pGraph->numNodes())*avgNodeSize*2);
-			//m_pGraph->nodeYPos()[i] = (float)(randomDouble(-(double)m_pGraph->numNodes(), (double)m_pGraph->numNodes())*avgNodeSize*2);
+		for (int i = 0; i < m_pGraph->_noeuds.size(); i++) {
+			m_pGraph->_noeuds[i]._xreel = (float)(generateDoubleRand((double)m_pGraph->_noeuds.size()*avgNodeSize*3)-(double)m_pGraph->_noeuds.size());
+			m_pGraph->_noeuds[i]._yreel = (float)(generateDoubleRand((double)m_pGraph->_noeuds.size()*avgNodeSize*3)-(double)m_pGraph->_noeuds.size());
 		}
 	}
 
 	m_pOptions->maxNumIterations = numIterations;
-	//m_pOptions->stopCritForce = (((float)m_pGraph->_noeuds.size())*((float)m_pGraph->_noeuds.size())*m_pGraph->avgNodeSize()) / m_pOptions->stopCritConstSq;
+	m_pOptions->stopCritForce = (((float)m_pGraph->_noeuds.size())*((float)m_pGraph->_noeuds.size())*avgNodeSize) / m_pOptions->stopCritConstSq;
 	if (m_pGraph->_noeuds.size() < 100)
 		runSingle();
 	else

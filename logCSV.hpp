@@ -147,6 +147,14 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 			return;
 #endif			
 		}
+		else if (methodePlacementName == "OGDFFMMMM") {
+#if defined(OGDF_INSTALLED)
+			if (useReel) { ogdfFastMultipoleMultilevelEmbedderReelMinute(G); }
+#else
+			std::cout << "OGDF NOT INSTALLED.\n";
+			return;
+#endif		
+		}
 		else if (methodePlacementName == "Stress") { if (!useReel) { G.stressMajorization(customParam); } else { G.stressMajorizationReel(); } }
 		else if (methodePlacementName == "Stress Dyn Stress") { if (!useReel) { G.stressMajorization(customParam,1); } }
 		else if (methodePlacementName == "Stress Dyn Cross") { if (!useReel) { G.stressMajorization(customParam,2); } }

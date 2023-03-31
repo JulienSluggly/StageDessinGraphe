@@ -73,13 +73,13 @@ void createGrapheFromOGDFGraphe(Graphe &G, ogdf::Graph &ogdfG) {
 	}
 }
 
-void ogdfPrintNumberOfCrossings(ogdf::GraphAttributes& ogdfGA) {
+int ogdfNumberOfCrossings(ogdf::GraphAttributes& ogdfGA) {
 	ogdf::ArrayBuffer<int> tmpA = ogdf::LayoutStatistics::numberOfCrossings(ogdfGA);
 	int numberOfCrossings = 0;
 	for (const int& number : tmpA) {
 		numberOfCrossings += number;
 	}
-	std::cout << "OGDF Crossings: " << numberOfCrossings/2 << std::endl;
+	return numberOfCrossings/2;
 }
 
 int ogdfTotalNumberOfBends(ogdf::GraphAttributes& ogdfGA) {
@@ -468,7 +468,7 @@ void ogdfStressMinimization(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::StressMinimization sm;
 	sm.call(ogdfGA);
-	ogdfPrintNumberOfCrossings(ogdfGA);
+	ogdfNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -479,7 +479,7 @@ void ogdfFastMultipoleEmbedder(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::FastMultipoleEmbedder fme;
 	fme.call(ogdfGA);
-	ogdfPrintNumberOfCrossings(ogdfGA);
+	ogdfNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -510,6 +510,48 @@ void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
 	}
 }
 
+void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
+	auto start = std::chrono::system_clock::now();
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
+	ogdf::FastMultipoleMultilevelEmbedder fmme;
+	fmme.call(ogdfGA);
+	std::vector<std::pair<double,double>> bestCoord(G._noeuds.size());
+	int i=0;
+	for (auto n : ogdfG.nodes) {
+		bestCoord[i] = make_pair(ogdfGA.x(n),ogdfGA.y(n));
+		i++;
+	}
+	int nbCrossing = ogdfNumberOfCrossings(ogdfGA);
+	int bestNbCrossings = nbCrossing;
+	int nbIter = 0;
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotal = end - start;
+	while (nbIter < 100 && secondsTotal.count() < 60) {
+		fmme.call(ogdfGA);
+		nbCrossing = ogdfNumberOfCrossings(ogdfGA);
+		if (nbCrossing < bestNbCrossings) {
+			bestNbCrossings = nbCrossing;
+			i=0;
+			for (auto n : ogdfG.nodes) {
+				bestCoord[i] = make_pair(ogdfGA.x(n),ogdfGA.y(n));
+				i++;
+			}
+		}
+		nbIter++;
+		end = std::chrono::system_clock::now();
+		secondsTotal = end - start;
+	}
+
+	i=0;
+	for (const std::pair<double,double>& coord : bestCoord) {
+		G._noeuds[i]._xreel = coord.first;
+		G._noeuds[i]._yreel = coord.second;
+		i++;
+	}
+}
+
 void ogdfFMMMLayout(Graphe& G) {
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
@@ -517,7 +559,7 @@ void ogdfFMMMLayout(Graphe& G) {
 	ogdf::FMMMLayout fmmml;
 	fmmml.unitEdgeLength(22);
 	fmmml.call(ogdfGA);
-	//ogdfPrintNumberOfCrossings(ogdfGA);
+	//ogdfNumberOfCrossings(ogdfGA);
 	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
@@ -528,7 +570,7 @@ void ogdfGEMLayout(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::GEMLayout geml;
 	geml.call(ogdfGA);
-	ogdfPrintNumberOfCrossings(ogdfGA);
+	ogdfNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -539,7 +581,7 @@ void ogdfPivotMDS(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::PivotMDS pmds;
 	pmds.call(ogdfGA);
-	ogdfPrintNumberOfCrossings(ogdfGA);
+	ogdfNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -550,7 +592,7 @@ void ogdfOther(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::SpringEmbedderFRExact segv;
 	segv.call(ogdfGA);
-	ogdfPrintNumberOfCrossings(ogdfGA);
+	ogdfNumberOfCrossings(ogdfGA);
 	//ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	//ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -568,7 +610,7 @@ void ogdfGutwenger(Graphe& G) {
 	int crossingNumber;
 	sp.call(pr,0,crossingNumber);
 	printf("%d\n",crossingNumber);
-	ogdfPrintNumberOfCrossings(ogdfGA);
+	ogdfNumberOfCrossings(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
@@ -586,11 +628,11 @@ void ogdfOtherTest(Graphe& G) {
     pl.setCrossMin(new ogdf::SubgraphPlanarizer());
 
     pl.call(ogdfGA);
-    ogdfPrintNumberOfCrossings(ogdfGA);
+    ogdfNumberOfCrossings(ogdfGA);
     ogdf::GraphIO::write(ogdfGA, chemin + "/svgOgdf/output.svg", ogdf::GraphIO::drawSVG);
     std::cout << "Nb Bends: " << ogdfTotalNumberOfBends(ogdfGA) << std::endl;
     ogdfGA.clearAllBends();
-    ogdfPrintNumberOfCrossings(ogdfGA);
+    ogdfNumberOfCrossings(ogdfGA);
     ogdf::GraphIO::write(ogdfGA, chemin + "/svgOgdf/outputNoBend.svg", ogdf::GraphIO::drawSVG);
 }
 

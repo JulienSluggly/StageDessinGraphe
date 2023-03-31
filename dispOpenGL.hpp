@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <random>
 #include "graphe.hpp"
+#include "ogdfFunctions.hpp"
 
 bool useReel = false;
 bool singleKeyPress = false;
@@ -278,6 +279,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_F10: // Generate x2 Emplacements
 			keyPressFunctionNum = 30; singleKeyPress = true;
+			break;
+		case GLFW_KEY_F11: // ogdfGMMM
+			keyPressFunctionNum = 32; singleKeyPress = true;
 			break;
 		case GLFW_KEY_F12: // Repeat Infinitely
 			repeatInfinitely = !repeatInfinitely;
@@ -1097,6 +1101,12 @@ void openGLKeyPressFunction(Graphe& G) {
 				}
 			}
 			break;
+		}
+		case 32: {//ogdfFMMM (KEY: F11)
+#if defined(OGDF_INSTALLED)
+			if (!useReel) { ogdfFastMultipoleMultilevelEmbedder(G); } else { ogdfFastMultipoleMultilevelEmbedderReel(G); G.translateGrapheToOriginReel(-1); }
+			break;
+#endif
 		}
 		default:{
 			std::cout << "No function found.\n";
