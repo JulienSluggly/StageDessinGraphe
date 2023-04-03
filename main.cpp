@@ -122,14 +122,14 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 
 int main() {
 	initCPUSet();
-	initRandomSeed();
+	//initRandomSeed();
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
-	//initSameSeed();
+	initSameSeed(1);
 	//customRecuitFlottantsAllRuns(); return 0;
 
 	bool useCoordReel = true;
-	std::string nomFichierGraph = "graph-5-input";
+	std::string nomFichierGraph = "graph-10-input";
 	//std::string nomFichierSlots = "10-input-slots";
 	std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
@@ -168,7 +168,7 @@ int main() {
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,4,true);
-	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,false);
+	G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,false);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
 	//G.afficherInfo();

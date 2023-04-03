@@ -61,3 +61,19 @@ Restructurer les methodes de graphe, ne garder en methode de classe que celle qu
 Implementer le recuit only improve et best deplacement a la fin des 1h d'execution
 
 multithreading recuit, pool threading
+
+Tableau de marque pour le calcul du score.
+
+pour le multithreading recuit:
+
+Si emplacement choisi est disponible:
+    Creer un noeud temporaire au nouvel emplacement et marquer les anciennes aretes et les nouvelles.
+Sinon:
+    Creer deux noeuds temporaires aux autres emplacements et attribuer au meme emplacement(ou a un temporaire?) et marquer les anciennes et nouvelles aretes.
+On met a jour les cellules avec les nouvelles aretes.
+Le premier Thread ne prend en compte que les aretes communes et anciennes.
+Le deuxieme Thread ne prend en compte que les aretes communes et nouvelles.
+Si on garde le nouvel emplacement: On remplace dans le tableau l'emplacement du noeud par le nouveau.
+On met a jour la grille en supprimant les nouvelles aretes.
+
+Adapter code aux coord entieres sans emplacement
