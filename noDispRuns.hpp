@@ -77,66 +77,42 @@ void customRecuitFlottants() {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
 		std::vector<std::vector<std::vector<double>>> totalRuns;
-		totalRuns.push_back({{6,1.0},{7,1.0}});
-		totalRuns.push_back({{6,0.5},{7,1.0}});
-		totalRuns.push_back({{6,0.75},{7,1.0}});
-		totalRuns.push_back({{6,0.25},{7,1.0}});
-		totalRuns.push_back({{6,1.25},{7,1.0}});
-		totalRuns.push_back({{6,1.5},{7,1.0}});
-		totalRuns.push_back({{6,2.0},{7,1.0}});
-
-		totalRuns.push_back({{6,1.0},{7,2.0}});
-		totalRuns.push_back({{6,0.75},{7,2.0}});
-		totalRuns.push_back({{6,0.5},{7,2.0}});
-		totalRuns.push_back({{6,0.25},{7,2.0}});
-		totalRuns.push_back({{6,1.25},{7,2.0}});
-		totalRuns.push_back({{6,1.5},{7,2.0}});
-		totalRuns.push_back({{6,2.0},{7,2.0}});
-
-		totalRuns.push_back({{6,1.0},{7,0.5}});
-		totalRuns.push_back({{6,0.75},{7,0.5}});
-		totalRuns.push_back({{6,0.5},{7,0.5}});
-		totalRuns.push_back({{6,0.25},{7,0.5}});
-		totalRuns.push_back({{6,1.25},{7,0.5}});
-		totalRuns.push_back({{6,1.5},{7,0.5}});
-		totalRuns.push_back({{6,2.0},{7,0.5}});
-
-		totalRuns.push_back({{6,1.0},{7,0.25}});
-		totalRuns.push_back({{6,0.75},{7,0.25}});
-		totalRuns.push_back({{6,0.5},{7,0.25}});
-		totalRuns.push_back({{6,0.25},{7,0.25}});
-		totalRuns.push_back({{6,1.25},{7,0.25}});
-		totalRuns.push_back({{6,1.5},{7,0.25}});
-		totalRuns.push_back({{6,2.0},{7,0.25}});
-
-		totalRuns.push_back({{6,1.0},{7,1.5}});
-		totalRuns.push_back({{6,0.75},{7,1.5}});
-		totalRuns.push_back({{6,0.5},{7,1.5}});
-		totalRuns.push_back({{6,0.25},{7,1.5}});
-		totalRuns.push_back({{6,1.25},{7,1.5}});
-		totalRuns.push_back({{6,1.5},{7,1.5}});
-		totalRuns.push_back({{6,2.0},{7,1.5}});
-
-		totalRuns.push_back({{6,1.0},{7,3.0}});
-		totalRuns.push_back({{6,0.75},{7,3.0}});
-		totalRuns.push_back({{6,0.5},{7,3.0}});
-		totalRuns.push_back({{6,0.25},{7,3.0}});
-		totalRuns.push_back({{6,1.25},{7,3.0}});
-		totalRuns.push_back({{6,1.5},{7,3.0}});
-		totalRuns.push_back({{6,2.0},{7,3.0}});
-
-		totalRuns.push_back({{6,1.0},{7,10.0}});
-		totalRuns.push_back({{6,0.75},{7,10.0}});
-		totalRuns.push_back({{6,0.5},{7,10.0}});
-		totalRuns.push_back({{6,0.25},{7,10.0}});
-		totalRuns.push_back({{6,1.25},{7,10.0}});
-		totalRuns.push_back({{6,1.5},{7,10.0}});
-		totalRuns.push_back({{6,2.0},{7,10.0}});
-
 		for (int i=0;i<totalRuns.size();i++) {
 			if (i%nthreads == tid) {
-				generateCSV(-1,"OGDFFMMMM","Recuit Simule Grille BOX",nomFichierGraph,"",totalRuns[i],true,tid);
+				generateCSV(1,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",totalRuns[i],true,tid);
 			}
+		}
+		generateCSV(20,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
+		printf("Thread: %d done.\n",tid);
+	}
+	printf("All Threads done.\n");
+}
+
+void customRecuitFlottantsAllRuns() {
+	fillLogsVector();
+	std::vector<std::string> graphVector;
+	for (int i = 1; i <= 12; i++) {
+		graphVector.push_back("graph-" + std::to_string(i) + "-input");
+	}
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		int indexKey = 0;
+		std::vector<std::vector<std::vector<double>>> totalRuns;
+		for (const std::string& nomFichierGraph : graphVector) {
+			if (indexKey%nthreads == tid) {
+				for (int i=0;i<totalRuns.size();i++) {
+					generateCSV(-1,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",totalRuns[i],true,tid);
+				}
+				generateCSV(-1,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",{},true,tid);
+				generateCSV(-1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
+			}
+			indexKey++;
 		}
 		printf("Thread: %d done.\n",tid);
 	}

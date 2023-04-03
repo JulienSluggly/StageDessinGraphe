@@ -712,9 +712,19 @@ void openGLKeyPressFunction(Graphe& G) {
 			if (showIllegal) recalcIllegal = true;
 			break;
 		}
-		case 3: {// Recuit simule
+		case 3: {// Recuit simule (KEY: 3")
 			if (useReel) {
-
+				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisementReelConst() << std::endl;
+				auto start = std::chrono::system_clock::now();
+				double timeBest;
+				bool useGrille = G.grillePtr.size() > 0;
+				G.recuitSimuleReel(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,useGrille,false);
+				auto end = std::chrono::system_clock::now();
+				std::chrono::duration<double> secondsTotal = end - start;
+				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
+				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
+				if (G.grillePtr.size() > 0) { G.reinitGrilleReel(); }
 			}
 			else {
 				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
@@ -727,6 +737,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
 				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
 				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+				if (G.grillePtr.size() > 0) { G.reinitGrille(); }
 			}
 			break;
 		}
@@ -742,7 +753,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 5: {// Placement aleatoire (KEY: &)
+		case 5: {// Placement aleatoire (KEY: 1&)
 			if (display_genetic) {
 				parent1.clearNodeEmplacement();
 				parent2.clearNodeEmplacement();
@@ -757,9 +768,11 @@ void openGLKeyPressFunction(Graphe& G) {
 				if (!useReel) {
 					G.clearNodeEmplacement();
 					G.placementAleatoire();
+					if (G.grillePtr.size() > 0) { G.reinitGrille(); }
 				}
 				else {
 					G.placementAleatoireReel();
+					if (G.grillePtr.size() > 0 ) { G.reinitGrilleReel(); }
 				}
 			}
 			if (showIllegal) recalcIllegal = true;
@@ -783,7 +796,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			if (showIllegal) recalcIllegal = true;
 			break;
 		}
-		case 7: {// Affiche score (KEY: ')
+		case 7: {// Affiche score (KEY: 4')
 			if (!display_genetic) {
 				if (!useReel) {
 					G.getNbCroisementDiff();
@@ -855,7 +868,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 11: {// Make Swap (KEY: s)
+		case 11: {// Make Swap (KEY: S)
 			G.clearSetAreteInter();
 			if (G._noeuds[selectedNode].getEmplacement()->getId() != selectedEmplacement) {
 				int oldEmplacement = G._noeuds[selectedNode].getEmplacement()->getId();
@@ -984,7 +997,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			break;
 		}
-		case 20: {// Step Stress Majorization (KEY:5)
+		case 20: {// Step Stress Majorization (KEY: 5)
 			if (!useReel) {
 				G.stepStressMajorization();
 				std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretes()<< std::endl;
@@ -1058,6 +1071,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
 				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
 				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
+				if (G.grillePtr.size() > 0) { G.reinitGrilleReel(); }
 			}
 			else {
 				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
@@ -1070,6 +1084,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
 				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
 				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+				if (G.grillePtr.size() > 0) { G.reinitGrille(); }
 			}
 			if (showIllegal) recalcIllegal = true;
 			break;
@@ -1104,7 +1119,14 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 32: {//ogdfFMMM (KEY: F11)
 #if defined(OGDF_INSTALLED)
-			if (!useReel) { ogdfFastMultipoleMultilevelEmbedder(G); } else { ogdfFastMultipoleMultilevelEmbedderReel(G); G.translateGrapheToOriginReel(-1); }
+			if (!useReel) { 
+				ogdfFastMultipoleMultilevelEmbedder(G);
+				if (G.grillePtr.size() > 0) { G.reinitGrille(); }
+			}
+			else {
+				ogdfFastMultipoleMultilevelEmbedderReel(G); G.translateGrapheToOriginReel(-1);
+				if (G.grillePtr.size() > 0 ) { G.reinitGrilleReel(); }
+			}
 			break;
 #endif
 		}

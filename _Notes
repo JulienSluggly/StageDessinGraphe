@@ -59,3 +59,5 @@ ogdfFMMM suivi du stressMin?
 Restructurer les methodes de graphe, ne garder en methode de classe que celle qui font sens
 
 Implementer le recuit only improve et best deplacement a la fin des 1h d'execution
+
+multithreading recuit, pool threading

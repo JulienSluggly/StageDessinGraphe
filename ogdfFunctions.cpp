@@ -494,6 +494,9 @@ void ogdfFastMultipoleMultilevelEmbedder(Graphe& G) {
 	fmme.call(ogdfGA);
 	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
 	G.deleteGrille();
+	G.isNombreCroisementUpdated = false;
+    G.isNodeScoreUpdated = false;
+    G.isIntersectionVectorUpdated = false;
 }
 
 void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
@@ -508,6 +511,9 @@ void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
 		G._noeuds[i]._yreel = ogdfGA.y(n);
 		i++;
 	}
+	G.isNombreCroisementUpdated = false;
+    G.isNodeScoreUpdated = false;
+    G.isIntersectionVectorUpdated = false;
 }
 
 void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
@@ -550,6 +556,9 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 		G._noeuds[i]._yreel = coord.second;
 		i++;
 	}
+	G.isNombreCroisementUpdated = false;
+    G.isNodeScoreUpdated = false;
+    G.isIntersectionVectorUpdated = false;
 }
 
 void ogdfFMMMLayout(Graphe& G) {

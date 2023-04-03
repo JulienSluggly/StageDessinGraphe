@@ -302,7 +302,7 @@ void Graphe::setupSelectionEmplacement(int modeEmplacement, double t, double coo
     if (modeEmplacement == 4) {
         std::pair<double,double> sizeGraphe = sizeOfGraphe();
         int nbIterationRecuit = nombreIterationRecuit(t, cool, seuil) ;
-        double coeffDepart = 1.0, coeffArrivee = 1.0;
+        double coeffDepart = 0.75, coeffArrivee = 0.25;
         if (customParam.size() > 0) {
             for (std::vector<double>& param : customParam) {
                 if (param.size() > 0) {
