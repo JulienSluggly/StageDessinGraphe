@@ -4,5 +4,6 @@
 #include "graphe.hpp"
 
 void solve(Graphe& G);
+void solve2(Graphe& G);
 
 #endif

@@ -122,27 +122,27 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 
 int main() {
 	initCPUSet();
-	//initRandomSeed();
+	initRandomSeed();
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
-	initSameSeed(1);
+	//initSameSeed();
 	//customRecuitFlottantsAllRuns(); return 0;
 
-	bool useCoordReel = true;
-	std::string nomFichierGraph = "graph-10-input";
-	//std::string nomFichierSlots = "10-input-slots";
-	std::string nomFichierSlots = "Grid";
+	bool useCoordReel = false;
+	std::string nomFichierGraph = "graph-1-input";
+	std::string nomFichierSlots = "3X-1-input-slots";
+	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/adjnoun.graphclean");
-	//solve(G); return 0;
-	G.readFromJsonGraph(pathGraph);
+	//G.readFromJsonGraph(pathGraph);
+	solve(G); return 0;
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
@@ -173,7 +173,7 @@ int main() {
 
 	//G.afficherInfo();
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
-	
+
 	bool useOpenGL = true;
 	if (useOpenGL) { // OpenGL
 		G.DEBUG_OPENGL = true;

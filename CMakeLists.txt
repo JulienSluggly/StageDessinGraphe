@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(dessinGrapheCmake VERSION 0.1.0)
 cmake_policy(SET CMP0072 NEW)
 
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 17) # Impossible d'utiliser plus récent avec OGDF
 
 find_package(OpenGL REQUIRED)
 find_package(OGDF CONFIG PATHS "/home/uha/Documents/OGDF")
