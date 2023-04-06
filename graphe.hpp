@@ -721,7 +721,7 @@ public:
 
 	// Supprime le dernier noeud dans le tableau et met tout a jour.
 	// A appeler uniquement apres la création d'un noeud temporaire.
-	void supprimerNoeudTemporaire();
+	void supprimerNoeudTemporaire(int copyNodeId);
 
 	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires.
 	int creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord);

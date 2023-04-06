@@ -395,7 +395,7 @@ int Graphe::calculImproveReelThread(int nodeId,std::pair<double,double>& randCoo
     if (useScore) { updateNodeScore(nodeId); }
     if (useGrille) { recalcNodeCelluleReel(nodeId); }
     long newScoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore,true);
-    supprimerNoeudTemporaire();
+    supprimerNoeudTemporaire(nodeId);
     return newScoreNode - scoreNode;
 }
 

@@ -2162,7 +2162,7 @@ int Graphe::creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord)
     return idTmpNode;
 }
 
-void Graphe::supprimerNoeudTemporaire() {
+void Graphe::supprimerNoeudTemporaire(int copyNodeId) {
     int idNodeSuppr = _noeuds.size()-1;
     bool useGrille = grillePtr.size() > 0;
     if (useGrille) {
@@ -2179,4 +2179,7 @@ void Graphe::supprimerNoeudTemporaire() {
         _aretes.pop_back();
     }
     _noeuds.pop_back();
+    for (const int& areteId : _noeuds[copyNodeId]._aretes) {
+        _aretes[areteId].typeArrete = 0;
+    }
 }
