@@ -211,6 +211,9 @@ public:
 	// Modifie les parametres du rerecuit en fonction des customParam
 	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam);
 
+	// Modifie les parametres du recuit en fonction des customParam
+	void applyRecuitCustomParam(double& coeffImprove,std::vector<std::vector<double>>& customParam);
+
 	// Effectue une sauvegarde du graphe en fonction de la méthode utilisée.
 	void saveBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, bool useScore, bool useGrille);
 

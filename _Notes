@@ -16,8 +16,6 @@ Faire une version ogdf placement au plus proche qui place les voisins d'un noeud
 
 Refaire le recuit score en intégrant la grille
 
-Utilisation d'un solver, branch and bound?
-
 Faire des tests sur le placement de depart avec stressMin en variant edgeCost, comparer avec placement aleatoire et glouton
 
 Variante Stress Maj qui minimise le nombre d'intersection au moment de la recherche du plus proche.

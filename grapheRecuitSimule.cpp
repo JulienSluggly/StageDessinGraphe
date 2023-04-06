@@ -400,6 +400,16 @@ void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,doubl
     }
 }
 
+void Graphe::applyRecuitCustomParam(double& coeffImprove,std::vector<std::vector<double>>& customParam) {
+    if (customParam.size() > 0) {
+        for (std::vector<double>& param : customParam) {
+            if (param.size() > 0) {
+                if (param[0] == 12) { coeffImprove = param[1]; }
+            }
+        }
+    }
+}
+
 void Graphe::saveBestResultRecuit(std::vector<int>& bestResultVector, Graphe& bestResultGraphe, bool useScore, bool useGrille) {
     if (useScore) { bestResultGraphe.copyFromGraphe(*this); }
     else if (useGrille) { bestResultVector = saveCopy(); }
@@ -561,6 +571,8 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
     if (isNombreCroisementUpdated) { nbCroisement = nombreCroisement; }
     else { nbCroisement = getNbCroisementReel(); }
     long bestCroisement = nbCroisement;
+    double coeffImprove = 1.0;
+    applyRecuitCustomParam(coeffImprove,customParam);
     calculDelaiRefroidissement(delay,customParam,0);
     setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
@@ -576,7 +588,7 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
             //double TMPDISTANCE = distanceReelSqrt(randCoord,oldCoord);
             //recuitDistanceAll.push_back(TMPDISTANCE);
             improve = calculImproveReel(nodeId,randCoord,useGrille,useScore);
-            if (improve < 0) {
+            if (improve <= 0) {
                 nbCroisement += improve;
                 //recuitDistanceUpgrade.push_back(make_pair(iter,TMPDISTANCE));
                 if (nbCroisement < bestCroisement) {
@@ -589,7 +601,10 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
             }
             else {
                 double randDouble = generateDoubleRand(1.0);
-                if (randDouble >= exp(-improve / t)) {
+                //double TMPDISTANCE = exp(-improve / t);
+                //recuitDistanceUpgrade.push_back(make_pair(iter,TMPDISTANCE));
+                double valImprove = exp(-improve / t) * coeffImprove;
+                if (randDouble >= valImprove) {
                     if (useScore) { changeUpdateValue(nodeId); }
                     else { _noeuds[nodeId].setCoordReel(oldCoord); }
                     if (useScore) { updateNodeScore(nodeId); }

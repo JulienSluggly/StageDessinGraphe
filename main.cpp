@@ -126,23 +126,22 @@ int main() {
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
 	//initSameSeed();
-	//customRecuitFlottantsAllRuns(); return 0;
+	customRecuitFlottants(); return 0;
 
-	bool useCoordReel = false;
-	std::string nomFichierGraph = "graph-1-input";
+	bool useCoordReel = true;
+	std::string nomFichierGraph = "graph-10-input";
 	std::string nomFichierSlots = "3X-1-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/adjnoun.graphclean");
-	//G.readFromJsonGraph(pathGraph);
-	G.placementAleatoire(); solverCeres(G); return 0;
+	G.readFromJsonGraph(pathGraph);
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }

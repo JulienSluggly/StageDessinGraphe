@@ -60,16 +60,6 @@ std::string getParamAsString(std::vector<std::vector<double>>& customParam) {
 
 void saveGrapheDistanceCSV(Graphe& G, int tid) {
 	if (G.recuitDistanceAll.size() > 0) {
-		/*
-		int nbFichier = 10;
-		for (int num=0;num<nbFichier;num++) {
-			std::string nomFichier = chemin + "/resultats/" + to_string(tid) + "-recuitDistAllP" + to_string(num) + ".csv";
-			std::ofstream resultats(nomFichier, std::ios_base::app);
-			for (int i=(G.recuitDistanceAll.size()/nbFichier)*num;i<(G.recuitDistanceAll.size()/nbFichier)*(num+1);i++) {
-				resultats << i << "," << G.recuitDistanceAll[i] << std::endl;
-			}
-			resultats.close();
-		}*/
 		std::string nomFichier = chemin + "/resultats/" + to_string(tid) + "-recuitDistAll.csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
 		for (int i=0;i<G.recuitDistanceAll.size();i+=100) {
@@ -80,7 +70,7 @@ void saveGrapheDistanceCSV(Graphe& G, int tid) {
 	if (G.recuitDistanceUpgrade.size() > 0) {
 		std::string nomFichier = chemin + "/resultats/" + to_string(tid) + "-recuitDistUp.csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
-		for (int i=0;i<G.recuitDistanceUpgrade.size();i++) {
+		for (int i=0;i<G.recuitDistanceUpgrade.size();i+=100) {
 			resultats << G.recuitDistanceUpgrade[i].first << "," << G.recuitDistanceUpgrade[i].second << std::endl;
 		}
 		resultats.close();
@@ -126,7 +116,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
 		if (isGenetique) { population = mapGraphPopGen[nomGraphe].first; maxIteration = mapGraphPopGen[nomGraphe].second; }
 		saveResult = true;
-		printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Nodes: %lu | Param: %s | TotalRun: %.1fs | Seed: %u\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),G._noeuds.size(),getParamAsString(customParam).c_str(),secondsTotalExec.count(),getSeed(tid));
+		printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Nodes: %lu | TotalRun: %.1fs | Seed: %u | Param: %s\n",tid,i,nbEssay,nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),G._noeuds.size(),secondsTotalExec.count(),getSeed(tid),getParamAsString(customParam).c_str());
 		if (methodePlacementName == "Glouton") { if (!useReel) { G.glouton(); } }
 		else if (methodePlacementName == "Glouton Revisite") { if (!useReel) { G.gloutonRevisite(); } }
 		else if (methodePlacementName == "Glouton Gravite") { if (!useReel) { G.gloutonRevisiteGravite(); } }
@@ -206,8 +196,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME")  { if (!useReel) { G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam); } else { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille BOX") { if (useReel) { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,100.0,0.0001,1,0,4,true,false,false); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Temp") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,0.1);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Custom") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam);
-		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999);
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") if (!useReel) { G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999); } else { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam,-1,0.999999); }
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cooler") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.9999999);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999,0.99,100.0,0.0001,2);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool Delay Temp") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999,0.99,0.1,0.0001,2);
@@ -226,7 +215,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		}
 
 		auto end = std::chrono::system_clock::now();
-		//saveGrapheDistanceCSV(G,tid);
+		saveGrapheDistanceCSV(G,tid);
 		std::chrono::duration<double> secondsTotal = end - start;
 		std::chrono::duration<double> secondsPlacement = finPlacement - start;
 		secondsTotalExec = end - totalStart;

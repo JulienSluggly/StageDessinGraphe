@@ -77,12 +77,49 @@ void customRecuitFlottants() {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
 		std::vector<std::vector<std::vector<double>>> totalRuns;
+		totalRuns.push_back({{12,1.0}});
+		totalRuns.push_back({{12,1.05}});
+		totalRuns.push_back({{12,1.1}});
+		totalRuns.push_back({{12,1.15}});
+		totalRuns.push_back({{12,1.2}});
+		totalRuns.push_back({{12,1.25}});
+		totalRuns.push_back({{12,1.30}});
+		totalRuns.push_back({{12,1.35}});
+		totalRuns.push_back({{12,1.40}});
+		totalRuns.push_back({{12,1.45}});
+		totalRuns.push_back({{12,1.50}});
+		totalRuns.push_back({{12,1.75}});
+		totalRuns.push_back({{12,2.0}});
+		totalRuns.push_back({{12,3.0}});
+		totalRuns.push_back({{12,4.0}});
+		totalRuns.push_back({{12,5.0}});
+		totalRuns.push_back({{12,0.95}});
+		totalRuns.push_back({{12,0.9}});
+		totalRuns.push_back({{12,0.85}});
+		totalRuns.push_back({{12,0.8}});
+		totalRuns.push_back({{12,0.75}});
+		totalRuns.push_back({{12,0.70}});
+		totalRuns.push_back({{12,0.65}});
+		totalRuns.push_back({{12,0.60}});
+		totalRuns.push_back({{12,0.55}});
+		totalRuns.push_back({{12,0.50}});
+		totalRuns.push_back({{12,0.25}});
+		totalRuns.push_back({{12,0.10}});
+		totalRuns.push_back({{12,0.05}});
+
+		totalRuns.push_back({{12,10000.0}});
+		totalRuns.push_back({{12,0.0}});
+		totalRuns.push_back({{12,-10000}});
+		totalRuns.push_back({{12,55555555555}});
+		totalRuns.push_back({{12,-55555555555}});
 		for (int i=0;i<totalRuns.size();i++) {
 			if (i%nthreads == tid) {
-				generateCSV(1,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",totalRuns[i],true,tid);
+				generateCSV(-1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",totalRuns[i],true,tid);
+				generateCSV(-1,"OGDFFMMM","Rerecuit Simule Grille TME",nomFichierGraph,"",totalRuns[i],true,tid);
+				generateCSV(-1,"OGDFFMMM","Rerecuit Simule Grille TME Cool",nomFichierGraph,"",totalRuns[i],true,tid);
 			}
 		}
-		generateCSV(20,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
+		//generateCSV(1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
