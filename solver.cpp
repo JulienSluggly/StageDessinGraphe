@@ -2,10 +2,16 @@
 #include "graphe.hpp"
 #include <vector>
 #include <iostream>
+#if defined(CPLEX_INSTALLED)
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
+#endif
+#if defined(CERES_INSTALLED)
+#include <ceres/ceres.h>
+#endif
 
 void solve(Graphe& G) {
+#if defined(CPLEX_INSTALLED)  
   try {
 
   int nbNode = 4;
@@ -79,9 +85,11 @@ void solve(Graphe& G) {
   catch(...) {
       cerr << "The following unknown exception was found: " << endl;
   }
+#endif
 }
 
 void solve2(Graphe& G) {
+#if defined(CPLEX_INSTALLED)
   int nbNode = G._noeuds.size();
   int nbArete = G._aretes.size();
   int nbSlot = G._emplacements.size();
@@ -134,9 +142,11 @@ void solve2(Graphe& G) {
   }
 
   env.end();
+#endif
 }
 
 void solve3(Graphe& G) {
+#if defined(CPLEX_INSTALLED) 
   try {
 
   int nbNode = 4;
@@ -208,9 +218,11 @@ void solve3(Graphe& G) {
   catch(...) {
       cerr << "The following unknown exception was found: " << endl;
   }
+#endif
 }
 
 void solve4(Graphe& G) {
+#if defined(CPLEX_INSTALLED)
   try {
 
   int nbNode = 4;
@@ -282,4 +294,80 @@ void solve4(Graphe& G) {
   catch(...) {
       cerr << "The following unknown exception was found: " << endl;
   }
+#endif
+}
+
+#if defined(CERES_INSTALLED)
+struct CrossingCostFunction {
+  template <typename T>
+  bool operator()(const T* const node1x,const T* const node1y, const T* const node2x,const T* const node2y, const T* const node3x,const T* const node3y, const T* const node4x,const T* const node4y, T* residual) const {
+    /*
+    px = node1[0]; nodesArray[0][node1Array[i]];
+    py = node1[1]; nodesArray[1][node1Array[i]];
+    qx = node2[0]; nodesArray[0][node2Array[i]];
+    qy = node2[1]; nodesArray[1][node2Array[i]];
+
+    rx = node3[0]; nodesArray[0][node1Array[j]];
+    ry = node3[1]; nodesArray[1][node1Array[j]];
+    sx = node4[0]; nodesArray[0][node2Array[j]];
+    sy = node4[1]; nodesArray[1][node2Array[j]];
+
+    ag1 = (((node2[0] - node1[0]) * (node3[1] - node1[1]) - (node2[1] - node1[1]) * (node3[0] - node1[0]))>0);
+    ag2 = (((node2[0] - node1[0]) * (node4[1] - node1[1]) - (node2[1] - node1[1]) * (node4[0] - node1[0]))>0);
+    ag3 = (((node4[0] - node3[0]) * (node1[1] - node3[1]) - (node4[1] - node3[1]) * (node1[0] - node3[0]))>0);
+    ag4 = (((node4[0] - node3[0]) * (node2[1] - node3[1]) - (node4[1] - node3[1]) * (node2[0] - node3[0]))>0);
+    */
+    const T ag1 = (*node2x - *node1x) * (*node3y - *node1y) - (*node2y - *node1y) * (*node3x - *node1x);
+    const T ag2 = (*node2x - *node1x) * (*node4y - *node1y) - (*node2y - *node1y) * (*node4x - *node1x);
+    const T ag3 = (*node4x - *node3x) * (*node1y - *node3y) - (*node4y - *node3y) * (*node1x - *node3x);
+    const T ag4 = (*node4x - *node3x) * (*node2y - *node3y) - (*node4y - *node3y) * (*node2x - *node3x);
+
+    // Count the crossing if the orientation is different
+    residual[0] = (ag1 * ag2) - (ag3 * ag4);
+
+    return true;
+  }
+
+  static ceres::CostFunction* Create() {
+    // Create a new instance of the cost function
+    return new ceres::AutoDiffCostFunction<CrossingCostFunction,1,1,1,1,1,1,1,1,1>(
+        new CrossingCostFunction);
+  }
+};
+
+#endif
+
+void solverCeres(Graphe& G) {
+#if defined(CERES_INSTALLED)
+  std::vector<double> xCoordNodes;
+  std::vector<double> yCoordNodes;
+  std::vector<int> node1Edge;
+  std::vector<int> node2Edge;
+  for (int i=0;i<G._noeuds.size();i++) {
+    xCoordNodes.push_back((double)G._noeuds[i].getX());
+    yCoordNodes.push_back((double)G._noeuds[i].getY());
+  }
+  for (int i=0;i<G._aretes.size();i++) {
+    node1Edge.push_back(G._aretes[i]._noeud1->_id);
+    node2Edge.push_back(G._aretes[i]._noeud2->_id);
+  }
+
+  // Build the problem.
+  ceres::Problem problem;
+  for (int i=0;i<node1Edge.size()-1;i++) {
+    for (int j=i+1;j<node1Edge.size();j++) {
+      problem.AddResidualBlock(CrossingCostFunction::Create(), nullptr, &xCoordNodes[node1Edge[i]],&yCoordNodes[node1Edge[i]], &xCoordNodes[node2Edge[i]],&yCoordNodes[node2Edge[i]], &xCoordNodes[node1Edge[j]],&yCoordNodes[node1Edge[j]], &xCoordNodes[node2Edge[j]],&yCoordNodes[node2Edge[j]]);
+    }
+  }
+
+  // Run the solver!
+  ceres::Solver::Options options;
+  ceres::Solver::Summary summary;
+  Solve(options, &problem, &summary);
+
+  std::cout << summary.BriefReport() << "\n";
+  for (int i=0;i<xCoordNodes.size();i++) {
+  //  std::cout << "Noeud " << i << " x: " << nodes[i].first << " y: " << nodes[i].second << std::endl;
+  }
+#endif
 }

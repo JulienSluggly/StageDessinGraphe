@@ -8,6 +8,7 @@ find_package(OpenGL REQUIRED)
 find_package(OGDF CONFIG PATHS "/home/uha/Documents/OGDF")
 find_package(nlohmann_json REQUIRED CONFIG PATHS "/home/uha/Documents/json-develop")
 find_package(OpenMP)
+find_package(Ceres REQUIRED)
 
 add_executable(dessinGrapheCmake 
     src/main.cpp
@@ -62,4 +63,5 @@ target_link_libraries(dessinGrapheCmake # Library used by cplex
     pthread
     m
     dl
+    Ceres::ceres
 )
