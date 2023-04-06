@@ -10,8 +10,6 @@ Selection de noeud pas au hasard mais ordonnée par score? ordonné, avant puis 
 
 Tester AT&T, Triangulation+X
 
-Variante recuit qui modifie la probabilité d'acceptation
-
 Faire une version ogdf placement au plus proche qui place les voisins d'un noeud au plus proche recursivement parcour en largeur?
 
 Refaire le recuit score en intégrant la grille
@@ -59,6 +57,8 @@ Restructurer les methodes de graphe, ne garder en methode de classe que celle qu
 Implementer le recuit only improve et best deplacement a la fin des 1h d'execution
 
 multithreading recuit, pool threading
+
+retest tres haute temperature?
 
 Tableau de marque pour le calcul du score.
 

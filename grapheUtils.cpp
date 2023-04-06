@@ -2143,3 +2143,40 @@ std::pair<double,double> Graphe::sizeOfGraphe() {
     }
     return std::make_pair(-1.0,-1.0);
 }
+
+int Graphe::creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord) {
+    int idTmpNode = _noeuds.size();
+    _noeuds.push_back(Noeud(idTmpNode));
+    int areteIdNew = _aretes.size();
+    for (int i=0;i<_noeuds[nodeId].voisins.size();i++) {
+        int voisinId = _noeuds[nodeId].voisins[i]->_id;
+        _aretes.push_back(Aretes(&_noeuds[idTmpNode],&_noeuds[voisinId],areteIdNew));
+        _aretes[areteIdNew].typeArrete = 2;
+        areteIdNew++;
+    }
+    for (const int& areteId : _noeuds[nodeId]._aretes) {
+        _aretes[areteId].typeArrete = 1;
+    }
+    bool useGrille = grillePtr.size() > 0;
+    if (useGrille) { recalcNodeCelluleReel(idTmpNode); }
+    return idTmpNode;
+}
+
+void Graphe::supprimerNoeudTemporaire() {
+    int idNodeSuppr = _noeuds.size()-1;
+    bool useGrille = grillePtr.size() > 0;
+    if (useGrille) {
+        for (const int& areteId : _noeuds[idNodeSuppr]._aretes) {
+            for (const int& celluleId : _aretes[areteId].vecIdCellules) {
+                grillePtr[celluleId]->vecAreteId.pop_back();
+            }
+        }
+    }
+    for (int i=0;i<_noeuds[idNodeSuppr].voisins.size();i++) {
+        int idVoisin = _noeuds[idNodeSuppr].voisins[i]->_id;
+        _noeuds[idVoisin].voisins.pop_back();
+        _noeuds[idVoisin]._aretes.pop_back();
+        _aretes.pop_back();
+    }
+    _noeuds.pop_back();
+}

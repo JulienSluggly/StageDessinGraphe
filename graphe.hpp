@@ -208,6 +208,9 @@ public:
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
 	int calculImproveReel(int nodeId, std::pair<double,double>& randCoord,bool useGrille, bool useScore);
 
+	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
+	int calculImproveReelThread(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
+
 	// Modifie les parametres du rerecuit en fonction des customParam
 	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam);
 
@@ -715,6 +718,13 @@ public:
 
 	// Ajoute les emplacement dont l'index d'activation est inferieur ou egal a l'index en parametre
 	void activateSlotsGridUntil(int index);
+
+	// Supprime le dernier noeud dans le tableau et met tout a jour.
+	// A appeler uniquement apres la création d'un noeud temporaire.
+	void supprimerNoeudTemporaire();
+
+	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires.
+	int creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord);
 
 };
 

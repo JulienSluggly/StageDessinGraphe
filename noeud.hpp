@@ -8,19 +8,16 @@
 
 class Noeud {
 public:
-	Emplacement* _emplacement = nullptr;
-	// Contient les indices des aretes contenant ce noeud
-	std::vector<int> _aretes;
-	int _id;
-	std::vector<Noeud*> voisins;
-	Noeud(int id) {
-		_id = id;
-	}
-	// Score d'intersection du noeud
+	Emplacement* _emplacement = nullptr; // L'emplacement sur lequel le noeud est placé, utile en coord entiere uniquement
+	std::vector<int> _aretes; // Contient les indices des aretes contenant ce noeud
+	int _id; // Id du noeud dans le tableau du graphe, unique et >= 0
+	std::vector<Noeud*> voisins; // Voisins directs relié par une arete
+	Noeud(int id) { _id = id; }
+	
 	// Attention ce score n'est pas toujours a jour!
-	long score = -1;
+	long score = -1; // Score d'intersection du noeud
 
-	int ogdfId = -1;
+	int ogdfId = -1; // Id du noeud dans ogdf, utile uniquement dans l'algo ogdf.
 
 	double stressX = -1;
 	double stressY = -1;
@@ -63,8 +60,7 @@ public:
 	}
 	int getId() const { return _id; }
 
-	void setEmplacement(Emplacement* emplacement)
-	{
+	void setEmplacement(Emplacement* emplacement) {
 		if (_emplacement != nullptr) {
 			_emplacement->removeNoeud();
 		}

@@ -28,6 +28,12 @@ public:
 	std::unordered_set<int> intersectionsIllSelf;
 	bool isUpdated = false;
 
+	// Utile pour le calcul improve multi threadé. Prend la valeur 0, 1 ou 2.
+	// 0 = Arete commune aux threads
+	// 1 = ancienne arete, utile pour le thread improve avant deplacement
+	// 2 = nouvelle arete, utile pour le thread improve apres deplacement
+	int typeArrete = 0; 
+
 	std::vector<int> vecIdCellules; // Contient les id des cellules dans la grille du graphe
 
 	double edgeLength = 0.0; // Pour OGDFFMMM, a supprimer si pas utile

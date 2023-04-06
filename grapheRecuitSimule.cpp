@@ -387,6 +387,18 @@ int Graphe::calculImproveReel(int nodeId,std::pair<double,double>& randCoord, bo
     return newScoreNode - scoreNode;
 }
 
+int Graphe::calculImproveReelThread(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore) {
+    int newTempNodeId = creationNoeudTemporaire(nodeId, randCoord);
+    long scoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore,true);
+    _noeuds[nodeId].setCoordReel(randCoord);
+    if (useScore) { changeUpdateValue(nodeId); }
+    if (useScore) { updateNodeScore(nodeId); }
+    if (useGrille) { recalcNodeCelluleReel(nodeId); }
+    long newScoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore,true);
+    supprimerNoeudTemporaire();
+    return newScoreNode - scoreNode;
+}
+
 void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam) {
     if (customParam.size() > 0) {
         for (std::vector<double>& param : customParam) {
