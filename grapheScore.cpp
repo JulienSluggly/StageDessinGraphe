@@ -603,7 +603,6 @@ long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThr
     else { typeArreteToIgnore = 1; }
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    #pragma omp parallel for reduction (+:score) num_threads(2)
     for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
         int index = _noeuds[nodeIndex]._aretes[i];
         std::vector<int> indexPasseCellule;

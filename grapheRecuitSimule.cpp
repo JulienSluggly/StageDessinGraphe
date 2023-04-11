@@ -4,6 +4,7 @@
 #include <iostream>
 #include <climits>
 #include <algorithm>
+#include <omp.h>
 
 // Selectionne deux noeud et retourne celui avec le score le plus faible. (le moin d'intersection)
 int Graphe::selectionNoeudTournoiBinaire(bool isScoreUpdated) {
@@ -423,6 +424,15 @@ int Graphe::calculImproveReelThread(int nodeId,std::pair<double,double>& randCoo
     return newScoreNode - scoreNode;
 }
 
+int Graphe::calculImproveReelThreadPool(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore) {
+    thread_tempNodeId = creationNoeudTemporaire(nodeId, randCoord);
+    long scoreNode;
+    #pragma omp barrier
+    scoreNode = calculScoreNodeMethodeThread(nodeId,-1,false,useGrille,useScore,true,true);
+    #pragma omp barrier
+    return thread_tempNewScore - scoreNode;
+}
+
 void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam) {
     if (customParam.size() > 0) {
         for (std::vector<double>& param : customParam) {
@@ -749,6 +759,153 @@ void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<st
                 else {
                     nbCroisement += improve;
                     replaceNoeudTemporaire(nodeId);
+                }
+            }
+        }
+        t *= cool;
+        end = std::chrono::system_clock::now();
+        secondsTotal = end - start;
+    }
+    loadBestResultRecuitReel(bestResultVector,bestCroisement);
+    updateGraphDataRecuit(useScore,useGrille);
+    std::chrono::duration<double> secondsBest = bestEnd - start;
+    timeBest = secondsBest.count();
+    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+}
+
+void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+    int tid;
+    thread_IsRecuitFinished = false;
+    #pragma omp parallel num_threads(2) private(tid)
+    {
+        tid = omp_get_thread_num();
+        if (tid == 0) {
+            auto bestEnd = start; auto end = start; // Timer pour le meilleur resultat trouvé et total
+            std::vector<std::pair<double,double>> bestResultVector;
+            saveBestResultRecuitReel(bestResultVector);
+            long nbCroisement;
+            if (isNombreCroisementUpdated) { nbCroisement = nombreCroisement; }
+            else { nbCroisement = getNbCroisementReel(); }
+            long bestCroisement = nbCroisement;
+            double coeffImprove = 1.0;
+            applyRecuitCustomParam(coeffImprove,customParam);
+            calculDelaiRefroidissement(delay,customParam,0);
+            setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
+            if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+            int nodeId, idSwappedNode, improve;
+            std::pair<double,double> randCoord;
+            std::chrono::duration<double> secondsTotal = end - start;
+            for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+                calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
+                for (int del = 0; del < delay; del++) {
+                    nodeId = selectionNoeud(modeNoeud, t);
+                    randCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
+                    improve = calculImproveReelThreadPool(nodeId,randCoord,useGrille,useScore);
+                    if (improve <= 0) {
+                        nbCroisement += improve;
+                        replaceNoeudTemporaire(nodeId);
+                        if (nbCroisement < bestCroisement) {
+                            bestCroisement = nbCroisement;
+                            saveBestResultRecuitReel(bestResultVector);
+                            bestEnd = std::chrono::system_clock::now();
+                            if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                        }
+                    }
+                    else {
+                        double randDouble = generateDoubleRand(1.0);
+                        double valImprove = exp(-improve / t) * coeffImprove;
+                        if (randDouble >= valImprove) {
+                            supprimerNoeudTemporaire(nodeId);
+                        }
+                        else {
+                            nbCroisement += improve;
+                            replaceNoeudTemporaire(nodeId);
+                        }
+                    }
+                }
+                t *= cool;
+                end = std::chrono::system_clock::now();
+                secondsTotal = end - start;
+            }
+            loadBestResultRecuitReel(bestResultVector,bestCroisement);
+            updateGraphDataRecuit(useScore,useGrille);
+            std::chrono::duration<double> secondsBest = bestEnd - start;
+            timeBest = secondsBest.count();
+            if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+            std::cout << "Temps passe: " << tempsPasseTmp << std::endl;
+            thread_IsRecuitFinished = true;
+            #pragma omp barrier
+        }
+        else {
+            while (!thread_IsRecuitFinished) {
+                #pragma omp barrier
+                if (thread_IsRecuitFinished) { break; }
+                thread_tempNewScore = calculScoreNodeMethodeThread(thread_tempNodeId,-1,false,useGrille,useScore,true,false);
+                #pragma omp barrier
+            }
+        }
+        printf("Thread done %d\n",omp_get_thread_num());
+    }
+}
+
+// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
+// Met à jour la variable nombreCroisement du graphe.
+// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
+// Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
+void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+    auto bestEnd = start; auto end = start; // Timer pour le meilleur resultat trouvé et total
+    std::vector<std::pair<double,double>> bestResultVector;
+    saveBestResultRecuitReel(bestResultVector);
+    long nbCroisement;
+    if (isNombreCroisementUpdated) { nbCroisement = nombreCroisement; }
+    else { nbCroisement = getNbCroisementReel(); }
+    long bestCroisement = nbCroisement;
+    double coeffImprove = 1.0;
+    applyRecuitCustomParam(coeffImprove,customParam);
+    calculDelaiRefroidissement(delay,customParam,0);
+    setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
+    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    int nodeId, idSwappedNode, improve;
+    std::pair<double,double> randCoord;
+    std::chrono::duration<double> secondsTotal = end - start;
+    for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+        calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
+        for (int del = 0; del < delay; del++) {
+            nodeId = selectionNoeud(modeNoeud, t);
+            std::pair<double,double> oldCoord({_noeuds[nodeId]._xreel,_noeuds[nodeId]._yreel});
+            improve = INT_MAX;
+            #pragma omp parallel
+            {
+                std::pair<double,double> tmpRandCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
+                double tmpImprove = calculImproveReel(nodeId,randCoord,useGrille,useScore);
+                #pragma omp critical
+                {
+                    if (tmpImprove < improve) {
+                        improve = tmpImprove;
+                        randCoord = tmpRandCoord;
+                    }
+                }
+            }
+            if (improve <= 0) {
+                nbCroisement += improve;
+                if (nbCroisement < bestCroisement) {
+                    bestCroisement = nbCroisement;
+                    saveBestResultRecuitReel(bestResultVector);
+                    bestEnd = std::chrono::system_clock::now();
+                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                }
+            }
+            else {
+                double randDouble = generateDoubleRand(1.0);
+                double valImprove = exp(-improve / t) * coeffImprove;
+                if (randDouble >= valImprove) {
+                    if (useScore) { changeUpdateValue(nodeId); }
+                    else { _noeuds[nodeId].setCoordReel(oldCoord); }
+                    if (useScore) { updateNodeScore(nodeId); }
+                    if (useGrille) { recalcNodeCelluleReel(nodeId); }
+                }
+                else {
+                    nbCroisement += improve;
                 }
             }
         }

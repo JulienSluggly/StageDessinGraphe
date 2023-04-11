@@ -71,8 +71,8 @@ void customRecuitFlottants() {
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
-		tid = ::omp_get_thread_num();
-		nthreads = ::omp_get_num_threads();
+		tid = omp_get_thread_num();
+		nthreads = omp_get_num_threads();
 		if (tid == 0) {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}

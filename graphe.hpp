@@ -14,6 +14,7 @@
 #include "personnel.hpp"
 #include "stressMaj.hpp"
 #include "pivotMDS.hpp"
+#include <omp.h>
 
 class Graphe {
 public:
@@ -70,6 +71,13 @@ public:
 	std::vector<double> recuitDistanceAll;
 	std::vector<std::pair<int,double>> recuitDistanceUpgrade;
 	std::vector<std::pair<int,double>> recuitDistanceUpgradeGlobal;
+
+	// Thread data:
+	bool thread_IsRecuitFinished = true;
+	int thread_tempNodeId = -1;
+	long thread_tempNewScore = -1;
+
+	double tempsPasseTmp = 0;
 
 	Graphe(){}
 
@@ -211,6 +219,9 @@ public:
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
 	int calculImproveReelThread(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
 
+	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
+	int calculImproveReelThreadPool(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
+
 	// Modifie les parametres du rerecuit en fonction des customParam
 	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam);
 
@@ -264,6 +275,10 @@ public:
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
 	// Version Multithreadé
 	void recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+
+	void recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+
+	void recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
 
 	// Applique le recuit simulé en coordonnée flottantes plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
