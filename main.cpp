@@ -19,11 +19,13 @@
 #include "solver.hpp"
 
 void initCPUSet() {
+	omp_set_nested(0);
     int num_threads = ::omp_get_max_threads();
     CPU_ZERO(&cpuset);
     for (int i = 0; i < num_threads; i++) {
       CPU_SET(i, &cpuset);
     }
+	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 }
 
 void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIteration, int nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::chrono::time_point<std::chrono::system_clock> finPlacement) {
@@ -122,18 +124,17 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 
 int main() {
 	initCPUSet();
-	initRandomSeed();
+	//initRandomSeed();
 	//allRunsByOnFolder(); return 0;
 	//runFuncOnAllGraphsAllSlots(); return 0;
-	//initSameSeed();
-	customRecuitFlottants(); return 0;
+	initSameSeed();
+	//customRecuitFlottants(); return 0;
 
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
 	std::string nomFichierSlots = "3X-1-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
-
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
@@ -146,7 +147,7 @@ int main() {
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
-	G.DEBUG_GRAPHE = true; G.DEBUG_PROGRESS = true;
+	//G.DEBUG_GRAPHE = true; G.DEBUG_PROGRESS = true;
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
@@ -163,11 +164,15 @@ int main() {
 	//G.stressMajorizationReel();
 	G.translateGrapheToOriginReel(-1);
 	G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
+	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 	auto finPlacement = std::chrono::system_clock::now();
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,4,true);
-	G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,false);
+	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
+	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,true);
+	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
+	G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
 	//G.afficherInfo();

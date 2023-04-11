@@ -597,6 +597,53 @@ long Graphe::getScoreCroisementNodeGridReel(int nodeIndex) {
     return score;
 }
 
+long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThread) {
+    int typeArreteToIgnore;
+    if (isFirstThread) { typeArreteToIgnore = 2; }
+    else { typeArreteToIgnore = 1; }
+    long score = 0;
+    std::vector<bool> indexPasse(_aretes.size(),false);
+    #pragma omp parallel for reduction (+:score) num_threads(2)
+    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
+        int index = _noeuds[nodeIndex]._aretes[i];
+        std::vector<int> indexPasseCellule;
+        for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
+            std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
+            for (int k=0; k < vecId.size();k++) {
+                int index2 = vecId[k];
+                if ((index != index2) && (!indexPasse[index2]) && (!isInVector(indexPasseCellule,index2)) && (_aretes[index2].typeArrete != typeArreteToIgnore)) {
+                    if (!(_aretes[index].contains(_aretes[index2].getNoeud1()) || _aretes[index].contains(_aretes[index2].getNoeud2()))) {
+                        bool isIllegal = false;
+                        if (seCroisentReel(_aretes[index], _aretes[index2],isIllegal)) {
+                            if (isIllegal) {
+                                score += PENALITE_MAX;
+                            }
+                            else {
+                                score++;
+                            }
+                        }
+                    }
+                    else {
+                        Noeud* nodeNotInCommon = _aretes[index2].nodeNotInCommon(&_aretes[index]);
+                        if (surSegmentReel(_aretes[index], *nodeNotInCommon)) {
+                            score += PENALITE_MAX_SELF;
+                        }
+                        else {
+                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[index2]);
+                            if (surSegmentReel(_aretes[index2], *nodeNotInCommon)) {
+                                score += PENALITE_MAX_SELF;
+                            }
+                        }
+                    }
+                    indexPasseCellule.push_back(index2);
+                }
+            }
+        }
+        indexPasse[index] = true;
+    }
+    return score;
+}
+
 // Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
 long Graphe::getScoreCroisementNodeGrid(int nodeIndex, int swapIndex) {
     long score = 0;

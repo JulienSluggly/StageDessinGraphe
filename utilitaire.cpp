@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstring>
 #include <omp.h>
+#include "personnel.hpp"
 
 using std::min;
 using std::max;
@@ -22,13 +23,21 @@ std::string typeSeed;
 // Retourne une valeur réelle comprise dans [0.0,n[
 double generateDoubleRand(double n) {
     std::uniform_real_distribution<> dis(0.0, n);
+#if defined(OPENMP_INSTALLED)
+    return dis(*genVector[::omp_get_thread_num()]);
+#else
     return dis(*genVector[numGen]);
+#endif
 }
 
 // Retourne une valeur entiere comprise dans [0,n]
 int generateRand(int n) {
     std::uniform_int_distribution<> dis(0, n);
+#if defined(OPENMP_INSTALLED)
+    return dis(*genVector[::omp_get_thread_num()]);
+#else
     return dis(*genVector[numGen]);
+#endif
 }
 
 void initSameSeed(unsigned int n, bool resetting) {

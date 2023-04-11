@@ -8,6 +8,7 @@
 #define LINUX_OS
 #define CPLEX_INSTALLED
 #define CERES_INSTALLED
+#define OPENMP_INSTALLED
 
 extern std::string chemin;
 extern std::string cheminGitHub;

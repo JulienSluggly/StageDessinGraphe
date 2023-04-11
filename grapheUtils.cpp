@@ -870,6 +870,56 @@ void Graphe::registerNodesInGrid() {
     }
 }
 
+void Graphe::registerNodeInGrid(int i) {
+    double sizeColumn = grille[0][0].getBottomRightXReel() - grille[0][0].getBottomLeftXReel();
+    double sizeRow = grille[0][0].getTopLeftYReel() - grille[0][0].getBottomLeftYReel();
+    if (_noeuds[i].idCelluleVec == nullptr) {
+        _noeuds[i].idCelluleVec = new std::vector<int>();
+    }
+    double x = _noeuds[i]._xreel;
+    double y = _noeuds[i]._yreel;
+    double dnumX = x/sizeColumn;
+    double dnumY = y/sizeRow;
+    int numX = floor(dnumX);
+    int numY = floor(dnumY);
+
+    double epsilon = 0.000001;
+    int numX2 = floor(dnumX + epsilon);
+    int numY2 = floor(dnumY + epsilon);
+    if (numX2 == numX) { numX2 = floor(dnumX - epsilon); }
+    if (numY2 == numY) { numY2 = floor(dnumY - epsilon); }
+    int id;
+    if (numX2 != numX) { // Cas alligné sur segment vertical de la grille
+        if (numY2 != numY) { // Cas aligné sur intersection de la grille
+            if ((numY2 >= 0)&&(numY2 < grille.size())) { // Ajout numY2 & numX
+                if (numX < grille[0].size()) {
+                    id = numY2 * grille[0].size() + numX;
+                    _noeuds[i].idCelluleVec->push_back(id);
+                }
+                if ((numX2 >= 0)&&(numX2 < grille[0].size())) { // Ajout numY2 et numX2
+                    id = numY2 * grille[0].size() + numX2;
+                    _noeuds[i].idCelluleVec->push_back(id);
+                }
+            }
+        }
+        if ((numX2 >= 0)&&(numX2 < grille[0].size())&&numY < grille.size()) { // Ajout numY et numX2
+            id = numY * grille[0].size() + numX2;
+            _noeuds[i].idCelluleVec->push_back(id);
+        }
+    }
+    else if (numY2 != numY) { // Cas juste aligné sur segment horizontal de la grille
+        if ((numY2 >= 0)&&(numY2 < grille.size())&&numX < grille[0].size()) { // Ajout numY2 & numX
+            id = numY2 * grille[0].size() + numX;
+            _noeuds[i].idCelluleVec->push_back(id);
+        }
+    }
+    // Ajout numY & numX
+    if (numY < grille.size() && numX < grille[0].size()) {
+        id = numY * grille[0].size() + numX;
+        _noeuds[i].idCelluleVec->push_back(id);
+    }
+}
+
 void Graphe::recalcSpecificNodeCell(int nodeId) {
     double sizeColumn = grille[0][0].getBottomRightXReel() - grille[0][0].getBottomLeftXReel();
     double sizeRow = grille[0][0].getTopLeftYReel() - grille[0][0].getBottomLeftYReel();
@@ -1027,6 +1077,117 @@ void Graphe::registerEdgesInGridReel() {
         for (const int& idCellule : _aretes[i].vecIdCellules) {
             grillePtr[idCellule]->vecAreteId.push_back(i);
         }
+    }
+}
+
+// Enregistre les aretes dans la grille en coord flottantes
+void Graphe::registerEdgeInGridReel(int i) {
+    int nombreColonne = grille[0].size();
+    double n1X = _aretes[i].getNoeud1()->_xreel;
+    double n1Y = _aretes[i].getNoeud1()->_yreel;
+    double n2X = _aretes[i].getNoeud2()->_xreel;
+    double n2Y = _aretes[i].getNoeud2()->_yreel;
+    int direction = getDirectionAreteReel(i);
+    std::vector<int>* vecCellDepart = _aretes[i].getNoeud1()->idCelluleVec;
+    int idCellX, idCellY;
+    for (const int& tmpIdCell : *vecCellDepart) {
+        _aretes[i].vecIdCellules.push_back(tmpIdCell);
+    }
+    int idCell = _aretes[i].getNoeud1()->idCelluleVec->at(0);
+    std::vector<int>* vecCellArrive = _aretes[i].getNoeud2()->idCelluleVec;
+    while (!isInVector(*vecCellArrive,idCell)) {
+        switch(direction) {
+            case 0:
+                idCell++;
+                break;
+            case 1: {
+                double cellX = grillePtr[idCell]->getTopRightXReel();
+                double cellY = grillePtr[idCell]->getTopRightYReel();
+                int alignement = aGaucheIntReel(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell++;
+                }
+                else if (alignement == -1) {
+                    idCell += nombreColonne;
+                }
+                else {
+                    _aretes[i].vecIdCellules.push_back(idCell+nombreColonne);
+                    _aretes[i].vecIdCellules.push_back(idCell+1);
+                    idCell = idCell + nombreColonne + 1;
+                }
+                break;
+            }
+            case 2:
+                idCell += nombreColonne;
+                break;
+            case 3: {
+                double cellX = grillePtr[idCell]->getTopLeftXReel();
+                double cellY = grillePtr[idCell]->getTopLeftYReel();
+                int alignement = aGaucheIntReel(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell += nombreColonne;
+                }
+                else if (alignement == -1) {
+                    idCell--;
+                }
+                else {
+                    _aretes[i].vecIdCellules.push_back(idCell+nombreColonne);
+                    _aretes[i].vecIdCellules.push_back(idCell-1);
+                    idCell = idCell + nombreColonne - 1;
+
+                }
+                break;
+            }
+            case 4:
+                idCell--;
+                break;
+            case 5: {
+                double cellX = grillePtr[idCell]->getBottomLeftXReel();
+                double cellY = grillePtr[idCell]->getBottomLeftYReel();
+                int alignement = aGaucheIntReel(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell--;
+                }
+                else if (alignement == -1) {
+                    idCell -= nombreColonne;
+                }
+                else {
+                    _aretes[i].vecIdCellules.push_back(idCell-nombreColonne);
+                    _aretes[i].vecIdCellules.push_back(idCell-1);
+                    idCell = idCell - nombreColonne - 1;
+                }
+                break;
+            }
+            case 6:
+                idCell -= grille[0].size();
+                break;
+            case 7: {
+                double cellX = grillePtr[idCell]->getBottomRightXReel();
+                double cellY = grillePtr[idCell]->getBottomRightYReel();
+                int alignement = aGaucheIntReel(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                if (alignement == 1) {
+                    idCell -= nombreColonne;
+                }
+                else if (alignement == -1) {
+                    idCell++;
+                }
+                else {
+                    _aretes[i].vecIdCellules.push_back(idCell-nombreColonne);
+                    _aretes[i].vecIdCellules.push_back(idCell+1);
+                    idCell = idCell - nombreColonne + 1;
+                }
+                break;
+            }
+        }
+        _aretes[i].vecIdCellules.push_back(idCell);
+    }
+    for (const int& tmpIdCell : *vecCellArrive) {
+        _aretes[i].vecIdCellules.push_back(tmpIdCell);
+    }
+    std::unordered_set<int> tmpUSet(_aretes[i].vecIdCellules.begin(), _aretes[i].vecIdCellules.end());
+    _aretes[i].vecIdCellules.assign(tmpUSet.begin(), tmpUSet.end());
+    for (const int& idCellule : _aretes[i].vecIdCellules) {
+        grillePtr[idCellule]->vecAreteId.push_back(i);
     }
 }
 
@@ -2147,6 +2308,8 @@ std::pair<double,double> Graphe::sizeOfGraphe() {
 int Graphe::creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord) {
     int idTmpNode = _noeuds.size();
     _noeuds.push_back(Noeud(idTmpNode));
+    _noeuds[idTmpNode]._xreel = coord.first;
+    _noeuds[idTmpNode]._yreel = coord.second;
     int areteIdNew = _aretes.size();
     for (int i=0;i<_noeuds[nodeId].voisins.size();i++) {
         int voisinId = _noeuds[nodeId].voisins[i]->_id;
@@ -2158,7 +2321,13 @@ int Graphe::creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord)
         _aretes[areteId].typeArrete = 1;
     }
     bool useGrille = grillePtr.size() > 0;
-    if (useGrille) { recalcNodeCelluleReel(idTmpNode); }
+    if (useGrille) { 
+        _noeuds[idTmpNode].idCelluleVec = new std::vector<int>();
+        registerNodeInGrid(idTmpNode);
+        for (const int& areteId : _noeuds[idTmpNode]._aretes) {
+            registerEdgeInGridReel(areteId);
+        }
+    }
     return idTmpNode;
 }
 
@@ -2182,4 +2351,12 @@ void Graphe::supprimerNoeudTemporaire(int copyNodeId) {
     for (const int& areteId : _noeuds[copyNodeId]._aretes) {
         _aretes[areteId].typeArrete = 0;
     }
+}
+
+void Graphe::replaceNoeudTemporaire(int nodeId) {
+    int lastNodeIndex = _noeuds.size() - 1;
+    _noeuds[nodeId]._xreel = _noeuds[lastNodeIndex]._xreel;
+    _noeuds[nodeId]._yreel = _noeuds[lastNodeIndex]._yreel;
+    supprimerNoeudTemporaire(nodeId);
+    recalcNodeCelluleReel(nodeId);
 }

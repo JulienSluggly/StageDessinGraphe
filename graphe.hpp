@@ -235,6 +235,9 @@ public:
 	// Calcule le score du noeud en fonction de la méthode choisie.
 	long calculScoreNodeMethode(int nodeId,int idSwappedNode, bool swapped, bool useGrille, bool useScore, bool useReel=false);
 
+	// Calcule le score du noeud en fonction de la méthode choisie. Version multithreadée
+	long calculScoreNodeMethodeThread(int nodeId, int idSwappedNode, bool swapped, bool useGrille, bool useScore, bool useReel, bool isFirstThread);
+
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
@@ -254,6 +257,13 @@ public:
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
 	void recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+
+	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection en coordonnée flottantes
+	// Met à jour la variable nombreCroisement du graphe.
+	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
+	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
+	// Version Multithreadé
+	void recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
 
 	// Applique le recuit simulé en coordonnée flottantes plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
@@ -388,6 +398,9 @@ public:
 
 	// Calcule le score du noeud en parametre en coordonnée flottantes. Utilise la grille
 	long getScoreCroisementNodeGridReel(int nodeIndex);
+
+	// Calcule le score du noeud en parametre en coordonnée flottantes. Utilise la grille. Version Multithreadée.
+	long getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThread);
 
 	// Calcule le score du noeud en parametre. Le graphe peut ne pas etre placé entierement.
 	long getScoreCroisementNodeGlouton(int nodeIndex);
@@ -595,6 +608,9 @@ public:
 	void registerNodesInGrid();
 
 	// Avec coord flottantes uniquement
+	void registerNodeInGrid(int nodeId);
+
+	// Avec coord flottantes uniquement
 	void registerNodesAndEdgesInGrid();
 
 	// Enregistre les emplacements et les aretes dans la grille
@@ -605,6 +621,9 @@ public:
 
 	// Enregistre les aretes dans la grille en coord flottantes
 	void registerEdgesInGridReel();
+
+	// Enregistre les aretes dans la grille en coord flottantes
+	void registerEdgeInGridReel(int areteId);
 
 	// Enregistre avec alignements d'emplacements
 	void registerSlotsInGrid();
@@ -725,6 +744,9 @@ public:
 
 	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires.
 	int creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord);
+
+	// Place le noeud a la place du noeud temporaire, puis supprime le noeud temporaire
+	void replaceNoeudTemporaire(int nodeId);
 
 };
 

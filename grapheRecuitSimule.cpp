@@ -344,6 +344,29 @@ long Graphe::calculScoreNodeMethode(int nodeId, int idSwappedNode, bool swapped,
     }
 }
 
+long Graphe::calculScoreNodeMethodeThread(int nodeId, int idSwappedNode, bool swapped, bool useGrille, bool useScore, bool useReel, bool isFirstThread) {
+    if (!useReel) {
+        if (useGrille) {
+            //if (swapped) { return getScoreCroisementNodeGrid(nodeId, idSwappedNode); }
+            //else { return getScoreCroisementNodeGrid(nodeId);}
+        }
+        else if (useScore) {
+            //if (swapped) { return getNodeLinkedScore(nodeId, idSwappedNode); }
+            //else { return _noeuds[nodeId].score; }
+        }
+        else { 
+            //if (swapped) { return getScoreCroisementNode(nodeId,idSwappedNode); }
+            //else { return getScoreCroisementNode(nodeId); }
+        }
+    }
+    else {
+        if (useGrille) { return getScoreCroisementNodeGridReelThread(nodeId,isFirstThread); }
+        else if (useScore) { return _noeuds[nodeId].score; }
+        //else { return getScoreCroisementNodeReel(nodeId); }
+    }
+    return -1; // A supprimer
+}
+
 int Graphe::calculImprove(int nodeId,int slotId,bool& swapped,int& idSwappedNode,bool useGrille,bool useScore) {
     long scoreNode;
     if (!_emplacements[slotId].estDisponible()) {
@@ -389,13 +412,14 @@ int Graphe::calculImproveReel(int nodeId,std::pair<double,double>& randCoord, bo
 
 int Graphe::calculImproveReelThread(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore) {
     int newTempNodeId = creationNoeudTemporaire(nodeId, randCoord);
-    long scoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore,true);
-    _noeuds[nodeId].setCoordReel(randCoord);
-    if (useScore) { changeUpdateValue(nodeId); }
-    if (useScore) { updateNodeScore(nodeId); }
-    if (useGrille) { recalcNodeCelluleReel(nodeId); }
-    long newScoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,useScore,true);
-    supprimerNoeudTemporaire(nodeId);
+    long scoreNode, newScoreNode;
+#pragma omp parallel num_threads(2) 
+    {
+        #pragma omp single nowait
+        scoreNode = calculScoreNodeMethodeThread(nodeId,-1,false,useGrille,useScore,true,true);
+        #pragma omp single nowait
+        newScoreNode = calculScoreNodeMethodeThread(newTempNodeId,-1,false,useGrille,useScore,true,false);
+    }
     return newScoreNode - scoreNode;
 }
 
@@ -678,6 +702,65 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
         totalEnd = std::chrono::system_clock::now();
         secondsTotalExec = totalEnd - start;
     }
+}
+
+// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
+// Met à jour la variable nombreCroisement du graphe.
+// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
+// Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
+void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+    auto bestEnd = start; auto end = start; // Timer pour le meilleur resultat trouvé et total
+    std::vector<std::pair<double,double>> bestResultVector;
+    saveBestResultRecuitReel(bestResultVector);
+    long nbCroisement;
+    if (isNombreCroisementUpdated) { nbCroisement = nombreCroisement; }
+    else { nbCroisement = getNbCroisementReel(); }
+    long bestCroisement = nbCroisement;
+    double coeffImprove = 1.0;
+    applyRecuitCustomParam(coeffImprove,customParam);
+    calculDelaiRefroidissement(delay,customParam,0);
+    setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
+    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    int nodeId, idSwappedNode, improve;
+    std::pair<double,double> randCoord;
+    std::chrono::duration<double> secondsTotal = end - start;
+    for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+        calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
+        for (int del = 0; del < delay; del++) {
+            nodeId = selectionNoeud(modeNoeud, t);
+            randCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
+            improve = calculImproveReelThread(nodeId,randCoord,useGrille,useScore);
+            if (improve <= 0) {
+                nbCroisement += improve;
+                replaceNoeudTemporaire(nodeId);
+                if (nbCroisement < bestCroisement) {
+                    bestCroisement = nbCroisement;
+                    saveBestResultRecuitReel(bestResultVector);
+                    bestEnd = std::chrono::system_clock::now();
+                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                }
+            }
+            else {
+                double randDouble = generateDoubleRand(1.0);
+                double valImprove = exp(-improve / t) * coeffImprove;
+                if (randDouble >= valImprove) {
+                    supprimerNoeudTemporaire(nodeId);
+                }
+                else {
+                    nbCroisement += improve;
+                    replaceNoeudTemporaire(nodeId);
+                }
+            }
+        }
+        t *= cool;
+        end = std::chrono::system_clock::now();
+        secondsTotal = end - start;
+    }
+    loadBestResultRecuitReel(bestResultVector,bestCroisement);
+    updateGraphDataRecuit(useScore,useGrille);
+    std::chrono::duration<double> secondsBest = bestEnd - start;
+    timeBest = secondsBest.count();
+    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
 }
 
 // Applique l'algorithme meilleur deplacement sur le graphe.
