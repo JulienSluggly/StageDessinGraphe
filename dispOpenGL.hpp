@@ -710,6 +710,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			if (graphCopy.size() == G._noeuds.size()) { G.loadCopy(graphCopy); }
 			else { std::cout << "Copy failed.\n"; }
 			if (showIllegal) recalcIllegal = true;
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 3: {// Recuit simule (KEY: 3")
@@ -739,6 +740,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
 				if (G.grillePtr.size() > 0) { G.reinitGrille(); }
 			}
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 4: {// Step Recuit Simule
@@ -751,6 +753,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			if (stepT <= 0.0001 || stepNbCrois == 0) {
 				std::cout << stepT << " " << stepNbCrois << std::endl;
 			}
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 5: {// Placement aleatoire (KEY: 1&)
@@ -776,6 +779,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				}
 			}
 			if (showIllegal) recalcIllegal = true;
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 6: {// Placement Glouton Revisite
@@ -794,6 +798,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				G.gloutonRevisite();
 			}
 			if (showIllegal) recalcIllegal = true;
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 7: {// Affiche score (KEY: 4')
@@ -853,6 +858,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				G._noeuds[selectedNode].setEmplacement(&G._emplacements[i]);
 				if (showIllegal) recalcIllegal = true;
 			}
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 10: {// Move current node right
@@ -866,6 +872,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				G._noeuds[selectedNode].setEmplacement(&G._emplacements[i]);
 				if (showIllegal) recalcIllegal = true;
 			}
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 11: {// Make Swap (KEY: S)
@@ -881,6 +888,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				selectedEmplacement = oldEmplacement;
 			}
 			if (showIllegal) recalcIllegal = true;
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 12: {// Debug All Info (KEY: F3)
@@ -951,6 +959,7 @@ void openGLKeyPressFunction(Graphe& G) {
 					std::cout << "NNT: " << nbNoeudATraiter << std::endl;
 				}
 			}
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 17: {// Triangulation
@@ -1006,6 +1015,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				G.stressMajorizationReel();
 			}
 			if (showIllegal) recalcIllegal = true;
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 21: {// Print current seed
@@ -1032,11 +1042,13 @@ void openGLKeyPressFunction(Graphe& G) {
 		case 24: {//Rotate le graphe +5° (KEYPAD:7)
 			G.rotateGraph(5);
 			if (showIllegal) recalcIllegal = true;
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 25: {//Rotate le graphe -5° (KEYPAD:4)
 			G.rotateGraph(-5);
 			if (showIllegal) recalcIllegal = true;
+			historiqueOpenGL.clear();
 			break;
 		}
 		case 26: {//Selection node (clic gauche avec modeNode)
@@ -1127,8 +1139,9 @@ void openGLKeyPressFunction(Graphe& G) {
 				ogdfFastMultipoleMultilevelEmbedderReel(G); G.translateGrapheToOriginReel(-1);
 				if (G.grillePtr.size() > 0 ) { G.reinitGrilleReel(); }
 			}
-			break;
+			historiqueOpenGL.clear();
 #endif
+			break;
 		}
 		default:{
 			std::cout << "No function found.\n";

@@ -7,8 +7,8 @@ void Graphe::afficherLiens(std::string nom) {
     std::cout << "Nb Aretes: " << _aretes.size() << std::endl;
     for (int i = 0; i < _aretes.size(); i++) {
         std::cout << "id: " << _aretes[i]._id << " idnode1: " << _aretes[i].getNoeud1()->getId() << " idnode2: " << _aretes[i].getNoeud2()->getId();
-        std::cout << " x1: " << _aretes[i].getNoeud1()->getX() << " y1: " << _aretes[i].getNoeud1()->getY();
-        std::cout << " x2: " << _aretes[i].getNoeud2()->getX() << " y2: " << _aretes[i].getNoeud2()->getY();
+        if (!useCoordReel) std::cout << " x1: " << _aretes[i].getNoeud1()->getX() << " y1: " << _aretes[i].getNoeud1()->getY();
+        if (!useCoordReel) std::cout << " x2: " << _aretes[i].getNoeud2()->getX() << " y2: " << _aretes[i].getNoeud2()->getY();
         std::cout << std::endl;
     }
     std::cout << "-----------------------------------------------" << std::endl;

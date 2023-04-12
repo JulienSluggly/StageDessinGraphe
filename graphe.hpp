@@ -417,6 +417,9 @@ public:
 	// Calcule le score du noeud en parametre en coordonnée flottantes. Utilise la grille. Version Multithreadée.
 	long getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThread);
 
+	// Calcule le score du noeud en parametre en coordonnée flottantes. Utilise la grille. Version Multithreadée.
+	long getScoreCroisementNodeGridReelNThread(int nodeIndex, int tid);
+
 	// Calcule le score du noeud en parametre. Le graphe peut ne pas etre placé entierement.
 	long getScoreCroisementNodeGlouton(int nodeIndex);
 
@@ -759,6 +762,9 @@ public:
 
 	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires.
 	int creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord);
+
+	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires. Version multithreadé
+	int creationNoeudTemporaireThread(int nodeId, std::pair<double,double>& coord, int tid);
 
 	// Place le noeud a la place du noeud temporaire, puis supprime le noeud temporaire
 	void replaceNoeudTemporaire(int nodeId);

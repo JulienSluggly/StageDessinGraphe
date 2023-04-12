@@ -1232,7 +1232,6 @@ int Graphe::getDirectionAreteReel(int idArete) {
     double y2 = _aretes[idArete].getNoeud2()->_yreel;
 
     double epsilon = 0.000001;
-    
     if (x2 > x1 + epsilon) { // Dirigé vers la droite
         if (y2 > y1 + epsilon) { // Dirigé en haut à droite
             return 1;
@@ -1376,11 +1375,13 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
     double n2X = _aretes[areteId].getNoeud2()->_xreel;
     double n2Y = _aretes[areteId].getNoeud2()->_yreel;
     int direction = getDirectionAreteReel(areteId);
-    for (const int& tmpIdCell : *_aretes[areteId].getNoeud1()->idCelluleVec) {
+    int startNodeId = _aretes[areteId]._noeud1->_id;
+    for (const int& tmpIdCell : *_noeuds[startNodeId].idCelluleVec) {
         vecCellId.push_back(tmpIdCell);
     }
-    int idCell = _aretes[areteId].getNoeud1()->idCelluleVec->at(0);
+    int idCell = vecCellId[0];
     std::vector<int>* vecArrive = _aretes[areteId].getNoeud2()->idCelluleVec;
+    std::cout << direction << std::endl;
     int nombreColonne = grille[0].size();
     while(!isInVector(*vecArrive,idCell)) {
         switch(direction) {
@@ -2319,6 +2320,32 @@ int Graphe::creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord)
     }
     for (const int& areteId : _noeuds[nodeId]._aretes) {
         _aretes[areteId].typeArrete = 1;
+    }
+    bool useGrille = grillePtr.size() > 0;
+    if (useGrille) { 
+        _noeuds[idTmpNode].idCelluleVec = new std::vector<int>();
+        registerNodeInGrid(idTmpNode);
+        for (const int& areteId : _noeuds[idTmpNode]._aretes) {
+            registerEdgeInGridReel(areteId);
+        }
+    }
+    return idTmpNode;
+}
+
+int Graphe::creationNoeudTemporaireThread(int nodeId, std::pair<double,double>& coord, int tid) {
+    int idTmpNode = _noeuds.size();
+    _noeuds.push_back(Noeud(idTmpNode));
+    _noeuds[idTmpNode]._xreel = coord.first;
+    _noeuds[idTmpNode]._yreel = coord.second;
+    int areteIdNew = _aretes.size();
+    for (int i=0;i<_noeuds[nodeId].voisins.size();i++) {
+        int voisinId = _noeuds[nodeId].voisins[i]->_id;
+        _aretes.push_back(Aretes(&_noeuds[idTmpNode],&_noeuds[voisinId],areteIdNew));
+        _aretes[areteIdNew].typeArrete = tid;
+        areteIdNew++;
+    }
+    for (const int& areteId : _noeuds[nodeId]._aretes) {
+        _aretes[areteId].typeArrete = -1;
     }
     bool useGrille = grillePtr.size() > 0;
     if (useGrille) { 

@@ -854,6 +854,7 @@ void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_poin
 // Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
 void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
     auto bestEnd = start; auto end = start; // Timer pour le meilleur resultat trouvé et total
+    int maxThread = omp_get_max_threads();
     std::vector<std::pair<double,double>> bestResultVector;
     saveBestResultRecuitReel(bestResultVector);
     long nbCroisement;
@@ -861,33 +862,46 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
     else { nbCroisement = getNbCroisementReel(); }
     long bestCroisement = nbCroisement;
     double coeffImprove = 1.0;
+    int nombreNoeud = _noeuds.size()-1;
+    int tid;
     applyRecuitCustomParam(coeffImprove,customParam);
     calculDelaiRefroidissement(delay,customParam,0);
     setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
     if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     int nodeId, idSwappedNode, improve;
-    std::pair<double,double> randCoord;
     std::chrono::duration<double> secondsTotal = end - start;
     for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+        printf("Iter: %d\n",iter);
         calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
         for (int del = 0; del < delay; del++) {
             nodeId = selectionNoeud(modeNoeud, t);
-            std::pair<double,double> oldCoord({_noeuds[nodeId]._xreel,_noeuds[nodeId]._yreel});
-            improve = INT_MAX;
-            #pragma omp parallel
-            {
+            std::pair<double,double> bestCoord;
+            long bestScore = INT_MAX;
+            long scoreBefore = -1, tmpScore;
+            int bestNodeId = -1, tmpNodeId;
+            for (int numNoeud=1;numNoeud<maxThread;numNoeud++) {
                 std::pair<double,double> tmpRandCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
-                double tmpImprove = calculImproveReel(nodeId,randCoord,useGrille,useScore);
-                #pragma omp critical
-                {
-                    if (tmpImprove < improve) {
-                        improve = tmpImprove;
-                        randCoord = tmpRandCoord;
-                    }
-                }
+                creationNoeudTemporaireThread(nodeId, tmpRandCoord, numNoeud);
             }
+            for (int num=1;num<4;num++) {
+                tmpNodeId = nombreNoeud+num;
+                tmpScore = getScoreCroisementNodeGridReelNThread(tmpNodeId,tid);
+                if (tmpScore < bestScore) {
+                    bestScore = tmpScore;
+                    bestCoord = make_pair(_noeuds[tmpNodeId]._xreel,_noeuds[tmpNodeId]._yreel);
+                }
+                scoreBefore = getScoreCroisementNodeGridReelNThread(nodeId,-1);
+            }
+            for (int numNoeud=1;numNoeud<maxThread;numNoeud++) {
+                supprimerNoeudTemporaire(nodeId);
+            }
+            improve = bestScore - scoreBefore;
             if (improve <= 0) {
                 nbCroisement += improve;
+                if (useScore) { changeUpdateValue(nodeId); }
+                _noeuds[nodeId].setCoordReel(bestCoord);
+                if (useScore) { updateNodeScore(nodeId); }
+                if (useGrille) { recalcNodeCelluleReel(nodeId); }
                 if (nbCroisement < bestCroisement) {
                     bestCroisement = nbCroisement;
                     saveBestResultRecuitReel(bestResultVector);
@@ -898,14 +912,12 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
             else {
                 double randDouble = generateDoubleRand(1.0);
                 double valImprove = exp(-improve / t) * coeffImprove;
-                if (randDouble >= valImprove) {
+                if (randDouble < valImprove) {
+                    nbCroisement += improve;
                     if (useScore) { changeUpdateValue(nodeId); }
-                    else { _noeuds[nodeId].setCoordReel(oldCoord); }
+                    _noeuds[nodeId].setCoordReel(bestCoord);
                     if (useScore) { updateNodeScore(nodeId); }
                     if (useGrille) { recalcNodeCelluleReel(nodeId); }
-                }
-                else {
-                    nbCroisement += improve;
                 }
             }
         }
