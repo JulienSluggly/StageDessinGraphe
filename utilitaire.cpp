@@ -24,7 +24,7 @@ std::string typeSeed;
 double generateDoubleRand(double n) {
     std::uniform_real_distribution<> dis(0.0, n);
 #if defined(OPENMP_INSTALLED)
-    return dis(*genVector[::omp_get_thread_num()]);
+    return dis(*genVector[omp_get_thread_num()]);
 #else
     return dis(*genVector[numGen]);
 #endif
@@ -34,7 +34,7 @@ double generateDoubleRand(double n) {
 int generateRand(int n) {
     std::uniform_int_distribution<> dis(0, n);
 #if defined(OPENMP_INSTALLED)
-    return dis(*genVector[::omp_get_thread_num()]);
+    return dis(*genVector[omp_get_thread_num()]);
 #else
     return dis(*genVector[numGen]);
 #endif

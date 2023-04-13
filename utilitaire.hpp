@@ -37,16 +37,21 @@ bool comparePtrEmplacement(Emplacement* a, Emplacement* b);
 // Fonction de sort par x et y
 bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b);
 
+// n la seed (0 par défaut), resetting indique si la seed doit être réinitialisée lors de l'appel de resetSeed
 void initSameSeed(unsigned int n=0,bool resetting=true);
 
+// resetting indique si la seed doit être réinitialisée lors de l'appel de resetSeed
 void initRandomSeed(bool resetting=false);
 
+// Reset la seed du thread numThread, resetSameSeed indique si la seed doit avoir la même valeur ou non. forceReset réinitialise peut importe la valeur de resetting.
 void resetSeed(int numThread, bool resetSameSeed=false, bool forceReset=false);
 
+// Indique si la seed est aléatoire ou fixe.
 std::string getTypeSeed();
 
 int nombreIterationRecuit(double t,double cool,double seuil);
 
+// Renvoie la seed actuellement assignée au thread tid.
 unsigned int getSeed(int tid);
 
 // Renvoie vrai si la seed est fixe.

@@ -15,6 +15,7 @@
 #include "stressMaj.hpp"
 #include "pivotMDS.hpp"
 #include <omp.h>
+#include <mutex>
 
 class Graphe {
 public:

@@ -79,4 +79,7 @@ recuit multithread sur la selection et le calcul de la meilleur position.
 Adapter code aux coord entieres sans emplacement
 
 A FIX RECUIT THREAD SELECTION
-same seed different results
+same seed different results ? (race condition a l'improve si egalité)
+
+Multithreadé la création et suppression des noeuds temporaires
+mutex sur chaque cellule
