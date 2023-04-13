@@ -23,6 +23,10 @@ public:
 	std::vector<Aretes> _aretes;
 	std::vector<Noeud> _noeuds;
 
+	std::mutex* mutexEmplacements;
+	std::mutex* mutexAretes;
+	std::mutex* mutexNoeud;
+
 	std::set<Aretes*> areteIll;
 	std::set<Aretes*> areteIllSelf;
 	std::set<Aretes*> areteInter;
@@ -80,7 +84,7 @@ public:
 
 	double tempsPasseTmp = 0;
 
-	Graphe(){}
+	Graphe();
 
 	Graphe(std::string nom);
 
@@ -760,6 +764,12 @@ public:
 	// Supprime le dernier noeud dans le tableau et met tout a jour.
 	// A appeler uniquement apres la création d'un noeud temporaire.
 	void supprimerNoeudTemporaire(int copyNodeId);
+
+	// ATTENTION LES THREADS QUI APPELLENT CETTE FONCTION DOIVENT AVOIR UN TID ALLANT DE 1 à NumThread-1
+	void supprimerNoeudTemporaireThread(int copyNodeId, int tid);
+
+	// Effectue un resize sur les vecteurs de noeuds et d'aretes pour supprimer les noeuds et aretes temporaires
+	void resizeVectorTemporaire(int nodeId, int nbNodeTemporaire);
 
 	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires.
 	int creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord);

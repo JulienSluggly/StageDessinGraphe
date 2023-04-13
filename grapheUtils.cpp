@@ -8,8 +8,17 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+Graphe::Graphe() {
+    mutexNoeud = new std::mutex();
+    mutexAretes = new std::mutex();
+    mutexEmplacements = new std::mutex();
+}
+
 Graphe::Graphe(std::string nom) {
     nomGraphe = nom;
+    mutexNoeud = new std::mutex();
+    mutexAretes = new std::mutex();
+    mutexEmplacements = new std::mutex();
 }
 
 // Enleve tout les noeuds de leur emplacement.
@@ -1187,7 +1196,9 @@ void Graphe::registerEdgeInGridReel(int i) {
     std::unordered_set<int> tmpUSet(_aretes[i].vecIdCellules.begin(), _aretes[i].vecIdCellules.end());
     _aretes[i].vecIdCellules.assign(tmpUSet.begin(), tmpUSet.end());
     for (const int& idCellule : _aretes[i].vecIdCellules) {
+        grillePtr[idCellule]->mutexArete->lock();
         grillePtr[idCellule]->vecAreteId.push_back(i);
+        grillePtr[idCellule]->mutexArete->unlock();
     }
 }
 
@@ -2332,10 +2343,13 @@ int Graphe::creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord)
 }
 
 int Graphe::creationNoeudTemporaireThread(int nodeId, std::pair<double,double>& coord, int tid) {
+    mutexNoeud->lock();
     int idTmpNode = _noeuds.size();
     _noeuds.push_back(Noeud(idTmpNode));
+    mutexNoeud->unlock();
     _noeuds[idTmpNode]._xreel = coord.first;
     _noeuds[idTmpNode]._yreel = coord.second;
+    mutexAretes->lock();
     int areteIdNew = _aretes.size();
     for (int i=0;i<_noeuds[nodeId].voisins.size();i++) {
         int voisinId = _noeuds[nodeId].voisins[i]->_id;
@@ -2343,6 +2357,7 @@ int Graphe::creationNoeudTemporaireThread(int nodeId, std::pair<double,double>& 
         _aretes[areteIdNew].typeArrete = tid;
         areteIdNew++;
     }
+    mutexAretes->unlock();
     for (const int& areteId : _noeuds[nodeId]._aretes) {
         _aretes[areteId].typeArrete = -1;
     }
@@ -2380,10 +2395,40 @@ void Graphe::supprimerNoeudTemporaire(int copyNodeId) {
     }
 }
 
+void Graphe::supprimerNoeudTemporaireThread(int copyNodeId, int tid) {
+    int idNodeSuppr = _noeuds.size()-tid;
+    bool useGrille = grillePtr.size() > 0;
+    if (useGrille) {
+        for (const int& areteId : _noeuds[idNodeSuppr]._aretes) {
+            for (const int& celluleId : _aretes[areteId].vecIdCellules) {
+                grillePtr[celluleId]->mutexArete->lock();
+                grillePtr[celluleId]->vecAreteId.pop_back();
+                grillePtr[celluleId]->mutexArete->unlock();
+            }
+        }
+        free(_noeuds[idNodeSuppr].idCelluleVec);
+    }
+    for (int i=0;i<_noeuds[idNodeSuppr].voisins.size();i++) {
+        int idVoisin = _noeuds[idNodeSuppr].voisins[i]->_id;
+        _noeuds[idVoisin].mutexAreteVoisin->lock();
+        _noeuds[idVoisin].voisins.pop_back();
+        _noeuds[idVoisin]._aretes.pop_back();
+        _noeuds[idVoisin].mutexAreteVoisin->unlock();
+    }
+    for (const int& areteId : _noeuds[copyNodeId]._aretes) {
+        _aretes[areteId].typeArrete = 0;
+    }
+}
+
 void Graphe::replaceNoeudTemporaire(int nodeId) {
     int lastNodeIndex = _noeuds.size() - 1;
     _noeuds[nodeId]._xreel = _noeuds[lastNodeIndex]._xreel;
     _noeuds[nodeId]._yreel = _noeuds[lastNodeIndex]._yreel;
     supprimerNoeudTemporaire(nodeId);
     recalcNodeCelluleReel(nodeId);
+}
+
+void Graphe::resizeVectorTemporaire(int nodeId, int nbNodeTemporaire) {
+    _noeuds.erase(_noeuds.end() - nbNodeTemporaire, _noeuds.end());
+    _aretes.erase(_aretes.end() - (_noeuds[nodeId]._aretes.size()*nbNodeTemporaire), _aretes.end());
 }

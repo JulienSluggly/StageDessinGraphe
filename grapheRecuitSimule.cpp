@@ -876,18 +876,16 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
             nodeId = selectionNoeud(modeNoeud, t);
             std::pair<double,double> bestCoord;
             long bestScore = INT_MAX;
-            long scoreBefore = -1, tmpScore = -1;
-            int bestNodeId = -1, tmpNodeId = -1;
-            for (int numNoeud=1;numNoeud<maxThread;numNoeud++) {
-                std::pair<double,double> tmpRandCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
-                creationNoeudTemporaireThread(nodeId, tmpRandCoord, numNoeud);
-            }
-            #pragma omp parallel private(tid,tmpNodeId,tmpScore)
+            long scoreBefore;
+            int bestNodeId;
+            #pragma omp parallel private(tid)
             {
                 tid = omp_get_thread_num();
                 if (tid != 0) {
-                    tmpNodeId = nombreNoeud+tid;
-                    tmpScore = getScoreCroisementNodeGridReelNThread(tmpNodeId,tid);
+                    std::pair<double,double> tmpRandCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
+                    int tmpNodeId = creationNoeudTemporaireThread(nodeId, tmpRandCoord, tid);
+                    #pragma omp barrier
+                    long tmpScore = getScoreCroisementNodeGridReelNThread(tmpNodeId,tid);
                     #pragma omp critical
                     {
                         if (tmpScore < bestScore) {
@@ -895,14 +893,16 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
                             bestCoord = make_pair(_noeuds[tmpNodeId]._xreel,_noeuds[tmpNodeId]._yreel);
                         }
                     }
+                    #pragma omp barrier
+                    supprimerNoeudTemporaireThread(nodeId,tid);
                 }
                 else {
+                    #pragma omp barrier
                     scoreBefore = getScoreCroisementNodeGridReelNThread(nodeId,-1);
+                    #pragma omp barrier
                 }
             }
-            for (int numNoeud=1;numNoeud<maxThread;numNoeud++) {
-                supprimerNoeudTemporaire(nodeId);
-            }
+            resizeVectorTemporaire(nodeId,maxThread-1);
             improve = bestScore - scoreBefore;
             if (improve <= 0) {
                 nbCroisement += improve;

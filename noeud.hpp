@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <mutex>
 
 class Noeud {
 public:
@@ -12,7 +13,8 @@ public:
 	std::vector<int> _aretes; // Contient les indices des aretes contenant ce noeud
 	int _id; // Id du noeud dans le tableau du graphe, unique et >= 0
 	std::vector<Noeud*> voisins; // Voisins directs relié par une arete
-	Noeud(int id) { _id = id; }
+	std::mutex* mutexAreteVoisin = nullptr;
+	Noeud(int id) { _id = id; mutexAreteVoisin = new std::mutex(); }
 	
 	// Attention ce score n'est pas toujours a jour!
 	long score = -1; // Score d'intersection du noeud
