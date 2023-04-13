@@ -1381,7 +1381,6 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
     }
     int idCell = vecCellId[0];
     std::vector<int>* vecArrive = _aretes[areteId].getNoeud2()->idCelluleVec;
-    std::cout << direction << std::endl;
     int nombreColonne = grille[0].size();
     while(!isInVector(*vecArrive,idCell)) {
         switch(direction) {
@@ -2367,6 +2366,7 @@ void Graphe::supprimerNoeudTemporaire(int copyNodeId) {
                 grillePtr[celluleId]->vecAreteId.pop_back();
             }
         }
+        free(_noeuds[idNodeSuppr].idCelluleVec);
     }
     for (int i=0;i<_noeuds[idNodeSuppr].voisins.size();i++) {
         int idVoisin = _noeuds[idNodeSuppr].voisins[i]->_id;

@@ -24,12 +24,14 @@ void Graphe::readFromJsonGraph(std::string input) {
 	}
 	int nodeNumber = static_cast<int>(j["nodes"].size());
 	if (DEBUG_JSON) std::cout << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
+	_noeuds.reserve(nodeNumber*2);
 	for (int i = 0; i < nodeNumber; i++) {
 		_noeuds.push_back(Noeud(i));
 	}
 	int edgeNumber = static_cast<int>(j["edges"].size());
 	if (DEBUG_JSON) std::cout << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
 	int id1, id2;
+	_aretes.reserve(edgeNumber*2);
 	for (int i = 0; i < edgeNumber; i++) {
 		id1 = j["edges"][i]["source"];
 		id2 = j["edges"][i]["target"];
@@ -53,6 +55,7 @@ void Graphe::readFromJsonSlots(std::string input) {
 	int slotsNumber = static_cast<int>(j["slots"].size());
 	if (DEBUG_JSON) std::cout << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
 	int x, y;
+	_emplacements.reserve(slotsNumber*2);
 	for (int i = 0; i < slotsNumber; i++) {
 		x = j["slots"][i]["x"];
 		y = j["slots"][i]["y"];
@@ -82,6 +85,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	int slotsNumber = static_cast<int>(j["slots"].size());
 	if (DEBUG_JSON) std::cout << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
 	int x, y;
+	_emplacements.reserve(slotsNumber*2);
 	for (int i = 0; i < slotsNumber; i++) {
 		x = j["slots"][i]["x"];
 		y = j["slots"][i]["y"];
@@ -93,6 +97,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	int nodeNumber = static_cast<int>(j["nodes"].size());
 	if (DEBUG_JSON) std::cout << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
 	int id;
+	_noeuds.reserve(nodeNumber*2);
 	for (int i = 0; i < nodeNumber; i++) {
 		_noeuds.push_back(Noeud(i));
 	}
@@ -105,6 +110,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	int edgeNumber = static_cast<int>(j["edges"].size());
 	if (DEBUG_JSON) std::cout << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
 	int id1, id2;
+	_aretes.reserve(edgeNumber*2);
 	for (int i = 0; i < edgeNumber; i++) {
 		id1 = j["edges"][i]["source"];
 		id2 = j["edges"][i]["target"];
@@ -202,6 +208,8 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 
 	int nodeNumber = static_cast<int>(j["nodes"].size());
 	int x, y;
+	_noeuds.reserve(nodeNumber*2);
+	_emplacements.reserve(nodeNumber*2);
 	for (int i = 0; i < nodeNumber; i++) {
 		_noeuds.push_back(Noeud(i));
 		x = j["nodes"][i]["x"];
@@ -213,6 +221,7 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 	int id1, id2;
 	std::vector<int> tmpVec;
 	int nbArete = 0;
+	_aretes.reserve(edgeNumber*2);
 	for (int i = 0; i < edgeNumber; i++) {
 		id1 = j["edges"][i]["source"];
 		tmpVec.push_back(id1);

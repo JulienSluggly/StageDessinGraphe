@@ -131,7 +131,7 @@ int main() {
 	//customRecuitFlottants(); return 0;
 
 	bool useCoordReel = true;
-	std::string nomFichierGraph = "graph-1-input";
+	std::string nomFichierGraph = "graph-2-input";
 	std::string nomFichierSlots = "3X-1-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
@@ -170,7 +170,7 @@ int main() {
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,4,true);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
-	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,true);/
+	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,true);
 	G.recuitSimuleReelThreadSelection(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,true);
 	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
 	//G.recuitSimuleReelThreadPool(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);

@@ -32,10 +32,10 @@ void Graphe::afficherNoeuds(std::string nom) {
     for (int i = 0; i < _noeuds.size(); i++) {
         std::cout << "id: " << _noeuds[i].getId() << " empid: ";
         if (_noeuds[i].getEmplacement() == nullptr) {
-            std::cout << " aucun" << std::endl;
+            std::cout << " aucun" << " voisins: " << _noeuds[i].voisinString() <<  std::endl;
         }
         else {
-            std::cout << _noeuds[i].getEmplacement()->_id << " x: " << _noeuds[i].getX() << " y: " << _noeuds[i].getY() << " score: " << _noeuds[i].score << std::endl;
+            std::cout << _noeuds[i].getEmplacement()->_id << " x: " << _noeuds[i].getX() << " y: " << _noeuds[i].getY() << " score: " << _noeuds[i].score << " voisins: " << _noeuds[i].voisinString() << std::endl;
         }
     }
     std::cout << "-----------------------------------------------" << std::endl;

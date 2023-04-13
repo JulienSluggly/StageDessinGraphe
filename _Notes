@@ -77,3 +77,6 @@ On met a jour la grille en supprimant les nouvelles aretes.
 recuit multithread sur la selection et le calcul de la meilleur position.
 
 Adapter code aux coord entieres sans emplacement
+
+A FIX RECUIT THREAD SELECTION
+same seed different results

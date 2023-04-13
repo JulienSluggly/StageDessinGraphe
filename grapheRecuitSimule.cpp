@@ -871,26 +871,34 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
     int nodeId, idSwappedNode, improve;
     std::chrono::duration<double> secondsTotal = end - start;
     for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
-        printf("Iter: %d\n",iter);
         calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
         for (int del = 0; del < delay; del++) {
             nodeId = selectionNoeud(modeNoeud, t);
             std::pair<double,double> bestCoord;
             long bestScore = INT_MAX;
-            long scoreBefore = -1, tmpScore;
-            int bestNodeId = -1, tmpNodeId;
+            long scoreBefore = -1, tmpScore = -1;
+            int bestNodeId = -1, tmpNodeId = -1;
             for (int numNoeud=1;numNoeud<maxThread;numNoeud++) {
                 std::pair<double,double> tmpRandCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
                 creationNoeudTemporaireThread(nodeId, tmpRandCoord, numNoeud);
             }
-            for (int num=1;num<4;num++) {
-                tmpNodeId = nombreNoeud+num;
-                tmpScore = getScoreCroisementNodeGridReelNThread(tmpNodeId,tid);
-                if (tmpScore < bestScore) {
-                    bestScore = tmpScore;
-                    bestCoord = make_pair(_noeuds[tmpNodeId]._xreel,_noeuds[tmpNodeId]._yreel);
+            #pragma omp parallel private(tid,tmpNodeId,tmpScore)
+            {
+                tid = omp_get_thread_num();
+                if (tid != 0) {
+                    tmpNodeId = nombreNoeud+tid;
+                    tmpScore = getScoreCroisementNodeGridReelNThread(tmpNodeId,tid);
+                    #pragma omp critical
+                    {
+                        if (tmpScore < bestScore) {
+                            bestScore = tmpScore;
+                            bestCoord = make_pair(_noeuds[tmpNodeId]._xreel,_noeuds[tmpNodeId]._yreel);
+                        }
+                    }
                 }
-                scoreBefore = getScoreCroisementNodeGridReelNThread(nodeId,-1);
+                else {
+                    scoreBefore = getScoreCroisementNodeGridReelNThread(nodeId,-1);
+                }
             }
             for (int numNoeud=1;numNoeud<maxThread;numNoeud++) {
                 supprimerNoeudTemporaire(nodeId);
