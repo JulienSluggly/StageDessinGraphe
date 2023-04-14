@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <set>
+#include <cstdlib>
 
 #include "graphe.hpp"
 #include "dispOpenGL.hpp"
@@ -17,6 +18,10 @@
 #include "utilitaire.hpp"
 #include "stressMaj.hpp"
 #include "solver.hpp"
+
+#if defined(GPERF_INSTALLED)
+	#include <gperftools/profiler.h>
+#endif
 
 void initCPUSet() {
 	omp_set_nested(0);
@@ -122,7 +127,24 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 	}
 }
 
+void stopGprofProfiler(bool useProfiler) {
+#if defined(GPERF_INSTALLED)
+	if (useProfiler) {
+		ProfilerFlush();
+		ProfilerStop();
+		if (std::system("/home/uha/Documents/DessinGrapheCmake/build/generate_svg.sh") == -1) { std::cout << "Could not generate svg file.\n";  }
+		else { std::cout << "SVG file generated successfully.\n"; }
+	}
+#endif
+}
+
 int main() {
+	std::cout << ProfilingIsEnabledForAllThreads() << std::endl;
+	bool useProfiler = true;
+#if defined(GPERF_INSTALLED)
+	std::string cheminProfile = chemin + "profilerData/profile.output";
+	if (useProfiler) { ProfilerStart(cheminProfile.c_str()); }
+#endif
 	initCPUSet();
 	//initRandomSeed();
 	//allRunsByOnFolder(); return 0;
@@ -177,9 +199,10 @@ int main() {
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
 	//G.afficherInfo();
+	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 
-	bool useOpenGL = true;
+	bool useOpenGL = false;
 	if (useOpenGL) { // OpenGL
 		G.DEBUG_OPENGL = true;
 		std::cout << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;

@@ -5,6 +5,7 @@
 #include <climits>
 #include <algorithm>
 #include <omp.h>
+#include <gperftools/profiler.h>
 
 // Selectionne deux noeud et retourne celui avec le score le plus faible. (le moin d'intersection)
 int Graphe::selectionNoeudTournoiBinaire(bool isScoreUpdated) {
