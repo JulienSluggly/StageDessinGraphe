@@ -188,9 +188,9 @@ int main() {
 	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,4,true);
-	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
+	G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,true);
-	G.recuitSimuleReelThreadSelection(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,true);
+	//G.recuitSimuleReelThreadSelection(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
 	//G.recuitSimuleReelThreadPool(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
 	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
