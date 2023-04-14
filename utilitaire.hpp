@@ -40,6 +40,9 @@ bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b);
 // n la seed (0 par défaut), resetting indique si la seed doit être réinitialisée lors de l'appel de resetSeed
 void initSameSeed(unsigned int n=0,bool resetting=true);
 
+// n la seed(0 par défaut), incrémente la seed du tid, chaque thread a une seed différente. resetting indique si la seed doit être réinitialisée lors de l'appel de resetSeed
+void initSameSeedIncThread(unsigned int n=0,bool resetting=true);
+
 // resetting indique si la seed doit être réinitialisée lors de l'appel de resetSeed
 void initRandomSeed(bool resetting=false);
 

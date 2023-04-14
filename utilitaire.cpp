@@ -54,6 +54,20 @@ void initSameSeed(unsigned int n, bool resetting) {
     }
 }
 
+void initSameSeedIncThread(unsigned int n,bool resetting) {
+    std::cout << "---------- SEED FIXE INC: " << n << " ----------\n";
+    typeSeed = "FIXE INC";
+    isSeedRandom = false;
+    seed = n;
+    genVector.clear();
+    int maxThread = omp_get_max_threads();
+    for (int i=0;i<maxThread;i++) {
+        genVector.push_back(new std::mt19937(n+i));
+        seedThread.push_back(n+i);
+        resetSeedThread.push_back(resetting);
+    }
+}
+
 void initRandomSeed(bool resetting) {
     typeSeed = "RANDOM";
     isSeedRandom = true;

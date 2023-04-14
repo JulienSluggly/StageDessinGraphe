@@ -139,7 +139,6 @@ void stopGprofProfiler(bool useProfiler) {
 }
 
 int main() {
-	std::cout << ProfilingIsEnabledForAllThreads() << std::endl;
 	bool useProfiler = true;
 #if defined(GPERF_INSTALLED)
 	std::string cheminProfile = chemin + "profilerData/profile.output";
@@ -147,9 +146,8 @@ int main() {
 #endif
 	initCPUSet();
 	//initRandomSeed();
-	//allRunsByOnFolder(); return 0;
-	//runFuncOnAllGraphsAllSlots(); return 0;
-	initSameSeed();
+	//initSameSeed();
+	initSameSeedIncThread();
 	//customRecuitFlottants(); return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";

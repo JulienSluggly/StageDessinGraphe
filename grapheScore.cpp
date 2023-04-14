@@ -648,12 +648,12 @@ long Graphe::getScoreCroisementNodeGridReelNThread(int nodeIndex, int tid) {
     std::vector<bool> indexPasse(_aretes.size(),false);
     for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
         int index = _noeuds[nodeIndex]._aretes[i];
-        std::vector<int> indexPasseCellule;
+        std::vector<bool> indexPasseCellule(_aretes.size(),false);
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (int k=0; k < vecId.size();k++) {
                 int index2 = vecId[k];
-                if ((index != index2) && (!indexPasse[index2]) && (!isInVector(indexPasseCellule,index2)) && ((_aretes[index2].typeArrete == 0)||(_aretes[index2].typeArrete == tid))) {
+                if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2]) && ((_aretes[index2].typeArrete == 0)||(_aretes[index2].typeArrete == tid))) {
                     if (!(_aretes[index].contains(_aretes[index2].getNoeud1()) || _aretes[index].contains(_aretes[index2].getNoeud2()))) {
                         bool isIllegal = false;
                         if (seCroisentReel(_aretes[index], _aretes[index2],isIllegal)) {
@@ -677,7 +677,7 @@ long Graphe::getScoreCroisementNodeGridReelNThread(int nodeIndex, int tid) {
                             }
                         }
                     }
-                    indexPasseCellule.push_back(index2);
+                    indexPasseCellule[index2] = true;
                 }
             }
         }
