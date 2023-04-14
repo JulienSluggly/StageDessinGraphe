@@ -74,12 +74,11 @@ Le deuxieme Thread ne prend en compte que les aretes communes et nouvelles.
 Si on garde le nouvel emplacement: On remplace dans le tableau l'emplacement du noeud par le nouveau.
 On met a jour la grille en supprimant les nouvelles aretes.
 
-recuit multithread sur la selection et le calcul de la meilleur position.
-
 Adapter code aux coord entieres sans emplacement
 
 A FIX RECUIT THREAD SELECTION
 same seed different results ? (race condition a l'improve si egalité)
 
-Multithreadé la création et suppression des noeuds temporaires
-mutex sur chaque cellule
+Ameliorer le recalAreteCelluleReel (remplacer le inVector par un tableau de booleen)
+
+Ameliorer le getScoreCroisement (Tableau 2D des aretes pour savoirs si elles ont un noeud un commun)

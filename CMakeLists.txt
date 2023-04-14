@@ -4,11 +4,14 @@ cmake_policy(SET CMP0072 NEW)
 
 set (CMAKE_CXX_STANDARD 17) # Impossible d'utiliser plus récent avec OGDF
 
+list(APPEND CMAKE_MODULE_PATH "/home/uha/Documents/DessinGrapheCmake/src/cmake")
+
 find_package(OpenGL REQUIRED)
 find_package(OGDF CONFIG PATHS "/home/uha/Documents/OGDF")
 find_package(nlohmann_json REQUIRED CONFIG PATHS "/home/uha/Documents/json-develop")
 find_package(OpenMP)
 find_package(Ceres REQUIRED)
+find_package(Gperftools REQUIRED)
 
 add_executable(dessinGrapheCmake 
     src/main.cpp
@@ -45,6 +48,8 @@ target_link_directories(dessinGrapheCmake PRIVATE "/home/uha/Documents/CPLEX_Stu
 target_include_directories(dessinGrapheCmake PRIVATE "/home/uha/Documents/CPLEX_Studio2211/cplex/include")
 target_link_directories(dessinGrapheCmake PRIVATE "/home/uha/Documents/CPLEX_Studio2211/cplex/lib/x86-64_linux/static_pic")
 
+target_include_directories(dessinGrapheCmake PRIVATE ${GPERFTOOLS_INCLUDE_DIRS})
+
 target_link_libraries(dessinGrapheCmake 
     glfw
     OpenGL::GL
@@ -64,4 +69,8 @@ target_link_libraries(dessinGrapheCmake # Library used by cplex
     m
     dl
     Ceres::ceres
+)
+
+target_link_libraries(dessinGrapheCmake
+    ${GPERFTOOLS_PROFILER}
 )

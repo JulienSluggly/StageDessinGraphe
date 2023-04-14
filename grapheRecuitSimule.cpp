@@ -857,7 +857,7 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
     thread_IsRecuitFinished = false;
     std::pair<double,double> bestCoord;
     long bestScore;
-    int nodeId, iter;
+    int nodeId = -1, iter;
     int maxThread = omp_get_max_threads()-2;
     #pragma omp parallel num_threads(maxThread) private(tid)
     {
@@ -871,7 +871,7 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
             else { nbCroisement = getNbCroisementReel(); }
             long bestCroisement = nbCroisement;
             double coeffImprove = 1.0;
-            int nombreNoeud = _noeuds.size()-1;
+            int nombreNoeud = (int)_noeuds.size()-1;
             applyRecuitCustomParam(coeffImprove,customParam);
             calculDelaiRefroidissement(delay,customParam,0);
             setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
