@@ -484,7 +484,7 @@ long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThr
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (const int& index2 : vecId) {
                 if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2]) && (_aretes[index2].typeArrete != typeArreteToIgnore)) {
-                    if (commonNodeEdges[index][index2] == nullptr) {
+                    if (!(_aretes[index].contains(_aretes[index2].getNoeud1()) || _aretes[index].contains(_aretes[index2].getNoeud2()))) {
                         bool isIllegal = false;
                         if (seCroisentReel(_aretes[index], _aretes[index2],isIllegal)) {
                             if (isIllegal) { score += PENALITE_MAX; }
@@ -492,8 +492,12 @@ long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThr
                         }
                     }
                     else {
-                        if (surSegmentReel(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
-                        else if (surSegmentReel(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
+                        Noeud* nodeNotInCommon = _aretes[index2].nodeNotInCommon(&_aretes[index]);
+                        if (surSegmentReel(_aretes[index], *nodeNotInCommon)) { score += PENALITE_MAX_SELF; }
+                        else {
+                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[index2]);
+                            if (surSegmentReel(_aretes[index2], *nodeNotInCommon)) { score += PENALITE_MAX_SELF; }
+                        }
                     }
                     indexPasseCellule[index2] = true;
                 }
@@ -507,13 +511,11 @@ long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThr
 long Graphe::getScoreCroisementNodeGridReelNThread(int nodeIndex, int tid) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         std::vector<bool> indexPasseCellule(_aretes.size(),false);
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
-            for (int k=0; k < vecId.size();k++) {
-                int index2 = vecId[k];
+            for (const int& index2 : vecId) {
                 if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2]) && ((_aretes[index2].typeArrete == 0)||(_aretes[index2].typeArrete == tid))) {
                     if (!(_aretes[index].contains(_aretes[index2].getNoeud1()) || _aretes[index].contains(_aretes[index2].getNoeud2()))) {
                         bool isIllegal = false;
