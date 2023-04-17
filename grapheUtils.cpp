@@ -9,13 +9,15 @@
 #endif
 
 Graphe::Graphe() {
-    mutexNoeud = new std::mutex();
-    mutexAretes = new std::mutex();
-    mutexEmplacements = new std::mutex();
+    initGraphData();
 }
 
 Graphe::Graphe(std::string nom) {
     nomGraphe = nom;
+    initGraphData();
+}
+
+void Graphe::initGraphData() {
     mutexNoeud = new std::mutex();
     mutexAretes = new std::mutex();
     mutexEmplacements = new std::mutex();
@@ -2431,4 +2433,23 @@ void Graphe::replaceNoeudTemporaire(int nodeId) {
 void Graphe::resizeVectorTemporaire(int nodeId, int nbNodeTemporaire) {
     _noeuds.erase(_noeuds.end() - nbNodeTemporaire, _noeuds.end());
     _aretes.erase(_aretes.end() - (_noeuds[nodeId]._aretes.size()*nbNodeTemporaire), _aretes.end());
+}
+
+void Graphe::fillCommonNodeVectors() {
+    for (int i=0;i<_aretes.size();i++) {
+        std::vector<Noeud*> tmpVec(_aretes.size(),nullptr);
+        commonNodeEdges.push_back(tmpVec);
+    }
+    for (int i=0;i<_noeuds.size();i++) {
+        for (int j=0;j<_noeuds[i].voisins.size()-1;j++) {
+            Noeud* n1 = _noeuds[i].voisins[j];
+            int index1 = _noeuds[i]._aretes[j];
+            for (int k=j+1;k<_noeuds[i].voisins.size();k++) {
+                Noeud* n2 = _noeuds[i].voisins[k];
+                int index2 = _noeuds[i]._aretes[k];
+                commonNodeEdges[index1][index2] = n1;
+                commonNodeEdges[index2][index1] = n2;
+            }
+        }
+    }
 }

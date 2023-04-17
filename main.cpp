@@ -139,15 +139,15 @@ void stopGprofProfiler(bool useProfiler) {
 }
 
 int main() {
-	bool useProfiler = true;
+	bool useProfiler = false;
 #if defined(GPERF_INSTALLED)
 	std::string cheminProfile = chemin + "profilerData/profile.output";
 	if (useProfiler) { ProfilerStart(cheminProfile.c_str()); }
 #endif
 	initCPUSet();
 	//initRandomSeed();
-	//initSameSeed();
-	initSameSeedIncThread();
+	initSameSeed();
+	//initSameSeedIncThread();
 	//customRecuitFlottants(); return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
@@ -162,6 +162,7 @@ int main() {
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/adjnoun.graphclean");
 	G.readFromJsonGraph(pathGraph);
+	G.fillCommonNodeVectors();
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }

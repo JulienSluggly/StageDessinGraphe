@@ -6,27 +6,27 @@
 void Graphe::recalculateIllegalIntersections() {
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
                     if (isIllegal) {
-                        areteIll.insert(&_aretes[i]); areteIll.insert(&_aretes[j]);
+                        areteIll.insert(&_aretes[i]);
+                        areteIll.insert(&_aretes[j]);
                     }
                     else {
-                        areteInter.insert(&_aretes[i]); areteInter.insert(&_aretes[j]);
+                        areteInter.insert(&_aretes[i]);
+                        areteInter.insert(&_aretes[j]);
                     }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegment(_aretes[i], *nodeNotInCommon)) {
-                    areteIllSelf.insert(&_aretes[i]); areteIllSelf.insert(&_aretes[j]);
+                if (surSegment(_aretes[i], *commonNodeEdges[j][i])) {
+                    areteIllSelf.insert(&_aretes[i]);
+                    areteIllSelf.insert(&_aretes[j]);
                 }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                        areteIllSelf.insert(&_aretes[i]); areteIllSelf.insert(&_aretes[j]);
-                    }
+                else if (surSegment(_aretes[j], *commonNodeEdges[i][j])) {
+                    areteIllSelf.insert(&_aretes[i]);
+                    areteIllSelf.insert(&_aretes[j]);
                 }
             }
         }
@@ -36,27 +36,27 @@ void Graphe::recalculateIllegalIntersections() {
 void Graphe::recalculateIllegalIntersectionsReel() {
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
                     if (isIllegal) {
-                        areteIll.insert(&_aretes[i]); areteIll.insert(&_aretes[j]);
+                        areteIll.insert(&_aretes[i]);
+                        areteIll.insert(&_aretes[j]);
                     }
                     else {
-                        areteInter.insert(&_aretes[i]); areteInter.insert(&_aretes[j]);
+                        areteInter.insert(&_aretes[i]);
+                        areteInter.insert(&_aretes[j]);
                     }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
-                    areteIllSelf.insert(&_aretes[i]); areteIllSelf.insert(&_aretes[j]);
+                if (surSegmentReel(_aretes[i], *commonNodeEdges[j][i])) {
+                    areteIllSelf.insert(&_aretes[i]);
+                    areteIllSelf.insert(&_aretes[j]);
                 }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
-                        areteIllSelf.insert(&_aretes[i]); areteIllSelf.insert(&_aretes[j]);
-                    }
+                else if (surSegmentReel(_aretes[j], *commonNodeEdges[i][j])) { 
+                    areteIllSelf.insert(&_aretes[i]);
+                    areteIllSelf.insert(&_aretes[j]);
                 }
             }
         }
@@ -68,28 +68,16 @@ long Graphe::getNbCroisement() {
     long total = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
-                    if (isIllegal) {
-                        total += PENALITE_MAX;
-                    }
-                    else {
-                        ++total;
-                    }
+                    if (isIllegal) { total += PENALITE_MAX; }
+                    else { ++total; }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegment(_aretes[i], *nodeNotInCommon)) {
-                    total += PENALITE_MAX_SELF;
-                }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                        total += PENALITE_MAX_SELF;
-                    }
-                }
+                if (surSegment(_aretes[i], *commonNodeEdges[j][i])) { total += PENALITE_MAX_SELF; }
+                else if (surSegment(_aretes[j], *commonNodeEdges[i][j])) { total += PENALITE_MAX_SELF; }
             }
         }
     }
@@ -103,28 +91,16 @@ long Graphe::getNbCroisementReel() {
     long total = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
-                    if (isIllegal) {
-                        total += PENALITE_MAX;
-                    }
-                    else {
-                        ++total;
-                    }
+                    if (isIllegal) { total += PENALITE_MAX; }
+                    else { ++total; }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
-                    total += PENALITE_MAX_SELF;
-                }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
-                        total += PENALITE_MAX_SELF;
-                    }
-                }
+                if (surSegmentReel(_aretes[i], *commonNodeEdges[j][i])) { total += PENALITE_MAX_SELF; }
+                else if (surSegmentReel(_aretes[j], *commonNodeEdges[i][j])) { total += PENALITE_MAX_SELF; }
             }
         }
     }
@@ -141,28 +117,16 @@ long Graphe::getNbCroisementGlouton() {
         if (_aretes[i].estPlace()) {
             for (int j = i + 1; j < _aretes.size(); ++j) {
                 if (_aretes[j].estPlace()) {
-                    if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+                    if (commonNodeEdges[i][j] == nullptr) {
                         bool isIllegal = false;
                         if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
-                            if (isIllegal) {
-                                total += PENALITE_MAX;
-                            }
-                            else {
-                                ++total;
-                            }
+                            if (isIllegal) { total += PENALITE_MAX; }
+                            else { ++total; }
                         }
                     }
                     else {
-                        Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                        if (surSegment(_aretes[i], *nodeNotInCommon)) {
-                            total += PENALITE_MAX_SELF;
-                        }
-                        else {
-                            nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                            if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                                total += PENALITE_MAX_SELF;
-                            }
-                        }
+                        if (surSegment(_aretes[i], *commonNodeEdges[j][i])) { total += PENALITE_MAX_SELF; }
+                        else if (surSegment(_aretes[j], *commonNodeEdges[i][j])) { total += PENALITE_MAX_SELF; }
                     }
                 }
             }
@@ -176,34 +140,21 @@ long Graphe::getNbCroisementGlouton() {
 long Graphe::getNbCroisementGloutonScore(int nodeId) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeId]._aretes.size(); ++i) {
-        int index = _noeuds[nodeId]._aretes[i];
+    for (const int& index : _noeuds[nodeId]._aretes) {
             if (_aretes[index].estPlace()) {
             for (int j = 0; j < _aretes.size(); ++j) {
                 if (_aretes[j].estPlace()) {
                     if ((index != j) && (!indexPasse[j])) {
-                        if (!(_aretes[index].contains(_aretes[j].getNoeud1()) || _aretes[index].contains(_aretes[j].getNoeud2()))) {
+                        if (commonNodeEdges[index][j] == nullptr) {
                             bool isIllegal = false;
                             if (seCroisent(_aretes[index], _aretes[j],isIllegal)) {
-                                if (isIllegal) {
-                                    score += PENALITE_MAX;
-                                }
-                                else {
-                                    score++;
-                                }
+                                if (isIllegal) { score += PENALITE_MAX; }
+                                else { score++; }
                             }
                         }
                         else {
-                            Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[index]);
-                            if (surSegment(_aretes[index], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                            else {
-                                nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[j]);
-                                if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                                    score += PENALITE_MAX_SELF;
-                                }
-                            }
+                            if (surSegment(_aretes[index], *commonNodeEdges[j][index])) { score += PENALITE_MAX_SELF; }
+                            else if (surSegment(_aretes[j], *commonNodeEdges[index][j])) { score += PENALITE_MAX_SELF; }
                         }
                     }
                 }
@@ -357,32 +308,19 @@ long Graphe::getNodeScoreEnfantGrille(Graphe& G, int nodeIndex) {
 long Graphe::getScoreCroisementNode(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         for (int j = 0; j < _aretes.size(); ++j) {
             if ((index != j) && (!indexPasse[j])) {
-                if (!(_aretes[index].contains(_aretes[j].getNoeud1()) || _aretes[index].contains(_aretes[j].getNoeud2()))) {
+                if (commonNodeEdges[index][j] == nullptr) {
                     bool isIllegal = false;
                     if (seCroisent(_aretes[index], _aretes[j],isIllegal)) {
-                        if (isIllegal) {
-                            score += PENALITE_MAX;
-                        }
-                        else {
-                            score++;
-                        }
+                        if (isIllegal) { score += PENALITE_MAX; }
+                        else { score++; }
                     }
                 }
                 else {
-                    Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[index]);
-                    if (surSegment(_aretes[index], *nodeNotInCommon)) {
-                        score += PENALITE_MAX_SELF;
-                    }
-                    else {
-                        nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[j]);
-                        if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                            score += PENALITE_MAX_SELF;
-                        }
-                    }
+                    if (surSegment(_aretes[index], *commonNodeEdges[j][index])) { score += PENALITE_MAX_SELF; }
+                    else if (surSegment(_aretes[j], *commonNodeEdges[index][j])) { score += PENALITE_MAX_SELF; }
                 }
             }
         }
@@ -395,32 +333,19 @@ long Graphe::getScoreCroisementNode(int nodeIndex) {
 long Graphe::getScoreCroisementNodeReel(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         for (int j = 0; j < _aretes.size(); ++j) {
             if ((index != j) && (!indexPasse[j])) {
-                if (!(_aretes[index].contains(_aretes[j].getNoeud1()) || _aretes[index].contains(_aretes[j].getNoeud2()))) {
+                if (commonNodeEdges[index][j] == nullptr) {
                     bool isIllegal = false;
                     if (seCroisentReel(_aretes[index], _aretes[j],isIllegal)) {
-                        if (isIllegal) {
-                            score += PENALITE_MAX;
-                        }
-                        else {
-                            score++;
-                        }
+                        if (isIllegal) { score += PENALITE_MAX; }
+                        else { score++; }
                     }
                 }
                 else {
-                    Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[index]);
-                    if (surSegmentReel(_aretes[index], *nodeNotInCommon)) {
-                        score += PENALITE_MAX_SELF;
-                    }
-                    else {
-                        nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[j]);
-                        if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
-                            score += PENALITE_MAX_SELF;
-                        }
-                    }
+                    if (surSegmentReel(_aretes[index], *commonNodeEdges[j][index])) { score += PENALITE_MAX_SELF; }
+                    else if (surSegmentReel(_aretes[j], *commonNodeEdges[index][j])) { score += PENALITE_MAX_SELF; }
                 }
             }
         }
@@ -433,33 +358,22 @@ long Graphe::getScoreCroisementNodeReel(int nodeIndex) {
 long Graphe::getScoreCroisementNodeGlouton(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         if (_aretes[index].estPlace()) {
             for (int j = 0; j < _aretes.size(); ++j) {
                 if (_aretes[j].estPlace()&&(index != j) && (!indexPasse[j])) {
-                    if (!(_aretes[index].contains(_aretes[j].getNoeud1()) || _aretes[index].contains(_aretes[j].getNoeud2()))) {
+                    if (commonNodeEdges[index][j] == nullptr) {
                         bool isIllegal = false;
                         if (seCroisent(_aretes[index], _aretes[j],isIllegal)) {
-                            if (isIllegal) {
-                                score += PENALITE_MAX;
-                            }
-                            else {
-                                score++;
-                            }
+                            if (isIllegal) { score += PENALITE_MAX; }
+                            else { score++; }
                         }
                     }
                     else {
-                        Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[index]);
-                        if (surSegment(_aretes[index], *nodeNotInCommon)) {
+                        if (surSegment(_aretes[index], *commonNodeEdges[j][index])) {
                             score += PENALITE_MAX_SELF;
                         }
-                        else {
-                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[j]);
-                            if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                        }
+                        else if (surSegment(_aretes[j], *commonNodeEdges[index][j])) { score += PENALITE_MAX_SELF; }
                     }
                 }
             }
@@ -473,34 +387,21 @@ long Graphe::getScoreCroisementNodeGlouton(int nodeIndex) {
 long Graphe::getScoreCroisementNode(int nodeIndex, int swapIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         if (!_aretes[index].contains(swapIndex)) {
             for (int j = 0; j < _aretes.size(); ++j) {
                 if ((index != j) && (!indexPasse[j])) {
                     if (!_aretes[j].contains(swapIndex)) {
-                        if (!(_aretes[index].contains(_aretes[j].getNoeud1()) || _aretes[index].contains(_aretes[j].getNoeud2()))) {
+                        if (commonNodeEdges[index][j] == nullptr) {
                             bool isIllegal = false;
                             if (seCroisent(_aretes[index], _aretes[j],isIllegal)) {
-                                if (isIllegal) {
-                                    score += PENALITE_MAX;
-                                }
-                                else {
-                                    score++;
-                                }
+                                if (isIllegal) { score += PENALITE_MAX; }
+                                else { score++; }
                             }
                         }
                         else {
-                            Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[index]);
-                            if (surSegment(_aretes[index], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                            else {
-                                nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[j]);
-                                if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                                    score += PENALITE_MAX_SELF;
-                                }
-                            }
+                            if (surSegment(_aretes[index], *commonNodeEdges[j][index])) { score += PENALITE_MAX_SELF; }
+                            else if (surSegment(_aretes[j], *commonNodeEdges[index][j])) { score += PENALITE_MAX_SELF; }
                         }
                     }
                 }
@@ -515,37 +416,24 @@ long Graphe::getScoreCroisementNode(int nodeIndex, int swapIndex) {
 long Graphe::getScoreCroisementNodeGrid(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         std::vector<bool> indexPasseCellule(_aretes.size(),false);
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
-            for (int k=0; k < vecId.size();k++) {
-                if ((index != vecId[k]) && (!indexPasse[vecId[k]]) && (!indexPasseCellule[vecId[k]])) {
-                    if (!(_aretes[index].contains(_aretes[vecId[k]].getNoeud1()) || _aretes[index].contains(_aretes[vecId[k]].getNoeud2()))) {
+            for (const int& index2 : vecId) {
+                if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
+                    if (commonNodeEdges[index][index2] == nullptr) {
                         bool isIllegal = false;
-                        if (seCroisent(_aretes[index], _aretes[vecId[k]],isIllegal)) {
-                            if (isIllegal) {
-                                score += PENALITE_MAX;
-                            }
-                            else {
-                                score++;
-                            }
+                        if (seCroisent(_aretes[index], _aretes[index2],isIllegal)) {
+                            if (isIllegal) { score += PENALITE_MAX; }
+                            else { score++; }
                         }
                     }
                     else {
-                        Noeud* nodeNotInCommon = _aretes[vecId[k]].nodeNotInCommon(&_aretes[index]);
-                        if (surSegment(_aretes[index], *nodeNotInCommon)) {
-                            score += PENALITE_MAX_SELF;
-                        }
-                        else {
-                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[vecId[k]]);
-                            if (surSegment(_aretes[vecId[k]], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                        }
+                        if (surSegment(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                        else if (surSegment(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
                     }
-                    indexPasseCellule[vecId[k]] = true;
+                    indexPasseCellule[index2] = true;
                 }
             }
         }
@@ -558,36 +446,22 @@ long Graphe::getScoreCroisementNodeGrid(int nodeIndex) {
 long Graphe::getScoreCroisementNodeGridReel(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         std::vector<bool> indexPasseCellule(_aretes.size(),false);
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
-            for (int k=0; k < vecId.size();k++) {
-                int index2 = vecId[k];
+            for (const int& index2 : vecId) {
                 if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
-                    if (!(_aretes[index].contains(_aretes[index2].getNoeud1()) || _aretes[index].contains(_aretes[index2].getNoeud2()))) {
+                    if (commonNodeEdges[index][index2] == nullptr) {
                         bool isIllegal = false;
                         if (seCroisentReel(_aretes[index], _aretes[index2],isIllegal)) {
-                            if (isIllegal) {
-                                score += PENALITE_MAX;
-                            }
-                            else {
-                                score++;
-                            }
+                            if (isIllegal) { score += PENALITE_MAX; }
+                            else { score++; }
                         }
                     }
                     else {
-                        Noeud* nodeNotInCommon = _aretes[index2].nodeNotInCommon(&_aretes[index]);
-                        if (surSegmentReel(_aretes[index], *nodeNotInCommon)) {
-                            score += PENALITE_MAX_SELF;
-                        }
-                        else {
-                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[index2]);
-                            if (surSegmentReel(_aretes[index2], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                        }
+                        if (surSegmentReel(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                        else if (surSegmentReel(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
                     }
                     indexPasseCellule[index2] = true;
                 }
@@ -604,36 +478,22 @@ long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThr
     else { typeArreteToIgnore = 1; }
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         std::vector<bool> indexPasseCellule(_aretes.size(),false);
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
-            for (int k=0; k < vecId.size();k++) {
-                int index2 = vecId[k];
+            for (const int& index2 : vecId) {
                 if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2]) && (_aretes[index2].typeArrete != typeArreteToIgnore)) {
-                    if (!(_aretes[index].contains(_aretes[index2].getNoeud1()) || _aretes[index].contains(_aretes[index2].getNoeud2()))) {
+                    if (commonNodeEdges[index][index2] == nullptr) {
                         bool isIllegal = false;
                         if (seCroisentReel(_aretes[index], _aretes[index2],isIllegal)) {
-                            if (isIllegal) {
-                                score += PENALITE_MAX;
-                            }
-                            else {
-                                score++;
-                            }
+                            if (isIllegal) { score += PENALITE_MAX; }
+                            else { score++; }
                         }
                     }
                     else {
-                        Noeud* nodeNotInCommon = _aretes[index2].nodeNotInCommon(&_aretes[index]);
-                        if (surSegmentReel(_aretes[index], *nodeNotInCommon)) {
-                            score += PENALITE_MAX_SELF;
-                        }
-                        else {
-                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[index2]);
-                            if (surSegmentReel(_aretes[index2], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                        }
+                        if (surSegmentReel(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                        else if (surSegmentReel(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
                     }
                     indexPasseCellule[index2] = true;
                 }
@@ -647,36 +507,22 @@ long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThr
 long Graphe::getScoreCroisementNodeGridReelNThread(int nodeIndex, int tid) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         std::vector<bool> indexPasseCellule(_aretes.size(),false);
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
-            for (int k=0; k < vecId.size();k++) {
-                int index2 = vecId[k];
+            for (const int& index2 : vecId) {
                 if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2]) && ((_aretes[index2].typeArrete == 0)||(_aretes[index2].typeArrete == tid))) {
-                    if (!(_aretes[index].contains(_aretes[index2].getNoeud1()) || _aretes[index].contains(_aretes[index2].getNoeud2()))) {
+                    if (commonNodeEdges[index][index2] == nullptr) {
                         bool isIllegal = false;
                         if (seCroisentReel(_aretes[index], _aretes[index2],isIllegal)) {
-                            if (isIllegal) {
-                                score += PENALITE_MAX;
-                            }
-                            else {
-                                score++;
-                            }
+                            if (isIllegal) { score += PENALITE_MAX; }
+                            else { score++; }
                         }
                     }
                     else {
-                        Noeud* nodeNotInCommon = _aretes[index2].nodeNotInCommon(&_aretes[index]);
-                        if (surSegmentReel(_aretes[index], *nodeNotInCommon)) {
-                            score += PENALITE_MAX_SELF;
-                        }
-                        else {
-                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[index2]);
-                            if (surSegmentReel(_aretes[index2], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                        }
+                        if (surSegmentReel(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                        else if (surSegmentReel(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
                     }
                     indexPasseCellule[index2] = true;
                 }
@@ -691,130 +537,26 @@ long Graphe::getScoreCroisementNodeGridReelNThread(int nodeIndex, int tid) {
 long Graphe::getScoreCroisementNodeGrid(int nodeIndex, int swapIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         if (!_aretes[index].contains(swapIndex)) {
             std::vector<bool> indexPasseCellule(_aretes.size(),false);
             for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
                 std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
-                for (int k=0;k<vecId.size();k++) {
-                    if ((index != vecId[k]) && (!indexPasse[vecId[k]]) && (!indexPasseCellule[vecId[k]])) {
-                        if (!_aretes[vecId[k]].contains(swapIndex)) {
-                            if (!(_aretes[index].contains(_aretes[vecId[k]].getNoeud1()) || _aretes[index].contains(_aretes[vecId[k]].getNoeud2()))) {
+                for (const int& index2 : vecId) {
+                    if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
+                        if (!_aretes[index2].contains(swapIndex)) {
+                            if (commonNodeEdges[index][index2] == nullptr) {
                                 bool isIllegal = false;
-                                if (seCroisent(_aretes[index], _aretes[vecId[k]],isIllegal)) {
-                                    if (isIllegal) {
-                                        score += PENALITE_MAX;
-                                    }
-                                    else {
-                                        score++;
-                                    }
+                                if (seCroisent(_aretes[index], _aretes[index2],isIllegal)) {
+                                    if (isIllegal) { score += PENALITE_MAX; }
+                                    else { score++; }
                                 }
                             }
                             else {
-                                Noeud* nodeNotInCommon = _aretes[vecId[k]].nodeNotInCommon(&_aretes[index]);
-                                if (surSegment(_aretes[index], *nodeNotInCommon)) {
-                                    score += PENALITE_MAX_SELF;
-                                }
-                                else {
-                                    nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[vecId[k]]);
-                                    if (surSegment(_aretes[vecId[k]], *nodeNotInCommon)) {
-                                        score += PENALITE_MAX_SELF;
-                                    }
-                                }
+                                if (surSegment(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                                else if (surSegment(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
                             }
-                            indexPasseCellule[vecId[k]] = true;
-                        }
-                    }
-                }
-            }
-        }
-        indexPasse[index] = true;
-    }
-    return score;
-}
-
-// Calcule le score du noeud en parametre.
-long Graphe::getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecCelluleId,int nodeIndex) {
-    long score = 0;
-    std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
-        std::vector<bool> indexPasseCellule(_aretes.size(),false);
-        for (int j = 0; j < vecCelluleId[i].size(); ++j) {
-            std::vector<int>& vecId = grillePtr[vecCelluleId[i][j]]->vecAreteId;
-            for (int k=0; k < vecId.size();k++) {
-                int index2 = vecId[k];
-                if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
-                    if (!(_aretes[index].contains(_aretes[index2].getNoeud1()) || _aretes[index].contains(_aretes[index2].getNoeud2()))) {
-                        bool isIllegal = false;
-                        if (seCroisent(_aretes[index], _aretes[index2],isIllegal)) {
-                            if (isIllegal) {
-                                score += PENALITE_MAX;
-                            }
-                            else {
-                                score++;
-                            }
-                        }
-                    }
-                    else {
-                        Noeud* nodeNotInCommon = _aretes[index2].nodeNotInCommon(&_aretes[index]);
-                        if (surSegment(_aretes[index], *nodeNotInCommon)) {
-                            score += PENALITE_MAX_SELF;
-                        }
-                        else {
-                            nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[index2]);
-                            if (surSegment(_aretes[index2], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                        }
-                    }
-                    indexPasseCellule[index2] = true;
-                }
-            }
-        }
-        indexPasse[index] = true;
-    }
-    return score;
-}
-
-// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex.
-long Graphe::getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecCelluleId, int nodeIndex, int swapIndex) {
-    long score = 0;
-    std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
-        if (!_aretes[index].contains(swapIndex)) {
-            std::vector<bool> indexPasseCellule(_aretes.size(),false);
-            for (int j = 0; j < vecCelluleId[i].size(); ++j) {
-                std::vector<int>& vecId = grillePtr[vecCelluleId[i][j]]->vecAreteId;
-                for (int k=0;k<vecId.size();k++) {
-                    if ((index != vecId[k]) && (!indexPasse[vecId[k]]) && (!indexPasseCellule[vecId[k]])) {
-                        if (!_aretes[vecId[k]].contains(swapIndex)) {
-                            if (!(_aretes[index].contains(_aretes[vecId[k]].getNoeud1()) || _aretes[index].contains(_aretes[vecId[k]].getNoeud2()))) {
-                                bool isIllegal = false;
-                                if (seCroisent(_aretes[index], _aretes[vecId[k]],isIllegal)) {
-                                    if (isIllegal) {
-                                        score += PENALITE_MAX;
-                                    }
-                                    else {
-                                        score++;
-                                    }
-                                }
-                            }
-                            else {
-                                Noeud* nodeNotInCommon = _aretes[vecId[k]].nodeNotInCommon(&_aretes[index]);
-                                if (surSegment(_aretes[index], *nodeNotInCommon)) {
-                                    score += PENALITE_MAX_SELF;
-                                }
-                                else {
-                                    nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[vecId[k]]);
-                                    if (surSegment(_aretes[vecId[k]], *nodeNotInCommon)) {
-                                        score += PENALITE_MAX_SELF;
-                                    }
-                                }
-                            }
-                            indexPasseCellule[vecId[k]] = true;
+                            indexPasseCellule[index2] = true;
                         }
                     }
                 }
@@ -829,38 +571,25 @@ long Graphe::getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecCellul
 long Graphe::getScoreCroisementNodeGloutonGrid(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _noeuds[nodeIndex]._aretes.size(); ++i) {
-        int index = _noeuds[nodeIndex]._aretes[i];
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
         if (_aretes[index].estPlace()) {
             std::vector<bool> indexPasseCellule(_aretes.size(),false);
             for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
                 std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
-                for (int k=0; k < vecId.size();k++) {
-                    if ((index != vecId[k]) && (!indexPasse[vecId[k]]) && (!indexPasseCellule[vecId[k]])) {
-                        if (!(_aretes[index].contains(_aretes[vecId[k]].getNoeud1()) || _aretes[index].contains(_aretes[vecId[k]].getNoeud2()))) {
+                for (const int& index2 : vecId) {
+                    if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
+                        if (commonNodeEdges[index][index2] == nullptr) {
                             bool isIllegal = false;
-                            if (seCroisent(_aretes[index], _aretes[vecId[k]],isIllegal)) {
-                                if (isIllegal) {
-                                    score += PENALITE_MAX;
-                                }
-                                else {
-                                    score++;
-                                }
+                            if (seCroisent(_aretes[index], _aretes[index2],isIllegal)) {
+                                if (isIllegal) { score += PENALITE_MAX; }
+                                else { score++; }
                             }
                         }
                         else {
-                            Noeud* nodeNotInCommon = _aretes[vecId[k]].nodeNotInCommon(&_aretes[index]);
-                            if (surSegment(_aretes[index], *nodeNotInCommon)) {
-                                score += PENALITE_MAX_SELF;
-                            }
-                            else {
-                                nodeNotInCommon = _aretes[index].nodeNotInCommon(&_aretes[vecId[k]]);
-                                if (surSegment(_aretes[vecId[k]], *nodeNotInCommon)) {
-                                    score += PENALITE_MAX_SELF;
-                                }
-                            }
+                            if (surSegment(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                            else if (surSegment(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
                         }
-                        indexPasseCellule[vecId[k]] = true;
+                        indexPasseCellule[index2] = true;
                     }
                 }
             }
@@ -994,28 +723,16 @@ long Graphe::getNbCroisementConst() const {
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
             //Aretes aretes1 = _aretes[i], aretes2 = _aretes[j];
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
-                    if (isIllegal) {
-                        total += PENALITE_MAX;
-                    }
-                    else {
-                        ++total;
-                    }
+                    if (isIllegal) { total += PENALITE_MAX; }
+                    else { ++total; }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegment(_aretes[i], *nodeNotInCommon)) {
-                    total += PENALITE_MAX_SELF;
-                }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                        total += PENALITE_MAX_SELF;
-                    }
-                }
+                if (surSegment(_aretes[i], *commonNodeEdges[j][i])) { total += PENALITE_MAX_SELF; }
+                else if (surSegment(_aretes[j], *commonNodeEdges[i][j])) { total += PENALITE_MAX_SELF; }
             }
         }
     }
@@ -1027,28 +744,16 @@ long Graphe::getNbCroisementReelConst() const {
     long total = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
-                    if (isIllegal) {
-                        total += PENALITE_MAX;
-                    }
-                    else {
-                        ++total;
-                    }
+                    if (isIllegal) { total += PENALITE_MAX; }
+                    else { ++total; }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
-                    total += PENALITE_MAX_SELF;
-                }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
-                        total += PENALITE_MAX_SELF;
-                    }
-                }
+                if (surSegmentReel(_aretes[i], *commonNodeEdges[j][i])) { total += PENALITE_MAX_SELF; }
+                else if (surSegmentReel(_aretes[j], *commonNodeEdges[i][j])) { total += PENALITE_MAX_SELF; }
             }
         }
     }
@@ -1062,29 +767,16 @@ long Graphe::getNbCroisementDiff() {
     nombreInterIllSelf = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
-                    if (isIllegal) {
-                        nombreInterIll++;
-                    }
-                    else {
-                        nombreInter++;
-                    }
+                    if (isIllegal) { nombreInterIll++; }
+                    else { nombreInter++; }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegment(_aretes[i], *nodeNotInCommon))
-                {
-                    nombreInterIllSelf++;
-                }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                        nombreInterIllSelf++;
-                    }
-                }
+                if (surSegment(_aretes[i], *commonNodeEdges[j][i])) { nombreInterIllSelf++; }
+                else if (surSegment(_aretes[j], *commonNodeEdges[i][j])) {nombreInterIllSelf++; }
             }
         }
     }
@@ -1098,28 +790,16 @@ long Graphe::getNbCroisementDiffReel() {
     nombreInterIllSelf = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisentReel(_aretes[i], _aretes[j],isIllegal)) {
-                    if (isIllegal) {
-                        nombreInterIll++;
-                    }
-                    else {
-                        nombreInter++;
-                    }
+                    if (isIllegal) { nombreInterIll++; }
+                    else { nombreInter++; }
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegmentReel(_aretes[i], *nodeNotInCommon)) {
-                    nombreInterIllSelf++;
-                }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegmentReel(_aretes[j], *nodeNotInCommon)) {
-                        nombreInterIllSelf++;
-                    }
-                }
+                if (surSegmentReel(_aretes[i], *commonNodeEdges[j][i])) { nombreInterIllSelf++; }
+                else if (surSegmentReel(_aretes[j], *commonNodeEdges[i][j])) { nombreInterIllSelf++; }
             }
         }
     }
@@ -1131,40 +811,28 @@ long Graphe::getNbCroisementDiffGrid() {
     nombreInterIll = 0;
     nombreInterIllSelf = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
-    for (int i = 0; i < _aretes.size() - 1; ++i) {
+    for (int index = 0; index < _aretes.size() - 1; ++index) {
         std::vector<bool> indexPasseCellule(_aretes.size(),false);
-        for (int j = 0; j < _aretes[i].vecIdCellules.size(); ++j) {
-            std::vector<int>& vecId = grillePtr[_aretes[i].vecIdCellules[j]]->vecAreteId;
-            for (int k=0; k < vecId.size();k++) {
-                if ((i != vecId[k]) && (!indexPasse[vecId[k]]) && (!indexPasseCellule[vecId[k]])) {
-                    if (!(_aretes[i].contains(_aretes[vecId[k]].getNoeud1()) || _aretes[i].contains(_aretes[vecId[k]].getNoeud2()))) {
+        for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
+            std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
+            for (const int& index2 : vecId) {
+                if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
+                    if (commonNodeEdges[index][index2] == nullptr) {
                         bool isIllegal = false;
-                        if (seCroisent(_aretes[i], _aretes[vecId[k]],isIllegal)) {
-                            if (isIllegal) {
-                                nombreInterIll++;
-                            }
-                            else {
-                                nombreInter++;
-                            }
+                        if (seCroisent(_aretes[index], _aretes[index2],isIllegal)) {
+                            if (isIllegal) { nombreInterIll++; }
+                            else { nombreInter++; }
                         }
                     }
                     else {
-                        Noeud* nodeNotInCommon = _aretes[vecId[k]].nodeNotInCommon(&_aretes[i]);
-                        if (surSegment(_aretes[i], *nodeNotInCommon)) {
-                            nombreInterIllSelf++;
-                        }
-                        else {
-                            nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[vecId[k]]);
-                            if (surSegment(_aretes[vecId[k]], *nodeNotInCommon)) {
-                                nombreInterIllSelf++;
-                            }
-                        }
+                        if (surSegment(_aretes[index], *commonNodeEdges[index2][index])) { nombreInterIllSelf++; }
+                        else if (surSegment(_aretes[index2], *commonNodeEdges[index][index2])) { nombreInterIllSelf++; }
                     }
-                    indexPasseCellule[vecId[k]] = true;
+                    indexPasseCellule[index2] = true;
                 }
             }
         }
-        indexPasse[i] = true;
+        indexPasse[index] = true;
     }
     return nombreInter+nombreInterIll+nombreInterIllSelf;
 }
@@ -1231,7 +899,7 @@ void Graphe::initGraphAndNodeScoresAndCrossings() {
     }
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
-            if (!(_aretes[i].contains(_aretes[j].getNoeud1()) || _aretes[i].contains(_aretes[j].getNoeud2()))) {
+            if (commonNodeEdges[i][j] == nullptr) {
                 bool isIllegal = false;
                 if (seCroisent(_aretes[i], _aretes[j],isIllegal)) {
                     if (isIllegal) {
@@ -1247,19 +915,15 @@ void Graphe::initGraphAndNodeScoresAndCrossings() {
                 }
             }
             else {
-                Noeud* nodeNotInCommon = _aretes[j].nodeNotInCommon(&_aretes[i]);
-                if (surSegment(_aretes[i], *nodeNotInCommon)) {
+                if (surSegment(_aretes[i], *commonNodeEdges[j][i])) {
                     total += PENALITE_MAX_SELF;
                     _aretes[i].intersectionsIllSelf.insert(j);
                     _aretes[j].intersectionsIllSelf.insert(i);
                 }
-                else {
-                    nodeNotInCommon = _aretes[i].nodeNotInCommon(&_aretes[j]);
-                    if (surSegment(_aretes[j], *nodeNotInCommon)) {
-                        total += PENALITE_MAX_SELF;
-                        _aretes[i].intersectionsIllSelf.insert(j);
-                        _aretes[j].intersectionsIllSelf.insert(i);
-                    }
+                else if (surSegment(_aretes[j], *commonNodeEdges[i][j])) {
+                    total += PENALITE_MAX_SELF;
+                    _aretes[i].intersectionsIllSelf.insert(j);
+                    _aretes[j].intersectionsIllSelf.insert(i);
                 }
             }
         }

@@ -38,6 +38,10 @@ public:
 	std::vector<std::vector<Cellule>> grille;
 	std::vector<Cellule*> grillePtr;
 
+	// Chaque case contient le pointeur sur le noeud qui n'est pas en commun de l'arete i. commonNodeEdges[i][j]
+	// Si les aretes n'ont pas de noeud en commun, contient nullptr
+	std::vector<std::vector<Noeud*>> commonNodeEdges;
+
 	std::vector<std::vector<std::pair<int,int>>> activationGrid;
 
 	int PENALITE_MAX = 1000;
@@ -87,6 +91,8 @@ public:
 	Graphe();
 
 	Graphe(std::string nom);
+
+	void initGraphData();
 
 	void afficherLiens(std::string nom = "");
 
@@ -434,17 +440,13 @@ public:
 	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex. Utilise la grille
 	long getScoreCroisementNodeGrid(int nodeIndex, int swapIndex);
 
-	// Calcule le score du noeud en parametre. Utilise la grille
-	long getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecId,int nodeIndex);
-
-	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex. Utilise la grille
-	long getScoreCroisementNodeGrid(std::vector<std::vector<int>>& vecId, int nodeIndex, int swapIndex);
-
 	// Met a jour les vecteurs de la grille et des aretes
 	void applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int nodeIndex);
 
+	// Utile pour l'affichage openGL
 	void recalculateIllegalIntersections();
 
+	// Utile pour l'affichage openGL
 	void recalculateIllegalIntersectionsReel();
 
 	// Effectue le croisement entre deux parents,
@@ -779,6 +781,9 @@ public:
 
 	// Place le noeud a la place du noeud temporaire, puis supprime le noeud temporaire
 	void replaceNoeudTemporaire(int nodeId);
+
+	// Initialise la matrice des aretes de noeuds communs
+	void fillCommonNodeVectors();
 
 };
 
