@@ -785,6 +785,14 @@ public:
 	// Initialise la matrice des aretes de noeuds communs
 	void fillCommonNodeVectors();
 
+	// Met a jour la matrice de voisinage pour ce noeud
+	void addCommonNodeVector(int nodeId);
+
+	// Supprime les references de voisinage de ce noeud
+	void removeCommonNodeVector(int nodeId);
+
+	void printCommonMatrix();
+
 };
 
 #endif

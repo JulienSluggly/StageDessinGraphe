@@ -511,7 +511,7 @@ void Graphe::initGrille(int row,int column) {
             int x2 = x1+sizeColumn;
             int y1 = y*sizeRow + 1;
             int y2 = y1+sizeRow;
-            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1));
+            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1,_aretes.size()));
         }
         grille.push_back(tmpVec);
     }
@@ -538,7 +538,7 @@ void Graphe::initGrilleNoMove(int row,int column) {
             int x2 = x1+sizeColumn;
             int y1 = y*sizeRow;
             int y2 = y1+sizeRow;
-            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1));
+            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1,_aretes.size()));
         }
         grille.push_back(tmpVec);
     }
@@ -564,7 +564,7 @@ void Graphe::initGrilleReel(int row,int column) {
             double x2 = (double)x1+sizeColumn;
             double y1 = (double)y*sizeRow;
             double y2 = (double)y1+sizeRow;
-            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1));
+            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1,_aretes.size()));
         }
         grille.push_back(tmpVec);
     }
@@ -593,7 +593,7 @@ void Graphe::initGrilleCarre() {
             int x2 = x1+sizeCell;
             int y1 = y*sizeCell;
             int y2 = y1+sizeCell;
-            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1));
+            tmpVec.push_back(Cellule(id,x,y,x1,y2,x2,y1,_aretes.size()));
         }
         grille.push_back(tmpVec);
     }
@@ -1086,6 +1086,7 @@ void Graphe::registerEdgesInGridReel() {
         std::unordered_set<int> tmpUSet(_aretes[i].vecIdCellules.begin(), _aretes[i].vecIdCellules.end());
         _aretes[i].vecIdCellules.assign(tmpUSet.begin(), tmpUSet.end());
         for (const int& idCellule : _aretes[i].vecIdCellules) {
+            grillePtr[idCellule]->containAreteId[i] = grillePtr[idCellule]->vecAreteId.size();
             grillePtr[idCellule]->vecAreteId.push_back(i);
         }
     }
@@ -1383,6 +1384,7 @@ void Graphe::recalcAreteCellule(int areteId) {
 
 void Graphe::recalcAreteCelluleReel(int areteId) {
     std::vector<int> vecCellId;
+    std::vector<bool> vecCellAlreadyPassed(grillePtr.size(),false);
     double n1X = _aretes[areteId].getNoeud1()->_xreel;
     double n1Y = _aretes[areteId].getNoeud1()->_yreel;
     double n2X = _aretes[areteId].getNoeud2()->_xreel;
@@ -1391,11 +1393,12 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
     int startNodeId = _aretes[areteId]._noeud1->_id;
     for (const int& tmpIdCell : *_noeuds[startNodeId].idCelluleVec) {
         vecCellId.push_back(tmpIdCell);
+        vecCellAlreadyPassed[tmpIdCell] = true;
     }
     int idCell = vecCellId[0];
     std::vector<int>* vecArrive = _aretes[areteId].getNoeud2()->idCelluleVec;
     int nombreColonne = grille[0].size();
-    while(!isInVector(*vecArrive,idCell)) {
+    while(vecArrive->at(0) != idCell) {
         switch(direction) {
             case 0:
                 idCell++;
@@ -1411,8 +1414,10 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
                     idCell += nombreColonne;
                 }
                 else {
-                    vecCellId.push_back(idCell+nombreColonne);
-                    vecCellId.push_back(idCell+1);
+                    int idCell1 = idCell+nombreColonne;
+                    int idCell2 = idCell+1;
+                    if (!vecCellAlreadyPassed[idCell1]) { vecCellId.push_back(idCell1); vecCellAlreadyPassed[idCell1] = true; }
+                    if (!vecCellAlreadyPassed[idCell2]) { vecCellId.push_back(idCell2); vecCellAlreadyPassed[idCell2] = true; }
                     idCell = idCell + nombreColonne + 1;
                 }
                 break;
@@ -1431,8 +1436,10 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
                     idCell--;
                 }
                 else {
-                    vecCellId.push_back(idCell+nombreColonne);
-                    vecCellId.push_back(idCell-1);
+                    int idCell1 = idCell+nombreColonne;
+                    int idCell2 = idCell-1;
+                    if (!vecCellAlreadyPassed[idCell1]) { vecCellId.push_back(idCell1); vecCellAlreadyPassed[idCell1] = true; }
+                    if (!vecCellAlreadyPassed[idCell2]) { vecCellId.push_back(idCell2); vecCellAlreadyPassed[idCell2] = true; }
                     idCell = idCell + nombreColonne - 1;
                 }
                 break;
@@ -1451,8 +1458,10 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
                     idCell -= nombreColonne;
                 }
                 else {
-                    vecCellId.push_back(idCell-nombreColonne);
-                    vecCellId.push_back(idCell-1);
+                    int idCell1 = idCell-nombreColonne;
+                    int idCell2 = idCell-1;
+                    if (!vecCellAlreadyPassed[idCell1]) { vecCellId.push_back(idCell1); vecCellAlreadyPassed[idCell1] = true; }
+                    if (!vecCellAlreadyPassed[idCell2]) { vecCellId.push_back(idCell2); vecCellAlreadyPassed[idCell2] = true; }
                     idCell = idCell - nombreColonne - 1;
                 }
                 break;
@@ -1471,29 +1480,38 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
                     idCell++;
                 }
                 else {
-                    vecCellId.push_back(idCell-nombreColonne);
-                    vecCellId.push_back(idCell+1);
+                    int idCell1 = idCell-nombreColonne;
+                    int idCell2 = idCell+1;
+                    if (!vecCellAlreadyPassed[idCell1]) { vecCellId.push_back(idCell1); vecCellAlreadyPassed[idCell1] = true; }
+                    if (!vecCellAlreadyPassed[idCell2]) { vecCellId.push_back(idCell2); vecCellAlreadyPassed[idCell2] = true; }
                     idCell = idCell - nombreColonne + 1;
                 }
                 break;
             }
         }
-        vecCellId.push_back(idCell);
+        if (!vecCellAlreadyPassed[idCell]) { vecCellId.push_back(idCell); vecCellAlreadyPassed[idCell] = true; }
     }
     for (const int& tmpIdCell : *vecArrive) {
-        vecCellId.push_back(tmpIdCell);
+        if (!vecCellAlreadyPassed[tmpIdCell]) { vecCellId.push_back(tmpIdCell); vecCellAlreadyPassed[tmpIdCell] = true; }
     }
-    std::unordered_set<int> tmpUSet(vecCellId.begin(), vecCellId.end());
-    vecCellId.assign(tmpUSet.begin(), tmpUSet.end());
     int sameUntil=0;
     int minSize = min(vecCellId.size(),_aretes[areteId].vecIdCellules.size());
     for (;((sameUntil<minSize)&&(vecCellId[sameUntil]==_aretes[areteId].vecIdCellules[sameUntil]));sameUntil++);
     for (int i=sameUntil;i<_aretes[areteId].vecIdCellules.size();i++) {
-        removeFromVector(grillePtr[_aretes[areteId].vecIdCellules[i]]->vecAreteId,areteId);
+        int indexCell = _aretes[areteId].vecIdCellules[i];
+        int lastElem = grillePtr[indexCell]->vecAreteId.size() - 1;
+        int lastElemId = grillePtr[indexCell]->vecAreteId[lastElem];
+        if (lastElemId != areteId) {
+            grillePtr[indexCell]->containAreteId[lastElemId] = grillePtr[indexCell]->containAreteId[areteId];
+            grillePtr[indexCell]->vecAreteId[grillePtr[indexCell]->containAreteId[areteId]] = lastElemId;
+        }
+        grillePtr[indexCell]->containAreteId[areteId] = -1;
+        grillePtr[indexCell]->vecAreteId.pop_back();
     }
     for (int i=sameUntil;i<vecCellId.size();i++) {
-        if (!isInVector(grillePtr[vecCellId[i]]->vecAreteId,areteId)) {
+        if (grillePtr[vecCellId[i]]->containAreteId[areteId] == -1) {
             grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
+            grillePtr[vecCellId[i]]->containAreteId[areteId] = grillePtr[vecCellId[i]]->vecAreteId.size() - 1;
         }
     }
     _aretes[areteId].vecIdCellules.swap(vecCellId);
@@ -2451,5 +2469,37 @@ void Graphe::fillCommonNodeVectors() {
                 commonNodeEdges[index2][index1] = n2;
             }
         }
+    }
+}
+
+void Graphe::addCommonNodeVector(int nodeId) {
+    for (int j=0;j<_noeuds[nodeId].voisins.size()-1;j++) {
+        Noeud* n1 = _noeuds[nodeId].voisins[j];
+        int index1 = _noeuds[nodeId]._aretes[j];
+        for (int k=j+1;k<_noeuds[nodeId].voisins.size();k++) {
+            Noeud* n2 = _noeuds[nodeId].voisins[k];
+            int index2 = _noeuds[nodeId]._aretes[k];
+            commonNodeEdges[index1][index2] = n1;
+            commonNodeEdges[index2][index1] = n2;
+        }
+    }
+}
+
+void Graphe::removeCommonNodeVector(int nodeId) {
+    for (const int& index1 : _noeuds[nodeId]._aretes) {
+        for (const int& index2 : _noeuds[nodeId]._aretes) {
+            commonNodeEdges[index1][index2] = nullptr;
+            commonNodeEdges[index2][index1] = nullptr;
+        }
+    }
+}
+
+void Graphe::printCommonMatrix() {
+    for (int i=0;i<commonNodeEdges.size();i++) {
+        for (int j=0;j<commonNodeEdges.size();j++) {
+            if (commonNodeEdges[i][j] == nullptr) { std::cout << "X "; }
+            else { std::cout << commonNodeEdges[i][j]->_id << " "; }
+        }
+        std::cout << std::endl;
     }
 }

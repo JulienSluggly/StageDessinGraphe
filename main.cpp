@@ -166,7 +166,7 @@ int main() {
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
-	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Connexe: " << G.isGrapheConnected() << std::endl;
+	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << std::endl;
 	G.DEBUG_GRAPHE = true; G.DEBUG_PROGRESS = true;
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
@@ -201,8 +201,8 @@ int main() {
 	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 
-	bool useOpenGL = false;
-	if (useOpenGL) { // OpenGL
+	bool useOpenGL = true;
+	if (useOpenGL) {
 		G.DEBUG_OPENGL = true;
 		std::cout << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;
 		dispOpenGL(G,G.gridWidth,G.gridHeight,useCoordReel);

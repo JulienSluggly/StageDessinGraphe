@@ -328,6 +328,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_BACKSPACE: // CTRL + Z
 			keyPressFunctionNum = 31; singleKeyPress = true;
 			break;
+		case GLFW_KEY_KP_DECIMAL:
+			dragModeOn = !dragModeOn;
+			break;
 		}
 }
 

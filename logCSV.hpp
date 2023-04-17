@@ -113,6 +113,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		Graphe G(nomGraphe);
 		if (!useReel) { G.setupGraphe(fileGraph,fileSlots); }
 		else { G.setupGrapheReel(fileGraph); G.useCoordReel = true; }
+		G.fillCommonNodeVectors();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
 		if (isGenetique) { population = mapGraphPopGen[nomGraphe].first; maxIteration = mapGraphPopGen[nomGraphe].second; }
 		saveResult = true;

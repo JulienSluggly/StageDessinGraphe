@@ -78,7 +78,3 @@ Adapter code aux coord entieres sans emplacement
 
 A FIX RECUIT THREAD SELECTION
 same seed different results ? (race condition a l'improve si egalité)
-
-Ameliorer le recalAreteCelluleReel (remplacer le inVector par un tableau de booleen)
-
-Ameliorer le getScoreCroisement (Tableau 2D des aretes pour savoirs si elles ont un noeud un commun)
