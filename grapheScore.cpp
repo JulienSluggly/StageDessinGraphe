@@ -416,8 +416,9 @@ long Graphe::getScoreCroisementNode(int nodeIndex, int swapIndex) {
 long Graphe::getScoreCroisementNodeGrid(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
     for (const int& index : _noeuds[nodeIndex]._aretes) {
-        std::vector<bool> indexPasseCellule(_aretes.size(),false);
+        if (index != _noeuds[nodeIndex]._aretes[0]) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (const int& index2 : vecId) {
@@ -446,8 +447,9 @@ long Graphe::getScoreCroisementNodeGrid(int nodeIndex) {
 long Graphe::getScoreCroisementNodeGridReel(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
     for (const int& index : _noeuds[nodeIndex]._aretes) {
-        std::vector<bool> indexPasseCellule(_aretes.size(),false);
+        if (index != _noeuds[nodeIndex]._aretes[0]) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (const int& index2 : vecId) {
@@ -478,8 +480,9 @@ long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThr
     else { typeArreteToIgnore = 1; }
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
     for (const int& index : _noeuds[nodeIndex]._aretes) {
-        std::vector<bool> indexPasseCellule(_aretes.size(),false);
+        if (index != _noeuds[nodeIndex]._aretes[0]) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (const int& index2 : vecId) {
@@ -511,8 +514,9 @@ long Graphe::getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThr
 long Graphe::getScoreCroisementNodeGridReelNThread(int nodeIndex, int tid) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
     for (const int& index : _noeuds[nodeIndex]._aretes) {
-        std::vector<bool> indexPasseCellule(_aretes.size(),false);
+        if (index != _noeuds[nodeIndex]._aretes[0]) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (const int& index2 : vecId) {
@@ -545,9 +549,10 @@ long Graphe::getScoreCroisementNodeGridReelNThread(int nodeIndex, int tid) {
 long Graphe::getScoreCroisementNodeGrid(int nodeIndex, int swapIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
     for (const int& index : _noeuds[nodeIndex]._aretes) {
         if (!_aretes[index].contains(swapIndex)) {
-            std::vector<bool> indexPasseCellule(_aretes.size(),false);
+            if (index != _noeuds[nodeIndex]._aretes[0]) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
             for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
                 std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
                 for (const int& index2 : vecId) {
@@ -579,9 +584,10 @@ long Graphe::getScoreCroisementNodeGrid(int nodeIndex, int swapIndex) {
 long Graphe::getScoreCroisementNodeGloutonGrid(int nodeIndex) {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
     for (const int& index : _noeuds[nodeIndex]._aretes) {
         if (_aretes[index].estPlace()) {
-            std::vector<bool> indexPasseCellule(_aretes.size(),false);
+            if (index != _noeuds[nodeIndex]._aretes[0]) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
             for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
                 std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
                 for (const int& index2 : vecId) {
@@ -819,8 +825,9 @@ long Graphe::getNbCroisementDiffGrid() {
     nombreInterIll = 0;
     nombreInterIllSelf = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
     for (int index = 0; index < _aretes.size() - 1; ++index) {
-        std::vector<bool> indexPasseCellule(_aretes.size(),false);
+        if (index != 0) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (const int& index2 : vecId) {

@@ -793,6 +793,11 @@ public:
 
 	void printCommonMatrix();
 
+	// Initialise la grille en fonction de si on utilise des réel ou non.
+	// Enregistre les objets nécéssaires dans la grille.
+	// Applique les parametre custom si besoin
+	void setupGridAndRegistration(std::vector<std::vector<double>> customParam);
+
 };
 
 #endif

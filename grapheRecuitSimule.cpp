@@ -440,8 +440,8 @@ void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,doubl
             if (param.size() > 0) {
                 if (param[0] == 8) { t = param[1]; }
                 else if (param[0] == 9) { cool = param[1]; }
-                else if (param[0] == 10) { coolt = param[1]; }
-                else if (param[0] == 11) { seuil = param[1]; }
+                else if (param[0] == 13) { coolt = param[1]; }
+                else if (param[0] == 14) { seuil = param[1]; }
             }
         }
     }
@@ -571,7 +571,7 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
     applyRerecuitCustomParam(t,cool,coolt,seuil,customParam);
     nombreRecuit= 0;
     if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
-    int numberOfNoUpgrade = 0, maxIter = 2;
+    int numberOfNoUpgrade = 0, maxIter = 10;
     if (iter != -1) { maxIter = iter; }
     long lastCroisement;
     if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
@@ -680,7 +680,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
     applyRerecuitCustomParam(t,cool,coolt,seuil,customParam);
     nombreRecuit= 0;
     if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
-    int numberOfNoUpgrade = 0, maxIter = 2;
+    int numberOfNoUpgrade = 0, maxIter = 10;
     if (iter != -1) { maxIter = iter; }
     long lastCroisement;
     if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }

@@ -735,13 +735,14 @@ void openGLKeyPressFunction(Graphe& G) {
 				auto start = std::chrono::system_clock::now();
 				double timeBest;
 				bool useGrille = G.grillePtr.size() > 0;
-				G.recuitSimule(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,useGrille,false);
+				if (useGrille) { G.reinitGrille(); }
+				G.recuitSimule(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,useGrille);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
 				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
 				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
 				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
-				if (G.grillePtr.size() > 0) { G.reinitGrille(); }
+				if (useGrille) { G.reinitGrille(); }
 			}
 			historiqueOpenGL.clear();
 			break;

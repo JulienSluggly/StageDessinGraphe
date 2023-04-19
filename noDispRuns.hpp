@@ -77,48 +77,12 @@ void customRecuitFlottants() {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
 		std::vector<std::vector<std::vector<double>>> totalRuns;
-		totalRuns.push_back({{12,1.0}});
-		totalRuns.push_back({{12,1.05}});
-		totalRuns.push_back({{12,1.1}});
-		totalRuns.push_back({{12,1.15}});
-		totalRuns.push_back({{12,1.2}});
-		totalRuns.push_back({{12,1.25}});
-		totalRuns.push_back({{12,1.30}});
-		totalRuns.push_back({{12,1.35}});
-		totalRuns.push_back({{12,1.40}});
-		totalRuns.push_back({{12,1.45}});
-		totalRuns.push_back({{12,1.50}});
-		totalRuns.push_back({{12,1.75}});
-		totalRuns.push_back({{12,2.0}});
-		totalRuns.push_back({{12,3.0}});
-		totalRuns.push_back({{12,4.0}});
-		totalRuns.push_back({{12,5.0}});
-		totalRuns.push_back({{12,0.95}});
-		totalRuns.push_back({{12,0.9}});
-		totalRuns.push_back({{12,0.85}});
-		totalRuns.push_back({{12,0.8}});
-		totalRuns.push_back({{12,0.75}});
-		totalRuns.push_back({{12,0.70}});
-		totalRuns.push_back({{12,0.65}});
-		totalRuns.push_back({{12,0.60}});
-		totalRuns.push_back({{12,0.55}});
-		totalRuns.push_back({{12,0.50}});
-		totalRuns.push_back({{12,0.25}});
-		totalRuns.push_back({{12,0.10}});
-		totalRuns.push_back({{12,0.05}});
-
-		totalRuns.push_back({{12,10000.0}});
-		totalRuns.push_back({{12,0.0}});
-		totalRuns.push_back({{12,-10000}});
-		totalRuns.push_back({{12,55555555555}});
-		totalRuns.push_back({{12,-55555555555}});
 		for (int i=0;i<totalRuns.size();i++) {
 			if (i%nthreads == tid) {
-				generateCSV(-1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",totalRuns[i],true,tid);
 				generateCSV(-1,"OGDFFMMM","Rerecuit Simule Grille TME",nomFichierGraph,"",totalRuns[i],true,tid);
-				generateCSV(-1,"OGDFFMMM","Rerecuit Simule Grille TME Cool",nomFichierGraph,"",totalRuns[i],true,tid);
 			}
 		}
+		generateCSV(-1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
 		//generateCSV(1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
 		printf("Thread: %d done.\n",tid);
 	}
@@ -128,7 +92,7 @@ void customRecuitFlottants() {
 void customRecuitFlottantsAllRuns() {
 	fillLogsVector();
 	std::vector<std::string> graphVector;
-	for (int i = 1; i <= 12; i++) {
+	for (int i = 5; i <= 12; i++) {
 		graphVector.push_back("graph-" + std::to_string(i) + "-input");
 	}
 	int nthreads, tid;
@@ -141,13 +105,14 @@ void customRecuitFlottantsAllRuns() {
 		}
 		int indexKey = 0;
 		std::vector<std::vector<std::vector<double>>> totalRuns;
+		totalRuns.push_back({{9,0.9999945},{13,1.5}});
+		totalRuns.push_back({{9,0.999999},{13,1.5}});
+		totalRuns.push_back({{9,0.99999945},{13,1.5}});
 		for (const std::string& nomFichierGraph : graphVector) {
 			if (indexKey%nthreads == tid) {
 				for (int i=0;i<totalRuns.size();i++) {
-					generateCSV(-1,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",totalRuns[i],true,tid);
+					generateCSV(-1,"OGDFFMMM","Rerecuit Simule Grille TME",nomFichierGraph,"",totalRuns[i],true,tid);
 				}
-				generateCSV(-1,"OGDFFMMM","Recuit Simule Grille BOX",nomFichierGraph,"",{},true,tid);
-				generateCSV(-1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
 			}
 			indexKey++;
 		}

@@ -160,33 +160,8 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		if (useReel) { G.translateGrapheToOriginReel(-1); }
 		if (updateScore) { G.initGraphAndNodeScoresAndCrossings(); }
 		if (needTriangulation) { G.triangulationDelaunay(); }
-		if (needGrille) {
-			bool found = false;
-			if (customParam.size() > 0) {
-				for (std::vector<double>& param : customParam) {
-					if (param.size() > 0) {
-						if (param[0] == 10) {
-							int row = (int)(ceil(sqrt(G._noeuds.size()))*param[1]);
-							row = max(1,row);
-							G.initGrille(row,row);
-							G.registerSlotsAndEdgesInGrid();
-							found = true;
-						}
-						else if (param[0] == 11) {
-							int row = (int)(ceil(sqrt(G._aretes.size()))*param[1]);
-							row = max(1,row);
-							G.initGrille(row,row);
-							G.registerSlotsAndEdgesInGrid();
-							found = true;
-						}
-					}
-				}
-			}
-			if (!found) {
-				if (useReel) { G.initGrilleReel(); G.registerNodesAndEdgesInGrid(); }
-				else { G.initGrille(); G.registerSlotsAndEdgesInGrid(); }
-			}
-		}
+		if (needGrille) { G.setupGridAndRegistration(customParam); }
+		
 		auto finPlacement = std::chrono::system_clock::now();
 		if (methodePlacementName != "Aucun") { if (!useReel) { placementInterVector.push_back(G.getNbCroisementDiff()); } else { placementInterVector.push_back(G.getNbCroisementDiffReel()); } }
 

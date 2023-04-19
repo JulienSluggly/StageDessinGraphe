@@ -145,13 +145,13 @@ int main() {
 	if (useProfiler) { ProfilerStart(cheminProfile.c_str()); }
 #endif
 	initCPUSet();
-	//initRandomSeed();
-	initSameSeed();
+	initRandomSeed();
+	//initSameSeed();
 	//initSameSeedIncThread();
-	//customRecuitFlottants(); return 0;
+	//customRecuitFlottantsAllRuns(); return 0;
 	bool useCoordReel = true;
-	std::string nomFichierGraph = "graph-10-input";
-	std::string nomFichierSlots = "3X-1-input-slots";
+	std::string nomFichierGraph = "graph-3-input";
+	std::string nomFichierSlots = "3X-3-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
@@ -165,7 +165,7 @@ int main() {
 	G.fillCommonNodeVectors();
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
-	if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
+	//if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << std::endl;
 	G.DEBUG_GRAPHE = true; G.DEBUG_PROGRESS = true;
 	auto start = std::chrono::system_clock::now();
@@ -183,19 +183,21 @@ int main() {
 	//G.forcePlacement();
 	//G.stressMajorizationReel();
 	G.translateGrapheToOriginReel(-1);
-	G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
+	G.setupGridAndRegistration({});
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 	auto finPlacement = std::chrono::system_clock::now();
-	//G.initGrille(); G.registerSlotsAndEdgesInGrid(); G.recuitSimule(tempsBest,start);
-	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,false,false);
+	//G.recuitSimule(tempsBest,start);
+	//G.triangulationDelaunay();
+	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,3);
+	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,4,true);
-	G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
-	//G.recuitSimuleReel(tempsBest,start,{{}},0.99999,0.01,0.0001,1,0,2,true);
-	//G.recuitSimuleReelThreadSelection(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,true);
-	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
+	//G.recuitSimuleReel(tempsBest,start,{{9,0.99999},{13,1.5}},0.99999,100.0,0.0001,1,0,2,true);
+	//G.recuitSimuleReel(tempsBest,start,{{13,1.5}},0.99999,0.01,0.0001,1,0,2,true);
+	//G.recuitSimuleReelThreadSelection(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,true);/
+	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
 	//G.recuitSimuleReelThreadPool(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
 	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
-	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
+	G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{9,0.99999},{13,1.5}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
 	//G.afficherInfo();
 	stopGprofProfiler(useProfiler);

@@ -450,6 +450,7 @@ void Graphe::clearGrille() {
 void Graphe::clearGrilleReel() {
     for (int i=0;i<grillePtr.size();i++) {
         grillePtr[i]->vecAreteId.clear();
+        grillePtr[i]->containAreteId.assign(grillePtr[i]->containAreteId.size(), -1);
     }
     for (int i=0;i<_aretes.size();i++) {
         _aretes[i].vecIdCellules.clear();
@@ -2502,4 +2503,18 @@ void Graphe::printCommonMatrix() {
         }
         std::cout << std::endl;
     }
+}
+
+void Graphe::setupGridAndRegistration(std::vector<std::vector<double>> customParam) {
+    int row = (int)ceil(sqrt(_aretes.size())*1.5);
+    if (customParam.size() > 0) {
+        for (std::vector<double>& param : customParam) {
+            if (param.size() > 0) {
+                if (param[0] == 10) { row = max(1,(int)(ceil(sqrt(_noeuds.size()))*param[1])); }
+                else if (param[0] == 11) { row = max(1,(int)(ceil(sqrt(_aretes.size()))*param[1])); }
+            }
+        }
+    }
+    if (useCoordReel) { initGrilleReel(row,row); registerNodesAndEdgesInGrid(); }
+    else { initGrille(row,row); registerSlotsAndEdgesInGrid(); }
 }
