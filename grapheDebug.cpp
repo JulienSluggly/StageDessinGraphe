@@ -520,6 +520,7 @@ int Graphe::debugSelfLoop(bool display, std::string nom) {
 
 int Graphe::debugEverything(bool displayOther, bool displaySelf) {
     int total = 0;
+    #if defined(DEBUG)
     if (displaySelf) { std::cout << "Debut debug arete double\n"; }
     total += afficherAreteDouble(displayOther);
     if (!useCoordReel) {
@@ -567,5 +568,6 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
     if (displaySelf) { std::cout << "Debug Self Loop\n"; }
     total += debugSelfLoop(displayOther);
     if (displaySelf) { std::cout << "Debug fini\n"; }
+    #endif
     return total;
 }

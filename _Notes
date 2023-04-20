@@ -82,3 +82,5 @@ same seed different results ? (race condition a l'improve si egalité)
 Remplacer les variables debug par des define.
 
 Faire une version recuit optimisée sans aucun check de parametre
+
+Sauvegarder les amelioration avec timestamps

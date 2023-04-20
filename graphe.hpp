@@ -59,10 +59,6 @@ public:
 	int maxVoisin = -1; // Nombre maximum de voisin d'un noeud dans le graphe. Pas forcément à jour.
 	double avgVoisin = -1; // Nombre moyen de voisin d'un noeud dans le graphe. Pas forcément à jour.
 
-	bool DEBUG_GRAPHE = false; // Affiche uniquement les informations importantes
-	bool DEBUG_PROGRESS = false; // Affiche des informations pendant les itérations
-	bool DEBUG_OPENGL = false; // Utile pour les affichage des intersections illégales dans openGL
-
 	bool RECUIT_LIMIT_3600 = true; // Indique si on limite le temps d'un rerecuit a 3600 secondes.
 
 	bool grille_with_move = false; // Indique si on a initialisé la grille en déplacant le graphe.
@@ -80,6 +76,8 @@ public:
 	std::vector<double> recuitDistanceAll;
 	std::vector<std::pair<int,double>> recuitDistanceUpgrade;
 	std::vector<std::pair<int,double>> recuitDistanceUpgradeGlobal;
+
+	std::vector<std::pair<long,double>> recuitScoreTemps;
 
 	// Thread data:
 	bool thread_IsRecuitFinished = true;
@@ -234,7 +232,7 @@ public:
 	int calculImproveReelThreadPool(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
 
 	// Modifie les parametres du rerecuit en fonction des customParam
-	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam);
+	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,bool adaptCool,std::vector<std::vector<double>>& customParam);
 
 	// Modifie les parametres du recuit en fonction des customParam
 	void applyRecuitCustomParam(double& coeffImprove,std::vector<std::vector<double>>& customParam);
@@ -272,7 +270,7 @@ public:
 
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimule(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+	void rerecuitSimule(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false, bool firstWaveImp=false, bool adaptCool=false);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection en coordonnée flottantes
 	// Met à jour la variable nombreCroisement du graphe.
@@ -293,7 +291,7 @@ public:
 
 	// Applique le recuit simulé en coordonnée flottantes plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimuleReel(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+	void rerecuitSimuleReel(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false, bool firstWaveImp=false, bool adaptCool=false);
 
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.

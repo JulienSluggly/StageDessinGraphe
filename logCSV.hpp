@@ -85,6 +85,17 @@ void saveGrapheDistanceCSV(Graphe& G, int tid) {
 	}
 }
 
+void saveGrapheScoreTempsCSV(Graphe& G, int tid) {
+	if (G.recuitScoreTemps.size() > 0) {
+		std::string nomFichier = chemin + "/resultats/" + G.nomGraphe + to_string(tid) + "-recuitScoreTemps.csv";
+		std::ofstream resultats(nomFichier, std::ios_base::app);
+		for (int i=0;i<G.recuitScoreTemps.size();i++) {
+			resultats << i << "," << G.recuitScoreTemps[i].first << "," << G.recuitScoreTemps[i].second << std::endl;
+		}
+		resultats.close();
+	}
+}
+
 void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0) {
 	string nomGraphe = fileGraph;
 	std::reverse(nomGraphe.begin(), nomGraphe.end());
@@ -96,7 +107,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	bool isRecuit = containsString(methodeAlgoName,"Recuit");
 	bool needTriangulation = containsString(methodeAlgoName,"TRE");
 	bool needGrille = containsString(methodeAlgoName,"Grille");
-	double moyenneCroisement, medianCroisement;
+	double moyenneCroisement, medianCroisement, ecartTypeCroisement;
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0, debugValue=-1;
 	std::vector<int> croisementVector, edgeCostVector;
@@ -161,7 +172,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		if (updateScore) { G.initGraphAndNodeScoresAndCrossings(); }
 		if (needTriangulation) { G.triangulationDelaunay(); }
 		if (needGrille) { G.setupGridAndRegistration(customParam); }
-		
+
 		auto finPlacement = std::chrono::system_clock::now();
 		if (methodePlacementName != "Aucun") { if (!useReel) { placementInterVector.push_back(G.getNbCroisementDiff()); } else { placementInterVector.push_back(G.getNbCroisementDiffReel()); } }
 
@@ -170,6 +181,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else if (methodeAlgoName == "Recuit Simule Grille TME") { if (!useReel) { G.recuitSimule(tempsBest,start,customParam); } else { G.recuitSimuleReel(tempsBest,start,customParam); } }
 		else if (methodeAlgoName == "Recuit Simule Grille BOX") { if (useReel) { G.recuitSimuleReel(tempsBest,start,customParam,0.99999,100.0,0.0001,1,0,4,true); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME")  { if (!useReel) { G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam); } else { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam); } }
+		else if (methodeAlgoName == "Rerecuit Simule Grille TME Opti")  { if (!useReel) { G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,true,true,true); } else { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,true,true,true); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille BOX") { if (useReel) { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,100.0,0.0001,1,0,4,true,false,false); } }
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Temp") G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.99999,0.99,0.1);
 		else if (methodeAlgoName == "Rerecuit Simule Grille TME Cool") if (!useReel) { G.rerecuitSimule(tempsBest,nombreRecuit,start,customParam,-1,0.999999); } else { G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,customParam,-1,0.999999); }
@@ -192,6 +204,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 
 		auto end = std::chrono::system_clock::now();
 		saveGrapheDistanceCSV(G,tid);
+		saveGrapheScoreTempsCSV(G,tid);
 		std::chrono::duration<double> secondsTotal = end - start;
 		std::chrono::duration<double> secondsPlacement = finPlacement - start;
 		secondsTotalExec = end - totalStart;
@@ -218,6 +231,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		meilleurCroisement = croisementVector[0];
 		moyenneCroisement = moyenneVector(croisementVector);
 		medianCroisement = medianeVector(croisementVector);
+		ecartTypeCroisement = ecartTypeVector(croisementVector,moyenneCroisement);
 		tempsPlacementMoyenne = moyenneVector(tempsPlacementVector);
 		tempsExecMoyenne = moyenneVector(tempExecVector);
 		tempsBestMoyenne = moyenneVector(tempBestVector);
@@ -251,6 +265,8 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		else { resultats << std::setprecision(1) << moyenneCroisement << ","; } // MOYENNE SCORE DES RUNS
 		if (medianCroisement > 100) { resultats << std::setprecision(0) << medianCroisement << ","; } // MEDIANE SCORE DES RUNS
 		else { resultats << std::setprecision(1) << medianCroisement << ","; } // MEDIANE SCORE DES RUNS
+		if (ecartTypeCroisement > 100) { resultats << std::setprecision(0) << ecartTypeCroisement << ","; } // ECART TYPE SCORE DES RUNS
+		else { resultats << std::setprecision(1) << ecartTypeCroisement << ","; } // ECART TYPE SCORE DES RUNS
 		resultats << placementInterMoyenne << ","; // MOYENNE INTERSECTION APRES PLACEMENT DES RUNS
 		resultats << std::setprecision(0) << tempsPlacementMoyenne << "," << tempsBestMoyenne << "," << tempsExecMoyenne; // TEMPS MOYEN (PLACEMENT, MEILLEUR RESULTATS ALGO, TOTAL ALGO) DES RUNS
 		if (isGenetique) { resultats << std::setprecision(0) << "," << population << "," << maxIteration << "," << bestIterationMoyenne << "," << lastIterationMoyenne; } // GENETIQUE POPULATION, MAX ITERATION, BEST ITERATION, LAST ITERATION

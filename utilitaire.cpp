@@ -132,24 +132,6 @@ bool isInVector(std::vector<std::string>& vectorString, std::string x) {
     return false;
 }
 
-double moyenneVector(std::vector<int>& vec) {
-	double moyenne = 0.0;
-	for (const int& elem : vec) {
-		moyenne += (double)elem;
-	}
-	moyenne = moyenne / (double)vec.size();
-	return moyenne;
-}
-
-double moyenneVector(std::vector<double>& vec) {
-	double moyenne = 0.0;
-	for (const double& elem : vec) {
-		moyenne += elem;
-	}
-	moyenne = moyenne / (double)vec.size();
-	return moyenne;
-}
-
 // Le vecteur doit etre trie avant l'appel de cette fonction
 long medianeVector(std::vector<int> &vec) {
     int taille = vec.size();

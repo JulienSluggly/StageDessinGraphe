@@ -22,14 +22,30 @@ bool isInVector(std::vector<std::string>& vectorString, std::string x);
 // Enleve x du vecteur vectorInt
 void removeFromVector(std::vector<int>& vectorInt, int x);
 
-double moyenneVector(std::vector<int>& vec);
-
-double moyenneVector(std::vector<double>& vec);
+template<typename T>
+double moyenneVector(std::vector<T>& vec) {
+	double moyenne = 0.0;
+	for (const double& elem : vec) {
+		moyenne += elem;
+	}
+	moyenne = moyenne / (double)vec.size();
+	return moyenne;
+}
 
 // Le vecteur doit etre trie avant l'appel de cette fonction
 long medianeVector(std::vector<int> &vec);
 
 int lowestInVector(std::vector<int> &vec);
+
+template<typename T>
+double ecartTypeVector(const std::vector<T>& vec, double moyenne) {
+    double variance = 0.0;
+    for (const auto& elem : vec) {
+        variance += (elem - moyenne)*(elem - moyenne);
+    }
+    variance /= vec.size();
+    return std::sqrt(variance);
+}
 
 // Fonction de sort par x
 bool comparePtrEmplacement(Emplacement* a, Emplacement* b);

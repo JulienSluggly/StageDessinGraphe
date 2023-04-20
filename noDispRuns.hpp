@@ -92,7 +92,7 @@ void customRecuitFlottants() {
 void customRecuitFlottantsAllRuns() {
 	fillLogsVector();
 	std::vector<std::string> graphVector;
-	for (int i = 5; i <= 12; i++) {
+	for (int i = 1; i <= 12; i++) {
 		graphVector.push_back("graph-" + std::to_string(i) + "-input");
 	}
 	int nthreads, tid;
@@ -346,8 +346,9 @@ void allRunsByOnFolder() {
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			if (tid == (indexKey % nthreads)) {
 				for (int numeroParam=0;numeroParam<totalRuns.size();numeroParam++) {
-					generateCSV(-1, "Stress Dyn Stress", "Rerecuit Simule Grille TME Custom", dirEntry.path().string(), slots,totalRuns[numeroParam],tid);
+					//generateCSV(-1, "Stress Dyn Stress", "Rerecuit Simule Grille TME Custom", dirEntry.path().string(), slots,totalRuns[numeroParam],tid);
 				}
+				generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{},true,tid);
 			}
 			indexKey++;
 		}

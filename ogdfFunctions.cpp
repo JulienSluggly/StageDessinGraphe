@@ -534,7 +534,7 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 	int nbIter = 0;
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotal = end - start;
-	while (nbIter < 100 && secondsTotal.count() < 60) {
+	while (nbIter < 20 && secondsTotal.count() < 10) {
 		fmme.call(ogdfGA);
 		nbCrossing = ogdfNumberOfCrossings(ogdfGA);
 		if (nbCrossing < bestNbCrossings) {

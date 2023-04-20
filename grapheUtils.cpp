@@ -133,7 +133,9 @@ int Graphe::nbAPlace() {
 void Graphe::generateMoreEmplacement(int n) {
     int nbTotal = gridWidth * gridHeight;
     if (n * _emplacements.size() > nbTotal) {
-        if (DEBUG_GRAPHE) std::cout << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacements.size() << std::endl;
+        #if defined(DEBUG_GRAPHE)
+            std::cout << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacements.size() << std::endl;
+        #endif
     }
     else {
         int nbAjout = (n - 1) * _emplacements.size();
@@ -404,7 +406,9 @@ int Graphe::getAreteFromTwoNodes(int nodeId1, int nodeId2) {
 }
 
 void Graphe::triangulationDelaunay() {
-    if (DEBUG_GRAPHE) std::cout << "Debut triangulation.\n";
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Debut triangulation.\n";
+    #endif
     std::vector<Emplacement*> empPtrVec;
     for (int i=0;i<_emplacements.size();i++) {
         empPtrVec.push_back(&_emplacements[i]);
@@ -425,7 +429,9 @@ void Graphe::triangulationDelaunay() {
         e2->voisinsDelaunay->push_back(e1->_id);
     }
     isCarteSetUp = true;
-    if (DEBUG_GRAPHE) std::cout << "Triangulation delaunay fini.\n";
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Triangulation delaunay fini.\n";
+    #endif
 }
 
 void Graphe::reinitGrille() {
@@ -684,10 +690,14 @@ void Graphe::registerSlotsInGrid() {
 }
 
 void Graphe::registerSlotsAndEdgesInGrid() {
-    if (DEBUG_GRAPHE) std::cout << "Remplissage de la grille.\n";
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Remplissage de la grille.\n";
+    #endif
     registerSlotsInGrid();
     registerEdgesInGrid();
-    if (DEBUG_GRAPHE) std::cout << "Fin remplissage de la grille.\n";
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Fin remplissage de la grille.\n";
+    #endif
 }
 
 void Graphe::registerEdgesInGrid() {
@@ -824,10 +834,14 @@ void Graphe::registerEdgesInGrid() {
 }
 
 void Graphe::registerNodesAndEdgesInGrid() {
-    if (DEBUG_GRAPHE) std::cout << "Remplissage de la grille.\n";
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Remplissage de la grille.\n";
+    #endif
     registerNodesInGrid();
     registerEdgesInGridReel();
-    if (DEBUG_GRAPHE) std::cout << "Fin remplissage de la grille.\n";
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Fin remplissage de la grille.\n";
+    #endif
 }
 
 void Graphe::registerNodesInGrid() {

@@ -13,7 +13,9 @@ void Graphe::tirageCoordReel(std::pair<double,double>& coord) {
 // Place les noeuds aleatoirement sur les emplacements disponibles.
 // Ne tient pas a jour le score des noeuds ou du graphe.
 void Graphe::placementAleatoire() {
-    if (DEBUG_GRAPHE) std::cout << "Placement aleatoire" << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Placement aleatoire" << std::endl;
+    #endif
     for (int i = 0; i < _noeuds.size(); ++i) {
         int emplacementId = generateRand(_emplacements.size() - 1);
         while (!_emplacements[emplacementId].estDisponible()) {
@@ -27,7 +29,9 @@ void Graphe::placementAleatoire() {
 }
 
 void Graphe::placementAleatoireReel() {
-    if (DEBUG_GRAPHE) std::cout << "Placement aleatoire coord reel" << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Placement aleatoire coord reel" << std::endl;
+    #endif
     if ((gridWidth == 10)&&(gridHeight == 10)) {
         gridWidth = std::min((int)_noeuds.size()*2,6000);
         gridHeight = gridWidth;
@@ -48,7 +52,9 @@ void Graphe::placementAleatoireReel() {
 // Place les noeuds sur l'emplacement de meme ID
 // Ne tient pas a jour le score des noeuds ou du graphe.
 void Graphe::placementFixe() {
-    if (DEBUG_GRAPHE) std::cout << "Placement fixe" << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Placement fixe" << std::endl;
+    #endif
     for (int i=0;i<_noeuds.size();i++) {
         _noeuds[i].setEmplacement(&_emplacements[i]);
     }
@@ -740,11 +746,11 @@ void Graphe::completeBasicGloutonScoreGrille(std::vector<int>& vecNode, int tail
     isIntersectionVectorUpdated = false;
 }
 
-void Graphe::completePlacementAleatoire()
-{
-    if (DEBUG_GRAPHE) std::cout << "Placement aleatoire" << std::endl;
-    for (int i = 0; i < _noeuds.size(); ++i)
-    {
+void Graphe::completePlacementAleatoire() {
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Placement aleatoire" << std::endl;
+    #endif
+    for (int i = 0; i < _noeuds.size(); ++i) {
         if (_noeuds[i]._emplacement == nullptr) {
             int emplacementId = generateRand(_emplacements.size() - 1);
             while (!_emplacements[emplacementId].estDisponible()) {
@@ -779,10 +785,10 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
     }
     if (_sm.G == nullptr) { _sm.G = this; }
     bool useGrille = _emplacements.size() >= _noeuds.size() * 2;
-    if (DEBUG_GRAPHE) {
+    #if defined(DEBUG_GRAPHE)
         if (useGrille) { std::cout << "Debut Stress Majorization avec grille.\n"; }
         else { std::cout << "Debut Stress Majorization sans grille.\n"; }
-    }
+    #endif
     if (useGrille) {
         _sm.m_useGrille = true;
         initGrilleCarre();
@@ -817,15 +823,21 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
         _sm.runAlgoDynDichStress();
     }
     if (useGrille) { deleteGrille(); }
-    if (DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Fin Stress Majorization\n";
+    #endif
 }
 
 void Graphe::stressMajorizationReel() {
     _sm.G = this;
     if ((_noeuds[0]._xreel == -12345)&&(_noeuds[0]._yreel == -12345)) { placementAleatoireReel(); }
-    if (DEBUG_GRAPHE) { std::cout << "Debut Stress Majorization Reel.\n"; }
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Debut Stress Majorization Reel.\n";
+    #endif
     _sm.runAlgoReel();
-    if (DEBUG_GRAPHE) std::cout << "Fin Stress Majorization\n";
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Fin Stress Majorization\n";
+    #endif
 }
 
 void Graphe::stepStressMajorization(std::vector<std::vector<double>> customParam, int edgeCost) {

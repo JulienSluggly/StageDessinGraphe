@@ -434,7 +434,12 @@ int Graphe::calculImproveReelThreadPool(int nodeId,std::pair<double,double>& ran
     return thread_tempNewScore - scoreNode;
 }
 
-void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,std::vector<std::vector<double>>& customParam) {
+void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil, bool adaptCool,std::vector<std::vector<double>>& customParam) {
+    if (adaptCool) {
+        if (_noeuds.size() < 30) { cool = 0.9999945; }
+        else if (_noeuds.size() < 100) { cool = 0.999999; }
+        else { cool = 0.99999945; }
+    }
     if (customParam.size() > 0) {
         for (std::vector<double>& param : customParam) {
             if (param.size() > 0) {
@@ -509,7 +514,9 @@ void Graphe::recuitSimule(double &timeBest, std::chrono::time_point<std::chrono:
     else { nbCroisement = getNbCroisement(); }
     long bestCroisement = nbCroisement;
     calculDelaiRefroidissement(delay,customParam,0);
-    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    #endif
     int nodeId, slotId, idSwappedNode, improve;
     bool swapped;
     Emplacement* oldEmplacement;
@@ -529,7 +536,9 @@ void Graphe::recuitSimule(double &timeBest, std::chrono::time_point<std::chrono:
                     bestCroisement = nbCroisement;
                     saveBestResultRecuit(bestResultVector,bestResultGraphe,useScore,useGrille);
                     bestEnd = std::chrono::system_clock::now();
-                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                    #if defined(DEBUG_GRAPHE_PROGRESS)
+                        std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                    #endif
                 }
             }
             else {
@@ -561,16 +570,20 @@ void Graphe::recuitSimule(double &timeBest, std::chrono::time_point<std::chrono:
     updateGraphDataRecuit(useScore,useGrille);
     std::chrono::duration<double> secondsBest = bestEnd - start;
     timeBest = secondsBest.count();
-    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+    #endif
 }
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time_point<std::chrono::system_clock> start,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time_point<std::chrono::system_clock> start,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit, bool firstWaveImp, bool adaptCool) {
     auto end = start;
-    applyRerecuitCustomParam(t,cool,coolt,seuil,customParam);
+    applyRerecuitCustomParam(t,cool,coolt,seuil,adaptCool,customParam);
     nombreRecuit= 0;
-    if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
+    #endif
     int numberOfNoUpgrade = 0, maxIter = 10;
     if (iter != -1) { maxIter = iter; }
     long lastCroisement;
@@ -580,12 +593,16 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
     double recuitTimeBest = -1.0;
     auto totalEnd = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
+    double startingTemp = t;
+    if (firstWaveImp) { t = 0.05; }
     while ((numberOfNoUpgrade < maxIter)&&(noLimit||secondsTotalExec.count() < 3600)) {
         if (useGrille) { if (i>1) { reinitGrille(); } }
-        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
+        #if defined(DEBUG_GRAPHE)
+            std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
+        #endif
         nombreRecuit++;
         recuitSimule(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore, noLimit);
-        t *= coolt;
+        if ((firstWaveImp)&&(i==1)) { t = startingTemp; }
         if (iter != -1) { numberOfNoUpgrade++; }
         else {
             long newCroisement;
@@ -600,6 +617,7 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
             }
         }
         i++;
+        t *= coolt;
         totalEnd = std::chrono::system_clock::now();
         secondsTotalExec = totalEnd - start;
     }
@@ -622,7 +640,9 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
     applyRecuitCustomParam(coeffImprove,customParam);
     calculDelaiRefroidissement(delay,customParam,0);
     setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
-    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    #endif
     int nodeId, idSwappedNode, improve;
     std::pair<double,double> randCoord;
     std::chrono::duration<double> secondsTotal = end - start;
@@ -643,7 +663,13 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
                     bestCroisement = nbCroisement;
                     saveBestResultRecuitReel(bestResultVector);
                     bestEnd = std::chrono::system_clock::now();
-                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                    
+                    std::chrono::duration<double> tmpBestTime = bestEnd - start;
+                    recuitScoreTemps.push_back(make_pair(bestCroisement,tmpBestTime.count()));
+                    
+                    #if defined(DEBUG_GRAPHE_PROGRESS)
+                        std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                    #endif
                 }
             }
             else {
@@ -670,16 +696,20 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
     updateGraphDataRecuit(useScore,useGrille);
     std::chrono::duration<double> secondsBest = bestEnd - start;
     timeBest = secondsBest.count();
-    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+    #endif
 }
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::time_point<std::chrono::system_clock> start,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::time_point<std::chrono::system_clock> start,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit, bool firstWaveImp, bool adaptCool) {
     auto end = start;
-    applyRerecuitCustomParam(t,cool,coolt,seuil,customParam);
+    applyRerecuitCustomParam(t,cool,coolt,seuil,adaptCool,customParam);
     nombreRecuit= 0;
-    if (DEBUG_GRAPHE) std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
+    #endif
     int numberOfNoUpgrade = 0, maxIter = 10;
     if (iter != -1) { maxIter = iter; }
     long lastCroisement;
@@ -689,12 +719,16 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
     double recuitTimeBest = -1.0;
     auto totalEnd = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
+    double startingTemp = t;
+    if (firstWaveImp) { t = 0.05; }
     while ((numberOfNoUpgrade < maxIter)&&(noLimit||secondsTotalExec.count() < 3600)) {
         if (useGrille) { if (i>1) { reinitGrilleReel(); } }
-        if (DEBUG_GRAPHE) std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
+        #if defined(DEBUG_GRAPHE)
+            std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
+        #endif
         nombreRecuit++;
         recuitSimuleReel(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore,noLimit);
-        t *= coolt;
+        if ((firstWaveImp)&&(i==1)) { t = startingTemp; }
         if (iter != -1) { numberOfNoUpgrade++; }
         else {
             long newCroisement;
@@ -710,6 +744,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
             }
         }
         i++;
+        t *= coolt;
         totalEnd = std::chrono::system_clock::now();
         secondsTotalExec = totalEnd - start;
     }
@@ -731,7 +766,9 @@ void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<st
     applyRecuitCustomParam(coeffImprove,customParam);
     calculDelaiRefroidissement(delay,customParam,0);
     setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
-    if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+    #endif
     int nodeId, idSwappedNode, improve;
     std::pair<double,double> randCoord;
     std::chrono::duration<double> secondsTotal = end - start;
@@ -748,7 +785,9 @@ void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<st
                     bestCroisement = nbCroisement;
                     saveBestResultRecuitReel(bestResultVector);
                     bestEnd = std::chrono::system_clock::now();
-                    if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                    #if defined(DEBUG_GRAPHE_PROGRESS)
+                        std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                    #endif
                 }
             }
             else {
@@ -771,7 +810,9 @@ void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<st
     updateGraphDataRecuit(useScore,useGrille);
     std::chrono::duration<double> secondsBest = bestEnd - start;
     timeBest = secondsBest.count();
-    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+    #endif
 }
 
 void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
@@ -792,7 +833,9 @@ void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_poin
             applyRecuitCustomParam(coeffImprove,customParam);
             calculDelaiRefroidissement(delay,customParam,0);
             setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
-            if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+            #if defined(DEBUG_GRAPHE)
+                std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+            #endif
             int nodeId, idSwappedNode, improve;
             std::pair<double,double> randCoord;
             std::chrono::duration<double> secondsTotal = end - start;
@@ -809,7 +852,9 @@ void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_poin
                             bestCroisement = nbCroisement;
                             saveBestResultRecuitReel(bestResultVector);
                             bestEnd = std::chrono::system_clock::now();
-                            if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                            #if defined(DEBUG_GRAPHE_PROGRESS)
+                                std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                            #endif
                         }
                     }
                     else {
@@ -832,7 +877,9 @@ void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_poin
             updateGraphDataRecuit(useScore,useGrille);
             std::chrono::duration<double> secondsBest = bestEnd - start;
             timeBest = secondsBest.count();
-            if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+            #if defined(DEBUG_GRAPHE)
+                std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+            #endif
             std::cout << "Temps passe: " << tempsPasseTmp << std::endl;
             thread_IsRecuitFinished = true;
             #pragma omp barrier
@@ -875,7 +922,9 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
             applyRecuitCustomParam(coeffImprove,customParam);
             calculDelaiRefroidissement(delay,customParam,0);
             setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
-            if (DEBUG_GRAPHE) std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+            #if defined(DEBUG_GRAPHE)
+                std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+            #endif
             int idSwappedNode, improve;
             std::chrono::duration<double> secondsTotal = end - start;
             for (iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
@@ -900,7 +949,9 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
                             bestCroisement = nbCroisement;
                             saveBestResultRecuitReel(bestResultVector);
                             bestEnd = std::chrono::system_clock::now();
-                            if (DEBUG_PROGRESS) std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                            #if defined(DEBUG_GRAPHE_PROGRESS)
+                                std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                            #endif
                         }
                     }
                     else {
@@ -923,7 +974,9 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
             updateGraphDataRecuit(useScore,useGrille);
             std::chrono::duration<double> secondsBest = bestEnd - start;
             timeBest = secondsBest.count();
-            if (DEBUG_GRAPHE) std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+            #if defined(DEBUG_GRAPHE)
+                std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+            #endif
             thread_IsRecuitFinished = true;
             #pragma omp barrier
         }
@@ -1015,5 +1068,7 @@ void Graphe::bestDeplacement() {
     isNombreCroisementUpdated = true;
     isNodeScoreUpdated = false;
     isIntersectionVectorUpdated = false;
-    if (DEBUG_GRAPHE) std::cout << "Meilleur resultat de l'algo meilleur deplacement: " << nbIntersection << std::endl;
+    #if defined(DEBUG_GRAPHE)
+        std::cout << "Meilleur resultat de l'algo meilleur deplacement: " << nbIntersection << std::endl;
+    #endif
 }

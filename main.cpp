@@ -24,7 +24,7 @@
 #endif
 
 void initCPUSet() {
-	omp_set_nested(0);
+	omp_set_nested(1);
     int num_threads = ::omp_get_max_threads();
     CPU_ZERO(&cpuset);
     for (int i = 0; i < num_threads; i++) {
@@ -73,7 +73,6 @@ void runFuncOnFolder() {
 			G.writeToJsonCleanGraphe(output);
 		}
 		std::cout << dirEntry.path().string() << " Grid" << std::endl;
-		G.DEBUG_GRAPHE = true;
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 		std::cout << "Noeud: " << G._noeuds.size() << " Arete: " << G._aretes.size() << std::endl;
@@ -92,7 +91,6 @@ void runFuncOnAllGraphs() {
 		std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 		G.setupGraphe(nomFichierGraph,nomFichierSlots);
-		G.DEBUG_GRAPHE = true;
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 		ogdfOther(G);
@@ -117,7 +115,6 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 			std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 			G.setupGraphe(nomFichierGraph,nomFichierSlots);
-			G.DEBUG_GRAPHE = true;
 			auto start = std::chrono::system_clock::now();
 			double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 			std::cout << "Moyenne: " << G.distMoyNTirage(1000000) << std::endl;
@@ -148,7 +145,7 @@ int main() {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
-	//customRecuitFlottantsAllRuns(); return 0;
+	allRunsByOnFolder(); return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-3-input";
 	std::string nomFichierSlots = "3X-3-input-slots";
@@ -167,7 +164,6 @@ int main() {
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	//if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
 	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << std::endl;
-	G.DEBUG_GRAPHE = true; G.DEBUG_PROGRESS = true;
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
@@ -203,11 +199,13 @@ int main() {
 	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 
+	#ifdef OPENGL_INSTALLED
 	bool useOpenGL = true;
 	if (useOpenGL) {
-		G.DEBUG_OPENGL = true;
 		std::cout << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;
 		dispOpenGL(G,G.gridWidth,G.gridHeight,useCoordReel);
 	}
+	#endif
+
 	return 0;
 }
