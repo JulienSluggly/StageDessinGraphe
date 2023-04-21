@@ -602,6 +602,7 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
         #endif
         nombreRecuit++;
         recuitSimule(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore, noLimit);
+        t *= coolt;
         if ((firstWaveImp)&&(i==1)) { t = startingTemp; }
         if (iter != -1) { numberOfNoUpgrade++; }
         else {
@@ -617,7 +618,6 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
             }
         }
         i++;
-        t *= coolt;
         totalEnd = std::chrono::system_clock::now();
         secondsTotalExec = totalEnd - start;
     }
@@ -728,6 +728,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
         #endif
         nombreRecuit++;
         recuitSimuleReel(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore,noLimit);
+        t *= coolt;
         if ((firstWaveImp)&&(i==1)) { t = startingTemp; }
         if (iter != -1) { numberOfNoUpgrade++; }
         else {
@@ -744,7 +745,6 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
             }
         }
         i++;
-        t *= coolt;
         totalEnd = std::chrono::system_clock::now();
         secondsTotalExec = totalEnd - start;
     }

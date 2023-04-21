@@ -59,8 +59,6 @@ public:
 	int maxVoisin = -1; // Nombre maximum de voisin d'un noeud dans le graphe. Pas forcément à jour.
 	double avgVoisin = -1; // Nombre moyen de voisin d'un noeud dans le graphe. Pas forcément à jour.
 
-	bool RECUIT_LIMIT_3600 = true; // Indique si on limite le temps d'un rerecuit a 3600 secondes.
-
 	bool grille_with_move = false; // Indique si on a initialisé la grille en déplacant le graphe.
 
 	long nombreInter = -1; // Variable pas à jour

@@ -253,6 +253,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 #endif
 
 		resultats << std::fixed;
+		resultats << nomGraphe << ","; // NOM GRAPHE
 		resultats << methodePlacementName << "," // ALGO PLACEMENT
 			<< methodeAlgoName << "," // ALGO DEPLACEMENT
 			<< std::setprecision(0) << croisementVector.size() << ","; // NOMBRE RUN
