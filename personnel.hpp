@@ -18,5 +18,6 @@
 extern std::string chemin;
 extern std::string cheminGitHub;
 extern std::string machine;
+extern std::string cheminOutputGraphs;
 
 #endif

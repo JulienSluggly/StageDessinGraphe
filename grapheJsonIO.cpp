@@ -118,6 +118,38 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	}
 }
 
+void Graphe::readFromJsonGraphReel(std::string input) {
+	if (DEBUG_JSON) std::cout << "Fichier Graphe: " << input << std::endl;
+	std::ifstream inp(input);
+	json j;
+	inp >> j;
+
+	// Si le fichier ne contient pas de node
+	if (j["nodes"] == nullptr) {
+		exit(1);
+	}
+
+	int nodeNumber = static_cast<int>(j["nodes"].size());
+	if (DEBUG_JSON) std::cout << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
+	int id;
+	_noeuds.reserve(nodeNumber*2);
+	for (int i = 0; i < nodeNumber; i++) {
+		_noeuds.push_back(Noeud(i));
+		_noeuds[i]._xreel = j["nodes"][i]["x"];
+		_noeuds[i]._yreel = j["nodes"][i]["y"];
+	}
+
+	int edgeNumber = static_cast<int>(j["edges"].size());
+	if (DEBUG_JSON) std::cout << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
+	int id1, id2;
+	_aretes.reserve(edgeNumber*2);
+	for (int i = 0; i < edgeNumber; i++) {
+		id1 = j["edges"][i]["source"];
+		id2 = j["edges"][i]["target"];
+		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
+	}
+}
+
 // Sauvegarde des slots dans le fichier output
 void Graphe::writeToJsonSlots(std::string output) {
 	json j;
@@ -145,6 +177,55 @@ void Graphe::writeToJsonGraph(std::string output) {
 			j["nodes"][i]["id_slot"] = _noeuds[i].getEmplacement()->getId();
 		else
 			j["nodes"][i]["id_slot"] = -1;
+	}
+
+	int edgeNumber = _aretes.size();
+	for (int i = 0; i < edgeNumber; i++) {
+		j["edges"][i]["source"] = _aretes[i].getNoeud1()->getId();
+		j["edges"][i]["target"] = _aretes[i].getNoeud2()->getId();
+	}
+
+	std::ofstream o(output);
+	o << std::setw(4) << j << std::endl;
+}
+
+void Graphe::writeToJsonGraphAndSlots(std::string output) {
+	json j;
+
+	int slotsNumber = _emplacements.size();
+	for (int i = 0; i < slotsNumber; i++) {
+		j["slots"][i]["id"] = i;
+		j["slots"][i]["x"] = _emplacements[i].getX();
+		j["slots"][i]["y"] = _emplacements[i].getY();
+	}
+
+	int nodeNumber = _noeuds.size();
+	for (int i = 0; i < nodeNumber; i++) {
+		j["nodes"][i]["id"] = _noeuds[i].getId();
+		if (_noeuds[i].getEmplacement() != nullptr)
+			j["nodes"][i]["id_slot"] = _noeuds[i].getEmplacement()->getId();
+		else
+			j["nodes"][i]["id_slot"] = -1;
+	}
+
+	int edgeNumber = _aretes.size();
+	for (int i = 0; i < edgeNumber; i++) {
+		j["edges"][i]["source"] = _aretes[i].getNoeud1()->getId();
+		j["edges"][i]["target"] = _aretes[i].getNoeud2()->getId();
+	}
+
+	std::ofstream o(output);
+	o << std::setw(4) << j << std::endl;
+}
+
+void Graphe::writeToJsonGraphReel(std::string output) {
+	json j;
+
+	int nodeNumber = _noeuds.size();
+	for (int i=0;i<nodeNumber;i++) {
+		j["nodes"][i]["id"] = _noeuds[i].getId();
+		j["nodes"][i]["x"] = _noeuds[i]._xreel;
+		j["nodes"][i]["y"] = _noeuds[i]._yreel;
 	}
 
 	int edgeNumber = _aretes.size();

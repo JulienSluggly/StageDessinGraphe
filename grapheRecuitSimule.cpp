@@ -505,7 +505,7 @@ void Graphe::stepRecuitSimule(double& t, int& nbCrois, double cool, int modeNoeu
 // Met à jour la variable nombreCroisement du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
 // Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
-void Graphe::recuitSimule(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+void Graphe::recuitSimule(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit) {
     auto bestEnd = start; auto end = start; // Timer pour le meilleur resultat trouvé et total
     std::vector<int> bestResultVector; Graphe bestResultGraphe; // Sauvegarde du meilleur graphe.
     saveBestResultRecuit(bestResultVector,bestResultGraphe,useScore,useGrille);
@@ -521,7 +521,7 @@ void Graphe::recuitSimule(double &timeBest, std::chrono::time_point<std::chrono:
     bool swapped;
     Emplacement* oldEmplacement;
     std::chrono::duration<double> secondsTotal = end - start;
-    for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+    for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit == -1)); iter++) {
         calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
         for (int del = 0; del < delay; del++) {
             nodeId = selectionNoeud(modeNoeud, t);
@@ -577,7 +577,7 @@ void Graphe::recuitSimule(double &timeBest, std::chrono::time_point<std::chrono:
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time_point<std::chrono::system_clock> start,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit, bool firstWaveImp, bool adaptCool) {
+void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time_point<std::chrono::system_clock> start,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit, bool firstWaveImp, bool adaptCool) {
     auto end = start;
     applyRerecuitCustomParam(t,cool,coolt,seuil,adaptCool,customParam);
     nombreRecuit= 0;
@@ -595,13 +595,13 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
 	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
     double startingTemp = t;
     if (firstWaveImp) { t = 0.05; }
-    while ((numberOfNoUpgrade < maxIter)&&(noLimit||secondsTotalExec.count() < 3600)) {
+    while ((numberOfNoUpgrade < maxIter)&&((timeLimit == -1)||(secondsTotalExec.count() < timeLimit))) {
         if (useGrille) { if (i>1) { reinitGrille(); } }
         #if defined(DEBUG_GRAPHE)
             std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif
         nombreRecuit++;
-        recuitSimule(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore, noLimit);
+        recuitSimule(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore, timeLimit);
         t *= coolt;
         if ((firstWaveImp)&&(i==1)) { t = startingTemp; }
         if (iter != -1) { numberOfNoUpgrade++; }
@@ -628,7 +628,7 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
 // Met à jour la variable nombreCroisement du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
 // Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
-void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit) {
     auto bestEnd = start; auto end = start; // Timer pour le meilleur resultat trouvé et total
     std::vector<std::pair<double,double>> bestResultVector;
     saveBestResultRecuitReel(bestResultVector);
@@ -646,7 +646,7 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
     int nodeId, idSwappedNode, improve;
     std::pair<double,double> randCoord;
     std::chrono::duration<double> secondsTotal = end - start;
-    for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+    for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit == -1)); iter++) {
         calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
         for (int del = 0; del < delay; del++) {
             nodeId = selectionNoeud(modeNoeud, t);
@@ -703,7 +703,7 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
 
 // Applique le recuit simulé plusieurs fois
 // Met a jour le nombre de croisement du graphe.
-void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::time_point<std::chrono::system_clock> start,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit, bool firstWaveImp, bool adaptCool) {
+void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::time_point<std::chrono::system_clock> start,std::vector<std::vector<double>> customParam, int iter, double cool, double coolt, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit, bool firstWaveImp, bool adaptCool) {
     auto end = start;
     applyRerecuitCustomParam(t,cool,coolt,seuil,adaptCool,customParam);
     nombreRecuit= 0;
@@ -721,13 +721,13 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
 	std::chrono::duration<double> secondsTotalExec = totalEnd - start;
     double startingTemp = t;
     if (firstWaveImp) { t = 0.05; }
-    while ((numberOfNoUpgrade < maxIter)&&(noLimit||secondsTotalExec.count() < 3600)) {
+    while ((numberOfNoUpgrade < maxIter)&&((timeLimit == -1)||(secondsTotalExec.count() < timeLimit))) {
         if (useGrille) { if (i>1) { reinitGrilleReel(); } }
         #if defined(DEBUG_GRAPHE)
             std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif
         nombreRecuit++;
-        recuitSimuleReel(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore,noLimit);
+        recuitSimuleReel(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore,timeLimit);
         t *= coolt;
         if ((firstWaveImp)&&(i==1)) { t = startingTemp; }
         if (iter != -1) { numberOfNoUpgrade++; }
@@ -754,7 +754,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
 // Met à jour la variable nombreCroisement du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
 // Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
-void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit) {
     auto bestEnd = start; auto end = start; // Timer pour le meilleur resultat trouvé et total
     std::vector<std::pair<double,double>> bestResultVector;
     saveBestResultRecuitReel(bestResultVector);
@@ -772,7 +772,7 @@ void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<st
     int nodeId, idSwappedNode, improve;
     std::pair<double,double> randCoord;
     std::chrono::duration<double> secondsTotal = end - start;
-    for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+    for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit == -1)); iter++) {
         calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
         for (int del = 0; del < delay; del++) {
             nodeId = selectionNoeud(modeNoeud, t);
@@ -815,7 +815,7 @@ void Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<st
     #endif
 }
 
-void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit) {
     int tid;
     thread_IsRecuitFinished = false;
     #pragma omp parallel num_threads(2) private(tid)
@@ -839,7 +839,7 @@ void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_poin
             int nodeId, idSwappedNode, improve;
             std::pair<double,double> randCoord;
             std::chrono::duration<double> secondsTotal = end - start;
-            for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+            for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit==-1)); iter++) {
                 calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
                 for (int del = 0; del < delay; del++) {
                     nodeId = selectionNoeud(modeNoeud, t);
@@ -899,7 +899,7 @@ void Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_poin
 // Met à jour la variable nombreCroisement du graphe.
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
 // Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
-void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, bool noLimit) {
+void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit) {
     int tid;
     thread_IsRecuitFinished = false;
     std::pair<double,double> bestCoord;
@@ -927,7 +927,7 @@ void Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
             #endif
             int idSwappedNode, improve;
             std::chrono::duration<double> secondsTotal = end - start;
-            for (iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < 3600)||(noLimit)); iter++) {
+            for (iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit==-1)); iter++) {
                 calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
                 for (int del = 0; del < delay; del++) {
                     nodeId = selectionNoeud(modeNoeud, t);

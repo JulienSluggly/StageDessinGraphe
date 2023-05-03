@@ -13,9 +13,10 @@ CustomParams:
 10=Taille Grille {12,x} (int)(ceil(sqrt(G._noeuds.size()))*param[1])**;
 11=Taille Grille {11,x} (int)(ceil(sqrt(G._aretes.size()))*param[1])**;
 12=Coeff Improve {12,x}
-13=Refroidissement de la rechauffe 'coolt' {10,x}
-14=Seuil du recuit simule 'seuil' {11,x}
-15=
+13=Refroidissement de la rechauffe 'coolt' {13,x}
+14=Seuil du recuit simule 'seuil' {14,x}
+15=Limite temps Recuit 'timeLimit' {15,x}
+16=
 
 Historique:
 

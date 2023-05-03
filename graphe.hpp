@@ -260,7 +260,7 @@ public:
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimule(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+	void recuitSimule(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe si elle etait a jour avant.
@@ -268,28 +268,28 @@ public:
 
 	// Applique le recuit simulé plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimule(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false, bool firstWaveImp=false, bool adaptCool=false);
+	void rerecuitSimule(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1, bool firstWaveImp=false, bool adaptCool=false);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection en coordonnée flottantes
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+	void recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection en coordonnée flottantes
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
 	// Version Multithreadé
-	void recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+	void recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
-	void recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+	void recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
-	void recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false);
+	void recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
 	// Applique le recuit simulé en coordonnée flottantes plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
-	void rerecuitSimuleReel(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, bool noLimit=false, bool firstWaveImp=false, bool adaptCool=false);
+	void rerecuitSimuleReel(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1, bool firstWaveImp=false, bool adaptCool=false);
 
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
@@ -570,10 +570,16 @@ public:
 
 	void readFromDimacsGraphClean(std::string input);
 
+	void readFromJsonGraphReel(std::string input);
+
 	// Sauvegarde des slots dans le fichier output
 	void writeToJsonSlots(std::string output);
 
 	void writeToJsonGraph(std::string output);
+
+	void writeToJsonGraphAndSlots(std::string output);
+
+	void writeToJsonGraphReel(std::string output);
 
 	void writeToJsonComposanteConnexe(std::string output, std::vector<int> composante);
 

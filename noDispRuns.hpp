@@ -348,7 +348,8 @@ void allRunsByOnFolder() {
 				for (int numeroParam=0;numeroParam<totalRuns.size();numeroParam++) {
 					//generateCSV(-1, "Stress Dyn Stress", "Rerecuit Simule Grille TME Custom", dirEntry.path().string(), slots,totalRuns[numeroParam],tid);
 				}
-				generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{},true,tid);
+				//generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{},true,tid);
+				generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid);
 			}
 			indexKey++;
 		}

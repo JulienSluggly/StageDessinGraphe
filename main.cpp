@@ -156,9 +156,12 @@ int main() {
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
 	//ogdfReverse(G);
-	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.mtxclean");
-	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/adjnoun.graphclean");
-	G.readFromJsonGraph(pathGraph);
+	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.clean");
+	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.clean");
+	//std::string tmpString = chemin + "exemple/Reel/output.json";
+	std::string tmpString = chemin + "resultats/outputGraphs/mahindas-t2-r1.json";
+	G.readFromJsonGraphReel(tmpString);
+	//G.readFromJsonGraph(pathGraph);
 	G.fillCommonNodeVectors();
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
@@ -174,7 +177,8 @@ int main() {
 	//G.stressMajorization();
 	//ogdfOther(G);
 	//G.placementAleatoireReel();
-	ogdfFastMultipoleMultilevelEmbedderReel(G);
+	//ogdfFastMultipoleMultilevelEmbedderReel(G);
+	//G.stressMajorizationReel();
 	//ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
 	//G.forcePlacement();
 	//G.stressMajorizationReel();
@@ -193,12 +197,11 @@ int main() {
 	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
 	//G.recuitSimuleReelThreadPool(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
 	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
-	G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{9,0.99999},{13,1.5}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
+	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{9,0.99999},{13,1.5}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 
 	//G.afficherInfo();
 	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
-
 	#ifdef OPENGL_INSTALLED
 	bool useOpenGL = true;
 	if (useOpenGL) {
