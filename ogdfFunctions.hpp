@@ -75,7 +75,11 @@ void ogdfOtherTest(Graphe& G);
 
 void ogdfGutwenger(Graphe& G);
 
-int ogdfTotalNumberOfBends(GraphAttributes& ogdfGa);
+void ogdfStarReinsertion(Graphe& G);
+
+void ogdfGetCoordsReel(Graphe& G, Graph& ogdfG, GraphAttributes& ogdfGA);
+
+int ogdfTotalNumberOfBends(GraphAttributes& ogdfGA);
 
 // Fait différents test sur le graphe: connexité, biconnecté, genus, crossing number(SubGraphPlanarize)
 void ogdfRun(Graphe &G);

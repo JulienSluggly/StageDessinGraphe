@@ -147,7 +147,7 @@ int main() {
 	//initSameSeedIncThread();
 	//allRunsByOnFolder(); return 0;
 	bool useCoordReel = true;
-	std::string nomFichierGraph = "graph-11-input";
+	std::string nomFichierGraph = "graph-5-input";
 	std::string nomFichierSlots = "3X-3-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
@@ -166,6 +166,7 @@ int main() {
 	std::string tmpStringQuickCrossC= chemin + "resultats/testCoord.txt";
 	//G.readQuickCrossGraphAndCoord(tmpStringQuickCrossG,tmpStringQuickCrossC);
 	//G.readQuickCrossCoord(tmpStringQuickCrossC);
+	ogdfStarReinsertion(G);
 	G.fillCommonNodeVectors();
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
@@ -180,8 +181,8 @@ int main() {
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
 	//ogdfOther(G);
-	G.placementAleatoireReel();
-	G.writeToGraphEdgeList("graph-11.txt"); G.writeCoordsNodeReel("graph-11-coords.txt"); ogdfWriteToGraph6(G,"graph-11-g6.txt"); return 0;
+	//G.placementAleatoireReel();
+	//G.writeToGraphEdgeList("graph-11.txt"); G.writeCoordsNodeReel("graph-11-coords.txt"); ogdfWriteToGraph6(G,"graph-11-g6.txt"); return 0;
 	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
 	//ogdfFastMultipoleMultilevelEmbedderReelMinute(G);

@@ -112,6 +112,10 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph 
 			ogdfGL.x(nodeTab[i]) = G._noeuds[i].getX();
 			ogdfGL.y(nodeTab[i]) = G._noeuds[i].getY();
 		}
+		else if (G.useCoordReel) {
+			ogdfGL.x(nodeTab[i]) = G._noeuds[i]._xreel;
+			ogdfGL.y(nodeTab[i]) = G._noeuds[i]._yreel;
+		}
 		else {
 			ogdfGL.x(nodeTab[i]) = 0;
 			ogdfGL.y(nodeTab[i]) = 0;
@@ -137,6 +141,10 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GraphAttributes &ogdfGA, ogdf::G
 		if (G.estPlace()) {
 			ogdfGA.x(nodeTab[i]) = G._noeuds[i].getX();
 			ogdfGA.y(nodeTab[i]) = G._noeuds[i].getY();
+		}
+		else if (G.useCoordReel) {
+			ogdfGA.x(nodeTab[i]) = G._noeuds[i]._xreel;
+			ogdfGA.y(nodeTab[i]) = G._noeuds[i]._yreel;
 		}
 		else {
 			ogdfGA.x(nodeTab[i]) = 0;
@@ -725,6 +733,31 @@ void ogdfGutwenger(Graphe& G) {
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
 
+void ogdfGetCoordsReel(Graphe& G, ogdf::Graph& ogdfG, ogdf::GraphAttributes& ogdfGA) {
+	int i=0;
+	for (auto n : ogdfG.nodes) {
+		G._noeuds[i]._xreel = ogdfGA.x(n);
+		G._noeuds[i]._yreel = ogdfGA.y(n);
+		i++;
+	}
+}
+
+void ogdfStarReinsertion(Graphe& G) {
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA(ogdfG, ogdf::GraphAttributes::nodeGraphics | ogdf::GraphAttributes::edgeGraphics);
+	ogdf::Layout lay(ogdfG);
+	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
+	ogdf::PlanRep pr(ogdfGA);
+	int crossingNumber;
+	ogdf::PlanarizerStarReinsertion* psr = new ogdf::PlanarizerStarReinsertion();
+	ogdf::PlanarizationGridLayout pgl;
+	pgl.setCrossMin(psr);
+	pgl.call(ogdfGA);
+	//psr->call(pr,0,crossingNumber);
+	std::cout << pgl.numberOfCrossings() << " crossings OGDF." << std::endl;
+	ogdfGetCoordsReel(G,ogdfG,ogdfGA);
+	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
+}
 
 void ogdfOtherTest(Graphe& G) {
 	ogdf::Graph ogdfG;
