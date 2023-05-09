@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "ogdfFunctions.hpp"
 #include "graphe.hpp"
 #include <unordered_map>
 #include <set>
@@ -218,6 +219,76 @@ void Graphe::writeToJsonGraphAndSlots(std::string output) {
 	o << std::setw(4) << j << std::endl;
 }
 
+void Graphe::readQuickCrossGraph(std::string input) {
+	std::ifstream infile(input);
+	std::string line;
+	int numeroLigne = 0;
+	int firstNodeId, secondNodeId;
+	int maxNodeId = getMaxNodeIdFromFile(input);
+	int idArete = 0;
+	_noeuds.reserve((maxNodeId+1)*2);
+	for (int i=0;i<=maxNodeId;i++) {
+		_noeuds.push_back(Noeud(i));
+	}
+	while (std::getline(infile, line)) {
+    	std::istringstream iss(line);
+		if (numeroLigne != 0) {
+			std::string subs;
+			iss >> subs;
+			firstNodeId = stoi(subs)-1;
+			iss >> subs;
+			secondNodeId = stoi(subs)-1;
+			_aretes.push_back(Aretes(&_noeuds[firstNodeId],&_noeuds[secondNodeId],idArete));
+			idArete++;
+		}
+		numeroLigne++;
+	}
+	infile.close();
+}
+
+void Graphe::readQuickCrossCoord(std::string input) {
+	std::ifstream infile(input);
+	std::string line;
+	int numeroLigne = 0;
+	while (std::getline(infile, line)) {
+    	std::istringstream iss(line);
+		std::string subs;
+		iss >> subs;
+		_noeuds[numeroLigne]._xreel = stod(subs);
+		iss >> subs;
+		_noeuds[numeroLigne]._yreel = stod(subs);
+		numeroLigne++;
+	}
+	infile.close();
+}
+
+void Graphe::readQuickCrossGraphAndCoord(std::string fileArete, std::string fileCoord) {
+	readQuickCrossGraph(fileArete);
+	readQuickCrossCoord(fileCoord);
+}
+
+void Graphe::writeToGraphEdgeList(std::string output) {
+	std::ofstream resultats(output, std::ios_base::app);
+	for (int i=0;i<_noeuds.size();i++) {
+		int nodeId = _noeuds[i]._id;
+		for (int j=0;j<_noeuds[i].voisins.size();j++) {
+			int voisinId = _noeuds[i].voisins[j]->_id;
+			if (voisinId > nodeId) {
+				resultats << nodeId+1 << " " << voisinId+1 << "\n";
+			}
+		}
+	}
+	resultats.close();
+}
+
+void Graphe::writeCoordsNodeReel(std::string output) {
+	std::ofstream resultats(output, std::ios_base::app);
+	for (int i=0;i<_noeuds.size();i++) {
+		resultats << _noeuds[i]._xreel << " " << _noeuds[i]._yreel << "\n";
+	}
+	resultats.close();
+}
+
 void Graphe::writeToJsonGraphReel(std::string output) {
 	json j;
 
@@ -383,6 +454,7 @@ void Graphe::readFromDimacsGraph(std::string input) {
 		} while (iss);
 		numeroLigne++;
 	}
+	infile.close();
 }
 
 void Graphe::readFromDimacsGraphClean(std::string input) {

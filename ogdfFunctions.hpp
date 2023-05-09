@@ -21,9 +21,13 @@ void createOGDFGraphFromGraphe(Graphe &G, GridLayout &ogdfGL, Graph &ogdfG);
 // Creer un graphe ogdf a partir d'un graphe placé ou non.
 void createOGDFGraphFromGraphe(Graphe &G, GraphAttributes &ogdfGA, Graph &ogdfG);
 
+void createOGDFGraphFromGraphe(Graphe &G, Graph &ogdfG);
+
 int crossingModule(const  Graph& ogdfG);
 
 int planarizeMaxFace(GridLayout& ogdfGL, Graph& ogdfG);
+
+int planarizeMaxFace(GraphAttributes& ogdfGA, Graph& ogdfG);
 
 void ogdfTranslateOgdfGraphToOrigin(Graph& ogdfG, GraphAttributes& ogdfGA);
 
@@ -32,6 +36,8 @@ void ogdfPlacementAuPlusProche(GraphAttributes& ogdfGA, Graph& ogdfG, Graphe& G)
 
 // Planarize le graphe avec odgf et essaie de placer les noeuds au plus proche de ses emplacements possible par rapport au grpahe OGDF
 int ogdfPlacementAuPlusProche(Graphe& G);
+
+int getMaxNodeIdFromFile(std::string input);
 
 // Planarize le graphe avec odgf et essaie de placer les noeuds au plus proche de ses emplacements possible par rapport au graphe OGDF
 void ogdfPlacementAuPlusProcheStress(Graphe& G);
@@ -73,5 +79,9 @@ int ogdfTotalNumberOfBends(GraphAttributes& ogdfGa);
 
 // Fait différents test sur le graphe: connexité, biconnecté, genus, crossing number(SubGraphPlanarize)
 void ogdfRun(Graphe &G);
+
+void ogdfWriteToGraph6(Graphe& G, std::string output);
+
+void ogdfReadQuickCrossToGraph(std::string input, Graphe& G);
 
 #endif

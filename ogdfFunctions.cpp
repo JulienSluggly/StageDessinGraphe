@@ -152,6 +152,55 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GraphAttributes &ogdfGA, ogdf::G
 	delete[] nodeTab;
 }
 
+void createOGDFGraphFromGraphe(Graphe &G, ogdf::Graph &ogdfG) {
+	int nodeNumber = G._noeuds.size();
+	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
+	vecNoeudAOGDFNode.clear();
+	for (int i = 0; i < nodeNumber; i++) {
+		nodeTab[i] = ogdfG.newNode();
+		vecNoeudAOGDFNode.push_back(nodeTab[i]);
+		G._noeuds[i].ogdfId = nodeTab[i]->index();
+	}
+	for (int i = 0; i < G._aretes.size(); i++) {
+		int id1 = G._aretes[i].getNoeud1()->getId();
+		int id2 = G._aretes[i].getNoeud2()->getId();
+		ogdfG.newEdge(nodeTab[id1], nodeTab[id2]);
+	}
+	delete[] nodeTab;
+}
+
+void ogdfWriteToGraph6(Graphe& G, std::string output) {
+	ogdf::Graph ogdfG;
+	createOGDFGraphFromGraphe(G,ogdfG);
+	std::ofstream file(output);
+	ogdf::GraphIO::writeGraph6(ogdfG,file);
+	file.close();
+}
+
+int getMaxNodeIdFromFile(std::string input) {
+	std::ifstream infile(input);
+	std::string line;
+	int numeroLigne = 0;
+	int nodeId;
+	int maxNodeId = -1;
+	while (std::getline(infile, line)) {
+    	std::istringstream iss(line);
+		if (numeroLigne != 0) {
+			std::string subs;
+			iss >> subs;
+			nodeId = stoi(subs)-1;
+			do {
+				if (nodeId > maxNodeId) { maxNodeId = nodeId; }
+				iss >> subs;
+				nodeId = stoi(subs)-1;
+			} while (iss);
+		}
+		numeroLigne++;
+	}
+	infile.close();
+	return maxNodeId;
+}
+
 int crossingModule(const  ogdf::Graph& ogdfG) {
 	ogdf::PlanRep pr(ogdfG);
 	ogdf::SubgraphPlanarizer sp = ogdf::SubgraphPlanarizer();
@@ -171,6 +220,57 @@ int planarizeMaxFace(ogdf::GridLayout& ogdfGL, ogdf::Graph& ogdfG) {
 	PL.setEmbedder(emb);
 	PL.callGrid(ogdfG, ogdfGL);
 	return 0;
+}
+
+int planarizeMaxFace(ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG) {
+	if (crossingModule(ogdfG) != 0) {
+		std::cout << "Skipping Planarization, crossing Number > 0" << std::endl;
+		return 1;
+	}
+	ogdf::PlanarDrawLayout PL;
+	ogdf::EmbedderModule* emb = new ogdf::EmbedderMaxFace();
+	PL.separation(-19);
+	PL.setEmbedder(emb);
+	PL.call(ogdfGA);
+	return 0;
+}
+
+void ogdfReadQuickCrossToGraph(std::string input, Graphe& G) {
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	std::ifstream infile(input);
+	std::string line;
+	int numeroLigne = 0;
+	int firstNodeId, secondNodeId;
+	int maxNodeId = getMaxNodeIdFromFile(input);
+	int idArete = 0;
+	G._noeuds.reserve((maxNodeId+1)*2);
+	for (int i=0;i<=maxNodeId;i++) {
+		G._noeuds.push_back(Noeud(i));
+	}
+	while (std::getline(infile, line)) {
+    	std::istringstream iss(line);
+		if (numeroLigne != 0) {
+			std::string subs;
+			iss >> subs;
+			firstNodeId = stoi(subs)-1;
+			iss >> subs;
+			secondNodeId = stoi(subs)-1;
+			G._aretes.push_back(Aretes(&G._noeuds[firstNodeId],&G._noeuds[secondNodeId],idArete));
+			idArete++;
+		}
+		numeroLigne++;
+	}
+	infile.close();
+	createOGDFGraphFromGraphe(G,ogdfG);
+	planarizeMaxFace(ogdfGA, ogdfG);
+	int idNode = 0;
+	for (auto n : ogdfG.nodes) {
+		std::cout << "i: " << idNode << " deg: " << n->degree() << std::endl; 
+		G._noeuds[idNode]._xreel = ogdfGA.x(n);
+		G._noeuds[idNode]._yreel = ogdfGA.y(n);
+		idNode++;
+	}
 }
 
 void ogdfTranslateOgdfGraphToOrigin(ogdf::Graph& ogdfG, ogdf::GraphAttributes& ogdfGA) {
@@ -676,5 +776,6 @@ void ogdfOther(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
 void ogdfOtherTest(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
 void ogdfGutwenger(Graphe& G) { printf("OGDF NOT INSTALLED.\n"); }
 void ogdfRun(Graphe &G) { printf("OGDF NOT INSTALLED.\n"); }
+int getMaxNodeIdFromFile(std::string input) { printf("OGDF NOT INSTALLED.\n"); }
 
 #endif

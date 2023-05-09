@@ -572,6 +572,12 @@ public:
 
 	void readFromJsonGraphReel(std::string input);
 
+	void readQuickCrossGraphAndCoord(std::string fileArete, std::string fileCoord);
+
+	void readQuickCrossGraph(std::string fileArete);
+
+	void readQuickCrossCoord(std::string input);
+
 	// Sauvegarde des slots dans le fichier output
 	void writeToJsonSlots(std::string output);
 
@@ -584,6 +590,10 @@ public:
 	void writeToJsonComposanteConnexe(std::string output, std::vector<int> composante);
 
 	void writeToJsonCleanGraphe(std::string output);
+
+	void writeToGraphEdgeList(std::string output);
+
+	void writeCoordsNodeReel(std::string output);
 
 	// ----- CREATION D'UN Graph A PARTIR D'UN FICHIER JSON -----
 	// Creer les emplacements a partir des anciennes coord
