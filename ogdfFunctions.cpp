@@ -183,6 +183,15 @@ void ogdfWriteToGraph6(Graphe& G, std::string output) {
 	std::ofstream file(output);
 	ogdf::GraphIO::writeGraph6(ogdfG,file);
 	file.close();
+
+    std::ifstream inputFile(output);
+    std::string fileContents((std::istreambuf_iterator<char>(inputFile)),std::istreambuf_iterator<char>());
+    inputFile.close();
+	fileContents = fileContents.substr(10);
+
+    std::ofstream outputFile(output);
+    outputFile << fileContents;
+    outputFile.close();
 }
 
 int getMaxNodeIdFromFile(std::string input) {
@@ -194,14 +203,17 @@ int getMaxNodeIdFromFile(std::string input) {
 	while (std::getline(infile, line)) {
     	std::istringstream iss(line);
 		if (numeroLigne != 0) {
-			std::string subs;
-			iss >> subs;
-			nodeId = stoi(subs)-1;
-			do {
-				if (nodeId > maxNodeId) { maxNodeId = nodeId; }
+			while (iss) {
+				std::string subs;
 				iss >> subs;
-				nodeId = stoi(subs)-1;
-			} while (iss);
+				if ((!subs.empty())&&(subs.find_first_not_of(' ') != std::string::npos)) {
+					try {
+						nodeId = stoi(subs)-1;
+						if (nodeId > maxNodeId) { maxNodeId = nodeId; }
+					}
+					catch(...) { std::cout << "Error: " << subs << std::endl; }
+				}
+			}
 		}
 		numeroLigne++;
 	}
@@ -259,25 +271,52 @@ void ogdfReadQuickCrossToGraph(std::string input, Graphe& G) {
 	while (std::getline(infile, line)) {
     	std::istringstream iss(line);
 		if (numeroLigne != 0) {
-			std::string subs;
-			iss >> subs;
-			firstNodeId = stoi(subs)-1;
-			iss >> subs;
-			secondNodeId = stoi(subs)-1;
-			G._aretes.push_back(Aretes(&G._noeuds[firstNodeId],&G._noeuds[secondNodeId],idArete));
-			idArete++;
+			while (iss) {
+				std::string subs;
+				iss >> subs;
+				if ((!subs.empty())&&(subs.find_first_not_of(' ') != std::string::npos)) {
+					try {
+						firstNodeId = stoi(subs)-1;
+						while (iss) {
+							iss >> subs;
+							if ((!subs.empty())&&(subs.find_first_not_of(' ') != std::string::npos)) {
+								try {
+									secondNodeId = stoi(subs)-1;
+									G._aretes.push_back(Aretes(&G._noeuds[firstNodeId],&G._noeuds[secondNodeId],idArete));
+									idArete++;
+								}
+								catch(...) { std::cout << "Error: " << subs << std::endl; }
+							}
+							iss >> subs;
+						}
+					}
+					catch(...) { std::cout << "Error: " << subs << std::endl; }
+				}
+			}
 		}
 		numeroLigne++;
 	}
 	infile.close();
+	std::cout << G._noeuds.size() << "n " << G._aretes.size() << "e\n";
 	createOGDFGraphFromGraphe(G,ogdfG);
+	std::cout << "Start Planarizing...\n";
 	planarizeMaxFace(ogdfGA, ogdfG);
+	std::cout << "Planarizing done.\n";
 	int idNode = 0;
 	for (auto n : ogdfG.nodes) {
-		std::cout << "i: " << idNode << " deg: " << n->degree() << std::endl; 
 		G._noeuds[idNode]._xreel = ogdfGA.x(n);
 		G._noeuds[idNode]._yreel = ogdfGA.y(n);
 		idNode++;
+	}
+}
+
+void ogdfReadQuickCrossToGraphCrossings(std::string quickcrossInput, std::string graphInput, Graphe& G) {
+	Graphe tmpG;
+	ogdfReadQuickCrossToGraph(quickcrossInput,tmpG);
+	G.readFromJsonGraph(graphInput);
+	for (int i=0;i<G._noeuds.size();i++) {
+		G._noeuds[i]._xreel = tmpG._noeuds[i]._xreel;
+		G._noeuds[i]._yreel = tmpG._noeuds[i]._yreel;
 	}
 }
 

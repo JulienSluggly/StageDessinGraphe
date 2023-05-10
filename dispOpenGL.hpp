@@ -1130,6 +1130,7 @@ void openGLKeyPressFunction(Graphe& G) {
 					G._noeuds[nodeId]._xreel = historiqueOpenGL[lastIndex][2];
 					G._noeuds[nodeId]._yreel = historiqueOpenGL[lastIndex][3];
 					historiqueOpenGL.pop_back();
+					recalcIllegal = true;
 				}
 			}
 			break;

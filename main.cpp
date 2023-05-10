@@ -135,7 +135,15 @@ void stopGprofProfiler(bool useProfiler) {
 #endif
 }
 
-int main() {
+void createQuickCrossData(Graphe& G, std::string nomFichierGraph) {
+	ogdfFastMultipoleMultilevelEmbedderReel(G);
+	G.translateGrapheToOriginReel(-1);
+	G.writeToGraphEdgeList(nomFichierGraph + ".txt");
+	G.writeCoordsNodeReel(nomFichierGraph + "-coords.txt");
+	ogdfWriteToGraph6(G,nomFichierGraph + "-g6.txt");
+}
+
+int main(int argc, char *argv[]) {
 	bool useProfiler = false;
 #if defined(GPERF_INSTALLED)
 	std::string cheminProfile = chemin + "profilerData/profile.output";
@@ -147,26 +155,19 @@ int main() {
 	//initSameSeedIncThread();
 	//allRunsByOnFolder(); return 0;
 	bool useCoordReel = true;
-	std::string nomFichierGraph = "graph-5-input";
+	std::string nomFichierGraph = "1138_bus";
+	if (argc > 1) { nomFichierGraph = argv[1]; }
 	std::string nomFichierSlots = "3X-3-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
-	//G.readFromJsonOldGraph(chemin + "automatique/auto21-10.json"); G.generateGrid(G._noeuds.size()/2,G._noeuds.size()/2);
-	//ogdfReverse(G);
-	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.clean");
-	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/mahindas.clean");
-	//std::string tmpString = chemin + "exemple/Reel/output.json";
-	std::string tmpString = chemin + "resultats/outputGraphs/mahindas-t2-r1.json";
-	//G.readFromJsonGraphReel(tmpString);
-	G.readFromJsonGraph(pathGraph);
-	std::string tmpStringQuickCrossG = chemin + "resultats/test.txt";
-	std::string tmpStringQuickCrossC= chemin + "resultats/testCoord.txt";
-	//G.readQuickCrossGraphAndCoord(tmpStringQuickCrossG,tmpStringQuickCrossC);
-	//G.readQuickCrossCoord(tmpStringQuickCrossC);
-	ogdfStarReinsertion(G);
+	std::string quickCrossInput = chemin + "resultats/results.txt";
+	std::string pathGraphDimacs = chemin + "benchGraphs/runs/" + nomFichierGraph + ".clean";
+	ogdfReadQuickCrossToGraphCrossings(quickCrossInput,pathGraphDimacs,G);
+	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/"+nomFichierGraph+".clean");
+	//G.readFromJsonGraph(pathGraph);
 	G.fillCommonNodeVectors();
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
@@ -182,7 +183,9 @@ int main() {
 	//G.stressMajorization();
 	//ogdfOther(G);
 	//G.placementAleatoireReel();
-	//G.writeToGraphEdgeList("graph-11.txt"); G.writeCoordsNodeReel("graph-11-coords.txt"); ogdfWriteToGraph6(G,"graph-11-g6.txt"); return 0;
+	
+	//createQuickCrossData(G,nomFichierGraph); return 0;
+	
 	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
 	//ogdfFastMultipoleMultilevelEmbedderReelMinute(G);

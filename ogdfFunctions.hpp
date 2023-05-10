@@ -88,4 +88,6 @@ void ogdfWriteToGraph6(Graphe& G, std::string output);
 
 void ogdfReadQuickCrossToGraph(std::string input, Graphe& G);
 
+void ogdfReadQuickCrossToGraphCrossings(std::string quickcrossInput, std::string graphInput, Graphe& G);
+
 #endif
