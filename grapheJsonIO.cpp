@@ -219,6 +219,39 @@ void Graphe::writeToJsonGraphAndSlots(std::string output) {
 	o << std::setw(4) << j << std::endl;
 }
 
+void Graphe::writeToJsonChallenge(std::string output) {
+	json j;
+
+	int slotsNumber = _emplacements.size();
+	for (int i = 0; i < slotsNumber; i++) {
+		j["points"][i]["id"] = i;
+		j["points"][i]["x"] = _emplacements[i].getX();
+		j["points"][i]["y"] = _emplacements[i].getY();
+	}
+
+	int nodeNumber = _noeuds.size();
+	for (int i = 0; i < nodeNumber; i++) {
+		j["nodes"][i]["id"] = _noeuds[i].getId();
+		if (_noeuds[i].getEmplacement() != nullptr) {
+			j["nodes"][i]["x"] = _noeuds[i].getEmplacement()->getX();
+			j["nodes"][i]["y"] = _noeuds[i].getEmplacement()->getY();
+		}
+		else {
+			j["nodes"][i]["x"] = 0;
+			j["nodes"][i]["y"] = 0;
+		}
+	}
+
+	int edgeNumber = _aretes.size();
+	for (int i = 0; i < edgeNumber; i++) {
+		j["edges"][i]["source"] = _aretes[i].getNoeud1()->getId();
+		j["edges"][i]["target"] = _aretes[i].getNoeud2()->getId();
+	}
+
+	std::ofstream o(output);
+	o << std::setw(4) << j << std::endl;
+}
+
 void Graphe::readQuickCrossGraph(std::string input) {
 	std::ifstream infile(input);
 	std::string line;

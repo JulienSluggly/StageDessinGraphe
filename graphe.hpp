@@ -585,6 +585,8 @@ public:
 
 	void writeToJsonGraphAndSlots(std::string output);
 
+	void writeToJsonChallenge(std::string output);
+
 	void writeToJsonGraphReel(std::string output);
 
 	void writeToJsonComposanteConnexe(std::string output, std::vector<int> composante);
