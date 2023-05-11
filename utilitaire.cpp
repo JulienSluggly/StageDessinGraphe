@@ -180,9 +180,7 @@ int nombreIterationRecuit(double t,double cool,double seuil) {
 }
 
 bool containsString(std::string a, std::string b) {
-    std::transform(a.begin(), a.end(), a.begin(),
-    [](unsigned char c){ return std::tolower(c); });
-    std::transform(b.begin(), b.end(), b.begin(),
-    [](unsigned char c){ return std::tolower(c); });
+    std::transform(a.begin(), a.end(), a.begin(),[](unsigned char c){ return std::tolower(c); });
+    std::transform(b.begin(), b.end(), b.begin(),[](unsigned char c){ return std::tolower(c); });
     return strstr(a.c_str(),b.c_str());
 }

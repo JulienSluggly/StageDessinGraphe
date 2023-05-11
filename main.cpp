@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
-	//allRunsByOnFolder(); return 0;
+	allRunsByOnFolder(); return 0;
 	bool useCoordReel = false;
 	std::string nomFichierGraph = "graph-1-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }

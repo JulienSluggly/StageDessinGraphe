@@ -107,7 +107,25 @@ int setTimeLimitRecuit(std::vector<std::vector<double>>& customParam) {
 	return -1;
 }
 
-void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0) {
+void setupGrapheWithTypeFile(Graphe& G, std::string& typeFile, std::string& fileGraph, std::string& fileSlots) {
+	if (typeFile == "JSON") {
+		if (!useReel) { G.setupGraphe(fileGraph,fileSlots); }
+		else { G.setupGrapheReel(fileGraph); G.useCoordReel = true; }
+	}
+	else if (typeFile == "GRAPHML") {
+		G.readFromGraphmlGraph(fileGraph);
+		if (!useReel) {
+			int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
+        	G.generateGrid(nbNoeud,nbNoeud);
+		}
+	}
+	else {
+		std::cout << typeFile << " not supported.\n";
+		exit(2);
+	}
+}
+
+void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0, std::string typeFile="JSON") {
 	string nomGraphe = fileGraph;
 	std::reverse(nomGraphe.begin(), nomGraphe.end());
 	nomGraphe = nomGraphe.substr(nomGraphe.find(".") + 1);
@@ -134,8 +152,8 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		resetSeed(tid,true);
 		auto start = std::chrono::system_clock::now();
 		Graphe G(nomGraphe);
-		if (!useReel) { G.setupGraphe(fileGraph,fileSlots); }
-		else { G.setupGrapheReel(fileGraph); G.useCoordReel = true; }
+		G.useCoordReel = useReel;
+		setupGrapheWithTypeFile(G,typeFile,fileGraph,fileSlots);
 		G.fillCommonNodeVectors();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1;
 		if (isGenetique) { population = mapGraphPopGen[nomGraphe].first; maxIteration = mapGraphPopGen[nomGraphe].second; }

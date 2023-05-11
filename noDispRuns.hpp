@@ -325,7 +325,7 @@ void allRunsBySlotsThirdRun() {
 void allRunsByOnFolder() {
 	fillLogsVector();
 	std::cout << "Starting all run logs." << std::endl;
-	std::string path = chemin + "benchGraphs/runs/";
+	std::string path = chemin + "benchGraphs/rome100/";
 	std::string slots = "Grid";
 	int nthreads, tid;
 	std::vector<std::vector<std::vector<double>>> totalRuns;
@@ -344,12 +344,13 @@ void allRunsByOnFolder() {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+			//if (tid == 0) {
 			if (tid == (indexKey % nthreads)) {
 				for (int numeroParam=0;numeroParam<totalRuns.size();numeroParam++) {
 					//generateCSV(-1, "Stress Dyn Stress", "Rerecuit Simule Grille TME Custom", dirEntry.path().string(), slots,totalRuns[numeroParam],tid);
 				}
-				//generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{},true,tid);
-				generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid);
+				generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{},true,tid,"GRAPHML");
+				//generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,3600}},true,tid,"GRAPHML");
 			}
 			indexKey++;
 		}

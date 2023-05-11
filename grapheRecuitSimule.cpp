@@ -436,8 +436,8 @@ int Graphe::calculImproveReelThreadPool(int nodeId,std::pair<double,double>& ran
 
 void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil, bool adaptCool,std::vector<std::vector<double>>& customParam) {
     if (adaptCool) {
-        if (_noeuds.size() < 30) { cool = 0.9999945; }
-        else if (_noeuds.size() < 100) { cool = 0.999999; }
+        if (_noeuds.size() <= 30) { cool = 0.9999945; }
+        else if (_noeuds.size() <= 100) { cool = 0.999999; }
         else { cool = 0.99999945; }
     }
     if (customParam.size() > 0) {
@@ -664,8 +664,8 @@ void Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
                     saveBestResultRecuitReel(bestResultVector);
                     bestEnd = std::chrono::system_clock::now();
                     
-                    std::chrono::duration<double> tmpBestTime = bestEnd - start;
-                    recuitScoreTemps.push_back(make_pair(bestCroisement,tmpBestTime.count()));
+                    //std::chrono::duration<double> tmpBestTime = bestEnd - start;
+                    //recuitScoreTemps.push_back(make_pair(bestCroisement,tmpBestTime.count()));
                     
                     #if defined(DEBUG_GRAPHE_PROGRESS)
                         std::cout << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
