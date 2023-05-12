@@ -71,11 +71,14 @@ public:
 
 	std::string nomGraphe = "Graphe";
 
-	std::vector<double> recuitDistanceAll;
-	std::vector<std::pair<int,double>> recuitDistanceUpgrade;
-	std::vector<std::pair<int,double>> recuitDistanceUpgradeGlobal;
+	std::vector<double> recuitDistanceAll; // Toutes les distances tirées avec déplacement effectué
+	std::vector<std::pair<int,double>> recuitDistanceUpgrade; // Distances de déplacement effectué qui a améliorer la solution courante
+	std::vector<std::pair<int,double>> recuitDistanceUpgradeGlobal;  // Distances de déplacement effectué qui améliorent la meilleure solution
 
-	std::vector<std::pair<long,double>> recuitScoreTemps;
+	std::vector<std::pair<long,double>> recuitScoreTemps; // Score en fonction du temps
+
+	std::vector<int> recuitCycleVague; // Nombre de vague qui améliorent et n'améliorent pas. Positif = améliore, Négatif = n'améliore pas.
+
 
 	// Thread data:
 	bool thread_IsRecuitFinished = true;
@@ -256,11 +259,19 @@ public:
 	// Calcule le score du noeud en fonction de la méthode choisie. Version multithreadée
 	long calculScoreNodeMethodeThread(int nodeId, int idSwappedNode, bool swapped, bool useGrille, bool useScore, bool useReel, bool isFirstThread);
 
+	// Met a jour le vecteur des cycles de vagues du recuit.
+	// Incrémente la derniere valeur du tableau si meme cycle, sinon pushback 1 du signe opposé à la dernière case.
+	void updateRecuitCycleVague(bool upgrade);
+
+	// Met a jour les valeurs de croisement au debut du recuit en appelant les fonctions adéquates.
+	void setupNombreCroisement(long& nbCroisement, long& bestCroisement, long& debutCroisement);
+
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimule(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
+	// Renvoie le nombre d'intersection supprimée
+	long recuitSimule(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe si elle etait a jour avant.
@@ -274,18 +285,22 @@ public:
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
-	void recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
+	// Renvoie le nombre d'intersection supprimé
+	long recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection en coordonnée flottantes
 	// Met à jour la variable nombreCroisement du graphe.
 	// delay est le nombre de tour auquel on reste à la même température, -1 pour le rendre dynamique en fonction de la taille du graphe.
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
 	// Version Multithreadé
-	void recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
+	// Renvoie le nombre d'intersection supprimé
+	long recuitSimuleReelThread(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
-	void recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
+	// Renvoie le nombre d'intersection supprimé
+	long recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
-	void recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
+	// Renvoie le nombre d'intersection supprimé
+	long recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
 	// Applique le recuit simulé en coordonnée flottantes plusieurs fois
 	// Met a jour le nombre de croisement du graphe.

@@ -82,8 +82,7 @@ void customRecuitFlottants() {
 				generateCSV(-1,"OGDFFMMM","Rerecuit Simule Grille TME",nomFichierGraph,"",totalRuns[i],true,tid);
 			}
 		}
-		generateCSV(-1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
-		//generateCSV(1,"OGDFFMMM","Recuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
+		generateCSV(1,"OGDFFMMMM","Rerecuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
@@ -325,7 +324,7 @@ void allRunsBySlotsThirdRun() {
 void allRunsByOnFolder() {
 	fillLogsVector();
 	std::cout << "Starting all run logs." << std::endl;
-	std::string path = chemin + "benchGraphs/rome100/";
+	std::string path = chemin + "benchGraphs/runs/";
 	std::string slots = "Grid";
 	int nthreads, tid;
 	std::vector<std::vector<std::vector<double>>> totalRuns;
@@ -337,20 +336,30 @@ void allRunsByOnFolder() {
 	totalRuns.push_back({{9,0.999999},{3,0,2}});
 #pragma omp parallel private(tid)
 	{
-		int indexKey = 0;
 		tid = ::omp_get_thread_num();
 		nthreads = ::omp_get_num_threads();
 		if (tid == 0) {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
+		int indexKey = 0;
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			//if (tid == 0) {
 			if (tid == (indexKey % nthreads)) {
 				for (int numeroParam=0;numeroParam<totalRuns.size();numeroParam++) {
 					//generateCSV(-1, "Stress Dyn Stress", "Rerecuit Simule Grille TME Custom", dirEntry.path().string(), slots,totalRuns[numeroParam],tid);
 				}
-				generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{},true,tid,"GRAPHML");
-				//generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,3600}},true,tid,"GRAPHML");
+				generateCSV(10, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid,"JSON",-1);
+			}
+			indexKey++;
+		}
+		indexKey = 0;
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+			//if (tid == 0) {
+			if (tid == (indexKey % nthreads)) {
+				for (int numeroParam=0;numeroParam<totalRuns.size();numeroParam++) {
+					//generateCSV(-1, "Stress Dyn Stress", "Rerecuit Simule Grille TME Custom", dirEntry.path().string(), slots,totalRuns[numeroParam],tid);
+				}
+				generateCSV(10, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid,"JSON",-1);
 			}
 			indexKey++;
 		}

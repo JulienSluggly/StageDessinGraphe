@@ -153,11 +153,11 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
-	allRunsByOnFolder(); return 0;
-	bool useCoordReel = false;
-	std::string nomFichierGraph = "graph-1-input";
+	//allRunsByOnFolder(); return 0;
+	bool useCoordReel = true;
+	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	std::string nomFichierSlots = "3X-1-input-slots";
+	std::string nomFichierSlots = "3X-11-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	ogdfFastMultipoleMultilevelEmbedder(G);
+	//ogdfFastMultipoleMultilevelEmbedder(G);
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
 	//ogdfOther(G);
@@ -188,16 +188,16 @@ int main(int argc, char *argv[]) {
 	
 	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
-	//ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
+	ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
 	//G.placementAleatoireReel();
 	//G.forcePlacement();
 	//G.stressMajorizationReel();
-	//G.translateGrapheToOriginReel(-1);
+	if (useCoordReel) { G.translateGrapheToOriginReel(-1); }
 	G.setupGridAndRegistration({});
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 	std::cout << "Fin du placement.\n";
 	auto finPlacement = std::chrono::system_clock::now();
-	G.recuitSimule(tempsBest,start);
+	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,120);
 	//G.triangulationDelaunay();
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,3);
 	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2);
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
 	//G.recuitSimuleReelThreadPool(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
 	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{9,0.99999},{13,1.5}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
-	G.writeToJsonChallenge(nomFichierGraph + "-challenge");
+	//G.writeToJsonChallenge(nomFichierGraph + "-challenge");
 	//G.afficherInfo();
 	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);

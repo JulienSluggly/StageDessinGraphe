@@ -1794,6 +1794,10 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
         int nbNoeud = std::min((int)_noeuds.size()*2,6000);
         generateGrid(nbNoeud,nbNoeud);
     }
+    if (_noeuds.size() > _emplacements.size()) {
+        std::cout << "Pas assez d'emplacement.\n";
+        exit(3);
+    }
 }
 
 void Graphe::setupGrapheReel(std::string fileGraphe) {

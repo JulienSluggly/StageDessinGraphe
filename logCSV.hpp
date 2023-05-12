@@ -58,6 +58,18 @@ std::string getParamAsString(std::vector<std::vector<double>>& customParam) {
 	return paramStream.str();
 }
 
+std::string getRecuitCycleAsString(std::vector<int>& recuitCycleVague) {
+	std::stringstream paramStream;
+	paramStream << std::fixed;
+	paramStream << "{";
+	for (int i=0;i<recuitCycleVague.size();i++) {
+		paramStream << recuitCycleVague[i];
+		if (i<recuitCycleVague.size()-1) { paramStream << "|"; }
+	}
+	paramStream << "}";
+	return paramStream.str();
+}
+
 void saveGrapheDistanceCSV(Graphe& G, int tid) {
 	if (G.recuitDistanceAll.size() > 0) {
 		std::string nomFichier = chemin + "/resultats/" + to_string(tid) + "-recuitDistAll.csv";
@@ -109,12 +121,12 @@ int setTimeLimitRecuit(std::vector<std::vector<double>>& customParam) {
 
 void setupGrapheWithTypeFile(Graphe& G, std::string& typeFile, std::string& fileGraph, std::string& fileSlots) {
 	if (typeFile == "JSON") {
-		if (!useReel) { G.setupGraphe(fileGraph,fileSlots); }
-		else { G.setupGrapheReel(fileGraph); G.useCoordReel = true; }
+		if (!G.useCoordReel) { G.setupGraphe(fileGraph,fileSlots); }
+		else { G.setupGrapheReel(fileGraph); }
 	}
 	else if (typeFile == "GRAPHML") {
 		G.readFromGraphmlGraph(fileGraph);
-		if (!useReel) {
+		if (!G.useCoordReel) {
 			int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
         	G.generateGrid(nbNoeud,nbNoeud);
 		}
@@ -125,7 +137,7 @@ void setupGrapheWithTypeFile(Graphe& G, std::string& typeFile, std::string& file
 	}
 }
 
-void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0, std::string typeFile="JSON") {
+void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0, std::string typeFile="JSON", int timeLimit=3600) {
 	string nomGraphe = fileGraph;
 	std::reverse(nomGraphe.begin(), nomGraphe.end());
 	nomGraphe = nomGraphe.substr(nomGraphe.find(".") + 1);
@@ -136,10 +148,11 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	bool isRecuit = containsString(methodeAlgoName,"Recuit");
 	bool needTriangulation = containsString(methodeAlgoName,"TRE");
 	bool needGrille = containsString(methodeAlgoName,"Grille");
+	bool useTimeLimit = (timeLimit != -1);
 	double moyenneCroisement, medianCroisement, ecartTypeCroisement;
 	int meilleurCroisement = INT_MAX;
 	int nbSolutionIllegale = 0, debugValue=-1;
-	std::vector<int> croisementVector, edgeCostVector;
+	std::vector<int> croisementVector, edgeCostVector, recuitCycleVague;
 	std::vector<double> tempExecVector, tempBestVector, tempsPlacementVector; std::vector<int> bestIterationVector, lastIterationVector, nombreRecuitVector, totalInterVector, totalInterIllVector, placementInterVector;
 	double tempsExecMoyenne, tempsBestMoyenne, tempsPlacementMoyenne, bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne, edgeCostMoyenne, placementInterMoyenne;
 	bool saveResult = true;
@@ -148,7 +161,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 	int timeLimitRecuit = setTimeLimitRecuit(customParam);
 	auto totalStart = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotalExec = totalStart - totalStart;
-	for (int i = 1; ((((i <= nbEssay)&&(secondsTotalExec.count() < 3600))||(nbEssay==-1&&secondsTotalExec.count() < 3600))&&(i <= 100)); ++i) {
+	for (int i = 1; ((((i <= nbEssay)&&((!useTimeLimit)||(secondsTotalExec.count() < timeLimit)))||(nbEssay==-1&&secondsTotalExec.count() < timeLimit))&&(i <= 100)); ++i) {
 		resetSeed(tid,true);
 		auto start = std::chrono::system_clock::now();
 		Graphe G(nomGraphe);
@@ -257,6 +270,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		std::string outputFile = cheminOutputGraphs + nomGraphe + "-t" + to_string(tid) + "-r" + to_string(i) + ".json";
 		if (!useReel) { G.writeToJsonGraph(outputFile); }
 		else { G.writeToJsonGraphReel(outputFile); }
+		if (isRecuit) { recuitCycleVague = G.recuitCycleVague; }
 	}
 	resetSeed(tid,false,true);
 	if (saveResult) {
@@ -314,6 +328,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		resultats << "," << nombreCellule; // NOMBRE CELLULE
 		resultats << "," << debugValue << "," << date; // DEBUG VALUE ET DATE
 		if (edgeCostVector.size() > 0) { resultats << ",EC:" << edgeCostMoyenne; } // MOYENNE EDGE COST
+		if ((isRecuit)&&(croisementVector.size() == 1)&&(nombreRecuitMoyenne>1)) { resultats << "," << getRecuitCycleAsString(recuitCycleVague); } // CYCLE VAGUE RECUIT
 		resultats << "\n";
 		resultats.close();
 	}

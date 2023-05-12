@@ -138,13 +138,13 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GraphAttributes &ogdfGA, ogdf::G
 	for (int i = 0; i < nodeNumber; i++) {
 		nodeTab[i] = ogdfG.newNode();
 		vecNoeudAOGDFNode.push_back(nodeTab[i]);
-		if (G.estPlace()) {
-			ogdfGA.x(nodeTab[i]) = G._noeuds[i].getX();
-			ogdfGA.y(nodeTab[i]) = G._noeuds[i].getY();
-		}
-		else if (G.useCoordReel) {
+		if (G.useCoordReel) {
 			ogdfGA.x(nodeTab[i]) = G._noeuds[i]._xreel;
 			ogdfGA.y(nodeTab[i]) = G._noeuds[i]._yreel;
+		}
+		else if (G.estPlace()) {
+			ogdfGA.x(nodeTab[i]) = G._noeuds[i].getX();
+			ogdfGA.y(nodeTab[i]) = G._noeuds[i].getY();
 		}
 		else {
 			ogdfGA.x(nodeTab[i]) = 0;
@@ -539,21 +539,31 @@ void ogdfRescaleOgdfG(ogdf::Graph& ogdfG, ogdf::GraphAttributes& ogdfGA, int sca
 }
 
 void ogdfReverseAndPlace(Graphe &G, ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG) {
-	G.clearNodeEmplacement();
-	G._emplacements.clear();
-	G.gridHeight = 10;
-	G.gridWidth = 10;
-	int i = 0;
-	for (auto n : ogdfG.nodes) {
-		int x = ogdfGA.x(n);
-		int y = ogdfGA.y(n);
-		G._emplacements.push_back(Emplacement(x,y,i));
-		if (x > G.gridWidth) { G.gridWidth = x; }
-		if (y > G.gridHeight) { G.gridHeight = y; }
-		i++;
+	if (!G.useCoordReel) {
+		G.clearNodeEmplacement();
+		G._emplacements.clear();
+		G.gridHeight = 10;
+		G.gridWidth = 10;
+		int i = 0;
+		for (auto n : ogdfG.nodes) {
+			int x = ogdfGA.x(n);
+			int y = ogdfGA.y(n);
+			G._emplacements.push_back(Emplacement(x,y,i));
+			if (x > G.gridWidth) { G.gridWidth = x; }
+			if (y > G.gridHeight) { G.gridHeight = y; }
+			i++;
+		}
+		for (int i=0;i<G._noeuds.size();i++) {
+			G._noeuds[i].setEmplacement(&G._emplacements[i]);
+		}
 	}
-	for (int i=0;i<G._noeuds.size();i++) {
-		G._noeuds[i].setEmplacement(&G._emplacements[i]);
+	else {
+		int i=0;
+		for (auto n : ogdfG.nodes) {
+			G._noeuds[i]._xreel = ogdfGA.x(n);
+			G._noeuds[i]._yreel = ogdfGA.y(n);
+			i++;
+		}
 	}
 }
 
@@ -737,7 +747,7 @@ void ogdfPivotMDS(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::PivotMDS pmds;
 	pmds.call(ogdfGA);
-	ogdfNumberOfCrossings(ogdfGA);
+	std::cout << ogdfNumberOfCrossings(ogdfGA) << std::endl;
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }

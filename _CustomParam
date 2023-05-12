@@ -10,7 +10,7 @@ CustomParams:
 7=Box Arrive Coeff {7,x}
 8=Température de départ 't' {8,x}
 9=Valeur de Refroidissement 'cool' {9,x}
-10=Taille Grille {12,x} (int)(ceil(sqrt(G._noeuds.size()))*param[1])**;
+10=Taille Grille {10,x} (int)(ceil(sqrt(G._noeuds.size()))*param[1])**;
 11=Taille Grille {11,x} (int)(ceil(sqrt(G._aretes.size()))*param[1])**;
 12=Coeff Improve {12,x}
 13=Refroidissement de la rechauffe 'coolt' {13,x}
