@@ -41,7 +41,6 @@ void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pair
 
 // A besoin d'au moin slotFiles.size() threads pour effectuer toutes les executions.
 void customRecuit() {
-	fillLogsVector();
 	std::string nomFichierGraph = "graph-10-input";
 	std::vector<std::string> slotFiles = { "11-input-slots", "2X-11-input-slots", "3X-11-input-slots", "GRID" };
 	int nthreads, tid;
@@ -66,8 +65,7 @@ void customRecuit() {
 }
 
 void customRecuitFlottants() {
-	fillLogsVector();
-	std::string nomFichierGraph = "graph-10-input";
+	std::string nomFichierGraph = "graph-1-input";
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -82,14 +80,13 @@ void customRecuitFlottants() {
 				generateCSV(-1,"OGDFFMMM","Rerecuit Simule Grille TME",nomFichierGraph,"",totalRuns[i],true,tid);
 			}
 		}
-		generateCSV(1,"OGDFFMMMM","Rerecuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
+		generateCSV(-1,"OGDFFMMMM","Rerecuit Simule Grille TME",nomFichierGraph,"",{},true,tid);
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
 }
 
 void customRecuitFlottantsAllRuns() {
-	fillLogsVector();
 	std::vector<std::string> graphVector;
 	for (int i = 1; i <= 12; i++) {
 		graphVector.push_back("graph-" + std::to_string(i) + "-input");
@@ -121,7 +118,6 @@ void customRecuitFlottantsAllRuns() {
 }
 
 void customRecuitAllRuns() {
-	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	for (int i = 1; i <= 12; i++) {
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
@@ -153,7 +149,6 @@ void customRecuitAllRuns() {
 }
 
 void allRunsSingleThread() {
-	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire" };
 	std::vector<std::string> methodesAlgo = { "Aucun" };
@@ -181,7 +176,6 @@ void allRunsSingleThread() {
 
 // Multithreadé
 void allRunsLogged() {
-	fillLogsVector();
 	std::unordered_map<std::string, std::vector<std::string>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire"};
 	std::vector<std::string> methodesAlgo = { "Rerecuit Simule Grille Best"};
@@ -219,7 +213,6 @@ void allRunsLogged() {
 }
 
 void allRunsBySlots() {
-	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	//mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
 	for (int i = 5; i <= 12; i++) {
@@ -250,7 +243,6 @@ void allRunsBySlots() {
 }
 
 void allRunsBySlotsSecondRun() {
-	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	//mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
 	for (int i = 9; i <= 12; i++) {
@@ -290,7 +282,6 @@ void allRunsBySlotsSecondRun() {
 }
 
 void allRunsBySlotsThirdRun() {
-	fillLogsVector();
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	for (int i = 5; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
@@ -322,7 +313,6 @@ void allRunsBySlotsThirdRun() {
 }
 
 void allRunsByOnFolder() {
-	fillLogsVector();
 	std::cout << "Starting all run logs." << std::endl;
 	std::string path = chemin + "benchGraphs/runs/";
 	std::string slots = "Grid";
@@ -633,7 +623,7 @@ void compareStressFMMM() {
 		}
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			if (i%nthreads == tid) {
-				resetSeed(tid,true,true);
+				resetSeed(tid,true);
 				printf("Tid: %d | i: %d | File: %s\n",tid,i,dirEntry.path().string().c_str());
 				for (int methode=0;methode<=2;methode++) {
 					for (int slots=-3;slots<=9;slots++) {

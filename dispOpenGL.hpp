@@ -1025,7 +1025,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 21: {// Print current seed
 			std::cout << "Current Seed: "; 
-			if (isSeedResetting(0)) { std::cout << "R-"; }
+			if (!isSeedFixe()) { std::cout << "R-"; }
 			else { std::cout << "NR-"; }
 			std::cout << getSeed(0) << "\n";
 			break;

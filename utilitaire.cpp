@@ -16,7 +16,6 @@ thread_local int numGen=0;
 bool isSeedRandom;
 unsigned int seed;
 std::vector<unsigned int> seedThread;
-std::vector<bool> resetSeedThread;
 
 std::string typeSeed;
 
@@ -40,7 +39,7 @@ int generateRand(int n) {
 #endif
 }
 
-void initSameSeed(unsigned int n, bool resetting) {
+void initSameSeed(unsigned int n) {
     std::cout << "---------- SEED FIXE: " << n << " ----------\n";
     typeSeed = "FIXE";
     isSeedRandom = false;
@@ -50,11 +49,10 @@ void initSameSeed(unsigned int n, bool resetting) {
     for (int i=0;i<maxThread;i++) {
         genVector.push_back(new std::mt19937(n));
         seedThread.push_back(n);
-        resetSeedThread.push_back(resetting);
     }
 }
 
-void initSameSeedIncThread(unsigned int n,bool resetting) {
+void initSameSeedIncThread(unsigned int n) {
     std::cout << "---------- SEED FIXE INC: " << n << " ----------\n";
     typeSeed = "FIXE INC";
     isSeedRandom = false;
@@ -64,11 +62,10 @@ void initSameSeedIncThread(unsigned int n,bool resetting) {
     for (int i=0;i<maxThread;i++) {
         genVector.push_back(new std::mt19937(n+i));
         seedThread.push_back(n+i);
-        resetSeedThread.push_back(resetting);
     }
 }
 
-void initRandomSeed(bool resetting) {
+void initRandomSeed() {
     typeSeed = "RANDOM";
     isSeedRandom = true;
     genVector.clear();
@@ -78,28 +75,27 @@ void initRandomSeed(bool resetting) {
         unsigned int tmpSeed = rd();
         genVector.push_back(new std::mt19937(tmpSeed));
         seedThread.push_back(tmpSeed);
-        resetSeedThread.push_back(resetting);
     }
     std::cout << "---------- SEED RANDOM: " << getSeed(0) << " ----------\n";
 }
 
-void resetSeed(int numThread, bool resetSameSeed, bool forceReset) {
+void resetSeed(int numThread, bool resetSameSeed) {
+#if not defined(OPENMP_INSTALLED)
     numGen = numThread;
-    if (resetSeedThread[numThread]||forceReset) {
-        if (isSeedRandom) {
-            if (resetSameSeed) {
-                genVector[numThread] = new std::mt19937(seedThread[numThread]);
-            }
-            else {
-                std::random_device rd;
-                unsigned int tmpSeed = rd();
-                genVector[numThread] = new std::mt19937(tmpSeed);
-                seedThread[numThread] = tmpSeed;
-            }
+#endif
+    if (isSeedRandom) {
+        if (resetSameSeed) {
+            genVector[numThread] = new std::mt19937(seedThread[numThread]);
         }
         else {
-            genVector[numThread] = new std::mt19937(seed);
+            std::random_device rd;
+            unsigned int tmpSeed = rd();
+            genVector[numThread] = new std::mt19937(tmpSeed);
+            seedThread[numThread] = tmpSeed;
         }
+    }
+    else {
+        genVector[numThread] = new std::mt19937(seed);
     }
 }
 
@@ -113,10 +109,6 @@ unsigned int getSeed(int tid) {
 
 bool isSeedFixe() {
     return !isSeedRandom;
-}
-
-bool isSeedResetting(int numThread) {
-    return resetSeedThread[numThread];
 }
 
 // Indique si une valeur est dans un vecteur ou non
@@ -133,7 +125,7 @@ bool isInVector(std::vector<std::string>& vectorString, std::string x) {
 }
 
 // Le vecteur doit etre trie avant l'appel de cette fonction
-long medianeVector(std::vector<int> &vec) {
+long medianeVector(std::vector<long> &vec) {
     int taille = vec.size();
     if (taille % 2 == 1) {
         return vec[taille / 2];

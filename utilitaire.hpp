@@ -33,7 +33,7 @@ double moyenneVector(std::vector<T>& vec) {
 }
 
 // Le vecteur doit etre trie avant l'appel de cette fonction
-long medianeVector(std::vector<int> &vec);
+long medianeVector(std::vector<long> &vec);
 
 int lowestInVector(std::vector<int> &vec);
 
@@ -53,17 +53,16 @@ bool comparePtrEmplacement(Emplacement* a, Emplacement* b);
 // Fonction de sort par x et y
 bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b);
 
-// n la seed (0 par défaut), resetting indique si la seed doit être réinitialisée lors de l'appel de resetSeed
-void initSameSeed(unsigned int n=0,bool resetting=true);
+// n la seed (0 par défaut)
+void initSameSeed(unsigned int n=0);
 
-// n la seed(0 par défaut), incrémente la seed du tid, chaque thread a une seed différente. resetting indique si la seed doit être réinitialisée lors de l'appel de resetSeed
-void initSameSeedIncThread(unsigned int n=0,bool resetting=true);
+// n la seed(0 par défaut), incrémente la seed du tid, chaque thread a une seed différente.
+void initSameSeedIncThread(unsigned int n=0);
 
-// resetting indique si la seed doit être réinitialisée lors de l'appel de resetSeed
-void initRandomSeed(bool resetting=false);
+void initRandomSeed();
 
 // Reset la seed du thread numThread, resetSameSeed indique si la seed doit avoir la même valeur ou non. forceReset réinitialise peut importe la valeur de resetting.
-void resetSeed(int numThread, bool resetSameSeed=false, bool forceReset=false);
+void resetSeed(int numThread, bool resetSameSeed=false);
 
 // Indique si la seed est aléatoire ou fixe.
 std::string getTypeSeed();
@@ -75,9 +74,6 @@ unsigned int getSeed(int tid);
 
 // Renvoie vrai si la seed est fixe.
 bool isSeedFixe();
-
-// Renvoie vrai si la seed est reset a chaque run dans logCSV
-bool isSeedResetting(int numThread);
 
 // Renvoie true si le string b est présent dans le string a
 bool containsString(std::string a, std::string b);

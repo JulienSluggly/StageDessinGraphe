@@ -153,6 +153,7 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
+	customRecuitFlottants(); return 0;
 	//allRunsByOnFolder(); return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
