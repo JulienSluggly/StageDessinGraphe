@@ -153,8 +153,7 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
-	customRecuitFlottants(); return 0;
-	//allRunsByOnFolder(); return 0;
+	allRunsByOnFolder(); return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
@@ -163,17 +162,20 @@ int main(int argc, char *argv[]) {
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	std::string quickCrossInput = chemin + "resultats/results.txt";
 	std::string pathGraphDimacs = chemin + "benchGraphs/runs/" + nomFichierGraph + ".clean";
 	//ogdfReadQuickCrossToGraphCrossings(quickCrossInput,pathGraphDimacs,G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/"+nomFichierGraph+".clean");
 	//G.readFromJsonGraph(pathGraph);
+	G.generateKRegular(1000,9);
+	G.calcMaxAndAverageDegree();
 	G.fillCommonNodeVectors();
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	//if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
-	std::cout << "Debut placement. Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << std::endl;
+	std::cout << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
+	std::cout << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);

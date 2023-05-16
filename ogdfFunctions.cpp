@@ -679,7 +679,7 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::FastMultipoleMultilevelEmbedder fmme;
-	fmme.maxNumThreads(4);
+	fmme.maxNumThreads(0);
 	fmme.call(ogdfGA);
 	std::vector<std::pair<double,double>> bestCoord(G._noeuds.size());
 	int i=0;

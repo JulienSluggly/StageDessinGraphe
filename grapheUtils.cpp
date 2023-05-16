@@ -2536,3 +2536,98 @@ void Graphe::setupGridAndRegistration(std::vector<std::vector<double>> customPar
     if (useCoordReel) { initGrilleReel(row,row); registerNodesAndEdgesInGrid(); }
     else { initGrille(row,row); registerSlotsAndEdgesInGrid(); }
 }
+
+void resetKRegular(std::vector<std::vector<int>>& voisinage, std::vector<int>& values, int valuesSize) {
+    printf("Reset kregular\n");
+    for (std::vector<int>& noeudVoisinage : voisinage) {
+        noeudVoisinage.clear();
+    }
+    values.clear();
+    values.resize(valuesSize);
+    for (int i=0;i<valuesSize;i++) {
+        values[i] = i;
+    }
+}
+
+bool isEdgeSuitable(int firstNodeId, int secondNodeId, std::vector<int>& values, std::vector<std::vector<int>>& voisinage) {
+    if (firstNodeId==secondNodeId) { return false; }
+
+    for (const int& voisinId : voisinage[firstNodeId]) {
+        if (voisinId==secondNodeId) { return false; }
+    }
+
+    for (const int& voisinId : voisinage[secondNodeId]) {
+        if (voisinId==firstNodeId) { return false; }
+    }
+    return true;
+}
+
+bool checkSuitablePair(std::vector<int>& values, std::vector<std::vector<int>>& voisinage, int nbNoeud) {
+    for (int i=0;i<values.size()-1;i++) {
+        for (int j=i+1;j<values.size();j++) {
+            int firstNodeId = values[i] % nbNoeud;
+            int secondNodeId = values[j] % nbNoeud;
+            if (isEdgeSuitable(firstNodeId,secondNodeId,values,voisinage)) { return true; }
+        }
+    }
+    return false;
+}
+
+void connectIfSuitable(int firstNodeRandom, int secondNodeRandom, std::vector<int>& values, std::vector<std::vector<int>>& voisinage, int nbNoeud) {
+    int firstNodeId = values[firstNodeRandom] % nbNoeud;
+    int secondNodeId = values[secondNodeRandom] % nbNoeud;
+    if (!isEdgeSuitable(firstNodeId,secondNodeId,values,voisinage)) { return; }
+
+    voisinage[firstNodeId].push_back(secondNodeId);
+    voisinage[secondNodeId].push_back(firstNodeId);
+
+    int higherIndex = max(firstNodeRandom,secondNodeRandom);
+    int lowerIndex = min(firstNodeRandom,secondNodeRandom);
+    values[higherIndex] = values[values.size()-1];
+    values.pop_back();
+    values[lowerIndex] = values[values.size()-1];
+    values.pop_back();
+}
+
+void Graphe::generateKRegular(int nbNoeud, int degre) {
+    int valueSize = nbNoeud*degre;
+    if (valueSize%2 == 1) {
+        std::cout << "NbNoeud * degre doit être pair.\n";
+        exit(3);
+    }
+    _noeuds.reserve(nbNoeud*2);
+    for (int i=0;i<nbNoeud;i++) {
+        _noeuds.push_back(Noeud(i));
+    }
+    _aretes.reserve(valueSize);
+
+    std::vector<std::vector<int>> voisinage;
+    voisinage.resize(nbNoeud);
+    for (int i=0;i<nbNoeud;i++) {
+        voisinage[i].reserve(degre);
+    }
+
+    std::vector<int> values(valueSize);
+    for (int i=0;i<valueSize;i++) {
+        values[i]=i;
+    }
+    bool kregular_found = false;
+    while (!kregular_found) {
+        int firstNodeRandom = generateRand(values.size()-1);
+        int secondNodeRandom = generateRand(values.size()-1);
+        connectIfSuitable(firstNodeRandom,secondNodeRandom,values,voisinage,nbNoeud);
+        if (values.size() == 0) { kregular_found = true; }
+        else if (!checkSuitablePair(values,voisinage,nbNoeud)) { resetKRegular(voisinage,values,valueSize); }
+    }
+
+    int nbArete = 0;
+    for (int nodeId=0;nodeId<nbNoeud;nodeId++) {
+        for (const int& voisinId : voisinage[nodeId]) {
+            if (voisinId < nodeId) {
+                _aretes.push_back(Aretes(&_noeuds[nodeId],&_noeuds[voisinId],nbArete));
+                nbArete++;
+            }
+        }
+    }
+
+}

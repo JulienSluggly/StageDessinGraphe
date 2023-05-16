@@ -827,6 +827,10 @@ public:
 	// Applique les parametre custom si besoin
 	void setupGridAndRegistration(std::vector<std::vector<double>> customParam);
 
+	// nbNoeud * degre doit être pair.
+	// Génere un graphe dont tout les noeuds sont de degrés d.
+	void generateKRegular(int nbNoeud, int degre);
+
 };
 
 #endif
