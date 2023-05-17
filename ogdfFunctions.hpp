@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <ogdf/basic/basic.h>
 
 class GraphAttributes;
 class GridLayout;
@@ -58,6 +59,8 @@ void ogdfStressMinimization(Graphe& G);
 void ogdfFastMultipoleEmbedder(Graphe& G);
 
 void ogdfFastMultipoleMultilevelEmbedder(Graphe& G);
+
+void ogdfFastMultipoleMultilevelEmbedderMinute(Graphe& G);
 
 void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G);
 

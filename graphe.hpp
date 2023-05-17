@@ -306,6 +306,8 @@ public:
 	// Met a jour le nombre de croisement du graphe.
 	void rerecuitSimuleReel(double &timeBest, int &nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, int iter = -1, double cool = 0.99999, double coolt = 0.99, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1, bool firstWaveImp=false, bool adaptCool=false);
 
+	void recuitSimuleChallenge(double cool = 0.99999, double t = 100.0, double seuil = 0.0001);
+	void rerecuitSimuleChallenge(double coolt = 0.99, double t = 100.0, double seuil = 0.0001);
 
 	// Applique l'algorithme meilleur deplacement sur le graphe.
 	// On parcoure tout les noeuds et on teste chaque deplacement possible et on effectue le meilleur s'il ameliore le score. (O(n²*e))
@@ -592,6 +594,8 @@ public:
 	void readQuickCrossGraph(std::string fileArete);
 
 	void readQuickCrossCoord(std::string input);
+
+	void readFromJsonChallenge(std::string input);
 
 	// Sauvegarde des slots dans le fichier output
 	void writeToJsonSlots(std::string output);

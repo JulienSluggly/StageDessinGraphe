@@ -6,6 +6,8 @@
 #include <cstring>
 #include <omp.h>
 #include "personnel.hpp"
+#include <limits.h>
+#include "ogdfFunctions.hpp"
 
 using std::min;
 using std::max;
@@ -15,6 +17,7 @@ thread_local int numGen=0;
 
 bool isSeedRandom;
 unsigned int seed;
+unsigned int ogdfSeed;
 std::vector<unsigned int> seedThread;
 
 std::string typeSeed;
@@ -50,6 +53,10 @@ void initSameSeed(unsigned int n) {
         genVector.push_back(new std::mt19937(n));
         seedThread.push_back(n);
     }
+#if defined (OGDF_INSTALLED)
+    ogdf::setSeed(n);
+    ogdfSeed = n;
+#endif
 }
 
 void initSameSeedIncThread(unsigned int n) {
@@ -63,6 +70,10 @@ void initSameSeedIncThread(unsigned int n) {
         genVector.push_back(new std::mt19937(n+i));
         seedThread.push_back(n+i);
     }
+#if defined (OGDF_INSTALLED)
+    ogdf::setSeed(n);
+    ogdfSeed = n;
+#endif
 }
 
 void initRandomSeed() {
@@ -76,6 +87,10 @@ void initRandomSeed() {
         genVector.push_back(new std::mt19937(tmpSeed));
         seedThread.push_back(tmpSeed);
     }
+#if defined (OGDF_INSTALLED)
+    ogdfSeed = generateRand(INT_MAX-1);
+    ogdf::setSeed(ogdfSeed);
+#endif
     std::cout << "---------- SEED RANDOM: " << getSeed(0) << " ----------\n";
 }
 
@@ -86,16 +101,26 @@ void resetSeed(int numThread, bool resetSameSeed) {
     if (isSeedRandom) {
         if (resetSameSeed) {
             genVector[numThread] = new std::mt19937(seedThread[numThread]);
+#if defined (OGDF_INSTALLED)
+            ogdf::setSeed(ogdfSeed);
+#endif
         }
         else {
             std::random_device rd;
             unsigned int tmpSeed = rd();
             genVector[numThread] = new std::mt19937(tmpSeed);
             seedThread[numThread] = tmpSeed;
+#if defined (OGDF_INSTALLED)
+            ogdfSeed = generateRand(INT_MAX-1);
+            ogdf::setSeed(ogdfSeed);
+#endif
         }
     }
     else {
         genVector[numThread] = new std::mt19937(seed);
+#if defined (OGDF_INSTALLED)
+        ogdf::setSeed(ogdfSeed);
+#endif
     }
 }
 

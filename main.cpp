@@ -153,22 +153,22 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
-	allRunsByOnFolder(); return 0;
-	bool useCoordReel = true;
+	//allRunsByOnFolder(); return 0;
+	bool useCoordReel = false;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	std::string nomFichierSlots = "3X-11-input-slots";
+	std::string nomFichierSlots = "11-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	std::string quickCrossInput = chemin + "resultats/results.txt";
 	std::string pathGraphDimacs = chemin + "benchGraphs/runs/" + nomFichierGraph + ".clean";
 	//ogdfReadQuickCrossToGraphCrossings(quickCrossInput,pathGraphDimacs,G);
 	//G.readFromJsonGraph("/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/runs/"+nomFichierGraph+".clean");
 	//G.readFromJsonGraph(pathGraph);
-	G.generateKRegular(1000,9);
+	//G.generateKRegular(1000,9);
 	G.calcMaxAndAverageDegree();
 	G.fillCommonNodeVectors();
 	//G.initCompleteGraph(9);
@@ -181,17 +181,15 @@ int main(int argc, char *argv[]) {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	//ogdfFastMultipoleMultilevelEmbedder(G);
+	ogdfFastMultipoleMultilevelEmbedderMinute(G);
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
 	//ogdfOther(G);
 	//G.placementAleatoireReel();
 	
-	//createQuickCrossData(G,nomFichierGraph); return 0;
-	
 	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
-	ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
+	//ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
 	//G.placementAleatoireReel();
 	//G.forcePlacement();
 	//G.stressMajorizationReel();
@@ -200,6 +198,10 @@ int main(int argc, char *argv[]) {
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 	std::cout << "Fin du placement.\n";
 	auto finPlacement = std::chrono::system_clock::now();
+	G.recuitSimuleChallenge();
+	//G.recuitSimule(tempsBest,start,{});
+	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.9999945,0.99,100.0,0.0001,1,0,2,true,false,120);
+	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,-1,true);
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,120);
 	//G.triangulationDelaunay();
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,3);

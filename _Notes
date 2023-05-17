@@ -10,35 +10,20 @@ Faire une version ogdf placement au plus proche qui place les voisins d'un noeud
 
 Refaire le recuit score en intégrant la grille
 
-Regarder si il est possible d'implementer l'algo de planarisation d'ogdf avec nos contraintes
-
 Restructurer le code genetique pour les appels des differentes fonctions
 
 Genetique qui place n/2 noeud iterativement et produit deux enfants
 
 Changement de repere, ACP
 
-Retester toutes les methodes sur tout les graphes 
-
 Parseur de fichier sans librairie json
 
-Spring Embedding, Graphviz twopi
-
 Implementer fast multipole multilevel avec nos contraintes?
-
-ogdfFMMM suivi du stressMin?
 
 Restructurer les methodes de graphe, ne garder en methode de classe que celle qui font sens
 
 Implementer le recuit only improve et best deplacement a la fin des 1h d'execution
 
-multithreading recuit, pool threading
-
 retest tres haute temperature?
 
 Adapter code aux coord entieres sans emplacement
-
-A FIX RECUIT THREAD SELECTION
-same seed different results ? (race condition a l'improve si egalité)
-
-Faire une version recuit optimisée sans aucun check de parametre

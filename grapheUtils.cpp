@@ -670,7 +670,116 @@ void Graphe::registerSlotsInGridNoMove() {
 }
 
 void Graphe::registerEdgesInGridNoMove() {
-    // NYI
+    int nombreColonne = grille[0].size();
+    for (int i=0;i<_aretes.size();i++) {
+        int n1X = _aretes[i].getNoeud1()->getX();
+        int n1Y = _aretes[i].getNoeud1()->getY();
+        int n2X = _aretes[i].getNoeud2()->getX();
+        int n2Y = _aretes[i].getNoeud2()->getY();
+        int direction = getDirectionArete(i);
+        std::vector<int>* vecCellDepart = _aretes[i].getNoeud1()->getEmplacement()->idCelluleVec;
+        int idCellX, idCellY;
+        for (const int& tmpIdCell : *vecCellDepart) {
+            _aretes[i].vecIdCellules.push_back(tmpIdCell);
+        }
+        int idCell = _aretes[i].getNoeud1()->getEmplacement()->idCelluleVec->at(0);
+        std::vector<int>* vecCellArrive = _aretes[i].getNoeud2()->getEmplacement()->idCelluleVec;
+        while (!isInVector(*vecCellArrive,idCell)) {
+            switch(direction) {
+                case 0:
+                    idCell++;
+                    break;
+                case 1: {
+                    double cellX = grillePtr[idCell]->getTopRightX();
+                    double cellY = grillePtr[idCell]->getTopRightY();
+                    int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                    if (alignement == 1) {
+                        idCell++;
+                    }
+                    else if (alignement == -1) {
+                        idCell += nombreColonne;
+                    }
+                    else {
+                        _aretes[i].vecIdCellules.push_back(idCell+nombreColonne);
+                        _aretes[i].vecIdCellules.push_back(idCell+1);
+                        idCell = idCell + nombreColonne + 1;
+                    }
+                    break;
+                }
+                case 2:
+                    idCell += nombreColonne;
+                    break;
+                case 3: {
+                    double cellX = grillePtr[idCell]->getTopLeftX();
+                    double cellY = grillePtr[idCell]->getTopLeftY();
+                    int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                    if (alignement == 1) {
+                        idCell += nombreColonne;
+                    }
+                    else if (alignement == -1) {
+                        idCell--;
+                    }
+                    else {
+                        _aretes[i].vecIdCellules.push_back(idCell+nombreColonne);
+                        _aretes[i].vecIdCellules.push_back(idCell-1);
+                        idCell = idCell + nombreColonne - 1;
+
+                    }
+                    break;
+                }
+                case 4:
+                    idCell--;
+                    break;
+                case 5: {
+                    double cellX = grillePtr[idCell]->getBottomLeftX();
+                    double cellY = grillePtr[idCell]->getBottomLeftY();
+                    int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                    if (alignement == 1) {
+                        idCell--;
+                    }
+                    else if (alignement == -1) {
+                        idCell -= nombreColonne;
+                    }
+                    else {
+                        _aretes[i].vecIdCellules.push_back(idCell-nombreColonne);
+                        _aretes[i].vecIdCellules.push_back(idCell-1);
+                        idCell = idCell - nombreColonne - 1;
+                    }
+                    break;
+                }
+                case 6:
+                    idCell -= grille[0].size();
+                    break;
+                case 7: {
+                    double cellX = grillePtr[idCell]->getBottomRightX();
+                    double cellY = grillePtr[idCell]->getBottomRightY();
+                    int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
+                    if (alignement == 1) {
+                        idCell -= nombreColonne;
+                    }
+                    else if (alignement == -1) {
+                        idCell++;
+                    }
+                    else {
+                        _aretes[i].vecIdCellules.push_back(idCell-nombreColonne);
+                        _aretes[i].vecIdCellules.push_back(idCell+1);
+                        idCell = idCell - nombreColonne + 1;
+                    }
+                    break;
+                }
+            }
+            _aretes[i].vecIdCellules.push_back(idCell);
+        }
+        for (const int& tmpIdCell : *vecCellArrive) {
+            _aretes[i].vecIdCellules.push_back(tmpIdCell);
+        }
+        std::unordered_set<int> tmpUSet(_aretes[i].vecIdCellules.begin(), _aretes[i].vecIdCellules.end());
+        _aretes[i].vecIdCellules.assign(tmpUSet.begin(), tmpUSet.end());
+        for (const int& idCellule : _aretes[i].vecIdCellules) {
+            grillePtr[idCellule]->containAreteId[i] = grillePtr[idCellule]->vecAreteId.size();
+            grillePtr[idCellule]->vecAreteId.push_back(i);
+        }
+    }
 }
 
 void Graphe::registerSlotsInGrid() {

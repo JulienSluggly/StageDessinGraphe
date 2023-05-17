@@ -343,12 +343,9 @@ void ogdfTranslateOgdfGraphToOrigin(ogdf::Graph& ogdfG, ogdf::GraphAttributes& o
 // ogdfGA doit contenir le placement du graphe ogdf, on fait ensuite une translation puis scaling et on place au plus proche
 void ogdfPlacementAuPlusProche(ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG, Graphe& G) {
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
-	int maxX=0, maxY=0;
-	for (int i = 0; i < G._emplacements.size(); i++) {
-		if (G._emplacements[i].getX() > maxX) { maxX = G._emplacements[i].getX();  }
-		if (G._emplacements[i].getY() > maxY) { maxY = G._emplacements[i].getY();  }
-	}
-	int ogdfMaxX = 0, ogdfMaxY = 0;
+	int maxX = G.gridWidth;
+	int maxY = G.gridHeight;
+	double ogdfMaxX = -100000, ogdfMaxY = -100000;
 	int nodeNumber = G._noeuds.size();
 	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
 	int i = 0;
@@ -656,6 +653,41 @@ void ogdfFastMultipoleMultilevelEmbedder(Graphe& G) {
     G.isIntersectionVectorUpdated = false;
 }
 
+void ogdfFastMultipoleMultilevelEmbedderMinute(Graphe& G) {
+	auto start = std::chrono::system_clock::now();
+	G.initGrilleCarre();
+    G.registerSlotsInGridNoMove();
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
+	ogdf::FastMultipoleMultilevelEmbedder fmme;
+	fmme.call(ogdfGA);
+	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
+	G.registerEdgesInGridNoMove();
+	std::vector<int> graphCopy = G.saveCopy();
+	long bestNbCrossings = G.getNbCroisementDiffGrid();
+	auto end = std::chrono::system_clock::now();
+	std::chrono::duration<double> secondsTotal = end - start;
+	for (int nbIter=0;((nbIter<100)&&(secondsTotal.count() < 20));nbIter++) {
+		fmme.call(ogdfGA);
+		G.clearGrille();
+		ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
+		G.registerEdgesInGridNoMove();
+		long nbCrossing = G.getNbCroisementDiffGrid();
+		if (nbCrossing < bestNbCrossings) {
+			bestNbCrossings = nbCrossing;
+			graphCopy = G.saveCopy();
+		}
+		end = std::chrono::system_clock::now();
+		secondsTotal = end - start;
+	}
+	G.loadCopy(graphCopy);
+	G.deleteGrille();
+	G.isNombreCroisementUpdated = false;
+    G.isNodeScoreUpdated = false;
+    G.isIntersectionVectorUpdated = false;
+}
+
 void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
@@ -692,7 +724,7 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 	int nbIter = 0;
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> secondsTotal = end - start;
-	while (nbIter < 20 && secondsTotal.count() < 10) {
+	while (nbIter < 100 && secondsTotal.count() < 20) {
 		fmme.call(ogdfGA);
 		nbCrossing = ogdfNumberOfCrossings(ogdfGA);
 		if (nbCrossing < bestNbCrossings) {

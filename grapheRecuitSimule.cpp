@@ -1023,6 +1023,108 @@ long Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
     return debutCroisement - bestCroisement;
 }
 
+void Graphe::recuitSimuleChallenge(double cool, double t, double seuil) {
+    std::vector<int> bestResultVector = saveCopy();
+    long nbCroisement, bestCroisement, debutCroisement;
+    nbCroisement = getNbCroisement();
+    bestCroisement = nbCroisement;
+    debutCroisement = nbCroisement;
+    int nodeId, slotId, idSwappedNode, improve;
+    bool swapped;
+    Emplacement* oldEmplacement;
+    for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
+        nodeId = generateRand(_noeuds.size() - 1);
+        int nbTirage = (iter / 100000) + 3;
+        slotId = selectionEmplacementTournoiMultiple(nbTirage, nodeId);
+        oldEmplacement = _noeuds[nodeId].getEmplacement();
+        swapped = false;
+        idSwappedNode = -1;
+
+        long scoreNode;
+        if (!_emplacements[slotId].estDisponible()) {
+            swapped = true;
+            idSwappedNode = _emplacements[slotId]._noeud->getId();
+            scoreNode = getScoreCroisementNodeGrid(nodeId, idSwappedNode);
+            scoreNode += getScoreCroisementNodeGrid(idSwappedNode);
+            _noeuds[nodeId].swap(&_emplacements[slotId]);
+        }
+        else {
+            scoreNode = getScoreCroisementNodeGrid(nodeId);
+            _noeuds[nodeId].setEmplacement(&_emplacements[slotId]);
+        }
+        recalcNodeCellule(nodeId);
+        long newScoreNode;
+        if (swapped) {
+            recalcNodeCellule(idSwappedNode);
+            newScoreNode = getScoreCroisementNodeGrid(nodeId, idSwappedNode);
+            newScoreNode += getScoreCroisementNodeGrid(idSwappedNode);
+        }
+        else {
+            newScoreNode = getScoreCroisementNodeGrid(nodeId);
+        }
+        improve = newScoreNode - scoreNode;
+
+        if (improve < 0) {
+            nbCroisement += improve;
+            if (nbCroisement < bestCroisement) {
+                bestCroisement = nbCroisement;
+                bestResultVector = saveCopy();
+                //writeToJsonChallenge("tmp.json");
+            }
+        }
+        else {
+            double randDouble = generateDoubleRand(1.0);
+            if (randDouble >= exp(-improve / t)) {
+                if (swapped) {
+                    _noeuds[nodeId].swap(oldEmplacement);
+                    recalcNodeCellule(idSwappedNode);
+                }
+                else {
+                    _noeuds[nodeId].setEmplacement(oldEmplacement);
+                }
+                recalcNodeCellule(nodeId);
+            }
+            else {
+                nbCroisement += improve;
+            }
+        }
+        t *= cool;
+    }
+    loadCopy(bestResultVector);
+    nombreCroisement = bestCroisement;
+    isNombreCroisementUpdated = true;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
+}
+
+void Graphe::rerecuitSimuleChallenge(double coolt, double t, double seuil) {
+    double cool;
+    if (_noeuds.size() <= 30) { cool = 0.9999945; }
+    else if (_noeuds.size() <= 100) { cool = 0.999999; }
+    else { cool = 0.99999945; }
+    int numberOfNoUpgrade = 0, maxIter = 10;
+    long lastCroisement;
+    if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
+    else { lastCroisement = getNbCroisementConst(); }
+    int i=1;
+    while (numberOfNoUpgrade < maxIter) {
+        if (i>1) { reinitGrille(); }
+        recuitSimuleChallenge(cool, t, seuil);
+        t *= coolt;
+        long newCroisement;
+        if (isNombreCroisementUpdated) { newCroisement = nombreCroisement; }
+        else { newCroisement = getNbCroisementConst(); }
+        if (newCroisement == lastCroisement) {
+            numberOfNoUpgrade++;
+        }
+        else {
+            lastCroisement = newCroisement;
+            numberOfNoUpgrade = 0;
+        }
+        i++;
+    }
+}
+
 // Applique l'algorithme meilleur deplacement sur le graphe.
 // On parcoure tout les noeuds et on teste chaque deplacement possible et on effectue le meilleur s'il ameliore le score. (O(n²*e))
 // Met a jour le nombre de croisement du graphe.
