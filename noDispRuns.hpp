@@ -357,6 +357,66 @@ void allRunsByOnFolder() {
 	}
 }
 
+void allRunsRegularGraphs() {
+	std::cout << "Starting all run logs." << std::endl;
+	std::string path1 = chemin + "benchGraphs/kregular/3regular/";
+	std::string path2 = chemin + "benchGraphs/kregular/6regular/";
+	std::string path3 = chemin + "benchGraphs/kregular/9regular/";
+	std::string slots = "Grid";
+	int nthreads, tid;
+#pragma omp parallel private(tid)
+	{
+		tid = ::omp_get_thread_num();
+		nthreads = ::omp_get_num_threads();
+		if (tid == 0) {
+			printf("Number of threads working on training data: %d\n", nthreads);
+		}
+		int indexKey = 0;
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path1)) {
+			if (tid == (indexKey % nthreads)) {
+				generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid,"JSON",-1);
+			}
+			indexKey++;
+		}
+		indexKey = 0;
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path1)) {
+			if (tid == (indexKey % nthreads)) {
+				generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid,"JSON",-1);
+			}
+			indexKey++;
+		}
+		indexKey = 0;
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path2)) {
+			if (tid == (indexKey % nthreads)) {
+				generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid,"JSON",-1);
+			}
+			indexKey++;
+		}
+		indexKey = 0;
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path2)) {
+			if (tid == (indexKey % nthreads)) {
+				generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid,"JSON",-1);
+			}
+			indexKey++;
+		}
+		indexKey = 0;
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path3)) {
+			if (tid == (indexKey % nthreads)) {
+				generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid,"JSON",-1);
+			}
+			indexKey++;
+		}
+		indexKey = 0;
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path3)) {
+			if (tid == (indexKey % nthreads)) {
+				generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,tid,"JSON",-1);
+			}
+			indexKey++;
+		}
+		printf("Thread %d done.\n", tid);
+	}
+}
+
 // Multithreading sur un seul graphe pour differentes methodes
 void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSingleFile=false) {
 	int nthreads, tid;
@@ -795,6 +855,15 @@ void testThreads2() {
 		printf("Thread %d done.\n", tid);
 	}
 	printf("All Threads done.\n");
+}
+
+void generateNKRegular(int n, int k, int d) {
+	for (int i=0;i<n;i++) {
+		Graphe G;
+		G.generateKRegular(k,d);
+		std::string nomGraphe = to_string(d) + "-regular-" + to_string(k) + "nodes-" + to_string(i) + ".json";
+		G.writeToJsonGraphReel(nomGraphe);
+	}
 }
 
 #endif

@@ -153,8 +153,8 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
-	//allRunsByOnFolder(); return 0;
-	bool useCoordReel = false;
+	allRunsByOnFolder(); allRunsRegularGraphs(); return 0;
+	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
 	std::string nomFichierSlots = "11-input-slots";
@@ -162,7 +162,9 @@ int main(int argc, char *argv[]) {
 	std::cout << nomFichierGraph << " " << nomFichierSlots << std::endl;
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	std::string kregularFile = chemin + "benchGraphs/kregular/9regular/9-regular-1000nodes-0.json";
+	G.readFromJsonGraphReel(kregularFile);
 	std::string quickCrossInput = chemin + "resultats/results.txt";
 	std::string pathGraphDimacs = chemin + "benchGraphs/runs/" + nomFichierGraph + ".clean";
 	//ogdfReadQuickCrossToGraphCrossings(quickCrossInput,pathGraphDimacs,G);
@@ -181,7 +183,7 @@ int main(int argc, char *argv[]) {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	ogdfFastMultipoleMultilevelEmbedderMinute(G);
+	//ogdfFastMultipoleMultilevelEmbedderMinute(G);
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
 	//ogdfOther(G);
@@ -189,7 +191,7 @@ int main(int argc, char *argv[]) {
 	
 	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
-	//ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
+	ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
 	//G.placementAleatoireReel();
 	//G.forcePlacement();
 	//G.stressMajorizationReel();
@@ -198,23 +200,11 @@ int main(int argc, char *argv[]) {
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 	std::cout << "Fin du placement.\n";
 	auto finPlacement = std::chrono::system_clock::now();
-	G.recuitSimuleChallenge();
+	//G.recuitSimuleChallenge();
 	//G.recuitSimule(tempsBest,start,{});
-	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.9999945,0.99,100.0,0.0001,1,0,2,true,false,120);
-	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,-1,true);
-	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,120);
-	//G.triangulationDelaunay();
-	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,3);
-	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2);
-	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,4,true);
-	//G.recuitSimuleReel(tempsBest,start,{{9,0.99999},{13,1.5}},0.99999,100.0,0.0001,1,0,2,true);
-	//G.recuitSimuleReel(tempsBest,start,{{13,1.5}},0.99999,0.01,0.0001,1,0,2,true);
-	//G.recuitSimuleReelThreadSelection(tempsBest,start,{{}},0.99999,100.0,0.0001,1,0,2,true);/
-	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
-	//G.recuitSimuleReelThreadPool(tempsBest,start,{},0.99999,0.01,0.0001,1,0,2,true,false,false);
-	//G.recuitSimuleReelThread(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,false);
-	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{9,0.99999},{13,1.5}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
-	//G.writeToJsonChallenge(nomFichierGraph + "-challenge");
+	G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
+	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,500);
+	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 	//G.afficherInfo();
 	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
