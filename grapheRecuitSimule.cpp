@@ -662,7 +662,7 @@ long Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
     calculDelaiRefroidissement(delay,customParam,0);
     setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+        std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Debut Recuit Simule Reel.\n";
     #endif
     int nodeId, idSwappedNode, improve;
     std::pair<double,double> randCoord;
@@ -718,7 +718,7 @@ long Graphe::recuitSimuleReel(double &timeBest, std::chrono::time_point<std::chr
     std::chrono::duration<double> secondsBest = bestEnd - start;
     timeBest = secondsBest.count();
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
+        std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Fin Vague Recuit Simule Reel.\n";
     #endif
     return debutCroisement - bestCroisement;
 }
@@ -730,7 +730,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
     applyRerecuitCustomParam(t,cool,coolt,seuil,adaptCool,customParam);
     nombreRecuit= 0;
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Starting Rerecuit " << iter << " iterations." << std::endl;
+        std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Starting Rerecuit Simule Reel " << iter << " iterations." << std::endl;
     #endif
     int numberOfNoUpgrade = 0, maxIter = 10;
     if (iter != -1) { maxIter = iter; }
@@ -745,8 +745,8 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
     if (firstWaveImp) { t = 0.05; }
     while ((numberOfNoUpgrade < maxIter)&&((timeLimit == -1)||(secondsTotalExec.count() < timeLimit))) {
         if (useGrille) { if (i>1) { reinitGrilleReel(); } }
-        #if defined(DEBUG_GRAPHE)
-            std::cout << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
+        #if defined(DEBUG_GRAPHE_PROGRESS)
+            std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif
         nombreRecuit++;
         long nbInterSuppr = recuitSimuleReel(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore,timeLimit);

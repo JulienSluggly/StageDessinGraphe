@@ -519,6 +519,9 @@ int Graphe::debugSelfLoop(bool display, std::string nom) {
 }
 
 int Graphe::debugEverything(bool displayOther, bool displaySelf) {
+#if defined(DEBUG_GRAPHE)
+    std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Debut debugging graphe\n";
+#endif
     int total = 0;
     #if defined(DEBUG)
     if (displaySelf) { std::cout << "Debut debug arete double\n"; }

@@ -112,6 +112,9 @@ LogGraphe::LogGraphe(const std::string& fileG, const std::string& fileS, const s
 }
 
 void LogGraphe::updateDataFromGraphe(Graphe& G) {
+#if defined(DEBUG_GRAPHE)
+	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Update Data From Graphe.\n";
+#endif
     nombreSlots = G._emplacements.size();
     nombreCellule = G.grillePtr.size();
     if (G.isNombreCroisementUpdated) { scoreVector.push_back(G.nombreCroisement); }
@@ -125,12 +128,18 @@ void LogGraphe::updateDataFromGraphe(Graphe& G) {
 }
 
 void LogGraphe::writeGrapheToFile(Graphe& G, int tid) {
+#if defined(DEBUG_GRAPHE)
+	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Ecriture du graphe dans fichier JSON.\n";
+#endif
     std::string outputFile = cheminOutputGraphs + nomGraphe + "-t" + to_string(tid) + "-r" + to_string(currentIteration) + ".json";
     if (!G.useCoordReel) { G.writeToJsonGraph(outputFile); }
     else { G.writeToJsonGraphReel(outputFile); }
 }
 
 void LogGraphe::writeResultToFile() {
+#if defined(DEBUG_GRAPHE)
+	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Ecriture data graph dans fichier CSV.\n";
+#endif
 	if (isRecuit) { writeRecuitResultToFile(); }
 	else if (isGenetique) { writeGenetiqueResultToFile(); }
 }
@@ -285,6 +294,7 @@ int LogGraphe::setTimeLimitRecuit() {
 }
 
 void LogGraphe::setupGrapheWithTypeFile(Graphe& G, std::string& typeFile, std::string& fileGraph, std::string& fileSlots) {
+	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Loading Graphe from file.\n";
 	if (typeFile == "JSON") {
         if (!G.useCoordReel) { G.setupGraphe(fileGraph,fileSlots); }
         else { G.setupGrapheReel(fileGraph); }
@@ -347,6 +357,7 @@ void LogGraphe::placementGraphe(Graphe& G) {
 }
 
 void LogGraphe::setupGrapheStruct(Graphe& G) {
+	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Setup Graphe.\n";
     if (G.useCoordReel) { G.translateGrapheToOriginReel(-1); }
     if (updateScore) { G.initGraphAndNodeScoresAndCrossings(); }
     if (needTriangulation) { G.triangulationDelaunay(); }

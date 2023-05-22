@@ -12,7 +12,7 @@
 #define GPERF_INSTALLED
 
 #define DEBUG // Regarde s'il y a un probleme dans la structure du graphe
-//#define DEBUG_GRAPHE // Affiche uniquement les informations importantes
+#define DEBUG_GRAPHE // Affiche uniquement les informations importantes
 //#define DEBUG_GRAPHE_PROGRESS // Affiche des informations pendant les itérations
 
 extern std::string chemin;

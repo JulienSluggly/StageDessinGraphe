@@ -800,13 +800,10 @@ void Graphe::registerSlotsInGrid() {
 
 void Graphe::registerSlotsAndEdgesInGrid() {
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Remplissage de la grille.\n";
+        std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Remplissage de la grille.\n";
     #endif
     registerSlotsInGrid();
     registerEdgesInGrid();
-    #if defined(DEBUG_GRAPHE)
-        std::cout << "Fin remplissage de la grille.\n";
-    #endif
 }
 
 void Graphe::registerEdgesInGrid() {
@@ -943,14 +940,8 @@ void Graphe::registerEdgesInGrid() {
 }
 
 void Graphe::registerNodesAndEdgesInGrid() {
-    #if defined(DEBUG_GRAPHE)
-        std::cout << "Remplissage de la grille.\n";
-    #endif
     registerNodesInGrid();
     registerEdgesInGridReel();
-    #if defined(DEBUG_GRAPHE)
-        std::cout << "Fin remplissage de la grille.\n";
-    #endif
 }
 
 void Graphe::registerNodesInGrid() {
@@ -2633,6 +2624,9 @@ void Graphe::printCommonMatrix() {
 }
 
 void Graphe::setupGridAndRegistration(std::vector<std::vector<double>> customParam) {
+#if defined(DEBUG_GRAPHE)
+    std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Setup Cellules.\n";
+#endif
     int row = (int)ceil(sqrt(_aretes.size())*1.5);
     if (customParam.size() > 0) {
         for (std::vector<double>& param : customParam) {

@@ -706,6 +706,9 @@ void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
 }
 
 void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
+#if defined(DEBUG_GRAPHE)
+	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Debut placement OGDFFMMMM\n";
+#endif
 	auto start = std::chrono::system_clock::now();
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
@@ -749,6 +752,9 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 	G.isNombreCroisementUpdated = false;
     G.isNodeScoreUpdated = false;
     G.isIntersectionVectorUpdated = false;
+#if defined(DEBUG_GRAPHE)
+	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Fin Placement OGDFFMMMM\n";
+#endif
 }
 
 void ogdfFMMMLayout(Graphe& G) {
