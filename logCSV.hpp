@@ -153,7 +153,7 @@ void LogGraphe::writeRecuitResultToFile() {
     long medianScore;
 	double moyenneCroisement, ecartTypeScore;
 	double tempsExecMoyenne, tempsBestMoyenne, tempsPlacementMoyenne;
-	double bestIterationMoyenne, lastIterationMoyenne, nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne, edgeCostMoyenne, placementInterMoyenne;
+	double nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne, edgeCostMoyenne, placementInterMoyenne;
 	std::sort(scoreVector.begin(), scoreVector.end());
 	long meilleurScore = scoreVector[0];
 	moyenneCroisement = moyenneVector(scoreVector);
@@ -162,8 +162,6 @@ void LogGraphe::writeRecuitResultToFile() {
 	tempsPlacementMoyenne = moyenneVector(tempsPlacementVector);
 	tempsExecMoyenne = moyenneVector(tempsExecVector);
 	tempsBestMoyenne = moyenneVector(tempsBestVector);
-	bestIterationMoyenne = moyenneVector(bestIterationVector);
-	lastIterationMoyenne = moyenneVector(lastIterationVector);
 	nombreRecuitMoyenne = moyenneVector(nombreRecuitVector);
 	totalInterMoyenne = moyenneVector(totalInterVector);
 	totalInterIllMoyenne = moyenneVector(totalInterIllVector);

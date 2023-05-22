@@ -362,7 +362,7 @@ void ogdfPlacementAuPlusProche(ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG
 		ogdfGA.y(n) = ogdfGA.y(n) / ratio2;
 	}
 	G.clearNodeEmplacement();
-	for (int i=0;i<G._noeuds.size();i++) {
+	for (i=0;i<G._noeuds.size();i++) {
 		double x = ogdfGA.x(nodeTab[i]);
 		double y = ogdfGA.y(nodeTab[i]);
 		Emplacement* closestEmplacement;
@@ -447,14 +447,15 @@ void ogdfPlacementAuPlusProcheStress(Graphe& G) {
 	sm.call(ogdfGA);
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	int maxX=0, maxY=0;
-	for (int i = 0; i < G._emplacements.size(); i++) {
+	int i=0;
+	for (i = 0; i < G._emplacements.size(); i++) {
 		if (G._emplacements[i].getX() > maxX) { maxX = G._emplacements[i].getX();  }
 		if (G._emplacements[i].getY() > maxY) { maxY = G._emplacements[i].getY();  }
 	}
 	int ogdfMaxX = 0, ogdfMaxY = 0;
 	int nodeNumber = G._noeuds.size();
 	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
-	int i = 0;
+	i = 0;
 	for (auto n : ogdfG.nodes) {
 		if (ogdfGA.x(n) > ogdfMaxX) { ogdfMaxX = ogdfGA.x(n); }
 		if (ogdfGA.y(n) > ogdfMaxY) { ogdfMaxY = ogdfGA.y(n); }
@@ -465,7 +466,7 @@ void ogdfPlacementAuPlusProcheStress(Graphe& G) {
 	double ratio2 = (double)ogdfMaxY / (double)maxY;
 	if (ratio2 > ratio) { ratio = ratio2; }
 	if (ratio > 1) {
-		for (int i = 0; i < G._emplacements.size(); i++) {
+		for (i = 0; i < G._emplacements.size(); i++) {
 			G._emplacements[i]._x *= ratio;
 			G._emplacements[i]._y *= ratio;
 		}
@@ -479,7 +480,7 @@ void ogdfPlacementAuPlusProcheStress(Graphe& G) {
 		}
 	}
 	G.clearNodeEmplacement();
-	for (int i=0;i<G._noeuds.size();i++) {
+	for (i=0;i<G._noeuds.size();i++) {
 		int indexNoeud = -1, indexEmp = -1;
 		long dist = LONG_MAX;
 		for (int j = 0; j < G._noeuds.size(); j++) {

@@ -603,10 +603,11 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
     auto end = start;
     applyRerecuitCustomParam(t,cool,coolt,seuil,adaptCool,customParam);
     nombreRecuit= 0;
-    #if defined(DEBUG_GRAPHE)
-        tcout() << "Starting Rerecuit " << iter << " iterations." << std::endl;
-    #endif
     int numberOfNoUpgrade = 0, maxIter = 10;
+    #if defined(DEBUG_GRAPHE)
+        if (iter == -1) { tcout() << "Starting Rerecuit Simule " << maxIter << " reheating no upgrade.\n"; }
+        else { tcout() << "Starting Rerecuit Simule " << iter << " max iterations.\n"; }
+    #endif
     if (iter != -1) { maxIter = iter; }
     long lastCroisement;
     if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
@@ -729,10 +730,11 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
     auto end = start;
     applyRerecuitCustomParam(t,cool,coolt,seuil,adaptCool,customParam);
     nombreRecuit= 0;
-    #if defined(DEBUG_GRAPHE)
-        tcout() << "Starting Rerecuit Simule Reel " << iter << " iterations." << std::endl;
-    #endif
     int numberOfNoUpgrade = 0, maxIter = 10;
+    #if defined(DEBUG_GRAPHE)
+        if (iter == -1) { tcout() << "Starting Rerecuit Simule Reel " << maxIter << " reheating no upgrade.\n"; }
+        else { tcout() << "Starting Rerecuit Simule Reel " << iter << " max iterations.\n"; }
+    #endif
     if (iter != -1) { maxIter = iter; }
     long lastCroisement;
     if (isNombreCroisementUpdated) { lastCroisement = nombreCroisement; }
@@ -924,8 +926,8 @@ long Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
     int tid;
     thread_IsRecuitFinished = false;
     std::pair<double,double> bestCoord;
-    long bestScore;
-    int nodeId = -1, iter;
+    long bestScore = INT_MAX;
+    int nodeId = -1, iter=0;
     int maxThread = omp_get_max_threads()-2;
     long nbCroisement, bestCroisement, debutCroisement;
     setupNombreCroisement(nbCroisement,bestCroisement,debutCroisement);
@@ -937,7 +939,6 @@ long Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
             std::vector<std::pair<double,double>> bestResultVector;
             saveBestResultRecuitReel(bestResultVector);
             double coeffImprove = 1.0;
-            int nombreNoeud = (int)_noeuds.size()-1;
             applyRecuitCustomParam(coeffImprove,customParam);
             calculDelaiRefroidissement(delay,customParam,0);
             setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
@@ -946,7 +947,7 @@ long Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
             #endif
             int idSwappedNode, improve;
             std::chrono::duration<double> secondsTotal = end - start;
-            for (iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit==-1)); iter++) {
+            for (; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit==-1)); iter++) {
                 calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
                 for (int del = 0; del < delay; del++) {
                     nodeId = selectionNoeud(modeNoeud, t);
@@ -1025,10 +1026,9 @@ long Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
 
 void Graphe::recuitSimuleChallenge(double cool, double t, double seuil) {
     std::vector<int> bestResultVector = saveCopy();
-    long nbCroisement, bestCroisement, debutCroisement;
+    long nbCroisement, bestCroisement;
     nbCroisement = getNbCroisement();
     bestCroisement = nbCroisement;
-    debutCroisement = nbCroisement;
     int nodeId, slotId, idSwappedNode, improve;
     bool swapped;
     Emplacement* oldEmplacement;
