@@ -157,16 +157,16 @@ void allRunsSingleThread() {
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots"} });
 	}
 	int nbRuns = 5;
-	std::cout << "Starting all run logs, nb run: " << nbRuns << std::endl;
+	tcout() << "Starting all run logs, nb run: " << nbRuns << std::endl;
 	
 	for (auto &key : mapGraphSlots) {
 		for (int i = 0; i < key.second.size(); i++) {
-			std::cout << "-----------------------------------------" << std::endl;
-			std::cout << "Graphe: " << key.first << " " << key.second[i] << std::endl;
+			tcout() << "-----------------------------------------" << std::endl;
+			tcout() << "Graphe: " << key.first << " " << key.second[i] << std::endl;
 			for (int j = 0; j < methodesPlacement.size(); j++) {
-				std::cout << "--------------------------" << std::endl;
+				tcout() << "--------------------------" << std::endl;
 				for (int k = 0; k < methodesAlgo.size(); k++) {
-					std::cout << "Placement: " << methodesPlacement[j] << " Algo: " << methodesAlgo[k] << std::endl;
+					tcout() << "Placement: " << methodesPlacement[j] << " Algo: " << methodesAlgo[k] << std::endl;
 					generateCSV(nbRuns, methodesPlacement[j], methodesAlgo[k], key.first, key.second[i]);
 				}
 			}
@@ -183,7 +183,7 @@ void allRunsLogged() {
 	for (int i = 1; i <= 12; i++) {
 		mapGraphSlots.insert({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"} });
 	}
-	std::cout << "Starting all run logs." << std::endl;
+	tcout() << "Starting all run logs." << std::endl;
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -218,7 +218,7 @@ void allRunsBySlots() {
 	for (int i = 5; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
-	std::cout << "Starting all run logs." << std::endl;
+	tcout() << "Starting all run logs." << std::endl;
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -248,7 +248,7 @@ void allRunsBySlotsSecondRun() {
 	for (int i = 9; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
-	std::cout << "Starting all run logs." << std::endl;
+	tcout() << "Starting all run logs." << std::endl;
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -286,7 +286,7 @@ void allRunsBySlotsThirdRun() {
 	for (int i = 5; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
 	}
-	std::cout << "Starting all run logs." << std::endl;
+	tcout() << "Starting all run logs." << std::endl;
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -313,10 +313,10 @@ void allRunsBySlotsThirdRun() {
 }
 
 void allRunsByOnFolderSingleInput(char* pathChar) {
-	std::cout << "Starting all run logs." << std::endl;
+	tcout() << "Starting all run logs." << std::endl;
 	std::string path = pathChar;
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		generateCSV(10, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,60}},true,0,"JSON",-1);
+		generateCSV(10, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,0,"JSON",-1);
 	}
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 		generateCSV(10, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,0,"JSON",-1);
@@ -324,7 +324,7 @@ void allRunsByOnFolderSingleInput(char* pathChar) {
 }
 
 void allRunsByOnFolder() {
-	std::cout << "Starting all run logs." << std::endl;
+	tcout() << "Starting all run logs." << std::endl;
 	std::string path = chemin + "benchGraphs/runs/";
 	std::string slots = "Grid";
 	int nthreads, tid;
@@ -369,7 +369,7 @@ void allRunsByOnFolder() {
 }
 
 void allRunsRegularGraphs() {
-	std::cout << "Starting all run logs." << std::endl;
+	tcout() << "Starting all run logs." << std::endl;
 	std::string path1 = chemin + "benchGraphs/kregular/3regular/";
 	std::string path2 = chemin + "benchGraphs/kregular/6regular/";
 	std::string path3 = chemin + "benchGraphs/kregular/9regular/";
@@ -453,7 +453,7 @@ void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSi
 			std::string nomFichierLog = "Graph-" + std::to_string(tid);
 			//generateCSV(1, methodesPlacement[tid], methodesAlgo[tid], nomFichierLog, G, fileGraph, fileSlots, true);
 		}
-		std::cout << "Thread: " << tid << " done." << std::endl;
+		tcout() << "Thread: " << tid << " done." << std::endl;
 	}
 	printf("All Threads done.\n");
 }
@@ -487,7 +487,7 @@ void performanceTest() {
 
 		// Partie unordered set
 		int nombreElem = n*50;
-		std::cout << "Nombre element: " << nombreElem << std::endl;
+		tcout() << "Nombre element: " << nombreElem << std::endl;
 		auto start = std::chrono::system_clock::now();
 		std::unordered_set<int> nodeUSet;
 		for (int i=0;i<nombreElem;i++) {
@@ -506,11 +506,11 @@ void performanceTest() {
 		std::chrono::duration<double> insertTime = s1-start;
 		std::chrono::duration<double> findTime = s2-s1;
 		std::chrono::duration<double> eraseTime = end-s2;
-		std::cout << "Insert: " << insertTime.count() << "s.\n";
-		std::cout << "Find: " << findTime.count() << "s.\n";
-		std::cout << "Erase: " << eraseTime.count() << "s.\n";
-		std::cout << "Total: " << totalTime.count() << "s.\n";
-		std::cout << "-----------------------------------------------\n";
+		tcout() << "Insert: " << insertTime.count() << "s.\n";
+		tcout() << "Find: " << findTime.count() << "s.\n";
+		tcout() << "Erase: " << eraseTime.count() << "s.\n";
+		tcout() << "Total: " << totalTime.count() << "s.\n";
+		tcout() << "-----------------------------------------------\n";
 
 		std::string nomFichier = chemin + "/resultats/perfUSet.csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);
@@ -551,7 +551,7 @@ void performanceTest2() {
 		}
 
 
-		std::cout << "Nombre element: " << nombreElem << std::endl;
+		tcout() << "Nombre element: " << nombreElem << std::endl;
 		auto start = std::chrono::system_clock::now();
 		std::unordered_set<int> nodeUSet;
 		for (int i=0;i<nombreElem;i++) {
@@ -570,11 +570,11 @@ void performanceTest2() {
 		std::chrono::duration<double> insertTime = s1-start;
 		std::chrono::duration<double> findTime = s2-s1;
 		std::chrono::duration<double> eraseTime = end-s2;
-		std::cout << "Insert: " << insertTime.count() << "s.\n";
-		std::cout << "Find: " << findTime.count() << "s.\n";
-		std::cout << "Erase: " << eraseTime.count() << "s.\n";
-		std::cout << "Total: " << totalTime.count() << "s.\n";
-		std::cout << "-----------------------------------------------\n";
+		tcout() << "Insert: " << insertTime.count() << "s.\n";
+		tcout() << "Find: " << findTime.count() << "s.\n";
+		tcout() << "Erase: " << eraseTime.count() << "s.\n";
+		tcout() << "Total: " << totalTime.count() << "s.\n";
+		tcout() << "-----------------------------------------------\n";
 
 		std::string nomFichier = chemin + "/resultats/perfUSet.csv";
 		std::ofstream resultats(nomFichier, std::ios_base::app);

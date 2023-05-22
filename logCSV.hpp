@@ -113,7 +113,7 @@ LogGraphe::LogGraphe(const std::string& fileG, const std::string& fileS, const s
 
 void LogGraphe::updateDataFromGraphe(Graphe& G) {
 #if defined(DEBUG_GRAPHE)
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Update Data From Graphe.\n";
+	tcout() << "Update Data From Graphe.\n";
 #endif
     nombreSlots = G._emplacements.size();
     nombreCellule = G.grillePtr.size();
@@ -124,12 +124,13 @@ void LogGraphe::updateDataFromGraphe(Graphe& G) {
     if (!G.useCoordReel) { totalInterVector.push_back(G.getNbCroisementDiff()); } else { totalInterVector.push_back(G.getNbCroisementDiffReel()); }
     totalInterIllVector.push_back(G.nombreInterIll + G.nombreInterIllSelf);
     debugValue = G.debugEverything();
+	if (debugValue != -1) { tcout() << "Bug found. Value: " << debugValue << std::endl; }
     if ((isRecuit)&&(currentIteration==1)) { recuitCycleVague = G.recuitCycleVague; }
 }
 
 void LogGraphe::writeGrapheToFile(Graphe& G, int tid) {
 #if defined(DEBUG_GRAPHE)
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Ecriture du graphe dans fichier JSON.\n";
+	tcout() << "Ecriture du graphe dans fichier JSON.\n";
 #endif
     std::string outputFile = cheminOutputGraphs + nomGraphe + "-t" + to_string(tid) + "-r" + to_string(currentIteration) + ".json";
     if (!G.useCoordReel) { G.writeToJsonGraph(outputFile); }
@@ -138,7 +139,7 @@ void LogGraphe::writeGrapheToFile(Graphe& G, int tid) {
 
 void LogGraphe::writeResultToFile() {
 #if defined(DEBUG_GRAPHE)
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Ecriture data graph dans fichier CSV.\n";
+	tcout() << "Ecriture data graph dans fichier CSV.\n";
 #endif
 	if (isRecuit) { writeRecuitResultToFile(); }
 	else if (isGenetique) { writeGenetiqueResultToFile(); }
@@ -294,7 +295,7 @@ int LogGraphe::setTimeLimitRecuit() {
 }
 
 void LogGraphe::setupGrapheWithTypeFile(Graphe& G, std::string& typeFile, std::string& fileGraph, std::string& fileSlots) {
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Loading Graphe from file.\n";
+	tcout() << "Loading Graphe from file.\n";
 	if (typeFile == "JSON") {
         if (!G.useCoordReel) { G.setupGraphe(fileGraph,fileSlots); }
         else { G.setupGrapheReel(fileGraph); }
@@ -307,7 +308,7 @@ void LogGraphe::setupGrapheWithTypeFile(Graphe& G, std::string& typeFile, std::s
         }
     }
     else {
-        std::cout << typeFile << " not supported.\n";
+        tcout() << typeFile << " not supported.\n";
         exit(2);
     }
     G.fillCommonNodeVectors();
@@ -322,7 +323,7 @@ void LogGraphe::placementGraphe(Graphe& G) {
 #if defined(OGDF_INSTALLED)
         if (!G.useCoordReel) { ogdfPlacementAuPlusProche(G); }
 #else
-        std::cout << "OGDF NOT INSTALLED.\n";
+        tcout() << "OGDF NOT INSTALLED.\n";
         return;
 #endif
     }
@@ -330,7 +331,7 @@ void LogGraphe::placementGraphe(Graphe& G) {
 #if defined(OGDF_INSTALLED)
         if (!G.useCoordReel) { ogdfFastMultipoleMultilevelEmbedder(G); } else { ogdfFastMultipoleMultilevelEmbedderReel(G); }
 #else
-        std::cout << "OGDF NOT INSTALLED.\n";
+        tcout() << "OGDF NOT INSTALLED.\n";
         return;
 #endif			
     }
@@ -338,7 +339,7 @@ void LogGraphe::placementGraphe(Graphe& G) {
 #if defined(OGDF_INSTALLED)
         if (G.useCoordReel) { ogdfFastMultipoleMultilevelEmbedderReelMinute(G); }
 #else
-        std::cout << "OGDF NOT INSTALLED.\n";
+        tcout() << "OGDF NOT INSTALLED.\n";
         return;
 #endif		
     }
@@ -348,7 +349,7 @@ void LogGraphe::placementGraphe(Graphe& G) {
     else if (methodePlacementName == "Glouton Grille") { if (!G.useCoordReel) { G.gloutonRevisiteGrid(); } }
     else if (methodePlacementName == "Aleatoire") { if (!G.useCoordReel) { G.placementAleatoire(); } else { G.placementAleatoireReel(); } }
     else if (methodePlacementName != "Aucun") {
-        std::cout << "ERROR Aucune methode " << methodePlacementName << " trouve !\n";
+        tcout() << "ERROR Aucune methode " << methodePlacementName << " trouve !\n";
         return;
     }
     finPlacement = std::chrono::system_clock::now();
@@ -357,7 +358,7 @@ void LogGraphe::placementGraphe(Graphe& G) {
 }
 
 void LogGraphe::setupGrapheStruct(Graphe& G) {
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Setup Graphe.\n";
+	tcout() << "Setup Graphe.\n";
     if (G.useCoordReel) { G.translateGrapheToOriginReel(-1); }
     if (updateScore) { G.initGraphAndNodeScoresAndCrossings(); }
     if (needTriangulation) { G.triangulationDelaunay(); }
@@ -387,7 +388,7 @@ void LogGraphe::heuristiqueGraphe(Graphe& G) {
     else if (methodeAlgoName == "Genetique Enfant") G.grapheGenetique(tempsBest,bestIteration,lastIteration, genetiquePopulation,genetiqueMaxIteration,fileGraph,fileSlots,false,false,5);
     else if (methodeAlgoName == "Genetique Enfant Recuit") G.grapheGenetique(tempsBest,bestIteration,lastIteration, genetiquePopulation,genetiqueMaxIteration,fileGraph,fileSlots,true,false,5);
     else if (methodeAlgoName != "Aucun") {
-        std::cout << "ERROR Aucun algo " << methodeAlgoName << " trouve !\n";
+        tcout() << "ERROR Aucun algo " << methodeAlgoName << " trouve !\n";
         return;
     }
 

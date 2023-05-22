@@ -70,10 +70,10 @@ void solve(Graphe& G) {
   cplex.solve();
 
   // print the solution
-  std::cout << "Solution status: " << cplex.getStatus() << std::endl;
-  std::cout << "Solution value: " << cplex.getObjValue() << std::endl;
+  tcout() << "Solution status: " << cplex.getStatus() << std::endl;
+  tcout() << "Solution value: " << cplex.getObjValue() << std::endl;
   for (int i = 0; i < nbNode; i++) {
-    std::cout << "node[" << i << "] = " << cplex.getValue(nodes[i]) << std::endl;
+    tcout() << "node[" << i << "] = " << cplex.getValue(nodes[i]) << std::endl;
   }
 
   env.end();
@@ -135,10 +135,10 @@ void solve2(Graphe& G) {
   cplex.solve();
 
   // print the solution
-  std::cout << "Solution status: " << cplex.getStatus() << std::endl;
-  std::cout << "Solution value: " << cplex.getObjValue() << std::endl;
+  tcout() << "Solution status: " << cplex.getStatus() << std::endl;
+  tcout() << "Solution value: " << cplex.getObjValue() << std::endl;
   for (int i = 0; i < G._noeuds.size(); i++) {
-    std::cout << "x[" << i << "] = " << cplex.getValue(x[i]) << std::endl;
+    tcout() << "x[" << i << "] = " << cplex.getValue(x[i]) << std::endl;
   }
 
   env.end();
@@ -203,10 +203,10 @@ void solve3(Graphe& G) {
   cplex.solve();
 
   // print the solution
-  std::cout << "Solution status: " << cplex.getStatus() << std::endl;
-  std::cout << "Solution value: " << cplex.getObjValue() << std::endl;
+  tcout() << "Solution status: " << cplex.getStatus() << std::endl;
+  tcout() << "Solution value: " << cplex.getObjValue() << std::endl;
   for (int i = 0; i < nbNode; i++) {
-    std::cout << "node[" << i << "][x] = " << cplex.getValue(nodesArray[0][i]) << " node[" << i << "][y] = " << cplex.getValue(nodesArray[1][i]) << std::endl;
+    tcout() << "node[" << i << "][x] = " << cplex.getValue(nodesArray[0][i]) << " node[" << i << "][y] = " << cplex.getValue(nodesArray[1][i]) << std::endl;
   }
 
   env.end();
@@ -279,10 +279,10 @@ void solve4(Graphe& G) {
   cplex.solve();
 
   // print the solution
-  std::cout << "Solution status: " << cplex.getStatus() << std::endl;
-  std::cout << "Solution value: " << cplex.getObjValue() << std::endl;
+  tcout() << "Solution status: " << cplex.getStatus() << std::endl;
+  tcout() << "Solution value: " << cplex.getObjValue() << std::endl;
   for (int i = 0; i < nbNode; i++) {
-    std::cout << "node[" << i << "][x] = " << cplex.getValue(nodesArray[0][i]) << " node[" << i << "][y] = " << cplex.getValue(nodesArray[1][i]) << std::endl;
+    tcout() << "node[" << i << "][x] = " << cplex.getValue(nodesArray[0][i]) << " node[" << i << "][y] = " << cplex.getValue(nodesArray[1][i]) << std::endl;
   }
 
   env.end();
@@ -365,9 +365,9 @@ void solverCeres(Graphe& G) {
   ceres::Solver::Summary summary;
   Solve(options, &problem, &summary);
 
-  std::cout << summary.BriefReport() << "\n";
+  tcout() << summary.BriefReport() << "\n";
   for (int i=0;i<xCoordNodes.size();i++) {
-  //  std::cout << "Noeud " << i << " x: " << nodes[i].first << " y: " << nodes[i].second << std::endl;
+  //  tcout() << "Noeud " << i << " x: " << nodes[i].first << " y: " << nodes[i].second << std::endl;
   }
 #endif
 }

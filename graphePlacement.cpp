@@ -14,7 +14,7 @@ void Graphe::tirageCoordReel(std::pair<double,double>& coord) {
 // Ne tient pas a jour le score des noeuds ou du graphe.
 void Graphe::placementAleatoire() {
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Placement aleatoire" << std::endl;
+        tcout() << "Placement aleatoire" << std::endl;
     #endif
     for (int i = 0; i < _noeuds.size(); ++i) {
         int emplacementId = generateRand(_emplacements.size() - 1);
@@ -30,7 +30,7 @@ void Graphe::placementAleatoire() {
 
 void Graphe::placementAleatoireReel() {
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Placement aleatoire coord reel" << std::endl;
+        tcout() << "Placement aleatoire coord reel" << std::endl;
     #endif
     if ((gridWidth == 10)&&(gridHeight == 10)) {
         gridWidth = std::min((int)_noeuds.size()*2,6000);
@@ -53,7 +53,7 @@ void Graphe::placementAleatoireReel() {
 // Ne tient pas a jour le score des noeuds ou du graphe.
 void Graphe::placementFixe() {
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Placement fixe" << std::endl;
+        tcout() << "Placement fixe" << std::endl;
     #endif
     for (int i=0;i<_noeuds.size();i++) {
         _noeuds[i].setEmplacement(&_emplacements[i]);
@@ -748,7 +748,7 @@ void Graphe::completeBasicGloutonScoreGrille(std::vector<int>& vecNode, int tail
 
 void Graphe::completePlacementAleatoire() {
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Placement aleatoire" << std::endl;
+        tcout() << "Placement aleatoire" << std::endl;
     #endif
     for (int i = 0; i < _noeuds.size(); ++i) {
         if (_noeuds[i]._emplacement == nullptr) {
@@ -786,8 +786,8 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
     if (_sm.G == nullptr) { _sm.G = this; }
     bool useGrille = _emplacements.size() >= _noeuds.size() * 2;
     #if defined(DEBUG_GRAPHE)
-        if (useGrille) { std::cout << "Debut Stress Majorization avec grille.\n"; }
-        else { std::cout << "Debut Stress Majorization sans grille.\n"; }
+        if (useGrille) { tcout() << "Debut Stress Majorization avec grille.\n"; }
+        else { tcout() << "Debut Stress Majorization sans grille.\n"; }
     #endif
     if (useGrille) {
         _sm.m_useGrille = true;
@@ -824,7 +824,7 @@ void Graphe::stressMajorization(std::vector<std::vector<double>> customParam, in
     }
     if (useGrille) { deleteGrille(); }
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Fin Stress Majorization\n";
+        tcout() << "Fin Stress Majorization\n";
     #endif
 }
 
@@ -832,11 +832,11 @@ void Graphe::stressMajorizationReel() {
     _sm.G = this;
     if ((_noeuds[0]._xreel == -12345)&&(_noeuds[0]._yreel == -12345)) { placementAleatoireReel(); }
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Debut Stress Majorization Reel.\n";
+        tcout() << "Debut Stress Majorization Reel.\n";
     #endif
     _sm.runAlgoReel();
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Fin Stress Majorization\n";
+        tcout() << "Fin Stress Majorization\n";
     #endif
 }
 

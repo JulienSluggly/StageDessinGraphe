@@ -134,7 +134,7 @@ void Graphe::generateMoreEmplacement(int n) {
     int nbTotal = gridWidth * gridHeight;
     if (n * _emplacements.size() > nbTotal) {
         #if defined(DEBUG_GRAPHE)
-            std::cout << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacements.size() << std::endl;
+            tcout() << "Pas assez de place dans la grille. Grille: " << nbTotal << " " << n << " * emp: " << n * _emplacements.size() << std::endl;
         #endif
     }
     else {
@@ -407,7 +407,7 @@ int Graphe::getAreteFromTwoNodes(int nodeId1, int nodeId2) {
 
 void Graphe::triangulationDelaunay() {
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Debut triangulation.\n";
+        tcout() << "Debut triangulation.\n";
     #endif
     std::vector<Emplacement*> empPtrVec;
     for (int i=0;i<_emplacements.size();i++) {
@@ -430,7 +430,7 @@ void Graphe::triangulationDelaunay() {
     }
     isCarteSetUp = true;
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Triangulation delaunay fini.\n";
+        tcout() << "Triangulation delaunay fini.\n";
     #endif
 }
 
@@ -800,7 +800,7 @@ void Graphe::registerSlotsInGrid() {
 
 void Graphe::registerSlotsAndEdgesInGrid() {
     #if defined(DEBUG_GRAPHE)
-        std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Remplissage de la grille.\n";
+        tcout() << "Remplissage des cellules.\n";
     #endif
     registerSlotsInGrid();
     registerEdgesInGrid();
@@ -1895,7 +1895,7 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
         generateGrid(nbNoeud,nbNoeud);
     }
     if (_noeuds.size() > _emplacements.size()) {
-        std::cout << "Pas assez d'emplacement.\n";
+        tcout() << "Pas assez d'emplacement.\n";
         exit(3);
     }
 }
@@ -2095,9 +2095,9 @@ Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y, bool
             searchVector.push_back(make_pair(j,i));
         }
     }
-    //std::cout << "dnumX: " << dnumX << " dnumY: " << dnumY << std::endl;
-    //std::cout << "numX: " << numX << " numY: " << numY << std::endl;
-    //std::cout << "StartX: " << startX << " EndX: " << endX << " StartY: " << startY << " EndY: " << endY << std::endl;
+    //tcout() << "dnumX: " << dnumX << " dnumY: " << dnumY << std::endl;
+    //tcout() << "numX: " << numX << " numY: " << numY << std::endl;
+    //tcout() << "StartX: " << startX << " EndX: " << endX << " StartY: " << startY << " EndY: " << endY << std::endl;
     double minDist = std::numeric_limits<double>::max();
     int closestEmpId = -1;
     while (closestEmpId == -1) {
@@ -2616,16 +2616,16 @@ void Graphe::removeCommonNodeVector(int nodeId) {
 void Graphe::printCommonMatrix() {
     for (int i=0;i<commonNodeEdges.size();i++) {
         for (int j=0;j<commonNodeEdges.size();j++) {
-            if (commonNodeEdges[i][j] == nullptr) { std::cout << "X "; }
-            else { std::cout << commonNodeEdges[i][j]->_id << " "; }
+            if (commonNodeEdges[i][j] == nullptr) { tcout() << "X "; }
+            else { tcout() << commonNodeEdges[i][j]->_id << " "; }
         }
-        std::cout << std::endl;
+        tcout() << std::endl;
     }
 }
 
 void Graphe::setupGridAndRegistration(std::vector<std::vector<double>> customParam) {
 #if defined(DEBUG_GRAPHE)
-    std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Setup Cellules.\n";
+    tcout() << "Setup Cellules.\n";
 #endif
     int row = (int)ceil(sqrt(_aretes.size())*1.5);
     if (customParam.size() > 0) {
@@ -2695,7 +2695,7 @@ void connectIfSuitable(int firstNodeRandom, int secondNodeRandom, std::vector<in
 void Graphe::generateKRegular(int nbNoeud, int degre) {
     int valueSize = nbNoeud*degre;
     if (valueSize%2 == 1) {
-        std::cout << "NbNoeud * degre doit être pair.\n";
+        tcout() << "NbNoeud * degre doit être pair.\n";
         exit(3);
     }
     _noeuds.reserve(nbNoeud*2);

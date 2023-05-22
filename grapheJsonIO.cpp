@@ -14,7 +14,7 @@ bool DEBUG_JSON = false;
 // ----- CREATION D'UN Graph A PARTIR D'UN FICHIER JSON -----
 // Precondition: Les id des noeuds sont ordonnees et commencent par 0
 void Graphe::readFromJsonGraph(std::string input) {
-	if (DEBUG_JSON) std::cout << "Fichier Graphe: " << input << std::endl;
+	if (DEBUG_JSON) tcout() << "Fichier Graphe: " << input << std::endl;
 	std::ifstream inp(input);
 	json j;
 	inp >> j;
@@ -24,13 +24,13 @@ void Graphe::readFromJsonGraph(std::string input) {
 		exit(1);
 	}
 	int nodeNumber = static_cast<int>(j["nodes"].size());
-	if (DEBUG_JSON) std::cout << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
+	if (DEBUG_JSON) tcout() << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
 	_noeuds.reserve(nodeNumber*2);
 	for (int i = 0; i < nodeNumber; i++) {
 		_noeuds.push_back(Noeud(i));
 	}
 	int edgeNumber = static_cast<int>(j["edges"].size());
-	if (DEBUG_JSON) std::cout << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
+	if (DEBUG_JSON) tcout() << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
 	int id1, id2;
 	_aretes.reserve(edgeNumber*2);
 	for (int i = 0; i < edgeNumber; i++) {
@@ -43,7 +43,7 @@ void Graphe::readFromJsonGraph(std::string input) {
 // Lecture des slots
 // Precondition: Les id des slots sont ordonn�s et commencent par 0
 void Graphe::readFromJsonSlots(std::string input) {
-	if (DEBUG_JSON) std::cout << "Fichier Slot: " << input << std::endl;
+	if (DEBUG_JSON) tcout() << "Fichier Slot: " << input << std::endl;
 	std::ifstream inp(input);
 	json j;
 	inp >> j;
@@ -54,7 +54,7 @@ void Graphe::readFromJsonSlots(std::string input) {
 	}
 
 	int slotsNumber = static_cast<int>(j["slots"].size());
-	if (DEBUG_JSON) std::cout << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
+	if (DEBUG_JSON) tcout() << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
 	int x, y;
 	_emplacements.reserve(slotsNumber*2);
 	for (int i = 0; i < slotsNumber; i++) {
@@ -68,13 +68,13 @@ void Graphe::readFromJsonSlots(std::string input) {
 
 // Lecture des slots, noeuds et edges
 void Graphe::readFromJsonChallenge(std::string input) {
-	std::cout << "Fichier Graphe: " << input << std::endl;
+	tcout() << "Fichier Graphe: " << input << std::endl;
 	std::ifstream inp(input);
 	json j;
 	inp >> j;
 
 	int slotsNumber = static_cast<int>(j["points"].size());
-	std::cout << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
+	tcout() << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
 	int x, y;
 	_emplacements.reserve(slotsNumber*2);
 	for (int i = 0; i < slotsNumber; i++) {
@@ -86,13 +86,13 @@ void Graphe::readFromJsonChallenge(std::string input) {
 	}
 
 	int nodeNumber = static_cast<int>(j["nodes"].size());
-	std::cout << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
+	tcout() << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
 	_noeuds.reserve(nodeNumber*2);
 	for (int i = 0; i < nodeNumber; i++) {
 		_noeuds.push_back(Noeud(i));
 	}
 	int edgeNumber = static_cast<int>(j["edges"].size());
-	std::cout << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
+	tcout() << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
 	int id1, id2;
 	_aretes.reserve(edgeNumber*2);
 	for (int i = 0; i < edgeNumber; i++) {
@@ -105,7 +105,7 @@ void Graphe::readFromJsonChallenge(std::string input) {
 // ----- CREATION D'UN Graph A PARTIR D'UN FICHIER JSON -----
 // Precondition: Les id des noeuds sont ordonn�es et commencent par 0
 void Graphe::readFromJsonGraphAndSlot(std::string input) {
-	if (DEBUG_JSON) std::cout << "Fichier Graphe: " << input << std::endl;
+	if (DEBUG_JSON) tcout() << "Fichier Graphe: " << input << std::endl;
 	std::ifstream inp(input);
 	json j;
 	inp >> j;
@@ -120,7 +120,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	}
 
 	int slotsNumber = static_cast<int>(j["slots"].size());
-	if (DEBUG_JSON) std::cout << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
+	if (DEBUG_JSON) tcout() << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
 	int x, y;
 	_emplacements.reserve(slotsNumber*2);
 	for (int i = 0; i < slotsNumber; i++) {
@@ -132,7 +132,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 	}
 
 	int nodeNumber = static_cast<int>(j["nodes"].size());
-	if (DEBUG_JSON) std::cout << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
+	if (DEBUG_JSON) tcout() << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
 	int id;
 	_noeuds.reserve(nodeNumber*2);
 	for (int i = 0; i < nodeNumber; i++) {
@@ -145,7 +145,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 		}
 	}
 	int edgeNumber = static_cast<int>(j["edges"].size());
-	if (DEBUG_JSON) std::cout << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
+	if (DEBUG_JSON) tcout() << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
 	int id1, id2;
 	_aretes.reserve(edgeNumber*2);
 	for (int i = 0; i < edgeNumber; i++) {
@@ -156,7 +156,7 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 }
 
 void Graphe::readFromJsonGraphReel(std::string input) {
-	if (DEBUG_JSON) std::cout << "Fichier Graphe: " << input << std::endl;
+	if (DEBUG_JSON) tcout() << "Fichier Graphe: " << input << std::endl;
 	std::ifstream inp(input);
 	json j;
 	inp >> j;
@@ -167,7 +167,7 @@ void Graphe::readFromJsonGraphReel(std::string input) {
 	}
 
 	int nodeNumber = static_cast<int>(j["nodes"].size());
-	if (DEBUG_JSON) std::cout << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
+	if (DEBUG_JSON) tcout() << "Nombre de noeud dans le json: " << nodeNumber << std::endl;
 	int id;
 	_noeuds.reserve(nodeNumber*2);
 	for (int i = 0; i < nodeNumber; i++) {
@@ -177,7 +177,7 @@ void Graphe::readFromJsonGraphReel(std::string input) {
 	}
 
 	int edgeNumber = static_cast<int>(j["edges"].size());
-	if (DEBUG_JSON) std::cout << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
+	if (DEBUG_JSON) tcout() << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
 	int id1, id2;
 	_aretes.reserve(edgeNumber*2);
 	for (int i = 0; i < edgeNumber; i++) {
@@ -416,7 +416,7 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 	inp >> j;
 	gridWidth = j["width"];
 	gridHeight = j["height"];
-	if (DEBUG_JSON) std::cout << "gridWidth: " << gridWidth << " gridHeight: " << gridHeight << std::endl;
+	if (DEBUG_JSON) tcout() << "gridWidth: " << gridWidth << " gridHeight: " << gridHeight << std::endl;
 
 	if (j["nodes"] == nullptr) {
 		exit(1);
@@ -460,7 +460,7 @@ std::vector<int> Graphe::readFromJsonOldGraph(std::string input) {
 
 void Graphe::readFromGraphmlGraph(std::string input) {
 	pugi::xml_document doc;
-	if (!doc.load_file(input.c_str())) { std::cout << "Fichier inexistant.\n"; exit(-1); }
+	if (!doc.load_file(input.c_str())) { tcout() << "Fichier inexistant.\n"; exit(-1); }
 
 	pugi::xml_node data = doc.child("graphml").child("graph");
     // tag::basic[]
@@ -479,7 +479,7 @@ void Graphe::readFromGraphmlGraph(std::string input) {
 }
 #else
 void Graphe::readFromGraphmlGraph(std::string input) {
-	std::cout << "PUGIXML NOT INSTALLED.\n";
+	tcout() << "PUGIXML NOT INSTALLED.\n";
 	exit(1);
 }
 #endif

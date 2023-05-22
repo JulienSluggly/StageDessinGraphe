@@ -290,11 +290,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_KP_ADD:
 			sensiDrag = sensiDrag / 2;
-			std::cout << sensiDrag << std::endl;
+			tcout() << sensiDrag << std::endl;
 			break;
 		case GLFW_KEY_KP_SUBTRACT:
 			sensiDrag *= 2;
-			std::cout << sensiDrag << std::endl;
+			tcout() << sensiDrag << std::endl;
 			break;
 		case GLFW_KEY_N:
 			keyPressFunctionNum = 8; singleKeyPress = true;
@@ -670,33 +670,33 @@ void openGLShowGrid() {
 
 void openGLPrintRaccourcis(bool printRaccourcis) {
 	if (printRaccourcis) {
-		std::cout << "-------------------------------------" << std::endl;
-		std::cout << "RACCOURCIS CLAVIER POUR INTERRACTION OPENGL" << std::endl;
-		std::cout << "Touche Escape/Echap: Ferme la fenetre OpenGl." << std::endl;
-		std::cout << "Touche Gauche/Left: " << std::endl;
-		std::cout << "     -Si en mode selection de noeud(par defaut): Selectionne le noeud precedent." << std::endl;
-		std::cout << "     -Si en mode selection d'emplacement: Selectionne l'emplacement precedent." << std::endl;
-		std::cout << "     -Si en mode deplacement: Deplace le noeud selectionne a un emplacement precedent le sien." << std::endl;
-		std::cout << "Touche Droite/Right: Similaire a Gauche/Left mais pour le suivant." << std::endl;
-		std::cout << "Touche 1/&: Reinitialise les noeuds du graphe et effectue un placement aleatoire." << std::endl;
-		std::cout << "Touche 2/e: Reinitialise les noeuds du graphe et effectue un placement glouton." << std::endl;
-		std::cout << "Touche 3/\": Appelle la fonction Recuit Simule sur le graphe." << std::endl;
-		std::cout << "Touche 4/' Affiche le score du graphe, du noeud selectionne, et le score swap si l'emplacement selectionne n'est pas disponible." << std::endl;
-		std::cout << "Touche 5/( Calcule la moyenne de score de 1000 placements aleatoire et de 1000 placements gloutons." << std::endl;
-		std::cout << "Touche NumPad+/KeyPadAdd: Zoom." << std::endl;
-		std::cout << "Touche NumPad-/KeyPadMinus: Dezoom." << std::endl;
-		std::cout << "Touche N: Affiche le nombre de croisement dans le graphe." << std::endl;
-		std::cout << "Touche D: Active/Desactive le mode deplacement." << std::endl;
-		std::cout << "Touche E: Active/Desactive le mode selection d'emplacement." << std::endl;
-		std::cout << "Touche S: Si le mode selection d'emplacement est actif, effectue un swap entre le noeud selectionne et l'emplacement selectionne." << std::endl;
-		std::cout << "Touche I: Active/Desactive l'affichage de croisements(rouge) et croisements illegaux(violet)" << std::endl;
-		std::cout << "-------------------------------------" << std::endl;
+		tcout() << "-------------------------------------" << std::endl;
+		tcout() << "RACCOURCIS CLAVIER POUR INTERRACTION OPENGL" << std::endl;
+		tcout() << "Touche Escape/Echap: Ferme la fenetre OpenGl." << std::endl;
+		tcout() << "Touche Gauche/Left: " << std::endl;
+		tcout() << "     -Si en mode selection de noeud(par defaut): Selectionne le noeud precedent." << std::endl;
+		tcout() << "     -Si en mode selection d'emplacement: Selectionne l'emplacement precedent." << std::endl;
+		tcout() << "     -Si en mode deplacement: Deplace le noeud selectionne a un emplacement precedent le sien." << std::endl;
+		tcout() << "Touche Droite/Right: Similaire a Gauche/Left mais pour le suivant." << std::endl;
+		tcout() << "Touche 1/&: Reinitialise les noeuds du graphe et effectue un placement aleatoire." << std::endl;
+		tcout() << "Touche 2/e: Reinitialise les noeuds du graphe et effectue un placement glouton." << std::endl;
+		tcout() << "Touche 3/\": Appelle la fonction Recuit Simule sur le graphe." << std::endl;
+		tcout() << "Touche 4/' Affiche le score du graphe, du noeud selectionne, et le score swap si l'emplacement selectionne n'est pas disponible." << std::endl;
+		tcout() << "Touche 5/( Calcule la moyenne de score de 1000 placements aleatoire et de 1000 placements gloutons." << std::endl;
+		tcout() << "Touche NumPad+/KeyPadAdd: Zoom." << std::endl;
+		tcout() << "Touche NumPad-/KeyPadMinus: Dezoom." << std::endl;
+		tcout() << "Touche N: Affiche le nombre de croisement dans le graphe." << std::endl;
+		tcout() << "Touche D: Active/Desactive le mode deplacement." << std::endl;
+		tcout() << "Touche E: Active/Desactive le mode selection d'emplacement." << std::endl;
+		tcout() << "Touche S: Si le mode selection d'emplacement est actif, effectue un swap entre le noeud selectionne et l'emplacement selectionne." << std::endl;
+		tcout() << "Touche I: Active/Desactive l'affichage de croisements(rouge) et croisements illegaux(violet)" << std::endl;
+		tcout() << "-------------------------------------" << std::endl;
 	}
 }
 
 void openGLKeyPressFunction(Graphe& G) {
 	if (singleKeyPress) {
-		//std::cout << "KeyPress: " << keyPressFunctionNum << std::endl;
+		//tcout() << "KeyPress: " << keyPressFunctionNum << std::endl;
 		bool recalcIllegal = false;
 		switch(keyPressFunctionNum) {
 		case 0: {// Save Graphe to JSON
@@ -711,27 +711,27 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 2: {// Load copy
 			if (graphCopy.size() == G._noeuds.size()) { G.loadCopy(graphCopy); }
-			else { std::cout << "Copy failed.\n"; }
+			else { tcout() << "Copy failed.\n"; }
 			if (showIllegal) recalcIllegal = true;
 			historiqueOpenGL.clear();
 			break;
 		}
 		case 3: {// Recuit simule (KEY: 3")
 			if (useReel) {
-				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisementReelConst() << std::endl;
+				tcout() << "Nb Croisement debut recuit: " << G.getNbCroisementReelConst() << std::endl;
 				auto start = std::chrono::system_clock::now();
 				double timeBest;
 				bool useGrille = G.grillePtr.size() > 0;
 				G.recuitSimuleReel(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,useGrille,false);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
-				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
-				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
-				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
+				tcout() << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+				tcout() << "Temps Meilleur: " << timeBest << " secondes.\n";
+				tcout() << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
 				if (G.grillePtr.size() > 0) { G.reinitGrilleReel(); }
 			}
 			else {
-				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
+				tcout() << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
 				auto start = std::chrono::system_clock::now();
 				double timeBest;
 				bool useGrille = G.grillePtr.size() > 0;
@@ -739,9 +739,9 @@ void openGLKeyPressFunction(Graphe& G) {
 				G.recuitSimule(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,useGrille);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
-				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
-				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
-				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+				tcout() << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+				tcout() << "Temps Meilleur: " << timeBest << " secondes.\n";
+				tcout() << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
 				if (useGrille) { G.reinitGrille(); }
 			}
 			historiqueOpenGL.clear();
@@ -755,7 +755,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			}
 			G.stepRecuitSimule(stepT, stepNbCrois);
 			if (stepT <= 0.0001 || stepNbCrois == 0) {
-				std::cout << stepT << " " << stepNbCrois << std::endl;
+				tcout() << stepT << " " << stepNbCrois << std::endl;
 			}
 			historiqueOpenGL.clear();
 			break;
@@ -809,45 +809,45 @@ void openGLKeyPressFunction(Graphe& G) {
 			if (!display_genetic) {
 				if (!useReel) {
 					G.getNbCroisementDiff();
-					std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
-					//std::cout << "Selected Node: " << selectedNode << " emplacement: " << G._noeuds[selectedNode].getEmplacement()->_id << " Selected Emplacement: " << selectedEmplacement << std::endl;
-					std::cout << "Nb Intersection: " << G.getNbCroisement() << std::endl;
-					//std::cout << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
+					tcout() << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
+					//tcout() << "Selected Node: " << selectedNode << " emplacement: " << G._noeuds[selectedNode].getEmplacement()->_id << " Selected Emplacement: " << selectedEmplacement << std::endl;
+					tcout() << "Nb Intersection: " << G.getNbCroisement() << std::endl;
+					//tcout() << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
 					if (show_selected_emplacement) {
 						if (!G._emplacements[selectedEmplacement].estDisponible()) {
 							int swapId = G._emplacements[selectedEmplacement]._noeud->getId();
-							std::cout << "Selected emplacement score: " << G.getScoreCroisementNode(swapId) << std::endl;
+							tcout() << "Selected emplacement score: " << G.getScoreCroisementNode(swapId) << std::endl;
 							int score = G.getScoreCroisementNode(selectedNode);
 							score += G.getScoreCroisementNode(swapId, selectedNode);
-							std::cout << "Score before swap: " << score << std::endl;
+							tcout() << "Score before swap: " << score << std::endl;
 							G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
 							score = G.getScoreCroisementNode(selectedNode);
 							score += G.getScoreCroisementNode(swapId, selectedNode);
-							std::cout << "Score after swap: " << score << std::endl;
+							tcout() << "Score after swap: " << score << std::endl;
 							G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
 						}
 					}
 				}
 				else {
 					G.getNbCroisementDiffReel();
-					std::cout << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
+					tcout() << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
 				}
 			}
 			else {
-				std::cout << "Score Parent1: " << parent1.nombreCroisement << "&" << parent1.getNbCroisementConst() << "&" << parent1.getNbCroisementArray() << std::endl;
-				std::cout << "Score Parent2: " << parent2.nombreCroisement << "&" << parent2.getNbCroisementConst() << "&" << parent2.getNbCroisementArray() <<std::endl;
-				//std::cout << "Score Enfant: " << enfant.nombreCroisement<< "&" << enfant.getNbCroisementConst() << std::endl;
+				tcout() << "Score Parent1: " << parent1.nombreCroisement << "&" << parent1.getNbCroisementConst() << "&" << parent1.getNbCroisementArray() << std::endl;
+				tcout() << "Score Parent2: " << parent2.nombreCroisement << "&" << parent2.getNbCroisementConst() << "&" << parent2.getNbCroisementArray() <<std::endl;
+				//tcout() << "Score Enfant: " << enfant.nombreCroisement<< "&" << enfant.getNbCroisementConst() << std::endl;
 			}
 			break;
 		}
 		case 8: {// Affiche le nombre d'intersection du graphe
 			if (display_genetic) {
-				if (parent1.estPlace()) std::cout << "Parent1 Nb Intersections: " << parent1.getNbCroisementConst() << " saved: " << parent1.nombreCroisement << " array: " << parent1.getNbCroisementArray() << std::endl;
-				if (parent2.estPlace()) std::cout << "Parent2 Nb Intersections: " << parent2.getNbCroisementConst() << " saved: " << parent2.nombreCroisement << " array: " << parent2.getNbCroisementArray() << std::endl;
-				if (enfant.estPlace()) std::cout << "Parent3 Nb Intersections: " << enfant.getNbCroisementConst() << " saved: " << enfant.nombreCroisement << " array: " << enfant.getNbCroisementArray() << std::endl;
+				if (parent1.estPlace()) tcout() << "Parent1 Nb Intersections: " << parent1.getNbCroisementConst() << " saved: " << parent1.nombreCroisement << " array: " << parent1.getNbCroisementArray() << std::endl;
+				if (parent2.estPlace()) tcout() << "Parent2 Nb Intersections: " << parent2.getNbCroisementConst() << " saved: " << parent2.nombreCroisement << " array: " << parent2.getNbCroisementArray() << std::endl;
+				if (enfant.estPlace()) tcout() << "Parent3 Nb Intersections: " << enfant.getNbCroisementConst() << " saved: " << enfant.nombreCroisement << " array: " << enfant.getNbCroisementArray() << std::endl;
 			}
 			else {
-				std::cout << "Nb Intersections: " << G.getNbCroisementConst() << " saved: " << G.nombreCroisement << " array: " << G.getNbCroisementArray() << std::endl;
+				tcout() << "Nb Intersections: " << G.getNbCroisementConst() << " saved: " << G.nombreCroisement << " array: " << G.getNbCroisementArray() << std::endl;
 			}
 			break;
 		}
@@ -944,8 +944,8 @@ void openGLKeyPressFunction(Graphe& G) {
 				isGeneticSetUp = true;
 				parent1.initGraphAndNodeScoresAndCrossings();
 				parent2.initGraphAndNodeScoresAndCrossings();
-				std::cout << "Genetic set up:\n" << "File Parent1: " << nomFichierParent1 << "\nFile Parent2: " << nomFichierParent2 << "\nNNT: " << nbNoeudATraiter << std::endl;
-				std::cout << "Score parent1: " << parent1.nombreCroisement << " Score parent2: " << parent2.nombreCroisement << std::endl;
+				tcout() << "Genetic set up:\n" << "File Parent1: " << nomFichierParent1 << "\nFile Parent2: " << nomFichierParent2 << "\nNNT: " << nbNoeudATraiter << std::endl;
+				tcout() << "Score parent1: " << parent1.nombreCroisement << " Score parent2: " << parent2.nombreCroisement << std::endl;
 				parent1.debugScoreNoeud();
 				parent2.debugScoreNoeud();
 				//parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
@@ -960,7 +960,7 @@ void openGLKeyPressFunction(Graphe& G) {
 				if (nbNoeudATraiter > 0) {
 					enfant.stepCroisementVoisinageFrom(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
 					//enfant.stepCroisementVoisinageScore(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
-					std::cout << "NNT: " << nbNoeudATraiter << std::endl;
+					tcout() << "NNT: " << nbNoeudATraiter << std::endl;
 				}
 			}
 			historiqueOpenGL.clear();
@@ -979,34 +979,34 @@ void openGLKeyPressFunction(Graphe& G) {
 		case 19: {// Affiche le contenu de la cellule (KEY:F8)
 			G.afficherLiens();
 			if (show_selected_emplacement) {
-				std::cout << "Selected Emplacement: " << selectedEmplacement;
+				tcout() << "Selected Emplacement: " << selectedEmplacement;
 				if (selectedEmplacement >= 0) {
 					if (G._emplacements[selectedEmplacement]._noeud != nullptr) {
-						std::cout << " Non Disponible. Node Id: " << G._emplacements[selectedEmplacement]._noeud->_id << std::endl;
+						tcout() << " Non Disponible. Node Id: " << G._emplacements[selectedEmplacement]._noeud->_id << std::endl;
 					}
 					else {
-						std::cout << " Disponible.\n";
+						tcout() << " Disponible.\n";
 					}
 				}
 			}
 			if (show_selected_node) {
-				std::cout << "Selected Node: " << selectedNode;
+				tcout() << "Selected Node: " << selectedNode;
 				if (selectedNode >= 0) {
 					if (G._noeuds[selectedNode]._emplacement != nullptr) {
-						std::cout << " Emplacement Id: " << G._noeuds[selectedNode]._emplacement->_id << std::endl;
+						tcout() << " Emplacement Id: " << G._noeuds[selectedNode]._emplacement->_id << std::endl;
 					}
 					else if (G.useCoordReel) {
-						std::cout << " Coord: X: " << G._noeuds[selectedNode]._xreel << " Y: " << G._noeuds[selectedNode]._yreel << std::endl;
+						tcout() << " Coord: X: " << G._noeuds[selectedNode]._xreel << " Y: " << G._noeuds[selectedNode]._yreel << std::endl;
 					}
 				}
 			}
 			if (show_cells && show_selected_cell) {
-				std::cout << "Selected Cellule: " << selectedCellY << " " << selectedCellX << " id: " << selectedCellY * G.grille[0].size() + selectedCellX << std::endl;
+				tcout() << "Selected Cellule: " << selectedCellY << " " << selectedCellX << " id: " << selectedCellY * G.grille[0].size() + selectedCellX << std::endl;
 				for (const int& id : G.grille[selectedCellY][selectedCellX].vecEmplacementId) {
-					std::cout << "	Emplacement: " << id << " Noeud: " << G._emplacements[id]._noeud->_id << std::endl;
+					tcout() << "	Emplacement: " << id << " Noeud: " << G._emplacements[id]._noeud->_id << std::endl;
 				}
 				for (const int& id : G.grille[selectedCellY][selectedCellX].vecAreteId) {
-					std::cout << "	Arete: " << id << " N1: " << G._aretes[id].getNoeud1()->_id << " N2: " << G._aretes[id].getNoeud2()->_id << std::endl;
+					tcout() << "	Arete: " << id << " N1: " << G._aretes[id].getNoeud1()->_id << " N2: " << G._aretes[id].getNoeud2()->_id << std::endl;
 				}
 			}
 			break;
@@ -1014,7 +1014,7 @@ void openGLKeyPressFunction(Graphe& G) {
 		case 20: {// Step Stress Majorization (KEY: 5)
 			if (!useReel) {
 				G.stepStressMajorization();
-				std::cout << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretes()<< std::endl;
+				tcout() << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretes()<< std::endl;
 			}
 			else {
 				G.stressMajorizationReel();
@@ -1024,23 +1024,23 @@ void openGLKeyPressFunction(Graphe& G) {
 			break;
 		}
 		case 21: {// Print current seed
-			std::cout << "Current Seed: "; 
-			if (!isSeedFixe()) { std::cout << "R-"; }
-			else { std::cout << "NR-"; }
-			std::cout << getSeed(0) << "\n";
+			tcout() << "Current Seed: "; 
+			if (!isSeedFixe()) { tcout() << "R-"; }
+			else { tcout() << "NR-"; }
+			tcout() << getSeed(0) << "\n";
 			break;
 		}
 		case 22: {//Ajoute 5 au m_edgecost du SM (KEY:PageUp)
 			if (G._sm.G != nullptr) {
 				G._sm.addToEdgeCost(2);
-				std::cout << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
+				tcout() << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
 			}
 			break;
 		}
 		case 23: {//Enleve 5 au m_edgecost du SM (KEY:PageDown)
 			if (G._sm.G != nullptr) {
 				G._sm.addToEdgeCost(-2);
-				std::cout << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
+				tcout() << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
 			}
 			break;
 		}
@@ -1059,11 +1059,11 @@ void openGLKeyPressFunction(Graphe& G) {
 		case 26: {//Selection node (clic gauche avec modeNode)
 			if (useReel) { 
 				selectedNode = G.getClosestNodeFromPointReel(clicX,clicY); 
-				std::cout << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode]._xreel << " Y: " << G._noeuds[selectedNode]._yreel << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
+				tcout() << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode]._xreel << " Y: " << G._noeuds[selectedNode]._yreel << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
 			}
 			else { 
 				selectedNode = G.getClosestNodeFromPoint(clicX,clicY);
-				std::cout << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode].getEmplacement()->_x << " Y: " << G._noeuds[selectedNode].getEmplacement()->_y << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
+				tcout() << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode].getEmplacement()->_x << " Y: " << G._noeuds[selectedNode].getEmplacement()->_y << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
 			}
 			break;
 		}
@@ -1078,29 +1078,29 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 28: {// Recuit simule a basse temperature (KEY: F2)
 			if (useReel) {
-				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisementReelConst() << std::endl;
+				tcout() << "Nb Croisement debut recuit: " << G.getNbCroisementReelConst() << std::endl;
 				auto start = std::chrono::system_clock::now();
 				double timeBest;
 				bool useGrille = G.grillePtr.size() > 0;
 				G.recuitSimuleReel(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,useGrille,false);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
-				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
-				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
-				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
+				tcout() << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+				tcout() << "Temps Meilleur: " << timeBest << " secondes.\n";
+				tcout() << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
 				if (G.grillePtr.size() > 0) { G.reinitGrilleReel(); }
 			}
 			else {
-				std::cout << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
+				tcout() << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
 				auto start = std::chrono::system_clock::now();
 				double timeBest;
 				bool useGrille = G.grillePtr.size() > 0;
 				G.recuitSimule(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,useGrille,false);
 				auto end = std::chrono::system_clock::now();
 				std::chrono::duration<double> secondsTotal = end - start;
-				std::cout << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
-				std::cout << "Temps Meilleur: " << timeBest << " secondes.\n";
-				std::cout << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
+				tcout() << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
+				tcout() << "Temps Meilleur: " << timeBest << " secondes.\n";
+				tcout() << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
 				if (G.grillePtr.size() > 0) { G.reinitGrille(); }
 			}
 			if (showIllegal) recalcIllegal = true;
@@ -1150,7 +1150,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			break;
 		}
 		default:{
-			std::cout << "No function found.\n";
+			tcout() << "No function found.\n";
 		}
 		}
 		if (recalcIllegal) {
@@ -1253,7 +1253,7 @@ void dispOpenGL(Graphe& G, int w, int h, bool useReelCoord=false) {
 #else
 	class Graphe;
 	void dispOpenGL(Graphe& G, int w, int h, int mx, int my) {
-		std::cout << "OPENGL NOT INSTALLED.\n";
+		tcout() << "OPENGL NOT INSTALLED.\n";
 		return;
 	}
 #endif

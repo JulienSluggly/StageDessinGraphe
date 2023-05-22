@@ -211,7 +211,7 @@ int getMaxNodeIdFromFile(std::string input) {
 						nodeId = stoi(subs)-1;
 						if (nodeId > maxNodeId) { maxNodeId = nodeId; }
 					}
-					catch(...) { std::cout << "Error: " << subs << std::endl; }
+					catch(...) { tcout() << "Error: " << subs << std::endl; }
 				}
 			}
 		}
@@ -231,7 +231,7 @@ int crossingModule(const  ogdf::Graph& ogdfG) {
 
 int planarizeMaxFace(ogdf::GridLayout& ogdfGL, ogdf::Graph& ogdfG) {
 	if (crossingModule(ogdfG) != 0) {
-		std::cout << "Skipping Planarization, crossing Number > 0" << std::endl;
+		tcout() << "Skipping Planarization, crossing Number > 0" << std::endl;
 		return 1;
 	}
 	ogdf::PlanarDrawLayout PL;
@@ -244,7 +244,7 @@ int planarizeMaxFace(ogdf::GridLayout& ogdfGL, ogdf::Graph& ogdfG) {
 
 int planarizeMaxFace(ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG) {
 	if (crossingModule(ogdfG) != 0) {
-		std::cout << "Skipping Planarization, crossing Number > 0" << std::endl;
+		tcout() << "Skipping Planarization, crossing Number > 0" << std::endl;
 		return 1;
 	}
 	ogdf::PlanarDrawLayout PL;
@@ -285,23 +285,23 @@ void ogdfReadQuickCrossToGraph(std::string input, Graphe& G) {
 									G._aretes.push_back(Aretes(&G._noeuds[firstNodeId],&G._noeuds[secondNodeId],idArete));
 									idArete++;
 								}
-								catch(...) { std::cout << "Error: " << subs << std::endl; }
+								catch(...) { tcout() << "Error: " << subs << std::endl; }
 							}
 							iss >> subs;
 						}
 					}
-					catch(...) { std::cout << "Error: " << subs << std::endl; }
+					catch(...) { tcout() << "Error: " << subs << std::endl; }
 				}
 			}
 		}
 		numeroLigne++;
 	}
 	infile.close();
-	std::cout << G._noeuds.size() << "n " << G._aretes.size() << "e\n";
+	tcout() << G._noeuds.size() << "n " << G._aretes.size() << "e\n";
 	createOGDFGraphFromGraphe(G,ogdfG);
-	std::cout << "Start Planarizing...\n";
+	tcout() << "Start Planarizing...\n";
 	planarizeMaxFace(ogdfGA, ogdfG);
-	std::cout << "Planarizing done.\n";
+	tcout() << "Planarizing done.\n";
 	int idNode = 0;
 	for (auto n : ogdfG.nodes) {
 		G._noeuds[idNode]._xreel = ogdfGA.x(n);
@@ -579,7 +579,7 @@ void ogdfReverseNonPlanar(Graphe &G) {
 
 	pl.call(ogdfGA);
 
-	std::cout << "OGDF number of crossings: " << pl.numberOfCrossings() << std::endl;
+	tcout() << "OGDF number of crossings: " << pl.numberOfCrossings() << std::endl;
 
 	int i=0;
 	for (ogdf::node& n : ogdfG.nodes) {
@@ -707,7 +707,7 @@ void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
 
 void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 #if defined(DEBUG_GRAPHE)
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << " Debut placement OGDFFMMMM\n";
+	tcout() << "Debut placement OGDFFMMMM\n";
 #endif
 	auto start = std::chrono::system_clock::now();
 	ogdf::Graph ogdfG;
@@ -753,7 +753,7 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
     G.isNodeScoreUpdated = false;
     G.isIntersectionVectorUpdated = false;
 #if defined(DEBUG_GRAPHE)
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Fin Placement OGDFFMMMM\n";
+	tcout() << "Fin Placement OGDFFMMMM\n";
 #endif
 }
 
@@ -786,7 +786,7 @@ void ogdfPivotMDS(Graphe& G) {
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::PivotMDS pmds;
 	pmds.call(ogdfGA);
-	std::cout << ogdfNumberOfCrossings(ogdfGA) << std::endl;
+	tcout() << ogdfNumberOfCrossings(ogdfGA) << std::endl;
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 }
@@ -842,7 +842,7 @@ void ogdfStarReinsertion(Graphe& G) {
 	pgl.setCrossMin(psr);
 	pgl.call(ogdfGA);
 	//psr->call(pr,0,crossingNumber);
-	std::cout << pgl.numberOfCrossings() << " crossings OGDF." << std::endl;
+	tcout() << pgl.numberOfCrossings() << " crossings OGDF." << std::endl;
 	ogdfGetCoordsReel(G,ogdfG,ogdfGA);
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
@@ -860,7 +860,7 @@ void ogdfOtherTest(Graphe& G) {
     pl.call(ogdfGA);
     ogdfNumberOfCrossings(ogdfGA);
     ogdf::GraphIO::write(ogdfGA, chemin + "/svgOgdf/output.svg", ogdf::GraphIO::drawSVG);
-    std::cout << "Nb Bends: " << ogdfTotalNumberOfBends(ogdfGA) << std::endl;
+    tcout() << "Nb Bends: " << ogdfTotalNumberOfBends(ogdfGA) << std::endl;
     ogdfGA.clearAllBends();
     ogdfNumberOfCrossings(ogdfGA);
     ogdf::GraphIO::write(ogdfGA, chemin + "/svgOgdf/outputNoBend.svg", ogdf::GraphIO::drawSVG);
@@ -870,12 +870,12 @@ void ogdfOtherTest(Graphe& G) {
 void ogdfRun(Graphe &G) {
 	ogdf::Graph ogdfG;
 	ogdf::GridLayout ogdfGL{ ogdfG };
-	std::cout << "Connexe: " << ogdf::isConnected(ogdfG) << std::endl;
-	std::cout << "Biconnected: " << ogdf::isBiconnected(ogdfG) << std::endl;
-	std::cout << "Graph genus: " << ogdfG.genus() << std::endl;
+	tcout() << "Connexe: " << ogdf::isConnected(ogdfG) << std::endl;
+	tcout() << "Biconnected: " << ogdf::isBiconnected(ogdfG) << std::endl;
+	tcout() << "Graph genus: " << ogdfG.genus() << std::endl;
 
 	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
-	std::cout << "Crossing Number: " << crossingModule(ogdfG) << std::endl;
+	tcout() << "Crossing Number: " << crossingModule(ogdfG) << std::endl;
 }
 
 #else

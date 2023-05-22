@@ -43,7 +43,7 @@ int generateRand(int n) {
 }
 
 void initSameSeed(unsigned int n) {
-    std::cout << "---------- SEED FIXE: " << n << " ----------\n";
+    tcout() << "---------- SEED FIXE: " << n << " ----------\n";
     typeSeed = "FIXE";
     isSeedRandom = false;
     seed = n;
@@ -60,7 +60,7 @@ void initSameSeed(unsigned int n) {
 }
 
 void initSameSeedIncThread(unsigned int n) {
-    std::cout << "---------- SEED FIXE INC: " << n << " ----------\n";
+    tcout() << "---------- SEED FIXE INC: " << n << " ----------\n";
     typeSeed = "FIXE INC";
     isSeedRandom = false;
     seed = n;
@@ -91,7 +91,7 @@ void initRandomSeed() {
     ogdfSeed = generateRand(INT_MAX-1);
     ogdf::setSeed(ogdfSeed);
 #endif
-    std::cout << "---------- SEED RANDOM: " << getSeed(0) << " ----------\n";
+    tcout() << "---------- SEED RANDOM: " << getSeed(0) << " ----------\n";
 }
 
 void resetSeed(int numThread, bool resetSameSeed) {
@@ -200,4 +200,14 @@ bool containsString(std::string a, std::string b) {
     std::transform(a.begin(), a.end(), a.begin(),[](unsigned char c){ return std::tolower(c); });
     std::transform(b.begin(), b.end(), b.begin(),[](unsigned char c){ return std::tolower(c); });
     return strstr(a.c_str(),b.c_str());
+}
+
+std::ostream& tcout() {
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+#if defined(OPENMP_INSTALLED)
+    return std::cout << "(" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << " TID: " << ::omp_get_thread_num() << ") ";
+#else
+    return std::cout << "(" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << ") ";
+#endif
 }

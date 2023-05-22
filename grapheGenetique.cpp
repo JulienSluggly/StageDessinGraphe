@@ -34,14 +34,14 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
     int currentIteration = 0; bestIteration = 0;
     long bestCrossingResult = graphes[0].nombreCroisement;
     if (PRINT_RESULT) {
-        std::cout << bestCrossingResult << " Meilleur debut genetique\n[";
-        for (int i = 0; i<10;i++) { std::cout << graphes[i].nombreCroisement << " "; }
-        std::cout << "]" << std::endl;
+        tcout() << bestCrossingResult << " Meilleur debut genetique\n[";
+        for (int i = 0; i<10;i++) { tcout() << graphes[i].nombreCroisement << " "; }
+        tcout() << "]" << std::endl;
     }
     if (DEBUG_GENETIQUE) {
         for (int i = 0; i<graphes.size();i++) { graphes[i].debugEverything(); }
     }
-    if (PRINT_RESULT) { std::cout << "Debut Croisement Genetique." << std::endl; }
+    if (PRINT_RESULT) { tcout() << "Debut Croisement Genetique." << std::endl; }
     bool noChange = false;
     while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
         int numberOfNoChange = 0;
@@ -80,11 +80,11 @@ void Graphe::grapheGenetique(double &timeBest, int &bestIteration, int &lastIter
         ++currentIteration;
         sort(graphes.begin(), graphes.end());
         if (PRINT_RESULT) {
-            std::cout << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " Number of no Change: " << numberOfNoChange <<"\n[";
+            tcout() << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " Number of no Change: " << numberOfNoChange <<"\n[";
             for (int i = 0; i<10;i++) {
-                std::cout << graphes[i].nombreCroisement << " ";
+                tcout() << graphes[i].nombreCroisement << " ";
             }
-            std::cout << "]" << std::endl;
+            tcout() << "]" << std::endl;
         }
         if (DEBUG_GENETIQUE) {
             for (int i = 0; i<graphes.size();i++) { graphes[i].debugEverything(); }
@@ -328,7 +328,7 @@ void Graphe::stepCroisementVoisinageScore(Graphe& graphe1, Graphe& graphe2, bool
         loadCopy(graphe1.saveCopy());
         nombreCroisement = otherGraphe->nombreCroisement;
     }
-    std::cout << "NNT: " << nbNoeudATraiter << std::endl;
+    tcout() << "NNT: " << nbNoeudATraiter << std::endl;
 }
 
 // Effectue le croisement entre deux parents,
@@ -470,7 +470,7 @@ bool Graphe::croisementBestOfBoth(Graphe& originalGraphe1, Graphe& originalGraph
 // Ne met pas à jour la variable nombreCroisement du graphe
 bool Graphe::croisementHalfParent(Graphe& graphe1, Graphe& graphe2, std::vector<int>& sortedEmpId, bool useRand) {
     int nbNoeudATraiter = graphe1._noeuds.size() - graphe1.nbNoeudEnCommun(graphe2);
-    //std::cout << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
+    //tcout() << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
     if (nbNoeudATraiter == 0) {
         copyFromGraphe(graphe1);
         return false;
@@ -617,7 +617,7 @@ bool Graphe::croisementAleatoire(Graphe& graphe1, Graphe& graphe2, bool useRand)
                 }
                 else {
                     otherGraphe->completeBasicGlouton();
-                }		//std::cout << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
+                }		//tcout() << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
                 if (graphe1._noeuds[oldNodeId].compare(&graphe2._noeuds[oldNodeId])) {
                     --nbNoeudATraiter;
                 }
@@ -808,7 +808,7 @@ bool Graphe::croisementEnfantScore(Graphe& originalGraphe1, Graphe& originalGrap
 // Ne met pas à jour le nombre de croisement d'un graphe
 bool Graphe::croisementVoisinageFrom(Graphe& graphe1, Graphe& graphe2, bool useRand) {
     int nbNoeudATraiter = graphe1._noeuds.size() - graphe1.nbNoeudEnCommun(graphe2);
-    //std::cout << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
+    //tcout() << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
     if (nbNoeudATraiter == 0) {
         copyFromGraphe(graphe1);
         return false;

@@ -954,7 +954,7 @@ void Graphe::initGraphAndNodeScoresAndCrossings() {
             maxVoisin = nombreVoisin;
         }
     }
-    //std::cout << "Max Voisin dans le graphe: " << maxVoisin << std::endl;
+    //tcout() << "Max Voisin dans le graphe: " << maxVoisin << std::endl;
 }
 
 // Renvoie le score du noeud nodeId1 sans prendre en compte le score d'intersection avec le noeud nodeId2

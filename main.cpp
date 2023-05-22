@@ -38,29 +38,29 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 	std::chrono::duration<double> secondsTotal = end - start;
 	std::chrono::duration<double> secondsPlacement = finPlacement - start;
 	std::chrono::duration<double> secondsAlgo = end - finPlacement;
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << std::fixed << secondsPlacement.count() << "s placement. " << secondsAlgo.count() << "s algo. " << secondsTotal.count() << "s total.\n";
-	if (tempsBest != -1) std::cout << "Tid: " << ::omp_get_thread_num() << " |" << tempsBest << "s meilleur resultat.\n";
-	if (bestIteration != -1) std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "A la " << bestIteration << "eme iteration\n";
-	if (lastIteration != -1) std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Max iteration: " << lastIteration << "\n";
-	if (nombreRecuit != 0) std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Nombre de rechauffe: " << nombreRecuit << "\n";
+	tcout() << std::fixed << secondsPlacement.count() << "s placement. " << secondsAlgo.count() << "s algo. " << secondsTotal.count() << "s total.\n";
+	if (tempsBest != -1) tcout() << tempsBest << "s meilleur resultat.\n";
+	if (bestIteration != -1) tcout() << "A la " << bestIteration << "eme iteration\n";
+	if (lastIteration != -1) tcout() << "Max iteration: " << lastIteration << "\n";
+	if (nombreRecuit != 0) tcout() << "Nombre de rechauffe: " << nombreRecuit << "\n";
 	if ((G.useCoordReel)||(G.estPlace())) { 
-		std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Nombre intersection apres placement: ";
-		if (!G.useCoordReel) { std::cout << G.getNbCroisementConst() << std::endl; }
-		else { std::cout << "Tid: " << ::omp_get_thread_num() << " |" << G.getNbCroisementReelConst() << std::endl; }
+		tcout() << "Nombre intersection apres placement: ";
+		if (!G.useCoordReel) { tcout() << G.getNbCroisementConst() << std::endl; }
+		else { tcout() << G.getNbCroisementReelConst() << std::endl; }
 		if (G.hasIllegalCrossing())  {
-			std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Solution illegale.\n";
+			tcout() << "Solution illegale.\n";
 			if (!G.useCoordReel) { G.getNbCroisementDiff(); } else { G.getNbCroisementDiffReel(); }
-			std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
+			tcout() << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
 		}
 		G.debugEverything(false,false);
 	}
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Setup complete!" << std::endl;
+	tcout() << "Setup complete!" << std::endl;
 }
 
 void runFuncOnFolder() {
 	std::string path = chemin + "benchGraphs/sparceMC/";
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "---------------------\n";
+		tcout() << "---------------------\n";
 		Graphe G;
 		std::ifstream file(dirEntry.path().string());
 		if (file) {
@@ -72,10 +72,10 @@ void runFuncOnFolder() {
 			output = output + "clean";
 			G.writeToJsonCleanGraphe(output);
 		}
-		std::cout << "Tid: " << ::omp_get_thread_num() << " |" << dirEntry.path().string() << " Grid" << std::endl;
+		tcout() << dirEntry.path().string() << " Grid" << std::endl;
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
-		std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Noeud: " << G._noeuds.size() << " Arete: " << G._aretes.size() << std::endl;
+		tcout() << "Noeud: " << G._noeuds.size() << " Arete: " << G._aretes.size() << std::endl;
 		auto finPlacement = std::chrono::system_clock::now();
 		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 	}
@@ -83,12 +83,12 @@ void runFuncOnFolder() {
 
 void runFuncOnAllGraphs() {
 	for (int i=1;i<=12;i++) {
-		std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "---------------------\n";
+		tcout() << "---------------------\n";
 		Graphe G;
 		std::string numero = to_string(i);
 		std::string nomFichierGraph = "graph-"+numero+"-input";
 		std::string nomFichierSlots = numero+"-input-slots";
-		std::cout << "Tid: " << ::omp_get_thread_num() << " |" << nomFichierGraph << " " << nomFichierSlots << std::endl;
+		tcout() << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 		G.setupGraphe(nomFichierGraph,nomFichierSlots);
 		auto start = std::chrono::system_clock::now();
@@ -104,7 +104,7 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 	if (!useGrid) { nbSlot--; }
 	for (int i=5;i<=12;i++) {
 		for (int j=0;j<nbSlot;j++) {
-			std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "---------------------\n";
+			tcout() << "---------------------\n";
 			Graphe G;
 			std::string numero = to_string(i);
 			std::string nomFichierGraph = "graph-"+numero+"-input";
@@ -112,12 +112,12 @@ void runFuncOnAllGraphsAllSlots(bool useGrid=true) {
 			if (j == 0) { nomFichierSlots = numero+"-input-slots"; }
 			else if (j < 3) { nomFichierSlots = to_string(j+1) + "X-"+numero+"-input-slots"; }
 			else { nomFichierSlots = "Grid"; }
-			std::cout << "Tid: " << ::omp_get_thread_num() << " |" << nomFichierGraph << " " << nomFichierSlots << std::endl;
+			tcout() << nomFichierGraph << " " << nomFichierSlots << std::endl;
 
 			G.setupGraphe(nomFichierGraph,nomFichierSlots);
 			auto start = std::chrono::system_clock::now();
 			double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
-			std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Moyenne: " << G.distMoyNTirage(1000000) << std::endl;
+			tcout() << "Moyenne: " << G.distMoyNTirage(1000000) << std::endl;
 			auto finPlacement = std::chrono::system_clock::now();
 			printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 		}
@@ -129,8 +129,8 @@ void stopGprofProfiler(bool useProfiler) {
 	if (useProfiler) {
 		ProfilerFlush();
 		ProfilerStop();
-		if (std::system("/home/uha/Documents/DessinGrapheCmake/build/generate_svg.sh") == -1) { std::cout << "Could not generate svg file.\n";  }
-		else { std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "SVG file generated successfully.\n"; }
+		if (std::system("/home/uha/Documents/DessinGrapheCmake/build/generate_svg.sh") == -1) { tcout() << "Could not generate svg file.\n";  }
+		else { tcout() << "SVG file generated successfully.\n"; }
 	}
 #endif
 }
@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
 	if (argc > 1) { nomFichierGraph = argv[1]; }
 	std::string nomFichierSlots = "11-input-slots";
 	//std::string nomFichierSlots = "Grid";
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << nomFichierGraph << " " << nomFichierSlots << std::endl;
+	tcout() << nomFichierGraph << " " << nomFichierSlots << std::endl;
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
@@ -175,13 +175,13 @@ int main(int argc, char *argv[]) {
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	//if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Debut placement.\n";
+	tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
+	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
-	//std::cout << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
+	//tcout() << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 	//ogdfFastMultipoleMultilevelEmbedderMinute(G);
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
 	if (useCoordReel) { G.translateGrapheToOriginReel(-1); }
 	G.setupGridAndRegistration({});
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
-	std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Fin du placement.\n";
+	tcout() << "Fin du placement.\n";
 	auto finPlacement = std::chrono::system_clock::now();
 	//G.recuitSimuleChallenge();
 	//G.recuitSimule(tempsBest,start,{});
@@ -210,7 +210,7 @@ int main(int argc, char *argv[]) {
 	#ifdef OPENGL_INSTALLED
 	bool useOpenGL = true;
 	if (useOpenGL) {
-		std::cout << "Tid: " << ::omp_get_thread_num() << " |" << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;
+		tcout() << "Grid: " << G.gridWidth << " " << G.gridHeight << std::endl;
 		dispOpenGL(G,G.gridWidth,G.gridHeight,useCoordReel);
 	}
 	#endif

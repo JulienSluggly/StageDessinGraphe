@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <random>
+#include <iostream>
+#include <iomanip>
+#include <ctime>
 #include "emplacement.hpp"
 
 static cpu_set_t cpuset;
@@ -77,5 +80,8 @@ bool isSeedFixe();
 
 // Renvoie true si le string b est présent dans le string a
 bool containsString(std::string a, std::string b);
+
+// Logging avec timestamp
+std::ostream& tcout();
 
 #endif
