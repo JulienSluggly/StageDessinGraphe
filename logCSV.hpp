@@ -154,6 +154,7 @@ void LogGraphe::writeRecuitResultToFile() {
 	double moyenneCroisement, ecartTypeScore;
 	double tempsExecMoyenne, tempsBestMoyenne, tempsPlacementMoyenne;
 	double nombreRecuitMoyenne, totalInterMoyenne, totalInterIllMoyenne, edgeCostMoyenne, placementInterMoyenne;
+	long lastScore = scoreVector[scoreVector.size()-1];
 	std::sort(scoreVector.begin(), scoreVector.end());
 	long meilleurScore = scoreVector[0];
 	moyenneCroisement = moyenneVector(scoreVector);
@@ -193,6 +194,7 @@ void LogGraphe::writeRecuitResultToFile() {
 	else { resultats << std::setprecision(1) << medianScore << ","; } // MEDIANE SCORE DES RUNS
 	if (ecartTypeScore > 100) { resultats << std::setprecision(0) << ecartTypeScore << ","; } // ECART TYPE SCORE DES RUNS
 	else { resultats << std::setprecision(1) << ecartTypeScore << ","; } // ECART TYPE SCORE DES RUNS
+	resultats << lastScore << ","; // SCORE DE LA DERNIERE EXECUTION
 	resultats << placementInterMoyenne << ","; // MOYENNE INTERSECTION APRES PLACEMENT DES RUNS
 	resultats << std::setprecision(0) << tempsPlacementMoyenne << "," << tempsBestMoyenne << "," << tempsExecMoyenne; // TEMPS MOYEN (PLACEMENT, MEILLEUR RESULTATS ALGO, TOTAL ALGO) DES RUNS
 	resultats << "," << std::setprecision(1) << nombreRecuitMoyenne; // NOMBRE RECHAUFFE RECUIT
