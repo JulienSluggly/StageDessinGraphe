@@ -25,6 +25,11 @@
 #include <ogdf/planarity/PlanarizerMixedInsertion.h>
 #include <ogdf/planarity/PlanarizerChordlessCycle.h>
 
+#include <ogdf/energybased/MultilevelLayout.h>
+#include <ogdf/energybased/multilevel_mixer/MatchingMerger.h>
+#include <ogdf/energybased/multilevel_mixer/SolarMerger.h>
+#include <ogdf/energybased/multilevel_mixer/SolarPlacer.h>
+
 #include <ogdf/energybased/StressMinimization.h>
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
 #include <ogdf/energybased/FMMMLayout.h>
@@ -44,6 +49,15 @@
 #include <fstream>
 
 std::vector<ogdf::node> vecNoeudAOGDFNode;
+
+void ogdfGetCoordsReel(Graphe& G, ogdf::Graph& ogdfG, ogdf::GraphAttributes& ogdfGA) {
+	int i=0;
+	for (auto n : ogdfG.nodes) {
+		G._noeuds[i]._xreel = ogdfGA.x(n);
+		G._noeuds[i]._yreel = ogdfGA.y(n);
+		i++;
+	}
+}
 
 void createGrapheFromOGDFGraphe(Graphe &G, ogdf::Graph &ogdfG) {
 	for (ogdf::node n : ogdfG.nodes) {
@@ -361,18 +375,23 @@ void ogdfPlacementAuPlusProche(ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG
 		ogdfGA.x(n) = ogdfGA.x(n) / ratio;
 		ogdfGA.y(n) = ogdfGA.y(n) / ratio2;
 	}
-	G.clearNodeEmplacement();
-	for (i=0;i<G._noeuds.size();i++) {
-		double x = ogdfGA.x(nodeTab[i]);
-		double y = ogdfGA.y(nodeTab[i]);
-		Emplacement* closestEmplacement;
-        if (G.grillePtr.size() > 0) {
-            closestEmplacement = G.getClosestEmplacementFromPointGrid(x,y,true);
-        }
-        else {
-            closestEmplacement = G.getClosestEmplacementFromPoint(x,y,true);
-        }
-		G._noeuds[i].setEmplacement(closestEmplacement);
+	if (G.useCoordReel) {
+		ogdfGetCoordsReel(G,ogdfG,ogdfGA);
+	}
+	else {
+		G.clearNodeEmplacement();
+		for (i=0;i<G._noeuds.size();i++) {
+			double x = ogdfGA.x(nodeTab[i]);
+			double y = ogdfGA.y(nodeTab[i]);
+			Emplacement* closestEmplacement;
+			if (G.grillePtr.size() > 0) {
+				closestEmplacement = G.getClosestEmplacementFromPointGrid(x,y,true);
+			}
+			else {
+				closestEmplacement = G.getClosestEmplacementFromPoint(x,y,true);
+			}
+			G._noeuds[i].setEmplacement(closestEmplacement);
+		}
 	}
 	delete[] nodeTab;
 }
@@ -758,14 +777,36 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 #endif
 }
 
+void ogdfMultilevelLayout(Graphe& G) {
+	ogdf::Graph ogdfG;
+	ogdf::GraphAttributes ogdfGA{ ogdfG };
+	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
+	ogdf::MultilevelLayout mll;
+
+	ogdf::FMMMLayout* fmmml = new ogdf::FMMMLayout();
+	fmmml->forceModel(ogdf::FMMMOptions::ForceModel::Eades);
+	
+	mll.setLayout(new ogdf::StressMinimization());
+	//mll.setMultilevelBuilder(new ogdf::MatchingMerger());
+	mll.setMultilevelBuilder(new ogdf::SolarMerger());
+	mll.setPlacer(new ogdf::SolarPlacer());
+	mll.call(ogdfGA);
+	//tcout() << ogdfNumberOfCrossings(ogdfGA) << " OGDF crossings.\n";
+	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
+	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
+}
+
 void ogdfFMMMLayout(Graphe& G) {
 	ogdf::Graph ogdfG;
 	ogdf::GraphAttributes ogdfGA{ ogdfG };
 	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
 	ogdf::FMMMLayout fmmml;
-	fmmml.unitEdgeLength(22);
+	fmmml.qualityVersusSpeed(ogdf::FMMMOptions::QualityVsSpeed::GorgeousAndEfficient);
+	fmmml.allowedPositions(ogdf::FMMMOptions::AllowedPositions::All);
+	//fmmml.unitEdgeLength(22);
+	fmmml.randSeed(9);
 	fmmml.call(ogdfGA);
-	//ogdfNumberOfCrossings(ogdfGA);
+	//tcout() << ogdfNumberOfCrossings(ogdfGA) << " OGDF crossings.\n";
 	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
@@ -820,15 +861,6 @@ void ogdfGutwenger(Graphe& G) {
 	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
 	ogdfReverseAndPlace(G,ogdfGA,ogdfG);
 	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
-}
-
-void ogdfGetCoordsReel(Graphe& G, ogdf::Graph& ogdfG, ogdf::GraphAttributes& ogdfGA) {
-	int i=0;
-	for (auto n : ogdfG.nodes) {
-		G._noeuds[i]._xreel = ogdfGA.x(n);
-		G._noeuds[i]._yreel = ogdfGA.y(n);
-		i++;
-	}
 }
 
 void ogdfStarReinsertion(Graphe& G) {

@@ -45,8 +45,8 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 	if (nombreRecuit != 0) tcout() << "Nombre de rechauffe: " << nombreRecuit << "\n";
 	if ((G.useCoordReel)||(G.estPlace())) { 
 		tcout() << "Nombre intersection apres placement: ";
-		if (!G.useCoordReel) { tcout() << G.getNbCroisementConst() << std::endl; }
-		else { tcout() << G.getNbCroisementReelConst() << std::endl; }
+		if (!G.useCoordReel) { std::cout << G.getNbCroisementConst() << std::endl; }
+		else { std::cout << G.getNbCroisementReelConst() << std::endl; }
 		if (G.hasIllegalCrossing())  {
 			tcout() << "Solution illegale.\n";
 			if (!G.useCoordReel) { G.getNbCroisementDiff(); } else { G.getNbCroisementDiffReel(); }
@@ -58,27 +58,22 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 }
 
 void runFuncOnFolder() {
-	std::string path = chemin + "benchGraphs/sparceMC/";
+	tcout() << "---------------------\n";
+	std::string path = chemin + "benchGraphs/runs/";
+	long totalCross = 0;
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		tcout() << "---------------------\n";
 		Graphe G;
-		std::ifstream file(dirEntry.path().string());
-		if (file) {
-			std::stringstream buffer;
-			buffer << file.rdbuf();
-			file.close();
-			ogdfReadFromMM(G, buffer);
-			std::string output = dirEntry.path().string();
-			output = output + "clean";
-			G.writeToJsonCleanGraphe(output);
-		}
-		tcout() << dirEntry.path().string() << " Grid" << std::endl;
-		auto start = std::chrono::system_clock::now();
-		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
-		tcout() << "Noeud: " << G._noeuds.size() << " Arete: " << G._aretes.size() << std::endl;
-		auto finPlacement = std::chrono::system_clock::now();
-		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
+		G.useCoordReel = true;
+		std::string graphPath = dirEntry.path().string();
+		G.readFromJsonGraph(graphPath);
+		G.fillCommonNodeVectors();
+		//ogdfFastMultipoleMultilevelEmbedderReel(G);
+		ogdfMultilevelLayout(G);
+		long nbCroisement = G.getNbCroisementDiffReel();
+		tcout() << nbCroisement << " " << graphPath << std::endl;
+		totalCross += nbCroisement;
 	}
+	tcout() << "Total croisement: " << totalCross << std::endl;
 }
 
 void runFuncOnAllGraphs() {
@@ -153,22 +148,24 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed(2993041192);
 	//initSameSeedIncThread();
-	allRunsByOnFolderSingleInput(argv[1]); return 0;
+	//allRunsByOnFolderSingleInput(argv[1]); return 0;
 	//allRunsByOnFolder(); allRunsRegularGraphs(); return 0;
-	bool useCoordReel = true;
-	std::string nomFichierGraph = "mk9-b2";
+	//runFuncOnFolder(); return 0;
+	bool useCoordReel = false;
+	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	std::string nomFichierSlots = "11-input-slots";
+	std::string nomFichierSlots = "10-input-slots";
 	//std::string nomFichierSlots = "Grid";
-	tcout() << nomFichierGraph << " " << nomFichierSlots << std::endl;
+	if (useCoordReel) { tcout() << nomFichierGraph << std::endl; }
+	else { tcout() << nomFichierGraph << " " << nomFichierSlots << std::endl; }
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	std::string kregularFile = chemin + "benchGraphs/kregular/9regular/9-regular-1000nodes-0.json";
-	G.readFromJsonGraphReel(kregularFile);
+	//G.readFromJsonGraphReel(kregularFile);
 	std::string quickCrossInput = chemin + "resultats/results.txt";
 	std::string pathGraphDimacs = chemin + "benchGraphs/runs/" + nomFichierGraph + ".clean";
-	G.readFromJsonGraph(pathGraphDimacs);
+	//G.readFromJsonGraph(pathGraphDimacs);
 	//G.generateKRegular(1000,9);
 	G.calcMaxAndAverageDegree();
 	G.fillCommonNodeVectors();
@@ -182,7 +179,7 @@ int main(int argc, char *argv[]) {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//tcout() << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	//ogdfFastMultipoleMultilevelEmbedderMinute(G);
+	ogdfFastMultipoleMultilevelEmbedderMinute(G);
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
 	//ogdfOther(G);
@@ -190,7 +187,10 @@ int main(int argc, char *argv[]) {
 	
 	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
-	ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
+	//ogdfFMMMLayout(G);
+	//ogdfMultilevelLayout(G);
+	
+	//ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
 	//G.placementAleatoireReel();
 	//G.forcePlacement();
 	//G.stressMajorizationReel();
@@ -199,9 +199,13 @@ int main(int argc, char *argv[]) {
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 	tcout() << "Fin du placement.\n";
 	auto finPlacement = std::chrono::system_clock::now();
+	G.triangulationDelaunay();
+	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,3,true);
+	G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleChallenge();
+	//G.rerecuitSimuleChallenge();
 	//G.recuitSimule(tempsBest,start,{});
-	G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
+	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,500);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 	//G.afficherInfo();

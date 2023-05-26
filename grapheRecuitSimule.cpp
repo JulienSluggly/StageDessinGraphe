@@ -747,7 +747,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
     if (firstWaveImp) { t = 0.05; }
     while ((numberOfNoUpgrade < maxIter)&&((timeLimit == -1)||(secondsTotalExec.count() < timeLimit))) {
         if (useGrille) { if (i>1) { reinitGrilleReel(); } }
-        #if defined(DEBUG_GRAPHE_PROGRESS)
+        #if defined(DEBUG_GRAPHE)
             tcout() << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif
         nombreRecuit++;
@@ -1193,4 +1193,81 @@ void Graphe::bestDeplacement() {
     #if defined(DEBUG_GRAPHE)
         tcout() << "Meilleur resultat de l'algo meilleur deplacement: " << nbIntersection << std::endl;
     #endif
+}
+
+void Graphe::rechercheTabou() {
+    std::vector<int> bestResultVector = saveCopy();
+    long nbCroisement, bestCroisement, bestImproveFound;
+    nbCroisement = getNbCroisement();
+    bestCroisement = nbCroisement;
+    int nodeId, slotId, idSwappedNode, improve;
+    int bestNodeId, bestSlotId;
+    bool swapped;
+    Emplacement* oldEmplacement;
+    int nombreIteration = 1000000;
+    int nbTirageNoeud = _noeuds.size()/10;
+    int nbTirageEmplacement = _emplacements.size()/10;
+    int tabouTime = nombreIteration/10;
+    std::vector<std::vector<bool>> tabouVector;
+    std::vector<std::pair<int,int>> tabouTimeVector;
+    tabouTimeVector.reserve(nombreIteration-tabouTime);
+    for (int i=0;i<_noeuds.size();i++) {
+        std::vector<bool> tmpTabou(_emplacements.size(),false);
+        tabouVector.push_back(tmpTabou);
+    }
+    for (int iteration=0;iteration<nombreIteration;iteration++) {
+        std::unordered_set<int> nodesId;
+        std::unordered_set<int> slotsId;
+        for (int i=0;i<nbTirageNoeud;i++) { nodesId.insert(generateRand(_noeuds.size() - 1)); }
+        for (int i=0;i<nbTirageEmplacement;i++) { slotsId.insert(generateRand(_emplacements.size() - 1)); }
+        bestImproveFound = INT_MAX;
+        for (const int& nodeId : nodesId) {
+            oldEmplacement = _noeuds[nodeId].getEmplacement();
+            for (const int& slotId : slotsId) {
+                swapped = false;
+                idSwappedNode = -1;
+                improve = calculImprove(nodeId,slotId,swapped,idSwappedNode,true,false);
+                if (swapped) {
+                    _noeuds[nodeId].swap(oldEmplacement);
+                    recalcNodeCellule(idSwappedNode);
+                }
+                else {
+                    _noeuds[nodeId].setEmplacement(oldEmplacement);
+                }
+                recalcNodeCellule(nodeId);
+                if (improve < bestImproveFound) { 
+                    bool isTabou = tabouVector[nodeId][slotId];
+                    if ((swapped)&&(!isTabou)) { isTabou = tabouVector[idSwappedNode][oldEmplacement->getId()]; }
+                    if ((nbCroisement+bestImproveFound < bestCroisement)||(!isTabou)) {
+                        bestImproveFound = improve;
+                        bestNodeId = nodeId;
+                        bestSlotId = slotId;
+                    }
+                }
+            }
+        }
+        if (_emplacements[bestSlotId].estDisponible()) { _noeuds[bestNodeId].setEmplacement(&_emplacements[bestSlotId]); }
+        else { 
+            idSwappedNode = _emplacements[bestSlotId]._noeud->getId();
+            _noeuds[bestNodeId].swap(&_emplacements[bestSlotId]);
+            recalcNodeCellule(idSwappedNode);
+        }
+        recalcNodeCellule(nodeId);
+        tabouVector[bestNodeId][bestSlotId] = true;
+        tabouTimeVector.push_back(std::make_pair(bestNodeId,bestSlotId));
+        int tabouTimerIteration = iteration - tabouTime;
+        if (tabouTimerIteration >= 0) {
+            tabouVector[tabouTimeVector[tabouTimerIteration].first][tabouTimeVector[tabouTimerIteration].second] = false;
+        }
+        nbCroisement = nbCroisement + bestImproveFound;
+        if (nbCroisement < bestCroisement) {
+            bestCroisement = nbCroisement;
+            bestResultVector = saveCopy();
+        }
+    }
+    loadCopy(bestResultVector);
+    nombreCroisement = bestCroisement;
+    isNombreCroisementUpdated = true;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
 }

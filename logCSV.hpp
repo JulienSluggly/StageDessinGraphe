@@ -125,7 +125,7 @@ void LogGraphe::updateDataFromGraphe(Graphe& G) {
     totalInterIllVector.push_back(G.nombreInterIll + G.nombreInterIllSelf);
     debugValue = G.debugEverything();
 	if (debugValue != -1) { tcout() << "Bug found. Value: " << debugValue << std::endl; }
-    if ((isRecuit)&&(currentIteration==1)) { recuitCycleVague = G.recuitCycleVague; }
+    if (isRecuit) { recuitCycleVague = G.recuitCycleVague; }
 }
 
 void LogGraphe::writeGrapheToFile(Graphe& G, int tid) {

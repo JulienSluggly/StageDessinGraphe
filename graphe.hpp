@@ -835,6 +835,8 @@ public:
 	// Génere un graphe dont tout les noeuds sont de degrés d.
 	void generateKRegular(int nbNoeud, int degre);
 
+	void rechercheTabou();
+
 };
 
 #endif
