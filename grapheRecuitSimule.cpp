@@ -1198,75 +1198,85 @@ void Graphe::bestDeplacement() {
 void Graphe::rechercheTabou() {
     std::vector<int> bestResultVector = saveCopy();
     long nbCroisement, bestCroisement, bestImproveFound;
-    nbCroisement = getNbCroisement();
+    nbCroisement = getNbCroisementGrid();
+    #if defined(DEBUG_GRAPHE)
+        tcout() << "Debut Recherche Tabou, nombre de croisement: " << nbCroisement << std::endl;
+    #endif
     bestCroisement = nbCroisement;
     int nodeId, slotId, idSwappedNode, improve;
     int bestNodeId, bestSlotId;
     bool swapped;
     Emplacement* oldEmplacement;
-    int nombreIteration = 1000000;
+    int nombreIteration = 1000;
     int nbTirageNoeud = _noeuds.size()/10;
     int nbTirageEmplacement = _emplacements.size()/10;
-    int tabouTime = nombreIteration/10;
-    std::vector<std::vector<bool>> tabouVector;
-    std::vector<std::pair<int,int>> tabouTimeVector;
-    tabouTimeVector.reserve(nombreIteration-tabouTime);
+    int tabouTime = 20;
+    std::vector<std::vector<int>> tabouVector;
     for (int i=0;i<_noeuds.size();i++) {
-        std::vector<bool> tmpTabou(_emplacements.size(),false);
+        std::vector<int> tmpTabou(_emplacements.size(),0);
         tabouVector.push_back(tmpTabou);
     }
+    bool nonTabouFound;
     for (int iteration=0;iteration<nombreIteration;iteration++) {
         std::unordered_set<int> nodesId;
         std::unordered_set<int> slotsId;
         for (int i=0;i<nbTirageNoeud;i++) { nodesId.insert(generateRand(_noeuds.size() - 1)); }
         for (int i=0;i<nbTirageEmplacement;i++) { slotsId.insert(generateRand(_emplacements.size() - 1)); }
         bestImproveFound = INT_MAX;
+        nonTabouFound = false;
         for (const int& nodeId : nodesId) {
             oldEmplacement = _noeuds[nodeId].getEmplacement();
             for (const int& slotId : slotsId) {
-                swapped = false;
-                idSwappedNode = -1;
-                improve = calculImprove(nodeId,slotId,swapped,idSwappedNode,true,false);
-                if (swapped) {
-                    _noeuds[nodeId].swap(oldEmplacement);
-                    recalcNodeCellule(idSwappedNode);
-                }
-                else {
-                    _noeuds[nodeId].setEmplacement(oldEmplacement);
-                }
-                recalcNodeCellule(nodeId);
-                if (improve < bestImproveFound) { 
-                    bool isTabou = tabouVector[nodeId][slotId];
-                    if ((swapped)&&(!isTabou)) { isTabou = tabouVector[idSwappedNode][oldEmplacement->getId()]; }
-                    if ((nbCroisement+bestImproveFound < bestCroisement)||(!isTabou)) {
-                        bestImproveFound = improve;
-                        bestNodeId = nodeId;
-                        bestSlotId = slotId;
+                if (slotId != oldEmplacement->getId()) {
+                    swapped = false;
+                    idSwappedNode = -1;
+                    improve = calculImprove(nodeId,slotId,swapped,idSwappedNode,true,false);
+                    if (swapped) {
+                        _noeuds[nodeId].swap(oldEmplacement);
+                        recalcNodeCellule(idSwappedNode);
+                    }
+                    else { _noeuds[nodeId].setEmplacement(oldEmplacement); }
+                    recalcNodeCellule(nodeId);
+                    if (improve < bestImproveFound) { 
+                        bool isTabou = tabouVector[nodeId][slotId] >= iteration;
+                        if ((swapped)&&(!isTabou)) { isTabou = tabouVector[idSwappedNode][oldEmplacement->getId()] >= iteration; }
+                        if ((nbCroisement+bestImproveFound < bestCroisement)||(!isTabou)) {
+                            bestImproveFound = improve;
+                            bestNodeId = nodeId;
+                            bestSlotId = slotId;
+                            nonTabouFound = true;
+                        }
                     }
                 }
             }
         }
-        if (_emplacements[bestSlotId].estDisponible()) { _noeuds[bestNodeId].setEmplacement(&_emplacements[bestSlotId]); }
-        else { 
-            idSwappedNode = _emplacements[bestSlotId]._noeud->getId();
-            _noeuds[bestNodeId].swap(&_emplacements[bestSlotId]);
-            recalcNodeCellule(idSwappedNode);
-        }
-        recalcNodeCellule(nodeId);
-        tabouVector[bestNodeId][bestSlotId] = true;
-        tabouTimeVector.push_back(std::make_pair(bestNodeId,bestSlotId));
-        int tabouTimerIteration = iteration - tabouTime;
-        if (tabouTimerIteration >= 0) {
-            tabouVector[tabouTimeVector[tabouTimerIteration].first][tabouTimeVector[tabouTimerIteration].second] = false;
-        }
-        nbCroisement = nbCroisement + bestImproveFound;
-        if (nbCroisement < bestCroisement) {
-            bestCroisement = nbCroisement;
-            bestResultVector = saveCopy();
+        if (nonTabouFound) {
+            int oldSlotId = _emplacements[bestNodeId].getId();
+            if (_emplacements[bestSlotId].estDisponible()) { _noeuds[bestNodeId].setEmplacement(&_emplacements[bestSlotId]); }
+            else { 
+                idSwappedNode = _emplacements[bestSlotId]._noeud->getId();
+                _noeuds[bestNodeId].swap(&_emplacements[bestSlotId]);
+                recalcNodeCellule(idSwappedNode);
+            }
+            recalcNodeCellule(nodeId);
+            nbCroisement = nbCroisement + bestImproveFound;
+            long nbCroisementReel = getNbCroisementGrid();
+            if (nbCroisement != nbCroisementReel) { tcout() << "Probleme iteration: " << iteration << " " << nbCroisement << " " << bestImproveFound << " " << nbCroisementReel << std::endl; }
+            if (nbCroisement < bestCroisement) {
+                bestCroisement = nbCroisement;
+                bestResultVector = saveCopy();
+                #if defined(DEBUG_GRAPHE_PROGRESS)
+                    tcout() << "Recherche Tabou meilleur solution: " << bestCroisement << " iteration: " << iteration << std::endl;
+                #endif
+            }
+            tabouVector[bestNodeId][oldSlotId] = iteration + tabouTime + generateRand(10) - 5;
         }
     }
     loadCopy(bestResultVector);
     nombreCroisement = bestCroisement;
+    #if defined(DEBUG_GRAPHE)
+        tcout() << "Fin Recherche Tabou, nombre de croisement: " << nombreCroisement << std::endl;
+    #endif
     isNombreCroisementUpdated = true;
     isNodeScoreUpdated = false;
     isIntersectionVectorUpdated = false;

@@ -175,6 +175,9 @@ public:
 	// Calcule le score d'intersection du graphe et le met a jour.
 	long getNbCroisement();
 
+	// Calcule le score d'intersection du graphe et le met a jour.
+	long getNbCroisementGrid();
+
 	// Calcule le score d'intersection du graphe en coordonnée flottantes et le met a jour.
 	long getNbCroisementReel();
 

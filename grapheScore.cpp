@@ -852,6 +852,36 @@ long Graphe::getNbCroisementDiffGrid() {
     return nombreInter+nombreInterIll+nombreInterIllSelf;
 }
 
+long Graphe::getNbCroisementGrid() {
+    long score = 0;
+    std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
+    for (int index = 0; index < _aretes.size() - 1; ++index) {
+        if (index != 0) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
+        for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
+            std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
+            for (const int& index2 : vecId) {
+                if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
+                    if (commonNodeEdges[index][index2] == nullptr) {
+                        bool isIllegal = false;
+                        if (seCroisent(_aretes[index], _aretes[index2],isIllegal)) {
+                            if (isIllegal) { score += PENALITE_MAX; }
+                            else { score++; }
+                        }
+                    }
+                    else {
+                        if (surSegment(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                        else if (surSegment(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
+                    }
+                    indexPasseCellule[index2] = true;
+                }
+            }
+        }
+        indexPasse[index] = true;
+    }
+    return score;
+}
+
 long Graphe::getNbCroisementOldMethodConst() const {
     long total = 0;
     for (int i = 0; i < _aretes.size() - 1; ++i)
