@@ -145,10 +145,10 @@ int main(int argc, char *argv[]) {
 	if (useProfiler) { ProfilerStart(cheminProfile.c_str()); }
 #endif
 	initCPUSet();
-	initRandomSeed();
-	//initSameSeed();
+	//initRandomSeed();
+	initSameSeed();
 	//initSameSeedIncThread();
-	allRunsByOnFolderSingleInput(argv[1]); return 0;
+	//allRunsByOnFolderSingleInput(argv[1]); return 0;
 	//allRunsByOnFolder(); allRunsRegularGraphs(); return 0;
 	//runFuncOnFolder(); return 0;
 	bool useCoordReel = false;
@@ -199,9 +199,10 @@ int main(int argc, char *argv[]) {
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 	tcout() << "Fin du placement.\n";
 	auto finPlacement = std::chrono::system_clock::now();
+	//G.rechercheTabou();
 	G.rechercheTabou();
 	//G.triangulationDelaunay();
-	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,3,true);
+	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleChallenge();
 	//G.rerecuitSimuleChallenge();

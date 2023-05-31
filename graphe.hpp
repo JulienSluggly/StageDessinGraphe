@@ -224,16 +224,16 @@ public:
 	std::pair<double,double> sizeOfGraphe();
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
-	int calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,bool useGrille, bool useScore);
+	long calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,bool useGrille, bool useScore);
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
-	int calculImproveReel(int nodeId, std::pair<double,double>& randCoord,bool useGrille, bool useScore);
+	long calculImproveReel(int nodeId, std::pair<double,double>& randCoord,bool useGrille, bool useScore);
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
-	int calculImproveReelThread(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
+	long calculImproveReelThread(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
-	int calculImproveReelThreadPool(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
+	long calculImproveReelThreadPool(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
 
 	// Modifie les parametres du rerecuit en fonction des customParam
 	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,bool adaptCool,std::vector<std::vector<double>>& customParam);
@@ -839,6 +839,8 @@ public:
 	void generateKRegular(int nbNoeud, int degre);
 
 	void rechercheTabou();
+
+	void moveNodeToSlot(int nodeId, int slotId, bool useScore, bool useGrille);
 
 };
 
