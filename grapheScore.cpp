@@ -2,6 +2,7 @@
 #include "intersection.hpp"
 #include "geometrie.hpp"
 #include <iostream>
+#include <limits.h>
 
 void Graphe::recalculateIllegalIntersections() {
     for (int i = 0; i < _aretes.size() - 1; ++i) {
@@ -570,6 +571,72 @@ long Graphe::getScoreCroisementNodeGrid(int nodeIndex, int swapIndex) {
                                 else if (surSegment(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
                             }
                             indexPasseCellule[index2] = true;
+                        }
+                    }
+                }
+            }
+        }
+        indexPasse[index] = true;
+    }
+    return score;
+}
+
+long Graphe::getScoreCroisementNodeGridLimit(int nodeIndex, long limitScore) {
+    long score = 0;
+    std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
+        if (index != _noeuds[nodeIndex]._aretes[0]) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
+        for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
+            std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
+            for (const int& index2 : vecId) {
+                if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
+                    if (commonNodeEdges[index][index2] == nullptr) {
+                        bool isIllegal = false;
+                        if (seCroisent(_aretes[index], _aretes[index2],isIllegal)) {
+                            if (isIllegal) { score += PENALITE_MAX; }
+                            else { score++; }
+                        }
+                    }
+                    else {
+                        if (surSegment(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                        else if (surSegment(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
+                    }
+                    indexPasseCellule[index2] = true;
+                    if (score > limitScore) { return 999999999; }
+                }
+            }
+        }
+        indexPasse[index] = true;
+    }
+    return score;
+}
+
+long Graphe::getScoreCroisementNodeGridLimit(int nodeIndex, int swapIndex, long limitScore) {
+    long score = 0;
+    std::vector<bool> indexPasse(_aretes.size(),false);
+    std::vector<bool> indexPasseCellule(_aretes.size(),false);
+    for (const int& index : _noeuds[nodeIndex]._aretes) {
+        if (!_aretes[index].contains(swapIndex)) {
+            if (index != _noeuds[nodeIndex]._aretes[0]) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
+            for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
+                std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
+                for (const int& index2 : vecId) {
+                    if ((index != index2) && (!indexPasse[index2]) && (!indexPasseCellule[index2])) {
+                        if (!_aretes[index2].contains(swapIndex)) {
+                            if (commonNodeEdges[index][index2] == nullptr) {
+                                bool isIllegal = false;
+                                if (seCroisent(_aretes[index], _aretes[index2],isIllegal)) {
+                                    if (isIllegal) { score += PENALITE_MAX; }
+                                    else { score++; }
+                                }
+                            }
+                            else {
+                                if (surSegment(_aretes[index], *commonNodeEdges[index2][index])) { score += PENALITE_MAX_SELF; }
+                                else if (surSegment(_aretes[index2], *commonNodeEdges[index][index2])) { score += PENALITE_MAX_SELF; }
+                            }
+                            indexPasseCellule[index2] = true;
+                            if (score > limitScore) { return 999999999; }
                         }
                     }
                 }

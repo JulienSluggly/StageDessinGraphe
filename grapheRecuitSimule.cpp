@@ -434,6 +434,38 @@ long Graphe::calculImproveReelThreadPool(int nodeId,std::pair<double,double>& ra
     return thread_tempNewScore - scoreNode;
 }
 
+long Graphe::calculImproveTabou(int nodeId,int slotId,bool& swapped,int& idSwappedNode,bool useGrille,long bestImprove) {
+    long scoreNode;
+    if (!_emplacements[slotId].estDisponible()) {
+        swapped = true;
+        idSwappedNode = _emplacements[slotId]._noeud->getId();
+        scoreNode = calculScoreNodeMethode(nodeId,idSwappedNode,true,useGrille,false);
+        scoreNode += calculScoreNodeMethode(idSwappedNode,-1,false,useGrille,false);
+        _noeuds[nodeId].swap(&_emplacements[slotId]);
+    }
+    else {
+        scoreNode = calculScoreNodeMethode(nodeId,-1,false,useGrille,false);
+        _noeuds[nodeId].setEmplacement(&_emplacements[slotId]);
+    }
+    if (useGrille) { 
+        recalcNodeCellule(nodeId);
+        if (swapped) { recalcNodeCellule(idSwappedNode); }
+    }
+    long limiteScore = scoreNode + bestImprove;
+    if (limiteScore > 0) {
+        long newScoreNode;
+        if (swapped) {
+            newScoreNode = getScoreCroisementNodeGridLimit(nodeId, idSwappedNode, limiteScore);
+            if (newScoreNode < limiteScore) { newScoreNode += getScoreCroisementNodeGridLimit(idSwappedNode, limiteScore-newScoreNode); }
+        }
+        else {
+            newScoreNode = getScoreCroisementNodeGridLimit(nodeId, limiteScore);
+        }
+        return newScoreNode - scoreNode;
+    }
+    return 999999999;
+}
+
 void Graphe::applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil, bool adaptCool,std::vector<std::vector<double>>& customParam) {
     if (adaptCool) {
         if (_noeuds.size() <= 30) { cool = 0.9999945; }
@@ -1208,8 +1240,8 @@ void Graphe::rechercheTabou() {
     bool swapped;
     Emplacement* oldEmplacement;
     int nombreIteration = 10000;
-    int nbTirageNoeud = _noeuds.size()/10;
-    int nbTirageEmplacement = _emplacements.size()/10;
+    int nbTirageNoeud = _noeuds.size()/15;
+    int nbTirageEmplacement = _emplacements.size()/15;
     int tabouTime = 20;
     std::vector<std::vector<int>> tabouVector;
     for (int i=0;i<_noeuds.size();i++) {
@@ -1222,7 +1254,7 @@ void Graphe::rechercheTabou() {
         std::unordered_set<int> slotsId;
         for (int i=0;i<nbTirageNoeud;i++) { nodesId.insert(generateRand(_noeuds.size() - 1)); }
         for (int i=0;i<nbTirageEmplacement;i++) { slotsId.insert(generateRand(_emplacements.size() - 1)); }
-        bestImproveFound = INT_MAX;
+        bestImproveFound = 999999999;
         nonTabouFound = false;
         for (const int& nodeId : nodesId) {
             oldEmplacement = _noeuds[nodeId].getEmplacement();
@@ -1230,7 +1262,7 @@ void Graphe::rechercheTabou() {
                 if (slotId != oldEmplacement->getId()) {
                     swapped = false;
                     idSwappedNode = -1;
-                    improve = calculImprove(nodeId,slotId,swapped,idSwappedNode,true,false);
+                    improve = calculImproveTabou(nodeId,slotId,swapped,idSwappedNode,true,bestImproveFound);
                     moveNodeToSlot(nodeId,oldEmplacement->getId(),false,true);
                     if (improve < bestImproveFound) { 
                         bool isTabou = tabouVector[nodeId][slotId] >= iteration;

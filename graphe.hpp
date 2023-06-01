@@ -235,6 +235,8 @@ public:
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
 	long calculImproveReelThreadPool(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
 
+	long calculImproveTabou(int nodeId, int slotId, bool& swapped, int& idSwappedNode,bool useGrille,long bestImprove);
+
 	// Modifie les parametres du rerecuit en fonction des customParam
 	void applyRerecuitCustomParam(double& t,double& cool,double& coolt,double& seuil,bool adaptCool,std::vector<std::vector<double>>& customParam);
 
@@ -455,6 +457,10 @@ public:
 
 	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex. Utilise la grille
 	long getScoreCroisementNodeGrid(int nodeIndex, int swapIndex);
+
+	long getScoreCroisementNodeGridLimit(int nodeIndex, long limitScore);
+
+	long getScoreCroisementNodeGridLimit(int nodeIndex, int swapIndex, long limitScore);
 
 	// Met a jour les vecteurs de la grille et des aretes
 	void applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int nodeIndex);

@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
 	bool useCoordReel = false;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	std::string nomFichierSlots = "10-input-slots";
+	std::string nomFichierSlots = "3X-10-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	if (useCoordReel) { tcout() << nomFichierGraph << std::endl; }
 	else { tcout() << nomFichierGraph << " " << nomFichierSlots << std::endl; }
@@ -179,7 +179,8 @@ int main(int argc, char *argv[]) {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//tcout() << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	ogdfFastMultipoleMultilevelEmbedderMinute(G);
+	ogdfFastMultipoleMultilevelEmbedder(G);
+	//ogdfFastMultipoleMultilevelEmbedderMinute(G);
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
 	//ogdfOther(G);
@@ -199,7 +200,8 @@ int main(int argc, char *argv[]) {
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 	tcout() << "Fin du placement.\n";
 	auto finPlacement = std::chrono::system_clock::now();
-	//G.rechercheTabou();
+	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,-1,true,false);
+	//G.reinitGrille();
 	G.rechercheTabou();
 	//G.triangulationDelaunay();
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
