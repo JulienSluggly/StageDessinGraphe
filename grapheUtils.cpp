@@ -1885,18 +1885,20 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
         pathGraph = chemin + "exemple/Graphe/" + fileGraphe + ".json";
     }
     readFromJsonGraph(pathGraph);
-    std::string pathSlot;
-    if (!containsString(fileSlot,"Grid")) {
-        pathSlot = chemin + "exemple/Slots/" + fileSlot + ".json";
-        readFromJsonSlots(pathSlot);
-    }
-    else {
-        int nbNoeud = std::min((int)_noeuds.size()*2,6000);
-        generateGrid(nbNoeud,nbNoeud);
-    }
-    if (_noeuds.size() > _emplacements.size()) {
-        tcout() << "Pas assez d'emplacement.\n";
-        exit(3);
+    if (!useCoordReel) {
+        std::string pathSlot;
+        if (!containsString(fileSlot,"Grid")) {
+            pathSlot = chemin + "exemple/Slots/" + fileSlot + ".json";
+            readFromJsonSlots(pathSlot);
+        }
+        else {
+            int nbNoeud = std::min((int)_noeuds.size()*2,6000);
+            generateGrid(nbNoeud,nbNoeud);
+        }
+        if (_noeuds.size() > _emplacements.size()) {
+            tcout() << "Pas assez d'emplacement.\n";
+            exit(3);
+        }
     }
 }
 

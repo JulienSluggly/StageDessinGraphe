@@ -48,6 +48,7 @@ public:
 	int PENALITE_MAX_SELF = 1001;
 	int gridHeight = 10;
 	int gridWidth = 10;
+	long TRES_GRANDE_VALEUR = 999999999; // 999999999
 
 	long nombreCroisement = -1; // Attention cette variable n'est pas forcément à jour! Voir 'isNombreCroisementUpdated'
 	bool isNombreCroisementUpdated = false; // Indique si la valeur dans 'nombreCroisement' est à jour.
@@ -225,9 +226,11 @@ public:
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
 	long calculImprove(int nodeId, int slotId, bool& swapped, int& idSwappedNode,bool useGrille, bool useScore);
+	long calculImproveLimite(int nodeId,int slotId,bool& swapped,int& idSwappedNode,bool useGrille,bool& makeMove,double limiteImprove);
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
 	long calculImproveReel(int nodeId, std::pair<double,double>& randCoord,bool useGrille, bool useScore);
+	long calculImproveReelLimite(int nodeId,std::pair<double,double>& randCoord,bool useGrille,bool& makeMove,double limiteImprove);
 
 	// Calcule l'improve apres avoir simulé le déplacement du noeud nodeId vers le slot slotId.
 	long calculImproveReelThread(int nodeId,std::pair<double,double>& randCoord, bool useGrille,bool useScore);
@@ -260,6 +263,7 @@ public:
 
 	// Calcule le score du noeud en fonction de la méthode choisie.
 	long calculScoreNodeMethode(int nodeId,int idSwappedNode, bool swapped, bool useGrille, bool useScore, bool useReel=false);
+	long calculScoreNodeMethodeLimite(int nodeId,int idSwappedNode, bool swapped, bool useGrille, bool& makeMove, double limiteScore,bool useReel=false);
 
 	// Calcule le score du noeud en fonction de la méthode choisie. Version multithreadée
 	long calculScoreNodeMethodeThread(int nodeId, int idSwappedNode, bool swapped, bool useGrille, bool useScore, bool useReel, bool isFirstThread);
@@ -277,6 +281,7 @@ public:
 	// modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple
 	// Renvoie le nombre d'intersection supprimée
 	long recuitSimule(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
+	long recuitSimuleLimite(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
 	// Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
 	// Met à jour la variable nombreCroisement du graphe si elle etait a jour avant.
@@ -306,6 +311,8 @@ public:
 
 	// Renvoie le nombre d'intersection supprimé
 	long recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
+
+	long recuitSimuleReelLimite(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam = {{}}, double cool = 0.99999, double t = 100.0, double seuil = 0.0001, int delay = 1, int modeNoeud = 0, int modeEmplacement = 2,bool useGrille=true,bool useScore=false, int timeLimit=-1);
 
 	// Applique le recuit simulé en coordonnée flottantes plusieurs fois
 	// Met a jour le nombre de croisement du graphe.
@@ -439,9 +446,16 @@ public:
 
 	// Calcule le score du noeud en parametre. Utilise la grille
 	long getScoreCroisementNodeGrid(int nodeIndex);
+	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex. Utilise la grille
+	long getScoreCroisementNodeGrid(int nodeIndex, int swapIndex);
+
+	long getScoreCroisementNodeGridLimite(int nodeIndex, bool& makeMove, double limiteScore);
+	long getScoreCroisementNodeGridLimite(int nodeIndex, int swapIndex, bool& makeMove, double limiteScore);
 
 	// Calcule le score du noeud en parametre en coordonnée flottantes. Utilise la grille
 	long getScoreCroisementNodeGridReel(int nodeIndex);
+
+	long getScoreCroisementNodeGridReelLimite(int nodeIndex, bool& makeMove, double limiteScore);
 
 	// Calcule le score du noeud en parametre en coordonnée flottantes. Utilise la grille. Version Multithreadée.
 	long getScoreCroisementNodeGridReelThread(int nodeIndex, bool isFirstThread);
@@ -455,9 +469,7 @@ public:
 	// Calcule le score du noeud en parametre. Utilise la grille. Le graphe peut ne pas etre placé entierement.
 	long getScoreCroisementNodeGloutonGrid(int nodeIndex);
 
-	// Calcule le score du noeud nodeIndex sans ajouter le score produit par le noeud swapIndex. Utilise la grille
-	long getScoreCroisementNodeGrid(int nodeIndex, int swapIndex);
-
+	
 	long getScoreCroisementNodeGridLimit(int nodeIndex, long limitScore);
 
 	long getScoreCroisementNodeGridLimit(int nodeIndex, int swapIndex, long limitScore);
@@ -571,10 +583,17 @@ public:
 	// Renvoie le score du noeud nodeId1 sans prendre en compte le score d'intersection avec le noeud nodeId2
 	long getNodeLinkedScore(int nodeId1, int nodeId2);
 
+	// Utile pour l'algorithme genetique dans la fonction sort du vecteur de population
 	bool operator < (const Graphe& G) const {
 		long n1, n2;
-		if (isNombreCroisementUpdated) { n1 = nombreCroisement; } else { n1 = getNbCroisementConst(); }
-		if (G.isNombreCroisementUpdated) { n2 = G.nombreCroisement; } else { n2 = G.getNbCroisementConst(); }
+		if (useCoordReel) {
+			if (isNombreCroisementUpdated) { n1 = nombreCroisement; } else { n1 = getNbCroisementReelConst(); }
+			if (G.isNombreCroisementUpdated) { n2 = G.nombreCroisement; } else { n2 = G.getNbCroisementReelConst(); }
+		}
+		else {
+			if (isNombreCroisementUpdated) { n1 = nombreCroisement; } else { n1 = getNbCroisementConst(); }
+			if (G.isNombreCroisementUpdated) { n2 = G.nombreCroisement; } else { n2 = G.getNbCroisementConst(); }
+		}
 		return (n1 < n2);
 	}
 
@@ -735,44 +754,57 @@ public:
 	// Calcule le vecteur de vecteur de cellule sans le mettre a jour
 	void calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int nodeId);
 
+	// Effectue la lecture de fichier json pour le graphe et les emplacements
 	void setupGraphe(std::string fileGraphe, std::string fileSlot);
 
+	// Effectue la lecture de fichier json pour le graphe
 	void setupGrapheReel(std::string fileGraphe);
 
 	void translateGrapheToOrigin();
 
 	void translateGrapheToOriginReel(double marge=0);
 
+	// Multiplie les coordonnées de chaque emplacement par n. Ajuste gridWidth et gridHeight
 	void scaleGraph(int n);
 
 	Emplacement* getClosestEmplacementFromPoint(double x, double y, bool isFree=false);
 
 	Emplacement* getClosestEmplacementFromPointGrid(double x, double y, bool isFree=false);
 
+	// Renvoie le noeud le plus proche des coordonnées passées en parametres, utile pour openGL.
 	int getClosestNodeFromPoint(double x, double y);
 
+	// Renvoie le noeud en coordonnées réelles le plus proche des coordonnées passées en parametres, utile pour openGL.
 	int getClosestNodeFromPointReel(double x, double y);
 
+	// Recherche l'emplacement le plus proche en parcourant les cellules
 	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree);
 
+	// Aggrandi le vecteur de recherche pour l'emplacement le plus proche lors du placement.
 	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
 
 	// Appelle l'algorithme de stress majorization sur le graphe.
 	void stressMajorization(std::vector<std::vector<double>> customParam = {{}}, int methode=0, bool useClosest=false);
 
+	// Appelle l'algorithme de stress majorization sur le graphe en coordonnée réelles.
 	void stressMajorizationReel();
 
 	// Effectue le deplacement d'un seul noeud avec l'algorithme de stressMajorization
 	void stepStressMajorization(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45);
 
+	// Graphe connexe ou non
 	bool isGrapheConnected();
 
+	// Sauvegarde le degree max et moyen des noeuds dans les attributs du graphes: maxVoisin, avgVoisin.
 	void calcMaxAndAverageDegree();
 
+	// Implémentation du pivotMDS d'ogdf
 	void placementPivotMDS(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45, int nbPivot=50);
 
+	// Appelé par la fonction rotateGraph
 	void rotateNode(double angle, int nodeId, double centerX, double centerY);
 
+	// Fonctionne avec ou sans emplacements, avec emplacements effectue une recherche d'emplacement le plus proche
 	void rotateGraph(double angle);
 
 	// Renvoie la distance moyenne des aretes de la triangulation de delaunay
@@ -787,10 +819,13 @@ public:
 	// Renvoie la moyenne des longueurs des aretes du graphe
 	double moyenneLongueurAretes();
 
+	// Renvoie la moyenne des longueurs des aretes du graphe
 	double moyenneLongueurAretesReel();
 
+	// Pas fini
 	void supprimerArete(int idArete);
 
+	// Pas fini
 	void supprimerNoeud(int idNoeud);
 
 	// Renvoie les identifiants des noeuds présents dans la plus grande composante connexe
@@ -844,8 +879,10 @@ public:
 	// Génere un graphe dont tout les noeuds sont de degrés d.
 	void generateKRegular(int nbNoeud, int degre);
 
+	// Heuristique de recherche tabou, modifie le graphe et garde la meilleure configuration trouvée
 	void rechercheTabou();
 
+	// Déplace le noeud nodeId à l'emplacement slotId, effectue un swap si pas disponible, met à jour la grille et le score.
 	void moveNodeToSlot(int nodeId, int slotId, bool useScore, bool useGrille);
 
 };
