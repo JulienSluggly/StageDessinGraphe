@@ -63,8 +63,13 @@ public:
 
 	int currentIteration = 1;
 
+#if defined(LINUX_OS)
 	std::chrono::_V2::system_clock::time_point start; // Temps de debut de run
 	std::chrono::_V2::system_clock::time_point finPlacement; // Temps de fin de placement
+#else
+	std::chrono::system_clock::time_point start; // Temps de debut de run
+	std::chrono::system_clock::time_point finPlacement; // Temps de fin de placement
+#endif
 
     LogGraphe(const std::string& fileG, const std::string& fileS, const std::string& methodePlacement, const std::string& methodeAlgo, std::vector<std::vector<double>>& params,int threadId);
 
@@ -353,7 +358,9 @@ void LogGraphe::placementGraphe(Graphe& G) {
         return;
     }
     finPlacement = std::chrono::system_clock::now();
+#if defined(LINUX_OS)
 	sched_setaffinity(0, sizeof(cpuset), &cpuset); // Fix bug multithreading FMMM
+#endif
     if (methodePlacementName != "Aucun") { if (!G.useCoordReel) { placementInterVector.push_back(G.getNbCroisementDiff()); } else { placementInterVector.push_back(G.getNbCroisementDiffReel()); } }
 }
 

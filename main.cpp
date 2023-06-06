@@ -25,12 +25,14 @@
 
 void initCPUSet(int decallage=0) {
 	omp_set_nested(1);
+#if defined(LINUX_OS)
     int num_threads = ::omp_get_max_threads();
     CPU_ZERO(&cpuset);
     for (int i = 0; i < num_threads; i++) {
       CPU_SET(i+decallage, &cpuset);
     }
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
+#endif
 }
 
 void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIteration, int nombreRecuit, std::chrono::time_point<std::chrono::system_clock> start, std::chrono::time_point<std::chrono::system_clock> finPlacement) {
@@ -152,7 +154,7 @@ int main(int argc, char *argv[]) {
 	//allRunsByOnFolderSingleInput(argv[1]); return 0;
 	//allRunsByOnFolder(); allRunsRegularGraphs(); return 0;
 	//runFuncOnFolder(); return 0;
-	bool useCoordReel = true;
+	bool useCoordReel = false;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
 	std::string nomFichierSlots = "3X-10-input-slots";
@@ -181,13 +183,13 @@ int main(int argc, char *argv[]) {
 	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
 	//tcout() << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
 	//ogdfFastMultipoleMultilevelEmbedder(G);
-	//ogdfFastMultipoleMultilevelEmbedderMinute(G);
+	ogdfFastMultipoleMultilevelEmbedderMinute(G);
 	//G.stressMajorization({{}},1);
 	//G.stressMajorization();
 	//ogdfOther(G);
 	//G.placementAleatoireReel();
 	
-	ogdfFastMultipoleMultilevelEmbedderReel(G);
+	//ogdfFastMultipoleMultilevelEmbedderReel(G);
 	//G.stressMajorizationReel();
 	//ogdfFMMMLayout(G);
 	//ogdfMultilevelLayout(G);
@@ -196,7 +198,9 @@ int main(int argc, char *argv[]) {
 	//G.placementAleatoireReel();
 	//G.forcePlacement();
 	//G.stressMajorizationReel();
+#if defined(LINUX_OS)
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
+#endif
 	if (useCoordReel) { G.translateGrapheToOriginReel(-1); }
 	G.setupGridAndRegistration({});
 	tcout() << "Fin du placement.\n";
@@ -204,11 +208,11 @@ int main(int argc, char *argv[]) {
 	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{{15,1200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,-1,true,true);
 	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,-1,true,false);
 	//G.reinitGrille();
-	//G.rechercheTabou();
+	G.rechercheTabou();
 	//G.triangulationDelaunay();
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
-	G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
+	//G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleChallenge();
 	//G.rerecuitSimuleChallenge();

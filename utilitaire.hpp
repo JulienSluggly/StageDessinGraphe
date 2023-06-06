@@ -7,8 +7,11 @@
 #include <iomanip>
 #include <ctime>
 #include "emplacement.hpp"
+#include "personnel.hpp"
 
+#if defined(LINUX_OS)
 static cpu_set_t cpuset;
+#endif
 
 // Retourne une valeur réelle comprise dans [0.0,n[
 double generateDoubleRand(double n);

@@ -5,7 +5,12 @@
 #include <climits>
 #include <algorithm>
 #include <omp.h>
+#if defined(GPERF_INSTALLED)
 #include <gperftools/profiler.h>
+#endif
+#if defined(CUDA_INSTALLED)
+#include "kernel.h"
+#endif
 
 // Selectionne deux noeud et retourne celui avec le score le plus faible. (le moin d'intersection)
 int Graphe::selectionNoeudTournoiBinaire(bool isScoreUpdated) {
@@ -716,7 +721,7 @@ void Graphe::rerecuitSimule(double &timeBest,int &nombreRecuit,std::chrono::time
             tcout() << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " Crossings: " << lastCroisement << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif
         nombreRecuit++;
-        long nbInterSuppr = recuitSimule(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore, timeLimit);
+        long nbInterSuppr = recuitSimuleLimite(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore, timeLimit);
         updateRecuitCycleVague(nbInterSuppr>0);
         t *= coolt;
         if ((firstWaveImp)&&(i==1)) { t = startingTemp; }
@@ -842,7 +847,7 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
             tcout() << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " Crossings: " << lastCroisement << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif
         nombreRecuit++;
-        long nbInterSuppr = recuitSimuleReel(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore,timeLimit);
+        long nbInterSuppr = recuitSimuleReelLimite(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore,timeLimit);
         updateRecuitCycleVague(nbInterSuppr>0);
         t *= coolt;
         if ((firstWaveImp)&&(i==1)) { t = startingTemp; }
@@ -1414,7 +1419,7 @@ void Graphe::rechercheTabou() {
     int bestNodeId, bestSlotId;
     bool swapped;
     Emplacement* oldEmplacement;
-    int nombreIteration = 20000;
+    int nombreIteration = 1000;
     int nbTirageNoeud = _noeuds.size()/15;
     int nbTirageEmplacement = _emplacements.size()/15;
     int tabouTime = 20;
@@ -1493,4 +1498,29 @@ void Graphe::moveNodeToSlot(int nodeId, int slotId, bool useScore, bool useGrill
     }
     if (useScore) { updateNodeScore(nodeId); }
     if (useGrille) { recalcNodeCellule(nodeId); }
+}
+
+void Graphe::rechercheTabouCUDA() {
+//#if defined(CUDA_INSTALLED)
+    int numThreads = 2;
+    float* nodes = new float[_noeuds.size() * 2];
+    int* edges = new int[_aretes.size() * 2];
+    long* scores = new long[numThreads];
+    float* newCoords = new float[numThreads * 2];
+    int* nodeId = new int[numThreads];
+
+    int index;
+    for (int i=0;i<_noeuds.size();i++) {
+        index = i*2;
+        nodes[index] = _noeuds[i]._xreel;
+        nodes[index+1] = _noeuds[i]._yreel;
+    }
+
+    for (int i=0;i<_aretes.size();i++) {
+        index = i*2;
+        edges[index] = _aretes[i].getNoeud1()->getId();
+        edges[index+1] = _aretes[i].getNoeud2()->getId();
+    }
+
+//#endif
 }

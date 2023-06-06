@@ -885,6 +885,8 @@ public:
 	// Déplace le noeud nodeId à l'emplacement slotId, effectue un swap si pas disponible, met à jour la grille et le score.
 	void moveNodeToSlot(int nodeId, int slotId, bool useScore, bool useGrille);
 
+	void rechercheTabouCUDA();
+
 };
 
 #endif

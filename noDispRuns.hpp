@@ -714,7 +714,9 @@ void compareStressFMMM() {
 						if (methode == 0) { G.stressMajorization({},1); }
 						else if (methode == 1) { G.stressMajorization(); }
 						else if (methode == 2) { ogdfFastMultipoleMultilevelEmbedder(G); }
+						#if defined(LINUX_OS)
 						sched_setaffinity(0, sizeof(cpuset), &cpuset);
+						#endif
 						auto finPlacement = std::chrono::system_clock::now();
 						std::chrono::duration<double> secondsPlacement = finPlacement - start;
 						std::string nomFichier = chemin + "resultats/resultatsBench/" + to_string(tid) + ".csv";
@@ -750,7 +752,9 @@ void testGraphsReel() {
 				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
 				G.placementAleatoireReel();
 				ogdfFastMultipoleMultilevelEmbedderReel(G);
+				#if defined(LINUX_OS)
 				sched_setaffinity(0, sizeof(cpuset), &cpuset);
+				#endif
 				G.translateGrapheToOriginReel(-1);
 				G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
 				G.rerecuitSimuleReel(tempsBest, nombreRecuit, start, {},-1,0.999999,0.99,100.0,0.0001,1,0,2);
@@ -785,7 +789,9 @@ void testGraphsCompletReel() {
 				auto start = std::chrono::system_clock::now();
 				double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
 				ogdfFastMultipoleMultilevelEmbedderReel(G);
+				#if defined(LINUX_OS)
 				sched_setaffinity(0, sizeof(cpuset), &cpuset);
+				#endif
 				G.translateGrapheToOriginReel(-1);
 				G.rerecuitSimuleReel(tempsBest, nombreRecuit, start, {},-1,0.999999,0.99,100.0,0.0001,1,0,2,false,false,true);
 				auto end = std::chrono::system_clock::now();
@@ -811,7 +817,9 @@ void testThreads() {
 			printf("Number of threads working on training data: %d\n", nthreads);
 		}
 		if (tid < 4) {
+			#if defined(LINUX_OS)
 			printf("Tid: %d | CPU: %d\n", tid, sched_getcpu());
+			#endif
 			std::string nomFichierGraph = "graph-10-input";
 			std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 			Graphe G;
@@ -820,8 +828,10 @@ void testThreads() {
 			double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
 			//G.placementAleatoireReel();
 			ogdfFastMultipoleMultilevelEmbedderReel(G);
+			#if defined(LINUX_OS)
 			sched_setaffinity(0, sizeof(cpuset), &cpuset);
 			printf("Placement done Tid: %d | CPU: %d\n", tid, sched_getcpu());
+			#endif
 			G.translateGrapheToOriginReel(-1);
 			G.initGrilleReel(); G.registerNodesAndEdgesInGrid();
 			G.recuitSimuleReel(tempsBest, start, {},0.99999,100.0,0.0001,1,0,2,true,false,false);
@@ -854,7 +864,9 @@ void testThreads2() {
 		auto start = std::chrono::system_clock::now();
 		double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit = 0;
 		ogdfFastMultipoleMultilevelEmbedder(G);
+		#if defined(LINUX_OS)
 		sched_setaffinity(0, sizeof(cpuset), &cpuset);
+		#endif
 		G.initGrille(); G.registerSlotsAndEdgesInGrid();
 		G.recuitSimule(tempsBest, start, {},0.99999,100.0,0.0001,1,0,2,true,false);
 		auto end = std::chrono::system_clock::now();

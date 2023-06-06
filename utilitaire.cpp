@@ -203,11 +203,16 @@ bool containsString(std::string a, std::string b) {
 }
 
 std::ostream& tcout() {
+    std::tm bt {};
     auto t = std::time(nullptr);
-    auto tm = *std::localtime(&t);
-#if defined(OPENMP_INSTALLED)
-    return std::cout << "(" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << " TID: " << ::omp_get_thread_num() << ") ";
+#if defined(LINUX_OS)
+    localtime_r(&t,&bt);
 #else
-    return std::cout << "(" << std::put_time(&tm, "%d-%m-%Y %H:%M:%S") << ") ";
+    localtime_s(&bt,&t);
+#endif
+#if defined(OPENMP_INSTALLED)
+    return std::cout << "(" << std::put_time(&bt, "%d-%m-%Y %H:%M:%S") << " TID: " << ::omp_get_thread_num() << ") ";
+#else
+    return std::cout << "(" << std::put_time(&bt, "%d-%m-%Y %H:%M:%S") << ") ";
 #endif
 }
