@@ -1501,26 +1501,52 @@ void Graphe::moveNodeToSlot(int nodeId, int slotId, bool useScore, bool useGrill
 }
 
 void Graphe::rechercheTabouCUDA() {
-//#if defined(CUDA_INSTALLED)
-    int numThreads = 2;
-    float* nodes = new float[_noeuds.size() * 2];
-    int* edges = new int[_aretes.size() * 2];
+#if defined(CUDA_INSTALLED)
+
+    // Thread & Block number
+    int blockSize = 1024; // Maximum number of threads per block 1024
+    int gridSize = 2; // Maximum number of blocks 65535
+    int numThreads = gridSize * blockSize;
+
+    int numNodes = _noeuds.size();
+    int numEdges = _aretes.size();
+    float* nodes = new float[numNodes * 2];
+    int* edges = new int[numEdges * 2];
     long* scores = new long[numThreads];
     float* newCoords = new float[numThreads * 2];
     int* nodeId = new int[numThreads];
+    int* commonNodeEdgesVector = new int[numNodes * numNodes];
 
     int index;
-    for (int i=0;i<_noeuds.size();i++) {
+    for (int i=0;i< numNodes;i++) {
         index = i*2;
         nodes[index] = _noeuds[i]._xreel;
         nodes[index+1] = _noeuds[i]._yreel;
     }
 
-    for (int i=0;i<_aretes.size();i++) {
+    for (int i=0;i< numEdges;i++) {
         index = i*2;
         edges[index] = _aretes[i].getNoeud1()->getId();
         edges[index+1] = _aretes[i].getNoeud2()->getId();
     }
 
-//#endif
+    for (int i = 0; i < numThreads; i++) {
+        scores[i] = -1;
+    }
+
+    for (int i = 0; i < numThreads * 2; i++) {
+        newCoords[i] = -2;
+    }
+
+    for (int i = 0; i < numThreads; i++) {
+        nodeId[i] = i;
+    }
+
+    for (int i = 0; i < numNodes*numNodes; i++) {
+        commonNodeEdgesVector[i] = -1;
+    }
+
+    rechercheTabouGPUReel(nodes,edges,scores,newCoords,nodeId,commonNodeEdgesVector,numNodes,numEdges,blockSize,gridSize);
+
+#endif
 }
