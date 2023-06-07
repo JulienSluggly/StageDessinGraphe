@@ -5,6 +5,7 @@
 #include <climits>
 #include <algorithm>
 #include <omp.h>
+#include "intersection.hpp"
 #if defined(GPERF_INSTALLED)
 #include <gperftools/profiler.h>
 #endif
@@ -1504,18 +1505,18 @@ void Graphe::rechercheTabouCUDA() {
 #if defined(CUDA_INSTALLED)
 
     // Thread & Block number
-    int blockSize = 1024; // Maximum number of threads per block 1024
-    int gridSize = 2; // Maximum number of blocks 65535
+    int blockSize = 256; // Maximum number of threads per block 1024, 256 best
+    int gridSize = 68; // Maximum number of blocks 65535, 68 best
     int numThreads = gridSize * blockSize;
 
     int numNodes = _noeuds.size();
     int numEdges = _aretes.size();
-    float* nodes = new float[numNodes * 2];
+    double* nodes = new double[numNodes * 2];
     int* edges = new int[numEdges * 2];
     long* scores = new long[numThreads];
-    float* newCoords = new float[numThreads * 2];
+    double* newCoords = new double[numThreads * 2];
     int* nodeId = new int[numThreads];
-    int* commonNodeEdgesVector = new int[numNodes * numNodes];
+    int* commonNodeEdgesVector = new int[numEdges * numEdges];
 
     int index;
     for (int i=0;i< numNodes;i++) {
@@ -1534,16 +1535,26 @@ void Graphe::rechercheTabouCUDA() {
         scores[i] = -1;
     }
 
-    for (int i = 0; i < numThreads * 2; i++) {
-        newCoords[i] = -2;
+    for (int i = 0; i < numThreads * 2; i+=2) {
+        std::pair<double, double> randCoord;
+        tirageCoordReel(randCoord);
+        newCoords[i] = randCoord.first;
+        newCoords[i + 1] = randCoord.second;
     }
 
     for (int i = 0; i < numThreads; i++) {
-        nodeId[i] = i;
+        nodeId[i] = generateRand(_noeuds.size()-1);
     }
 
-    for (int i = 0; i < numNodes*numNodes; i++) {
-        commonNodeEdgesVector[i] = -1;
+    for (int i = 0; i < numEdges; i++) {
+        for (int j = 0; j < numEdges; j++) {
+            if (commonNodeEdges[i][j] != nullptr) {
+                commonNodeEdgesVector[i * numEdges + j] = commonNodeEdges[i][j]->getId();
+            }
+            else {
+                commonNodeEdgesVector[i * numEdges + j] = -1;
+            }
+        }
     }
 
     rechercheTabouGPUReel(nodes,edges,scores,newCoords,nodeId,commonNodeEdgesVector,numNodes,numEdges,blockSize,gridSize);

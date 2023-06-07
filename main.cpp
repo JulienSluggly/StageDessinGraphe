@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
-	//allRunsByOnFolderSingleInput(argv[1]); return 0;
+	allRunsByOnFolderSingleInput(argv[1]); return 0;
 	//allRunsByOnFolder(); allRunsRegularGraphs(); return 0;
 	//runFuncOnFolder(); return 0;
 	bool useCoordReel = false;
@@ -175,6 +175,8 @@ int main(int argc, char *argv[]) {
 	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	//if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
+	if (useCoordReel) { tcout() << "Coordonnees flottantes, pas d'emplacements.\n"; }
+	else { tcout() << "Coordonnees entieres, utilisation d'emplacements\n"; }
 	tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
 	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();

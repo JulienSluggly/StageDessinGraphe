@@ -316,10 +316,10 @@ void allRunsByOnFolderSingleInput(char* pathChar) {
 	tcout() << "Starting all run logs." << std::endl;
 	std::string path = pathChar;
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,0,"JSON",-1);
+		generateCSV(1, "OGDFFMMMM", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,0,"GRAPHML",-1);
 	}
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,0,"JSON",-1);
+		generateCSV(1, "Stress", "Rerecuit Simule Grille TME Opti", dirEntry.path().string(),"",{{15,7200}},true,0,"GRAPHML",-1);
 	}
 }
 
