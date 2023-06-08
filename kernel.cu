@@ -68,33 +68,33 @@ __device__ bool surSegmentCUDA(int ax, int ay, int bx, int by, int cx, int cy) {
         return ((ay <= cy) && (cy <= by) || ((ay >= cy) && (cy >= by)));
 }
 
-__forceinline__ __device__ float diff_of_productsReel(double a, double b, double c, double d) {
+__forceinline__ __device__ float diff_of_productsReel(float a, float b, float c, float d) {
     float w = d * c;
     float e = fmaf(-d, c, w);
     float f = fmaf(a, b, -w);
     return f + e;
 }
 
-__device__ double area2ReelCUDA(double ax, double ay, double bx, double by, double cx, double cy) {
+__device__ float area2ReelCUDA(float ax, float ay, float bx, float by, float cx, float cy) {
     //return diff_of_productsReel((bx - ax), (cy - ay), (cx - ax), (by - ay));
     return (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);
 }
 
-__device__ bool leftReelCUDA(double ax, double ay, double bx, double by, double cx, double cy) {
+__device__ bool leftReelCUDA(float ax, float ay, float bx, float by, float cx, float cy) {
     return area2ReelCUDA(ax, ay, bx, by, cx, cy) > 0;
 }
 
-__device__ bool collinearReelCUDA(double ax, double ay, double bx, double by, double cx, double cy) {
+__device__ bool collinearReelCUDA(float ax, float ay, float bx, float by, float cx, float cy) {
     return area2ReelCUDA(ax, ay, bx, by, cx, cy) == 0;
 }
 
-__device__ bool intersectPropReelCUDA(double ax, double ay, double bx, double by, double cx, double cy, double dx, double dy) {
+__device__ bool intersectPropReelCUDA(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy) {
     if (collinearReelCUDA(ax, ay, bx, by, cx, cy) || collinearReelCUDA(ax, ay, bx, by, dx, dy) || collinearReelCUDA(cx, cy, dx, dy, ax, ay) || collinearReelCUDA(cx, cy, dx, dy, bx, by))
         return false;
     return xorBoolCUDA(leftReelCUDA(ax, ay, bx, by, cx, cy), leftReelCUDA(ax, ay, bx, by, dx, dy)) && xorBoolCUDA(leftReelCUDA(cx, cy, dx, dy, ax, ay), leftReelCUDA(cx, cy, dx, dy, bx, by));
 }
 
-__device__ bool betweenReelCUDA(double ax, double ay, double bx, double by, double cx, double cy) {
+__device__ bool betweenReelCUDA(float ax, float ay, float bx, float by, float cx, float cy) {
     if (!collinearReelCUDA(ax, ay, bx, by, cx, cy))
         return false;
     if (ax != bx)
@@ -103,7 +103,7 @@ __device__ bool betweenReelCUDA(double ax, double ay, double bx, double by, doub
         return ((ay <= cy) && (cy <= by) || ((ay >= cy) && (cy >= by)));
 }
 
-__device__ bool seCroisentReelCUDA(double ax, double ay, double bx, double by, double cx, double cy, double dx, double dy, bool& isIllegal) {
+__device__ bool seCroisentReelCUDA(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, bool& isIllegal) {
     if (intersectPropReelCUDA(ax, ay, bx, by, cx, cy, dx, dy))
         return true;
     else if (betweenReelCUDA(ax, ay, bx, by, cx, cy) || betweenReelCUDA(ax, ay, bx, by, dx, dy) || betweenReelCUDA(cx, cy, dx, dy, ax, ay) || betweenReelCUDA(cx, cy, dx, dy, bx, by)) {
@@ -113,7 +113,7 @@ __device__ bool seCroisentReelCUDA(double ax, double ay, double bx, double by, d
     return false;
 }
 
-__device__ bool surSegmentReelCUDA(double ax, double ay, double bx, double by, double cx, double cy) {
+__device__ bool surSegmentReelCUDA(float ax, float ay, float bx, float by, float cx, float cy) {
     if (!collinearReelCUDA(ax, ay, bx, by, cx, cy))
         return false;
     if (ax != bx)
@@ -122,13 +122,13 @@ __device__ bool surSegmentReelCUDA(double ax, double ay, double bx, double by, d
         return ((ay <= cy) && (cy <= by) || ((ay >= cy) && (cy >= by)));
 }
 
-__global__ void kernelUpdateCrossings(int* nodes, int* edges, long* scores, int* newCoords, int* nodeId, int numThreads,int numNodes, int numEdges, int* commonNodeEdges) {
+__global__ void kernelUpdateCrossings(int* nodes, int* edges, int* scores, int* newCoords, int* nodeId, int numThreads,int numNodes, int numEdges, int* commonNodeEdges, int gridWidth, int gridHeight) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i > numThreads) { return; }
     int id = nodeId[i]*2;
     int newX = newCoords[i*2];
     int newY = newCoords[i*2+1];
-    long score = 0;
+    int score = 0;
     int nodeIndex1, nodeIndex2, nodeIndex3, nodeIndex4;
     int node1x, node1y, node2x, node2y, node3x, node3y, node4x, node4y;
     int commonNodeIndex;
@@ -171,24 +171,28 @@ __global__ void kernelUpdateCrossings(int* nodes, int* edges, long* scores, int*
     scores[i] = score;
 }
 
-__global__ void kernelUpdateCrossingsReel(double* nodes, int* edges, long* scores, double* newCoords, int* nodeId, int numThreads, int numNodes, int numEdges, int* commonNodeEdges) {
+__global__ void kernelUpdateCrossingsReel(float* nodes, int* edges, int* scores, float* newCoords, int* nodeId, int numThreads, int numNodes, int numEdges, int* commonNodeEdges, int gridWidth, int gridHeight) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    int id = nodeId[i] * 2;
-    double newX, newY;
+    int id = nodeId[i];
+    float newX, newY;
+    curandState state;
+    curand_init(clock(), i, 0, &state);
     if (i == 0) {
-        newX = nodes[id];
-        newY = nodes[id + 1];
+        newX = nodes[id *2];
+        newY = nodes[id*2 + 1];
     }
     else {
-        newX = newCoords[i * 2];
-        newY = newCoords[i * 2 + 1];
+        newX = curand_uniform(&state) * gridWidth;
+        newY = curand_uniform(&state) * gridHeight;
+        newCoords[i * 2] = newX;
+        newCoords[i * 2 + 1] = newY;
     }
-    long score = 0;
+    int score = 0;
     int nodeIndex1, nodeIndex2, nodeIndex3, nodeIndex4;
     int areteIndex1, areteIndex2;
-    double node1x, node1y, node2x, node2y, node3x, node3y, node4x, node4y;
+    float node1x, node1y, node2x, node2y, node3x, node3y, node4x, node4y;
     int commonNodeIndex;
-    double commonNodex, commonNodey;
+    float commonNodex, commonNodey;
     int limiteIndex1 = (numEdges * 2) - 2;
     int limiteIndex2 = (numEdges * 2);
     for (int i = 0; i < limiteIndex1; i += 2) {
@@ -253,10 +257,16 @@ __global__ void kernelUpdateCrossingsReel(double* nodes, int* edges, long* score
     scores[i] = score;
 }
 
-extern "C" void rechercheTabouGPU(const int* nodes, const int* edges, long* scores, const int* newCoords, const int* nodeId, const int* commonNodeEdges, const int numNodes, const int numEdges, const int blockSize, const int gridSize) {
+__global__ void kernelUpdateArray(float* nodes, float* newCoords, int* nodeId, int bestIndex) {
+    int id = nodeId[bestIndex] * 2;
+    nodes[id] = newCoords[bestIndex * 2];
+    nodes[id + 1] = newCoords[bestIndex * 2 + 1];
+}
+
+extern "C" void rechercheTabouGPU(int* nodes, const int* edges, int* scores,const int* newCoords, const int* nodeId, const int* commonNodeEdges, const int numNodes, const int numEdges, const int blockSize, const int gridSize, const int gridWidth, const int gridHeight) {
     int* devNodes;
     int* devEdges;
-    long* devScores;
+    int* devScores;
     int* devNewCoords;
     int* devNodeId;
     int* devCommonNodeEdges;
@@ -266,21 +276,21 @@ extern "C" void rechercheTabouGPU(const int* nodes, const int* edges, long* scor
     // Memory allocation
     cudaMalloc((void**)&devNodes, sizeof(int) * numNodes * 2);
     cudaMalloc((void**)&devEdges, sizeof(int) * numEdges * 2);
-    cudaMalloc((void**)&devScores, sizeof(long) * numThreads);
+    cudaMalloc((void**)&devScores, sizeof(int) * numThreads);
     cudaMalloc((void**)&devNewCoords, sizeof(int) * numThreads * 2);
     cudaMalloc((void**)&devNodeId, sizeof(int) * numThreads);
 
     // Copy vectors datas from host to device
     cudaMemcpy(devNodes, nodes, sizeof(int) * numNodes * 2, cudaMemcpyHostToDevice);
     cudaMemcpy(devEdges, edges, sizeof(int) * numEdges * 2, cudaMemcpyHostToDevice);
-    cudaMemcpy(devScores, scores, sizeof(long) * numThreads, cudaMemcpyHostToDevice);
+    cudaMemcpy(devScores, scores, sizeof(int) * numThreads, cudaMemcpyHostToDevice);
     cudaMemcpy(devNewCoords, newCoords, sizeof(int) * numThreads * 2, cudaMemcpyHostToDevice);
     cudaMemcpy(devNodeId, nodeId, sizeof(int) * numThreads, cudaMemcpyHostToDevice);
 
     // Update crossing score
-    kernelUpdateCrossings<<<gridSize, blockSize>>>(devNodes,devEdges,devScores,devNewCoords,devNodeId,numThreads,numNodes,numEdges,devCommonNodeEdges);
+    kernelUpdateCrossings<<<gridSize, blockSize>>>(devNodes,devEdges,devScores,devNewCoords,devNodeId,numThreads,numNodes,numEdges,devCommonNodeEdges,gridWidth,gridHeight);
     // Update vector device to host
-    cudaMemcpy(scores, devScores, sizeof(long) * numThreads, cudaMemcpyDeviceToHost);
+    cudaMemcpy(scores, devScores, sizeof(int) * numThreads, cudaMemcpyDeviceToHost);
 
     for (int i = 0; i < numThreads; i++) { std::cout << "i: " << i << " " << scores[i] << std::endl; }
 
@@ -292,47 +302,55 @@ extern "C" void rechercheTabouGPU(const int* nodes, const int* edges, long* scor
     cudaFree(devNodeId);
 }
 
-extern "C" void rechercheTabouGPUReel(const double* nodes, const int* edges, long* scores, const double* newCoords, const int* nodeId, const int* commonNodeEdges, const int numNodes, const int numEdges, const int blockSize, const int gridSize) {
-    double* devNodes;
+extern "C" void rechercheTabouGPUReel(float* nodes, const int* edges, int* scores,const float* newCoords, const int* nodeId, const int* commonNodeEdges, const int numNodes, const int numEdges, const int blockSize, const int gridSize, const int gridWidth, const int gridHeight, const int placementScore) {
+    float* devNodes;
     int* devEdges;
-    long* devScores;
-    double* devNewCoords;
+    int* devScores;
+    float* devNewCoords;
     int* devNodeId;
     int* devCommonNodeEdges;
 
     int numThreads = blockSize * gridSize;
 
     // Memory allocation
-    cudaMalloc((void**)&devNodes, sizeof(double) * numNodes * 2);
+    cudaMalloc((void**)&devNodes, sizeof(float) * numNodes * 2);
     cudaMalloc((void**)&devEdges, sizeof(int) * numEdges * 2);
-    cudaMalloc((void**)&devScores, sizeof(long) * numThreads);
-    cudaMalloc((void**)&devNewCoords, sizeof(double) * numThreads * 2);
+    cudaMalloc((void**)&devScores, sizeof(int) * numThreads);
+    cudaMalloc((void**)&devNewCoords, sizeof(float) * numThreads * 2);
     cudaMalloc((void**)&devNodeId, sizeof(int) * numThreads);
     cudaMalloc((void**)&devCommonNodeEdges, sizeof(int) * numEdges * numEdges);
 
     // Copy vectors datas from host to device
-    cudaMemcpy(devNodes, nodes, sizeof(double) * numNodes * 2, cudaMemcpyHostToDevice);
+    cudaMemcpy(devNodes, nodes, sizeof(float) * numNodes * 2, cudaMemcpyHostToDevice);
     cudaMemcpy(devEdges, edges, sizeof(int) * numEdges * 2, cudaMemcpyHostToDevice);
-    cudaMemcpy(devScores, scores, sizeof(long) * numThreads, cudaMemcpyHostToDevice);
-    cudaMemcpy(devNewCoords, newCoords, sizeof(double) * numThreads * 2, cudaMemcpyHostToDevice);
+    cudaMemcpy(devScores, scores, sizeof(int) * numThreads, cudaMemcpyHostToDevice);
+    cudaMemcpy(devNewCoords, newCoords, sizeof(float) * numThreads * 2, cudaMemcpyHostToDevice);
     cudaMemcpy(devNodeId, nodeId, sizeof(int) * numThreads, cudaMemcpyHostToDevice);
     cudaMemcpy(devCommonNodeEdges, commonNodeEdges, sizeof(int) * numEdges * numEdges, cudaMemcpyHostToDevice);
 
-    for (int iter = 0; iter < 1; iter++) {
+    int bestOverallScore = placementScore;
+    for (int iter = 0; iter < 10000; iter++) {
         // Update crossing score
-        auto start = std::chrono::system_clock::now();
-        kernelUpdateCrossingsReel<<<gridSize, blockSize>>>(devNodes, devEdges, devScores, devNewCoords, devNodeId, numThreads, numNodes, numEdges, devCommonNodeEdges);
+        kernelUpdateCrossingsReel<<<gridSize, blockSize>>>(devNodes, devEdges, devScores, devNewCoords, devNodeId, numThreads, numNodes, numEdges, devCommonNodeEdges,gridWidth,gridHeight);
         // Update vector device to host
-        cudaMemcpy(scores, devScores, sizeof(long) * numThreads, cudaMemcpyDeviceToHost);
-        auto end = std::chrono::system_clock::now();
-        std::chrono::duration<double> secondsTotal = end - start;
-        std::string nomFichier = chemin + "/resultats/cuda.csv";
-        std::ofstream resultats(nomFichier, std::ios_base::app);
-        resultats << std::fixed << std::setprecision(8) << gridSize << "," << blockSize << "," << secondsTotal.count() << std::endl;
-        resultats.close();
+        cudaMemcpy(scores, devScores, sizeof(int) * numThreads, cudaMemcpyDeviceToHost);
+        int bestValue = scores[0];
+        int bestIndex = 0;
+        for (int i = 1; i < numThreads; i++) {
+            if (scores[i] < bestValue) {
+                bestValue = scores[i];
+                bestIndex = i;
+            }
+        }
+        kernelUpdateArray<<<1,1>>>(devNodes, devNewCoords, devNodeId, bestIndex);
+        cudaDeviceSynchronize();
+        if (bestValue < bestOverallScore) {
+            bestOverallScore = bestValue;
+            cudaMemcpy(nodes, devNodes, sizeof(float) * numNodes * 2, cudaMemcpyDeviceToHost);
+        }
     }
-
-    for (int i = 0; i < numThreads; i++) { std::cout << "i: " << i << " " << scores[i] << std::endl; }
+    std::cout << "Best Score GPU: " << bestOverallScore << std::endl;
+    //for (int i = 0; i < numThreads; i++) { std::cout << "i: " << i << " " << scores[i] << std::endl; }
     //std::cout << "score: " << scores[0] << std::endl;
     // cleanup
     cudaFree(devNodes);

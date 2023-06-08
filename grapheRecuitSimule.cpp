@@ -1421,8 +1421,8 @@ void Graphe::rechercheTabou() {
     bool swapped;
     Emplacement* oldEmplacement;
     int nombreIteration = 1000;
-    int nbTirageNoeud = _noeuds.size()/15;
-    int nbTirageEmplacement = _emplacements.size()/15;
+    int nbTirageNoeud = _noeuds.size()/10;
+    int nbTirageEmplacement = _emplacements.size()/10;
     int tabouTime = 20;
     std::vector<std::vector<int>> tabouVector;
     for (int i=0;i<_noeuds.size();i++) {
@@ -1511,10 +1511,10 @@ void Graphe::rechercheTabouCUDA() {
 
     int numNodes = _noeuds.size();
     int numEdges = _aretes.size();
-    double* nodes = new double[numNodes * 2];
+    float* nodes = new float[numNodes * 2];
     int* edges = new int[numEdges * 2];
-    long* scores = new long[numThreads];
-    double* newCoords = new double[numThreads * 2];
+    int* scores = new int[numThreads];
+    float* newCoords = new float[numThreads * 2];
     int* nodeId = new int[numThreads];
     int* commonNodeEdgesVector = new int[numEdges * numEdges];
 
@@ -1523,6 +1523,7 @@ void Graphe::rechercheTabouCUDA() {
         index = i*2;
         nodes[index] = _noeuds[i]._xreel;
         nodes[index+1] = _noeuds[i]._yreel;
+        //tcout() << i << " x: " << nodes[index] << " y: " << nodes[index + 1] << std::endl;
     }
 
     for (int i=0;i< numEdges;i++) {
@@ -1556,8 +1557,17 @@ void Graphe::rechercheTabouCUDA() {
             }
         }
     }
+    int placementScore = getNbCroisementReelConst();
+    std::cout << "Nombre intersection avant tabou GPU: " << placementScore << std::endl;
+    rechercheTabouGPUReel(nodes,edges,scores,newCoords,nodeId,commonNodeEdgesVector,numNodes,numEdges,blockSize,gridSize,gridWidth,gridHeight, placementScore);
 
-    rechercheTabouGPUReel(nodes,edges,scores,newCoords,nodeId,commonNodeEdgesVector,numNodes,numEdges,blockSize,gridSize);
+    for (int i = 0; i < numNodes; i++) {
+        index = i * 2;
+        _noeuds[i]._xreel = nodes[index];
+        _noeuds[i]._yreel = nodes[index+1];
+        //tcout() << i << " x: " << nodes[index] << " y: " << nodes[index + 1] << std::endl;
+    }
+    std::cout << "Nombre intersection apres tabou GPU: " << getNbCroisementReelConst() << std::endl;
 
 #endif
 }
