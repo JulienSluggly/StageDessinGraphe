@@ -1511,19 +1511,19 @@ void Graphe::rechercheTabouCUDA() {
 
     int numNodes = _noeuds.size();
     int numEdges = _aretes.size();
-    float* nodes = new float[numNodes * 2];
+    int numSlots = _emplacements.size();
+    int* nodes = new int[numNodes]; // Contient l'indice de l'emplacement utilisé
     int* edges = new int[numEdges * 2];
     int* scores = new int[numThreads];
-    float* newCoords = new float[numThreads * 2];
+    int* slots = new int[numSlots]; // Contient l'id du noeud a l'emplacement ou -1 sinon
+    int* slotsCoord = new int[numSlots * 2]; // Coord entières
+    int* newSlotPos = new int[numThreads]; // Contient le tirage aleatoire du nouvel emplacement du noeud a deplacer
     int* nodeId = new int[numThreads];
     int* commonNodeEdgesVector = new int[numEdges * numEdges];
 
     int index;
     for (int i=0;i< numNodes;i++) {
-        index = i*2;
-        nodes[index] = _noeuds[i]._xreel;
-        nodes[index+1] = _noeuds[i]._yreel;
-        //tcout() << i << " x: " << nodes[index] << " y: " << nodes[index + 1] << std::endl;
+        nodes[i] = _noeuds[i].getEmplacement()->getId();
     }
 
     for (int i=0;i< numEdges;i++) {
@@ -1532,15 +1532,20 @@ void Graphe::rechercheTabouCUDA() {
         edges[index+1] = _aretes[i].getNoeud2()->getId();
     }
 
+    for (int i = 0; i < numSlots; i++) {
+        index = i * 2;
+        if (_emplacements[i]._noeud == nullptr) { slots[i] = -1; }
+        else { slots[i] = _emplacements[i]._noeud->getId(); }
+        slotsCoord[index] = _emplacements[i].getX();
+        slotsCoord[index+1] = _emplacements[i].getY();
+    }
+
     for (int i = 0; i < numThreads; i++) {
         scores[i] = -1;
     }
 
-    for (int i = 0; i < numThreads * 2; i+=2) {
-        std::pair<double, double> randCoord;
-        tirageCoordReel(randCoord);
-        newCoords[i] = randCoord.first;
-        newCoords[i + 1] = randCoord.second;
+    for (int i = 0; i < numThreads; i++) {
+        newSlotPos[i] = -1;
     }
 
     for (int i = 0; i < numThreads; i++) {
@@ -1557,16 +1562,84 @@ void Graphe::rechercheTabouCUDA() {
             }
         }
     }
+    int placementScore = getNbCroisementConst();
+    std::cout << "Nombre intersection avant tabou GPU: " << placementScore << std::endl;
+    rechercheTabouGPU(nodes, edges, slots, slotsCoord, scores, newSlotPos, nodeId, commonNodeEdgesVector, numNodes, numEdges, numSlots, blockSize, gridSize, placementScore, PENALITE_MAX,PENALITE_MAX_SELF);
+
+    clearNodeEmplacement();
+    for (int i = 0; i < numNodes; i++) {
+        _noeuds[i].setEmplacement(&_emplacements[nodes[i]]);
+    }
+    std::cout << "Nombre intersection apres tabou GPU: " << getNbCroisementConst() << std::endl;
+    if (grillePtr.size() > 0) { reinitGrille(); }
+#endif
+}
+
+void Graphe::rechercheTabouReelCUDA() {
+#if defined(CUDA_INSTALLED)
+
+    // Thread & Block number
+    int blockSize = 256; // Maximum number of threads per block 1024, 256 best
+    int gridSize = 68; // Maximum number of blocks 65535, 68 best
+    int numThreads = gridSize * blockSize;
+
+    int numNodes = _noeuds.size();
+    int numEdges = _aretes.size();
+    float* nodes = new float[numNodes * 2];
+    int* edges = new int[numEdges * 2];
+    int* scores = new int[numThreads];
+    float* newCoords = new float[numThreads * 2];
+    int* nodeId = new int[numThreads];
+    int* commonNodeEdgesVector = new int[numEdges * numEdges];
+
+    int index;
+    for (int i = 0; i < numNodes; i++) {
+        index = i * 2;
+        nodes[index] = _noeuds[i]._xreel;
+        nodes[index + 1] = _noeuds[i]._yreel;
+        //tcout() << i << " x: " << nodes[index] << " y: " << nodes[index + 1] << std::endl;
+    }
+
+    for (int i = 0; i < numEdges; i++) {
+        index = i * 2;
+        edges[index] = _aretes[i].getNoeud1()->getId();
+        edges[index + 1] = _aretes[i].getNoeud2()->getId();
+    }
+
+    for (int i = 0; i < numThreads; i++) {
+        scores[i] = -1;
+    }
+
+    for (int i = 0; i < numThreads * 2; i += 2) {
+        newCoords[i] = -1;
+        newCoords[i + 1] = -1;
+    }
+
+    for (int i = 0; i < numThreads; i++) {
+        nodeId[i] = generateRand(_noeuds.size() - 1);
+    }
+
+    for (int i = 0; i < numEdges; i++) {
+        for (int j = 0; j < numEdges; j++) {
+            if (commonNodeEdges[i][j] != nullptr) {
+                commonNodeEdgesVector[i * numEdges + j] = commonNodeEdges[i][j]->getId();
+            }
+            else {
+                commonNodeEdgesVector[i * numEdges + j] = -1;
+            }
+        }
+    }
     int placementScore = getNbCroisementReelConst();
     std::cout << "Nombre intersection avant tabou GPU: " << placementScore << std::endl;
-    rechercheTabouGPUReel(nodes,edges,scores,newCoords,nodeId,commonNodeEdgesVector,numNodes,numEdges,blockSize,gridSize,gridWidth,gridHeight, placementScore);
+    rechercheTabouGPUReel(nodes, edges, scores, newCoords, nodeId, commonNodeEdgesVector, numNodes, numEdges, blockSize, gridSize, gridWidth, gridHeight, placementScore,PENALITE_MAX,PENALITE_MAX_SELF);
 
     for (int i = 0; i < numNodes; i++) {
         index = i * 2;
         _noeuds[i]._xreel = nodes[index];
-        _noeuds[i]._yreel = nodes[index+1];
+        _noeuds[i]._yreel = nodes[index + 1];
         //tcout() << i << " x: " << nodes[index] << " y: " << nodes[index + 1] << std::endl;
     }
+    if (grillePtr.size() > 0) { reinitGrilleReel(); }
     std::cout << "Nombre intersection apres tabou GPU: " << getNbCroisementReelConst() << std::endl;
 
 #endif

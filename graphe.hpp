@@ -886,6 +886,9 @@ public:
 	void moveNodeToSlot(int nodeId, int slotId, bool useScore, bool useGrille);
 
 	void rechercheTabouCUDA();
+	void rechercheTabouReelCUDA();
+
+	void placementFMME(bool minute=false);
 
 };
 

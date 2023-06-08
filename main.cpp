@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed();
 	//initSameSeedIncThread();
-	allRunsByOnFolderSingleInput(argv[1]); return 0;
+	//allRunsByOnFolderSingleInput(argv[1]); return 0;
 	//allRunsByOnFolder(); allRunsRegularGraphs(); return 0;
 	//runFuncOnFolder(); return 0;
 	bool useCoordReel = true;
@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
 	//ogdfFMMMLayout(G);
 	//ogdfMultilevelLayout(G);
 	
-	ogdfFastMultipoleMultilevelEmbedderReelMinute(G);
+	G.placementFMME();
 	//G.placementAleatoireReel();
 	//G.forcePlacement();
 	//G.stressMajorizationReel();

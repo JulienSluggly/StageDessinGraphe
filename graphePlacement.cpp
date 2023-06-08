@@ -2,6 +2,7 @@
 #include "stressMaj.hpp"
 #include "pivotMDS.hpp"
 #include "intersection.hpp"
+#include "ogdfFunctions.hpp"
 #include <iostream>
 #include <climits>
 
@@ -896,4 +897,32 @@ void Graphe::placementPivotMDS(std::vector<std::vector<double>> customParam, int
     }
     _pmds.runAlgo();
     if (useGrille) { deleteGrille(); }
+}
+
+void Graphe::placementFMME(bool minute) {
+#if defined(OGDF_INSTALLED)
+    if (useCoordReel) {
+        if (minute) {
+            ogdfFastMultipoleMultilevelEmbedderReelMinute(*this);
+        }
+        else {
+            ogdfFastMultipoleMultilevelEmbedderReel(*this);
+        }
+    }
+    else {
+        if (minute) {
+            ogdfFastMultipoleMultilevelEmbedderMinute(*this);
+        }
+        else {
+            ogdfFastMultipoleMultilevelEmbedder(*this);
+        }
+    }
+#else
+    if (useCoordReel) {
+        placementAleatoireReel();
+    }
+    else {
+        placementAleatoire();
+    }
+#endif
 }
