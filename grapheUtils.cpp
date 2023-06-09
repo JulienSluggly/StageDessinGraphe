@@ -1512,7 +1512,9 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
     int idCell = vecCellId[0];
     std::vector<int>* vecArrive = _aretes[areteId].getNoeud2()->idCelluleVec;
     int nombreColonne = grille[0].size();
-    while(vecArrive->at(0) != idCell) {
+    bool endNotFound = true;
+    for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell) { endNotFound = false; } }
+    while(endNotFound) {
         switch(direction) {
             case 0:
                 idCell++;
@@ -1604,6 +1606,7 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
             }
         }
         if (!vecCellAlreadyPassed[idCell]) { vecCellId.push_back(idCell); vecCellAlreadyPassed[idCell] = true; }
+        for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell) { endNotFound = false; } }
     }
     for (const int& tmpIdCell : *vecArrive) {
         if (!vecCellAlreadyPassed[tmpIdCell]) { vecCellId.push_back(tmpIdCell); vecCellAlreadyPassed[tmpIdCell] = true; }

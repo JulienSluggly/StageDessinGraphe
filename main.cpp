@@ -149,7 +149,8 @@ int main(int argc, char *argv[]) {
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
 	initRandomSeed();
-	allRunsByOnFolderSingleInput(argv[1]); return 0;
+	//initSameSeed();
+	//allRunsByOnFolderSingleInput(argv[1]); return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
@@ -159,9 +160,9 @@ int main(int argc, char *argv[]) {
 	else { tcout() << nomFichierGraph << " " << nomFichierSlots << std::endl; }
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
-	std::string kregularFile = chemin + "benchGraphs/runsSingle/r1/grafo10503.100.graphml";
-	G.readFromGraphmlGraph(kregularFile);
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//std::string kregularFile = chemin + "benchGraphs/runsSingle/r1/grafo10556.100.graphml";
+	//G.readFromGraphmlGraph(kregularFile);
 	G.calcMaxAndAverageDegree();
 	G.fillCommonNodeVectors();
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
@@ -171,8 +172,8 @@ int main(int argc, char *argv[]) {
 	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
-	//G.placementFMME();
-	G.stressMajorizationReel();
+	G.placementFMME();
+	//G.stressMajorizationReel();
 #if defined(LINUX_OS)
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 #endif
@@ -187,7 +188,7 @@ int main(int argc, char *argv[]) {
 	//G.triangulationDelaunay();
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
-	//G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
+	G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleChallenge();
 	//G.rerecuitSimuleChallenge();
@@ -197,7 +198,7 @@ int main(int argc, char *argv[]) {
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 	//G.afficherInfo();
 
-	G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{15,7200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,7200,true,true);
+	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{15,7200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,7200,true,true);
 
 	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
