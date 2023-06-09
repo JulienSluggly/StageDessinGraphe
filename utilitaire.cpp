@@ -17,7 +17,6 @@ thread_local int numGen=0;
 
 bool isSeedRandom;
 unsigned int seed;
-unsigned int ogdfSeed;
 std::vector<unsigned int> seedThread;
 
 std::string typeSeed;
@@ -55,7 +54,6 @@ void initSameSeed(unsigned int n) {
     }
 #if defined (OGDF_INSTALLED)
     ogdf::setSeed(n);
-    ogdfSeed = n;
 #endif
 }
 
@@ -72,7 +70,6 @@ void initSameSeedIncThread(unsigned int n) {
     }
 #if defined (OGDF_INSTALLED)
     ogdf::setSeed(n);
-    ogdfSeed = n;
 #endif
 }
 
@@ -88,8 +85,7 @@ void initRandomSeed() {
         seedThread.push_back(tmpSeed);
     }
 #if defined (OGDF_INSTALLED)
-    ogdfSeed = generateRand(INT_MAX-1);
-    ogdf::setSeed(ogdfSeed);
+    ogdf::setSeed(seedThread[0]);
 #endif
     tcout() << "---------- SEED RANDOM: " << getSeed(0) << " ----------\n";
 }
@@ -102,7 +98,7 @@ void resetSeed(int numThread, bool resetSameSeed) {
         if (resetSameSeed) {
             genVector[numThread] = new std::mt19937(seedThread[numThread]);
 #if defined (OGDF_INSTALLED)
-            ogdf::setSeed(ogdfSeed);
+            ogdf::setSeed(seedThread[0]);
 #endif
         }
         else {
@@ -111,15 +107,14 @@ void resetSeed(int numThread, bool resetSameSeed) {
             genVector[numThread] = new std::mt19937(tmpSeed);
             seedThread[numThread] = tmpSeed;
 #if defined (OGDF_INSTALLED)
-            ogdfSeed = generateRand(INT_MAX-1);
-            ogdf::setSeed(ogdfSeed);
+            ogdf::setSeed(seedThread[0]);
 #endif
         }
     }
     else {
         genVector[numThread] = new std::mt19937(seed);
 #if defined (OGDF_INSTALLED)
-        ogdf::setSeed(ogdfSeed);
+        ogdf::setSeed(seed);
 #endif
     }
 }

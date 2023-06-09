@@ -1356,31 +1356,30 @@ int Graphe::getDirectionArete(int idArete) {
 int Graphe::getDirectionAreteReel(int idArete) {
     double x1 = _aretes[idArete].getNoeud1()->_xreel;
     double y1 = _aretes[idArete].getNoeud1()->_yreel;
-
     double x2 = _aretes[idArete].getNoeud2()->_xreel;
     double y2 = _aretes[idArete].getNoeud2()->_yreel;
 
-    double epsilon = 0.000001;
-    if (x2 > x1 + epsilon) { // Dirigé vers la droite
-        if (y2 > y1 + epsilon) { // Dirigé en haut à droite
+    double epsilon = 0.0001;
+    if ((x2 > x1 + epsilon)&&(x2 - epsilon > x1)) { // Dirigé vers la droite
+        if ((y2 > y1 + epsilon)&&(y2 - epsilon > y1)) { // Dirigé en haut à droite
             return 1;
         }
-        else if (y2 < y1 - epsilon) { // Dirigé en bas à droite
+        else if ((y2 < y1 - epsilon)&&(y2 + epsilon < y1)) { // Dirigé en bas à droite
             return 7;
         }
         return 0; // Dirigé à droite
     }
-    else if (x2 < x1 - epsilon) { // Dirigé vers la gauche
-        if (y2 > y1 + epsilon) {   // Dirigé en haut à gauche
+    else if ((x2 < x1 - epsilon)&&(x2 + epsilon < x1)) { // Dirigé vers la gauche
+        if ((y2 > y1 + epsilon)&&(y2 - epsilon > y1)) {   // Dirigé en haut à gauche
             return 3;
         }
-        else if (y2 < y1 - epsilon) { // Dirigé en bas à gauche
+        else if ((y2 < y1 - epsilon)&&(y2 + epsilon < y1)) { // Dirigé en bas à gauche
             return 5;
         }
         return 4; // Dirigé à gauche
     }
     else { // Dirigé verticalement
-        if (y2 > y1 + epsilon) { // Dirigé vers le haut
+        if ((y2 > y1 + epsilon)&&(y2 - epsilon > y1)) { // Dirigé vers le haut
             return 2;
         }
         return 6; // Dirigé vers le bas

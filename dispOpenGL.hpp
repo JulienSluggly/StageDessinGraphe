@@ -977,7 +977,7 @@ void openGLKeyPressFunction(Graphe& G) {
 			break;
 		}
 		case 19: {// Affiche le contenu de la cellule (KEY:F8)
-			G.afficherLiens();
+			//G.afficherLiens();
 			if (show_selected_emplacement) {
 				tcout() << "Selected Emplacement: " << selectedEmplacement;
 				if (selectedEmplacement >= 0) {

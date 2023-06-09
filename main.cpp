@@ -149,11 +149,7 @@ int main(int argc, char *argv[]) {
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
 	initRandomSeed();
-	//initSameSeed();
-	//initSameSeedIncThread();
-	//allRunsByOnFolderSingleInput(argv[1]); return 0;
-	//allRunsByOnFolder(); allRunsRegularGraphs(); return 0;
-	//runFuncOnFolder(); return 0;
+	allRunsByOnFolderSingleInput(argv[1]); return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
@@ -163,43 +159,20 @@ int main(int argc, char *argv[]) {
 	else { tcout() << nomFichierGraph << " " << nomFichierSlots << std::endl; }
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
-	std::string kregularFile = chemin + "benchGraphs/kregular/9regular/9-regular-1000nodes-0.json";
-	//G.readFromJsonGraphReel(kregularFile);
-	std::string quickCrossInput = chemin + "resultats/results.txt";
-	std::string pathGraphDimacs = chemin + "benchGraphs/runs/" + nomFichierGraph + ".clean";
-	//G.readFromJsonGraph(pathGraphDimacs);
-	//G.generateKRegular(1000,9);
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	std::string kregularFile = chemin + "benchGraphs/runsSingle/r1/grafo10503.100.graphml";
+	G.readFromGraphmlGraph(kregularFile);
 	G.calcMaxAndAverageDegree();
 	G.fillCommonNodeVectors();
-	//G.initCompleteGraph(9);
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
-	//if (!useCoordReel) { G.generateGrid(nbNoeud,nbNoeud); }
 	if (useCoordReel) { tcout() << "Coordonnees flottantes, pas d'emplacements.\n"; }
 	else { tcout() << "Coordonnees entieres, utilisation d'emplacements\n"; }
 	tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
 	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
-	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,100,1000,fileGraph,fileSlots,true,false,3);
-	//G.grapheGenetique(tempsBest,bestIteration,lastIteration,300,1000,nomFichierGraph,nomFichierSlots,false,false,6);
-	//tcout() << nombreIterationRecuit(150.0,0.999999,0.000001) << std::endl;
-	//ogdfFastMultipoleMultilevelEmbedder(G);
-	//ogdfFastMultipoleMultilevelEmbedderMinute(G);
-	//G.stressMajorization({{}},1);
-	//G.stressMajorization();
-	//ogdfOther(G);
-	//G.placementAleatoireReel();
-	
-	//ogdfFastMultipoleMultilevelEmbedderReel(G);
-	//G.stressMajorizationReel();
-	//ogdfFMMMLayout(G);
-	//ogdfMultilevelLayout(G);
-	
-	G.placementFMME();
-	//G.placementAleatoireReel();
-	//G.forcePlacement();
-	//G.stressMajorizationReel();
+	//G.placementFMME();
+	G.stressMajorizationReel();
 #if defined(LINUX_OS)
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 #endif
@@ -214,7 +187,7 @@ int main(int argc, char *argv[]) {
 	//G.triangulationDelaunay();
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
-	G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
+	//G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleChallenge();
 	//G.rerecuitSimuleChallenge();
@@ -223,6 +196,9 @@ int main(int argc, char *argv[]) {
 	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,500);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 	//G.afficherInfo();
+
+	G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{15,7200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,7200,true,true);
+
 	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 	#ifdef OPENGL_INSTALLED

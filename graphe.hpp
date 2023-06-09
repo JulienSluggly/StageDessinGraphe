@@ -70,6 +70,8 @@ public:
 
 	double boiteXSizeDepart=-1.0, boiteYSizeDepart=-1.0, diffXBoiteIter=-1.0, diffYBoiteIter=-1.0;
 
+	bool debugVar = false; // Debug print only, pas utile
+
 	std::string nomGraphe = "Graphe";
 
 	std::vector<double> recuitDistanceAll; // Toutes les distances tirées avec déplacement effectué

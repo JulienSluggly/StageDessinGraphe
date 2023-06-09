@@ -46,7 +46,7 @@ public:
 	std::vector<std::vector<double>> customParam;
 
 	int nbSolutionIllegale = 0;
-	int debugValue=-1; // Voir fonction dans grapheDebug.cpp pour la correspondance du code d'erreur si différent de -1.
+	int debugValue=0; // Voir fonction dans grapheDebug.cpp pour la correspondance du code d'erreur si différent de 0.
 
 	int tid; // Thread ID
 
@@ -129,7 +129,7 @@ void LogGraphe::updateDataFromGraphe(Graphe& G) {
     if (!G.useCoordReel) { totalInterVector.push_back(G.getNbCroisementDiff()); } else { totalInterVector.push_back(G.getNbCroisementDiffReel()); }
     totalInterIllVector.push_back(G.nombreInterIll + G.nombreInterIllSelf);
     debugValue = G.debugEverything();
-	if (debugValue != -1) { tcout() << "Bug found. Value: " << debugValue << std::endl; }
+	if (debugValue != 0) { tcout() << "Bug found. Value: " << debugValue << std::endl; }
     if (isRecuit) { recuitCycleVague = G.recuitCycleVague; }
 }
 
