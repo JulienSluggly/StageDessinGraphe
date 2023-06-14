@@ -12,6 +12,10 @@ Graphe::Graphe() {
     initGraphData();
 }
 
+Graphe::~Graphe() {
+    if (commonNodeEdges != nullptr) { delete commonNodeEdges; }
+}
+ 
 Graphe::Graphe(std::string nom) {
     nomGraphe = nom;
     initGraphData();
@@ -249,6 +253,9 @@ void Graphe::copyFromGraphe(Graphe& graphe) {
     _emplacements.clear();
     _noeuds.clear();
     _aretes.clear();
+    _emplacements.reserve(graphe._emplacements.size()*2);
+    _noeuds.reserve(graphe._noeuds.size()*2);
+    _aretes.reserve(graphe._aretes.size()*2);
     for (int i = 0; i < graphe._emplacements.size(); ++i) {
         _emplacements.push_back(Emplacement(graphe._emplacements[i].getX(),graphe._emplacements[i].getY(),i));
     }
@@ -799,7 +806,7 @@ void Graphe::registerSlotsInGrid() {
 }
 
 void Graphe::registerSlotsAndEdgesInGrid() {
-    #if defined(DEBUG_GRAPHE)
+    #if defined(DEBUG_GRAPHE_PROGRESS)
         tcout() << "Remplissage des cellules.\n";
     #endif
     registerSlotsInGrid();
@@ -2597,7 +2604,7 @@ void Graphe::fillCommonNodeVectors() {
     }
 }
 
-void Graphe::fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>* commonNodeEdgesGenetique) {
+void Graphe::fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>*& commonNodeEdgesGenetique) {
     commonNodeEdgesGenetique = new std::vector<std::vector<int>>();
     for (int i=0;i<_aretes.size();i++) {
         std::vector<int> tmpVec(_aretes.size(),-1);
@@ -2650,7 +2657,7 @@ void Graphe::printCommonMatrix() {
 }
 
 void Graphe::setupGridAndRegistration(std::vector<std::vector<double>> customParam) {
-#if defined(DEBUG_GRAPHE)
+#if defined(DEBUG_GRAPHE_PROGRESS)
     tcout() << "Setup Cellules.\n";
 #endif
     int row = (int)ceil(sqrt(_aretes.size())*1.5);

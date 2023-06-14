@@ -158,10 +158,10 @@ int main(int argc, char *argv[]) {
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	initRandomSeed();
-	//initSameSeed(5115);
+	//initRandomSeed();
+	initSameSeed();
 	//allRunsByOnFolderSingleInput(argv[1]); return 0;
-	bool useCoordReel = true;
+	bool useCoordReel = false;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
 	std::string nomFichierSlots = "3X-10-input-slots";
@@ -181,8 +181,9 @@ int main(int argc, char *argv[]) {
 	tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
 	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
-	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0; 
-	G.placementFMME();
+	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
+	G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,50,100,nomFichierGraph,nomFichierSlots); 
+	//G.placementFMME();
 	//G.stressMajorizationReel();
 #if defined(LINUX_OS)
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
@@ -198,7 +199,8 @@ int main(int argc, char *argv[]) {
 	//G.triangulationDelaunay();
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
-	G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
+	//G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
+
 	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleChallenge();
 	//G.rerecuitSimuleChallenge();

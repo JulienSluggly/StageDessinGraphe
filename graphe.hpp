@@ -40,7 +40,7 @@ public:
 
 	// Chaque case contient le pointeur sur le noeud qui n'est pas en commun de l'arete i. commonNodeEdges[i][j]
 	// Si les aretes n'ont pas de noeud en commun, contient nullptr
-	std::vector<std::vector<int>>* commonNodeEdges;
+	std::vector<std::vector<int>>* commonNodeEdges = nullptr;
 
 	std::vector<std::vector<std::pair<int,int>>> activationGrid;
 
@@ -54,7 +54,7 @@ public:
 	bool isNombreCroisementUpdated = false; // Indique si la valeur dans 'nombreCroisement' est à jour.
 	bool isNodeScoreUpdated = false; // Indique les les scores stockés dans les noeuds sont à jour.
 	bool isIntersectionVectorUpdated = false; // Indique si les vecteurs d'intersections dans les edge sont à jour.
-	bool isCarteSetUp = false; // Indique si la triangulation de delaunay sur le graphe a été faite.
+	bool isCarteSetUp = false; // Indique si la triangulation de delaunay des emplacements sur le graphe a été faite.
 	bool useCoordReel = false; // Indique si les noeuds ne sont pas attribués a des emplacements mais ont des coord réelles.
 
 	int maxVoisin = -1; // Nombre maximum de voisin d'un noeud dans le graphe. Pas forcément à jour.
@@ -91,6 +91,8 @@ public:
 	double tempsPasseTmp = 0;
 
 	Graphe();
+
+	~Graphe();
 
 	Graphe(std::string nom);
 
@@ -868,7 +870,7 @@ public:
 	// Initialise la matrice des aretes de noeuds communs
 	void fillCommonNodeVectors();
 
-	void fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>* commonNodeEdgesGenetique);
+	void fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>*& commonNodeEdgesGenetique);
 
 	// Met a jour la matrice de voisinage pour ce noeud
 	void addCommonNodeVector(int nodeId);

@@ -1235,41 +1235,75 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
 // Ne met pas à jour la variable nombreCroisement du graphe
 bool Graphe::croisementAleatoireV2(Graphe& graphe1, Graphe& graphe2) {
     int nbNoeudATraiter = graphe1._noeuds.size() - graphe1.nbNoeudEnCommun(graphe2);
+    //tcout() << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
     if (nbNoeudATraiter == 0) {
         copyFromGraphe(graphe1);
         return false;
     }
     std::vector<int> saveGraphe1 = graphe1.saveCopy();
     std::vector<int> saveGraphe2 = graphe2.saveCopy();
-
     Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     int currentGrapheNumber = generateRand(1);
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
     else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
 
+    std::vector<int> nodeToRelocate;
+    nodeToRelocate.resize(graphe1._noeuds.size());
     while (nbNoeudATraiter > 0) {
-        int bestNodeId = generateRand(_noeuds.size() - 1);
-        while (_noeuds[bestNodeId].estPlace()) {
-            bestNodeId = generateRand(_noeuds.size() - 1);
+        int bestNodeId = -1;
+        int meilleurScore;
+        int nbRencontre = 0;
+        int numberOfNodeToRelocate = 0;
+        //Trouve le meilleur noeud du graphe en cours d'analyse
+        for (int i = 0; i < _noeuds.size(); ++i) {
+            if (!_noeuds[i].estPlace()) {
+                bestNodeId = i;
+                break;
+            }
         }
-
         int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
         _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
         if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
             --nbNoeudATraiter;
             int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
             if (oldNodeId != -1) {
-                //if (useRand) {
-                //    otherGraphe->completePlacementAleatoire();
-                //}
-                //else {
-                //    otherGraphe->completeBasicGlouton();
-                //}		//tcout() << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
-                if (graphe1._noeuds[oldNodeId].compare(&graphe2._noeuds[oldNodeId])) {
-                    --nbNoeudATraiter;
+                if (!areVoisin(bestNodeId,oldNodeId)) {
+                    nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+                    numberOfNodeToRelocate++;
                 }
             }
         }
+        //Place tout les voisins du point choisis
+        for (int i=0;i<currentGraphe->_noeuds[bestNodeId].voisins.size();i++) {
+            int idNodeVoisin = currentGraphe->_noeuds[bestNodeId].voisins[i]->getId();
+            if (!_noeuds[idNodeVoisin].estPlace()) {
+                if (currentGraphe->_noeuds[idNodeVoisin].getEmplacement() == nullptr) {
+                    bestEmplacementId = getMeilleurEmplacement(_noeuds[idNodeVoisin]);
+                }
+                else {
+                    bestEmplacementId = currentGraphe->_noeuds[idNodeVoisin].getEmplacement()->getId();
+                }
+                _noeuds[idNodeVoisin].setEmplacement(&_emplacements[bestEmplacementId]);
+                if ((!otherGraphe->_noeuds[idNodeVoisin].estPlace())||(!graphe1._noeuds[idNodeVoisin].compare(&graphe2._noeuds[idNodeVoisin]))) {
+                    --nbNoeudATraiter;
+                    int oldNodeId = otherGraphe->_noeuds[idNodeVoisin].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
+                    if (oldNodeId != -1) {
+                        if (!areVoisin(bestNodeId,oldNodeId)) {
+                            nodeToRelocate[numberOfNodeToRelocate] = oldNodeId;
+                            numberOfNodeToRelocate++;
+                        }
+                    }
+                }
+            }
+        }
+        otherGraphe->completePlacementAleatoire();
+        //Si les lieux coincident les noeuds ne sont plus à traitercurrentGraphe->_noeuds[idNodeVoisin].ecraseNoeud(currentGraphe->_emplacements[bestEmplacementId]);
+        for (int i = 0; i < numberOfNodeToRelocate; ++i) {
+            if (graphe1._noeuds[nodeToRelocate[i]].compare(&graphe2._noeuds[nodeToRelocate[i]])) {
+                --nbNoeudATraiter;
+            }
+        }
+
 
         //Change le parent choisis 
         if (currentGrapheNumber == 0) {
@@ -1283,7 +1317,6 @@ bool Graphe::croisementAleatoireV2(Graphe& graphe1, Graphe& graphe2) {
             currentGrapheNumber = 0;
         }
     }
-
     _noeuds.swap(graphe1._noeuds);
     _aretes.swap(graphe1._aretes);
     _emplacements.swap(graphe1._emplacements);
