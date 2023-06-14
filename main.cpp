@@ -140,6 +140,16 @@ void createQuickCrossData(Graphe& G, std::string nomFichierGraph) {
 	ogdfWriteToGraph6(G,nomFichierGraph + "-g6.txt");
 }
 
+void runFunc() {
+	for (int i=40;i<70;i++) {
+		Graphe G;
+		G.initCompleteGraph(i);
+		tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << std::endl;
+		std::string nomGraphe = std::to_string(i) + "complet.json";
+		G.writeToJsonGraph(nomGraphe);
+	}
+}
+
 int main(int argc, char *argv[]) {
 	bool useProfiler = false;
 #if defined(GPERF_INSTALLED)
@@ -149,7 +159,7 @@ int main(int argc, char *argv[]) {
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
 	initRandomSeed();
-	//initSameSeed();
+	//initSameSeed(5115);
 	//allRunsByOnFolderSingleInput(argv[1]); return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
@@ -161,7 +171,7 @@ int main(int argc, char *argv[]) {
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	G.setupGraphe(nomFichierGraph,nomFichierSlots);
-	//std::string kregularFile = chemin + "benchGraphs/runsSingle/r1/grafo10556.100.graphml";
+	//std::string kregularFile = chemin + "benchGraphs/runsSingle/r3/grafo10781.100.graphml";
 	//G.readFromGraphmlGraph(kregularFile);
 	G.calcMaxAndAverageDegree();
 	G.fillCommonNodeVectors();
@@ -198,7 +208,7 @@ int main(int argc, char *argv[]) {
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 	//G.afficherInfo();
 
-	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{15,7200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,7200,true,true);
+	//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{15,7200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,300,true,true);
 
 	stopGprofProfiler(useProfiler);
 	printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);

@@ -40,7 +40,7 @@ public:
 
 	// Chaque case contient le pointeur sur le noeud qui n'est pas en commun de l'arete i. commonNodeEdges[i][j]
 	// Si les aretes n'ont pas de noeud en commun, contient nullptr
-	std::vector<std::vector<Noeud*>> commonNodeEdges;
+	std::vector<std::vector<int>>* commonNodeEdges;
 
 	std::vector<std::vector<std::pair<int,int>>> activationGrid;
 
@@ -525,6 +525,8 @@ public:
 	// Ne met pas à jour la variable nombreCroisement du graphe
 	bool croisementAleatoire(Graphe& graphe1, Graphe& graphe2, bool useRand);
 
+	bool croisementAleatoireV2(Graphe& graphe1, Graphe& graphe2);
+
 	// Effectue le croisement entre deux parents,
 	// On selectionne un noeud en alternant de parent, celui qui creer le moin d'intersection si le place chez l'enfant
 	// Renvoie vrai si les deux parents ne sont pas identique
@@ -656,6 +658,8 @@ public:
 	// useRand indique si l'on doit utiliser l'algorithme aléatoire plutôt que le glouton pour le replacage des noeuds lors du croisement
 	// modeCroisement indique quel algorithme de croisement utiliser 0=Voisinage, 1=HalfParent, 2=Aléatoire, 3=VoisinageV2
 	void grapheGenetique(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit=false, bool useRand=false, int modeCroisement=0);
+
+	void grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot);
 
 	// Creer la grille d'emplacement de taille gridHeight*gridWidth
 	void generateGrid(int gridWidth=-1, int gridHeight=-1);
@@ -863,6 +867,8 @@ public:
 
 	// Initialise la matrice des aretes de noeuds communs
 	void fillCommonNodeVectors();
+
+	void fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>* commonNodeEdgesGenetique);
 
 	// Met a jour la matrice de voisinage pour ce noeud
 	void addCommonNodeVector(int nodeId);

@@ -9,6 +9,7 @@
 #include <fstream>
 
 #include "personnel.hpp"
+#include "utilitaire.hpp"
 #include "kernel.h"
 
 __device__ int area2CUDA(const int ax, const int ay, const int bx, const int by, const int cx, const int cy) {
@@ -409,7 +410,7 @@ extern "C" void rechercheTabouGPU(int* nodes, const int* edges, const int* slots
     cudaFree(devCommonNodeEdges);
 }
 
-extern "C" void rechercheTabouGPUReel(float* nodes, const int* edges, int* scores,const float* newCoords, const int* nodeId, const int* commonNodeEdges, const int numNodes, const int numEdges, const int blockSize, const int gridSize, const int gridWidth, const int gridHeight, const int placementScore, const int PENALITE_MAX, const int PENALITE_MAX_SELF) {
+extern "C" void rechercheTabouGPUReel(float* nodes, const int* edges, int* scores,const float* newCoords, const int* nodeId, const int* commonNodeEdges, const int numNodes, const int numEdges, const int blockSize, const int gridSize, const int gridWidth, const int gridHeight, const int placementScore, const int PENALITE_MAX, const int PENALITE_MAX_SELF,const double timeLimit) {
     float* devNodes;
     int* devEdges;
     int* devScores;
@@ -434,9 +435,12 @@ extern "C" void rechercheTabouGPUReel(float* nodes, const int* edges, int* score
     cudaMemcpy(devNewCoords, newCoords, sizeof(float) * numThreads * 2, cudaMemcpyHostToDevice);
     cudaMemcpy(devNodeId, nodeId, sizeof(int) * numThreads, cudaMemcpyHostToDevice);
     cudaMemcpy(devCommonNodeEdges, commonNodeEdges, sizeof(int) * numEdges * numEdges, cudaMemcpyHostToDevice);
-
+    auto start = std::chrono::system_clock::now();
+    auto end = start;
+    std::chrono::duration<double> secondsTotal = end - start;
     int bestOverallScore = placementScore;
-    for (int iter = 0; iter < 10000; iter++) {
+    while(secondsTotal.count() < timeLimit) {
+    //for (int iter = 0; iter < 10000; iter++) {
         // Update crossing score
         kernelUpdateCrossingsReel<<<gridSize, blockSize>>>(devNodes, devEdges, devScores, devNewCoords, devNodeId, numThreads, numNodes, numEdges, devCommonNodeEdges,gridWidth,gridHeight,PENALITE_MAX,PENALITE_MAX_SELF);
         // Update vector device to host
@@ -451,12 +455,18 @@ extern "C" void rechercheTabouGPUReel(float* nodes, const int* edges, int* score
         }
         kernelUpdateArrayReel<<<1,1>>>(devNodes, devNewCoords, devNodeId, bestIndex);
         cudaDeviceSynchronize();
+        tcout() << "GPU score actuel: " << bestValue << std::endl;
         if (bestValue < bestOverallScore) {
             bestOverallScore = bestValue;
             cudaMemcpy(nodes, devNodes, sizeof(float) * numNodes * 2, cudaMemcpyDeviceToHost);
+#if defined(DEBUG_GRAPHE_PROGRESS)
+            tcout() << "GPU new best: " << bestOverallScore << std::endl;
+#endif
         }
+        end = std::chrono::system_clock::now();
+        secondsTotal = end - start;
     }
-    std::cout << "Best Score GPU: " << bestOverallScore << std::endl;
+    tcout() << "Best Score GPU: " << bestOverallScore << std::endl;
     //for (int i = 0; i < numThreads; i++) { std::cout << "i: " << i << " " << scores[i] << std::endl; }
     //std::cout << "score: " << scores[0] << std::endl;
     // cleanup

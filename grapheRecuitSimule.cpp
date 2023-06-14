@@ -1297,32 +1297,33 @@ long Graphe::recuitSimuleReelLimite(double &timeBest, std::chrono::time_point<st
     #endif
     int nodeId, improve;
     std::pair<double,double> randCoord;
+    std::pair<double,double> oldCoord;
     std::chrono::duration<double> secondsTotal = end - start;
+    double randDouble, limiteImprove;
+    bool makeMove;
     for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit == -1)); iter++) {
-        calculDelaiRefroidissement(delay,customParam,iter); // Utile uniquement si customParam[0]==3 et customParam[1]==2 ou 3
-        for (int del = 0; del < delay; del++) {
-            nodeId = selectionNoeud(modeNoeud, t);
-            std::pair<double,double> oldCoord({_noeuds[nodeId]._xreel,_noeuds[nodeId]._yreel});
-            randCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
-            double randDouble = generateDoubleRand(1.0);
-            double limiteImprove = -t*std::log(randDouble);
-            bool makeMove = false;
-            improve = calculImproveReelLimite(nodeId,randCoord,useGrille,makeMove,limiteImprove);
-            if (makeMove) {
-                nbCroisement += improve;
-                if (nbCroisement < bestCroisement) {
-                    bestCroisement = nbCroisement;
-                    saveBestResultRecuitReel(bestResultVector);
-                    bestEnd = std::chrono::system_clock::now();
-                    #if defined(DEBUG_GRAPHE_PROGRESS)
-                        tcout() << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
-                    #endif
-                }
+        nodeId = selectionNoeud(modeNoeud, t);
+        oldCoord.first = _noeuds[nodeId]._xreel;
+        oldCoord.second = _noeuds[nodeId]._yreel;
+        randCoord = selectionEmplacementReel(modeEmplacement, nodeId, t,customParam,iter);
+        randDouble = generateDoubleRandRecuitImprove();
+        limiteImprove = -t*std::log(randDouble);
+        makeMove = false;
+        improve = calculImproveReelLimite(nodeId,randCoord,useGrille,makeMove,limiteImprove);
+        if (makeMove) {
+            nbCroisement += improve;
+            if (nbCroisement < bestCroisement) {
+                bestCroisement = nbCroisement;
+                saveBestResultRecuitReel(bestResultVector);
+                bestEnd = std::chrono::system_clock::now();
+                #if defined(DEBUG_GRAPHE_PROGRESS)
+                    tcout() << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
+                #endif
             }
-            else {
-                _noeuds[nodeId].setCoordReel(oldCoord);
-                if (useGrille) { recalcNodeCelluleReel(nodeId); }
-            }
+        }
+        else {
+            _noeuds[nodeId].setCoordReel(oldCoord);
+            if (useGrille) { recalcNodeCelluleReel(nodeId); }
         }
         t *= cool;
         end = std::chrono::system_clock::now();

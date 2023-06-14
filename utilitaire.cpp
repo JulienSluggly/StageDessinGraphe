@@ -21,6 +21,28 @@ std::vector<unsigned int> seedThread;
 
 std::string typeSeed;
 
+std::uniform_real_distribution<double> recuitImproveDis(0.0,1.0);
+
+std::uniform_real_distribution<double>* recuitReelXDis;
+std::uniform_real_distribution<double>* recuitReelYDis;
+
+void initCoordReelDistribution(double maxX, double maxY) {
+    recuitReelXDis = new std::uniform_real_distribution<double>(0.0,maxX);
+    recuitReelYDis = new std::uniform_real_distribution<double>(0.0,maxY);
+}
+
+double generateDoubleRandRecuitImprove() {
+    return recuitImproveDis(*genVector[0]);
+}
+
+double generateDoubleRandRecuitX() {
+    return (*recuitReelXDis)(*genVector[0]);
+}
+
+double generateDoubleRandRecuitY() {
+    return (*recuitReelYDis)(*genVector[0]);
+}
+
 // Retourne une valeur réelle comprise dans [0.0,n[
 double generateDoubleRand(double n) {
     std::uniform_real_distribution<> dis(0.0, n);

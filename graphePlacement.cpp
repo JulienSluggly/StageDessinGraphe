@@ -7,8 +7,8 @@
 #include <climits>
 
 void Graphe::tirageCoordReel(std::pair<double,double>& coord) {
-    coord.first = generateDoubleRand(gridWidth);
-    coord.second = generateDoubleRand(gridHeight);
+    coord.first = generateDoubleRandRecuitX();
+    coord.second = generateDoubleRandRecuitY();
 }
 
 // Place les noeuds aleatoirement sur les emplacements disponibles.

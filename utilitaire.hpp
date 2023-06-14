@@ -13,8 +13,14 @@
 static cpu_set_t cpuset;
 #endif
 
+void initCoordReelDistribution(double maxX, double maxY);
+
 // Retourne une valeur réelle comprise dans [0.0,n[
 double generateDoubleRand(double n);
+
+double generateDoubleRandRecuitImprove();
+double generateDoubleRandRecuitX();
+double generateDoubleRandRecuitY();
 
 // Retourne une valeur entiere comprise dans [0,n]
 int generateRand(int n);

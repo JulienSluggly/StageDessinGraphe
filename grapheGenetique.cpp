@@ -1166,3 +1166,131 @@ bool Graphe::croisementEnfantScoreGrille(Graphe& originalGraphe1, Graphe& origin
     isIntersectionVectorUpdated = false;
     return true;
 }
+
+
+
+void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot) {
+    auto start = std::chrono::system_clock::now(); auto end = start;
+    std::vector<Graphe> graphes;
+    graphes.resize(population);
+    graphes[0].setupGraphe(nomGraphe,nomSlot);
+    std::vector<std::vector<int>>* commonNodeEdgesGenetique;
+    fillCommonNodeVectorsGenetique(commonNodeEdgesGenetique);
+    for (int i = 0; i < population; ++i) {
+        graphes[i].nomGraphe = "Graphe" + std::to_string(i);
+        if (i > 0) { graphes[i].copyFromGrapheGenetique(graphes[0]); }
+        graphes[i].commonNodeEdges = commonNodeEdgesGenetique;
+        graphes[i].placementFMME();
+        graphes[i].setupGridAndRegistration({});
+    }
+    sort(graphes.begin(), graphes.end());
+    int currentIteration = 0; bestIteration = 0;
+    long bestCrossingResult = graphes[0].nombreCroisement;
+
+    tcout() << bestCrossingResult << " Meilleur debut genetique\n[";
+    for (int i = 0; i<10;i++) { tcout() << graphes[i].nombreCroisement << " "; }
+    tcout() << "]" << std::endl;
+    for (int i = 0; i<graphes.size();i++) { graphes[i].debugEverything(); }
+    
+    bool noChange = false;
+    while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
+        int numberOfNoChange = 0;
+        for (int i = population/2; i < population; ++i) {
+            graphes[i].clearNodeEmplacement();
+            int grapheID1, grapheID2;
+            grapheID1 = generateRand(population/2 - 1);
+            grapheID2 = generateRand(population/2 - 1);
+            while (grapheID2 == grapheID1) { grapheID2 = generateRand(population/2 - 1); }
+            bool result;
+            result = graphes[i].croisementAleatoireV2(graphes[grapheID1], graphes[grapheID2]);
+            if (!result) { numberOfNoChange++; }
+            double tb;
+            graphes[i].reinitGrille();
+            graphes[i].recuitSimuleLimite(tb,start,{},0.99999,0.5);
+            if (graphes[i].nombreCroisement < bestCrossingResult) {
+                end = std::chrono::system_clock::now();
+                bestCrossingResult = graphes[i].nombreCroisement;
+                bestIteration = currentIteration + 1;
+            }
+        }
+        if (numberOfNoChange >= (population / 2)-1) {
+            noChange = true;
+        }
+        ++currentIteration;
+        sort(graphes.begin(), graphes.end());
+        tcout() << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " Number of no Change: " << numberOfNoChange <<"\n[";
+        for (int i = 0; i<10;i++) {
+            tcout() << graphes[i].nombreCroisement << " ";
+        }
+        tcout() << "]" << std::endl;
+        for (int i = 0; i<graphes.size();i++) { graphes[i].debugEverything(); }
+    }
+    std::chrono::duration<double> secondsTotal = end - start;
+    timeBest = secondsTotal.count();
+    lastIteration = currentIteration;
+    copyFromGraphe(graphes[0]);
+}
+
+// Effectue un croisement entre deux parents en selectionnant un noeud aleatoirement de chaque parent en alternant
+// Ne met pas à jour la variable nombreCroisement du graphe
+bool Graphe::croisementAleatoireV2(Graphe& graphe1, Graphe& graphe2) {
+    int nbNoeudATraiter = graphe1._noeuds.size() - graphe1.nbNoeudEnCommun(graphe2);
+    if (nbNoeudATraiter == 0) {
+        copyFromGraphe(graphe1);
+        return false;
+    }
+    std::vector<int> saveGraphe1 = graphe1.saveCopy();
+    std::vector<int> saveGraphe2 = graphe2.saveCopy();
+
+    Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
+    int currentGrapheNumber = generateRand(1);
+    if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
+    else { currentGraphe = &graphe2; otherGraphe = &graphe1; }
+
+    while (nbNoeudATraiter > 0) {
+        int bestNodeId = generateRand(_noeuds.size() - 1);
+        while (_noeuds[bestNodeId].estPlace()) {
+            bestNodeId = generateRand(_noeuds.size() - 1);
+        }
+
+        int bestEmplacementId = currentGraphe->_noeuds[bestNodeId].getEmplacement()->getId();
+        _noeuds[bestNodeId].setEmplacement(&_emplacements[bestEmplacementId]);
+        if (!graphe1._noeuds[bestNodeId].compare(&graphe2._noeuds[bestNodeId])) {
+            --nbNoeudATraiter;
+            int oldNodeId = otherGraphe->_noeuds[bestNodeId].ecraseNoeud(otherGraphe->_emplacements[bestEmplacementId]);
+            if (oldNodeId != -1) {
+                //if (useRand) {
+                //    otherGraphe->completePlacementAleatoire();
+                //}
+                //else {
+                //    otherGraphe->completeBasicGlouton();
+                //}		//tcout() << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
+                if (graphe1._noeuds[oldNodeId].compare(&graphe2._noeuds[oldNodeId])) {
+                    --nbNoeudATraiter;
+                }
+            }
+        }
+
+        //Change le parent choisis 
+        if (currentGrapheNumber == 0) {
+            currentGraphe = &graphe2;
+            otherGraphe = &graphe1;
+            currentGrapheNumber = 1;
+        }
+        else {
+            currentGraphe = &graphe1;
+            otherGraphe = &graphe2;
+            currentGrapheNumber = 0;
+        }
+    }
+
+    _noeuds.swap(graphe1._noeuds);
+    _aretes.swap(graphe1._aretes);
+    _emplacements.swap(graphe1._emplacements);
+    graphe1.loadCopy(saveGraphe1);
+    graphe2.loadCopy(saveGraphe2);
+    isNombreCroisementUpdated = false;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
+    return true;
+}

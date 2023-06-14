@@ -1980,6 +1980,7 @@ void Graphe::translateGrapheToOriginReel(double marge) {
         gridWidth = gridWidth+(2*margeX);
         gridHeight = gridHeight+(2*margeY);
     }
+    initCoordReelDistribution((double)gridWidth,(double)gridHeight);
 }
 
 void Graphe::scaleGraph(int n) {
@@ -2577,9 +2578,10 @@ void Graphe::resizeVectorTemporaire(int nodeId, int nbNodeTemporaire) {
 }
 
 void Graphe::fillCommonNodeVectors() {
+    commonNodeEdges = new std::vector<std::vector<int>>();
     for (int i=0;i<_aretes.size();i++) {
-        std::vector<Noeud*> tmpVec(_aretes.size(),nullptr);
-        commonNodeEdges.push_back(tmpVec);
+        std::vector<int> tmpVec(_aretes.size(),-1);
+        commonNodeEdges->push_back(tmpVec);
     }
     for (int i=0;i<_noeuds.size();i++) {
         for (int j=0;j<_noeuds[i].voisins.size()-1;j++) {
@@ -2588,8 +2590,28 @@ void Graphe::fillCommonNodeVectors() {
             for (int k=j+1;k<_noeuds[i].voisins.size();k++) {
                 Noeud* n2 = _noeuds[i].voisins[k];
                 int index2 = _noeuds[i]._aretes[k];
-                commonNodeEdges[index1][index2] = n1;
-                commonNodeEdges[index2][index1] = n2;
+                (*commonNodeEdges)[index1][index2] = n1->getId();
+                (*commonNodeEdges)[index2][index1] = n2->getId();
+            }
+        }
+    }
+}
+
+void Graphe::fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>* commonNodeEdgesGenetique) {
+    commonNodeEdgesGenetique = new std::vector<std::vector<int>>();
+    for (int i=0;i<_aretes.size();i++) {
+        std::vector<int> tmpVec(_aretes.size(),-1);
+        commonNodeEdgesGenetique->push_back(tmpVec);
+    }
+    for (int i=0;i<_noeuds.size();i++) {
+        for (int j=0;j<_noeuds[i].voisins.size()-1;j++) {
+            Noeud* n1 = _noeuds[i].voisins[j];
+            int index1 = _noeuds[i]._aretes[j];
+            for (int k=j+1;k<_noeuds[i].voisins.size();k++) {
+                Noeud* n2 = _noeuds[i].voisins[k];
+                int index2 = _noeuds[i]._aretes[k];
+                (*commonNodeEdgesGenetique)[index1][index2] = n1->getId();
+                (*commonNodeEdgesGenetique)[index2][index1] = n2->getId();
             }
         }
     }
@@ -2602,8 +2624,8 @@ void Graphe::addCommonNodeVector(int nodeId) {
         for (int k=j+1;k<_noeuds[nodeId].voisins.size();k++) {
             Noeud* n2 = _noeuds[nodeId].voisins[k];
             int index2 = _noeuds[nodeId]._aretes[k];
-            commonNodeEdges[index1][index2] = n1;
-            commonNodeEdges[index2][index1] = n2;
+            (*commonNodeEdges)[index1][index2] = n1->getId();
+            (*commonNodeEdges)[index2][index1] = n2->getId();
         }
     }
 }
@@ -2611,17 +2633,17 @@ void Graphe::addCommonNodeVector(int nodeId) {
 void Graphe::removeCommonNodeVector(int nodeId) {
     for (const int& index1 : _noeuds[nodeId]._aretes) {
         for (const int& index2 : _noeuds[nodeId]._aretes) {
-            commonNodeEdges[index1][index2] = nullptr;
-            commonNodeEdges[index2][index1] = nullptr;
+            (*commonNodeEdges)[index1][index2] = -1;
+            (*commonNodeEdges)[index2][index1] = -1;
         }
     }
 }
 
 void Graphe::printCommonMatrix() {
-    for (int i=0;i<commonNodeEdges.size();i++) {
-        for (int j=0;j<commonNodeEdges.size();j++) {
-            if (commonNodeEdges[i][j] == nullptr) { tcout() << "X "; }
-            else { tcout() << commonNodeEdges[i][j]->_id << " "; }
+    for (int i=0;i<commonNodeEdges->size();i++) {
+        for (int j=0;j<commonNodeEdges->size();j++) {
+            if ((*commonNodeEdges)[i][j] == -1) { tcout() << "X "; }
+            else { tcout() << (*commonNodeEdges)[i][j] << " "; }
         }
         tcout() << std::endl;
     }
