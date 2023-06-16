@@ -153,7 +153,7 @@ void runFunc() {
 
 int main(int argc, char *argv[]) {
 	//generateRandomGraphique("",200,2,100.0); return 0;
-	bool useProfiler = false;
+	bool useProfiler = true;
 #if defined(GPERF_INSTALLED)
 	std::string cheminProfile = chemin + "profilerData/profile.output";
 	if (useProfiler) { ProfilerStart(cheminProfile.c_str()); }
@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
 	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
-	G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,50,100,nomFichierGraph,nomFichierSlots); 
+	G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,10,3,nomFichierGraph,nomFichierSlots); 
 	//G.placementFMME();
 	//G.stressMajorizationReel();
 #if defined(LINUX_OS)

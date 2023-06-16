@@ -14,7 +14,7 @@ void Graphe::tirageCoordReel(std::pair<double,double>& coord) {
 // Place les noeuds aleatoirement sur les emplacements disponibles.
 // Ne tient pas a jour le score des noeuds ou du graphe.
 void Graphe::placementAleatoire() {
-    #if defined(DEBUG_GRAPHE)
+    #if defined(DEBUG_GRAPHE_PROGRESS)
         tcout() << "Placement aleatoire" << std::endl;
     #endif
     for (int i = 0; i < _noeuds.size(); ++i) {
@@ -30,7 +30,7 @@ void Graphe::placementAleatoire() {
 }
 
 void Graphe::placementAleatoireReel() {
-    #if defined(DEBUG_GRAPHE)
+    #if defined(DEBUG_GRAPHE_PROGRESS)
         tcout() << "Placement aleatoire coord reel" << std::endl;
     #endif
     if ((gridWidth == 10)&&(gridHeight == 10)) {
@@ -748,7 +748,7 @@ void Graphe::completeBasicGloutonScoreGrille(std::vector<int>& vecNode, int tail
 }
 
 void Graphe::completePlacementAleatoire() {
-    #if defined(DEBUG_GRAPHE)
+    #if defined(DEBUG_GRAPHE_PROGRESS)
         tcout() << "Placement aleatoire" << std::endl;
     #endif
     for (int i = 0; i < _noeuds.size(); ++i) {

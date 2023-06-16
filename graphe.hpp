@@ -592,9 +592,6 @@ public:
 	// Utile pour l'algorithme genetique dans la fonction sort du vecteur de population
 	bool operator < (const Graphe& G) const {
 		long n1, n2;
-		tcout() << "Start\n";
-		tcout() << nombreCroisement << " " << G.nombreCroisement << std::endl;
-		tcout() << isNombreCroisementUpdated << " " << G.isNombreCroisementUpdated << std::endl;
 		if (useCoordReel) {
 			if (isNombreCroisementUpdated) { n1 = nombreCroisement; } else { n1 = getNbCroisementReelConst(); }
 			if (G.isNombreCroisementUpdated) { n2 = G.nombreCroisement; } else { n2 = G.getNbCroisementReelConst(); }
@@ -603,7 +600,6 @@ public:
 			if (isNombreCroisementUpdated) { n1 = nombreCroisement; } else { n1 = getNbCroisementConst(); }
 			if (G.isNombreCroisementUpdated) { n2 = G.nombreCroisement; } else { n2 = G.getNbCroisementConst(); }
 		}
-		tcout() << "Done\n";
 		return (n1 < n2);
 	}
 
@@ -905,5 +901,7 @@ public:
 	void placementFMME(bool minute=false);
 
 };
+
+bool compareGraphePtr(Graphe* g1, Graphe* g2);
 
 #endif

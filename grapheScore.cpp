@@ -909,8 +909,6 @@ void Graphe::updateNodeScore(int idNode) {
 // Ne modifie pas le score
 long Graphe::getNbCroisementConst() const {
     long total = 0;
-    tcout() << "azeaze\n";
-    if (commonNodeEdges == nullptr) tcout() << "azesqdqsdaze\n";
     for (int i = 0; i < _aretes.size() - 1; ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
             if ((*commonNodeEdges)[i][j] == -1) {

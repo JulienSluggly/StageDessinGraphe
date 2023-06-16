@@ -27,6 +27,19 @@ void Graphe::initGraphData() {
     mutexEmplacements = new std::mutex();
 }
 
+bool compareGraphePtr(Graphe* g1, Graphe* g2) {
+    long n1, n2;
+    if (g1->useCoordReel) {
+        if (g1->isNombreCroisementUpdated) { n1 = g1->nombreCroisement; } else { n1 = g1->getNbCroisementReelConst(); }
+        if (g2->isNombreCroisementUpdated) { n2 = g2->nombreCroisement; } else { n2 = g2->getNbCroisementReelConst(); }
+    }
+    else {
+        if (g1->isNombreCroisementUpdated) { n1 = g1->nombreCroisement; } else { n1 = g1->getNbCroisementConst(); }
+        if (g2->isNombreCroisementUpdated) { n2 = g2->nombreCroisement; } else { n2 = g2->getNbCroisementConst(); }
+    }
+    return (n1 < n2);
+}
+
 // Enleve tout les noeuds de leur emplacement.
 void Graphe::clearNodeEmplacement() {
     for (int i = 0; i < _noeuds.size(); i++) {
@@ -322,6 +335,9 @@ void Graphe::copyFromGrapheGenetique(Graphe& graphe) {
     _emplacements.clear();
     _noeuds.clear();
     _aretes.clear();
+    _emplacements.reserve(graphe._emplacements.size()*2);
+    _noeuds.reserve(graphe._noeuds.size()*2);
+    _aretes.reserve(graphe._aretes.size()*2);
     for (int i = 0; i < graphe._emplacements.size(); ++i) {
         _emplacements.push_back(Emplacement(graphe._emplacements[i].getX(),graphe._emplacements[i].getY(),i));
     }
@@ -2586,6 +2602,7 @@ void Graphe::resizeVectorTemporaire(int nodeId, int nbNodeTemporaire) {
 
 void Graphe::fillCommonNodeVectors() {
     commonNodeEdges = new std::vector<std::vector<int>>();
+    commonNodeEdges->reserve(_aretes.size());
     for (int i=0;i<_aretes.size();i++) {
         std::vector<int> tmpVec(_aretes.size(),-1);
         commonNodeEdges->push_back(tmpVec);

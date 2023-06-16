@@ -518,7 +518,7 @@ int Graphe::debugSelfLoop(bool display, std::string nom) {
 }
 
 int Graphe::debugEverything(bool displayOther, bool displaySelf) {
-#if defined(DEBUG_GRAPHE)
+#if defined(DEBUG_GRAPHE_PROGRESS)
     tcout() << "Debut debugging graphe\n";
 #endif
     int total = 0;
