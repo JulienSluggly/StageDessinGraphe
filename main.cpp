@@ -18,6 +18,7 @@
 #include "utilitaire.hpp"
 #include "stressMaj.hpp"
 #include "solver.hpp"
+#include "graphique.hpp"
 
 #if defined(GPERF_INSTALLED)
 	#include <gperftools/profiler.h>
@@ -151,6 +152,7 @@ void runFunc() {
 }
 
 int main(int argc, char *argv[]) {
+	//generateRandomGraphique("",200,2,100.0); return 0;
 	bool useProfiler = false;
 #if defined(GPERF_INSTALLED)
 	std::string cheminProfile = chemin + "profilerData/profile.output";

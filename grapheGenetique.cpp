@@ -1175,13 +1175,17 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
     graphes.resize(population);
     graphes[0].setupGraphe(nomGraphe,nomSlot);
     std::vector<std::vector<int>>* commonNodeEdgesGenetique;
-    fillCommonNodeVectorsGenetique(commonNodeEdgesGenetique);
+    graphes[0].fillCommonNodeVectorsGenetique(commonNodeEdgesGenetique);
     for (int i = 0; i < population; ++i) {
         graphes[i].nomGraphe = "Graphe" + std::to_string(i);
         if (i > 0) { graphes[i].copyFromGrapheGenetique(graphes[0]); }
         graphes[i].commonNodeEdges = commonNodeEdgesGenetique;
         graphes[i].placementFMME();
         graphes[i].setupGridAndRegistration({});
+    }
+    for (int i=0;i<population;i++) {
+        tcout() << "i: " << i << std::endl;
+        graphes[i].getNbCroisement();
     }
     sort(graphes.begin(), graphes.end());
     int currentIteration = 0; bestIteration = 0;
