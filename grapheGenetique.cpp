@@ -1173,11 +1173,13 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
     auto start = std::chrono::system_clock::now(); auto end = start;
     std::vector<Graphe*> graphes;
     graphes.resize(population);
+    std::vector<std::vector<int>> commonNodesGenetique;
     for (int i = 0; i < population; ++i) {
         graphes[i] = new Graphe();
         graphes[i]->setupGraphe(nomGraphe,nomSlot);
         graphes[i]->nomGraphe = "Graphe" + std::to_string(i);
-        graphes[i]->fillCommonNodeVectors();
+        if (i==0) { graphes[0]->fillCommonNodeVectorsGenetique(commonNodesGenetique); }
+        graphes[i]->commonNodeEdges = &commonNodesGenetique;
         graphes[i]->placementFMME();
         graphes[i]->setupGridAndRegistration({});
         graphes[i]->getNbCroisement();

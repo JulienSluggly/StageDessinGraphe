@@ -870,7 +870,7 @@ public:
 	// Initialise la matrice des aretes de noeuds communs
 	void fillCommonNodeVectors();
 
-	void fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>*& commonNodeEdgesGenetique);
+	void fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>& commonNodeEdgesGenetique);
 
 	// Met a jour la matrice de voisinage pour ce noeud
 	void addCommonNodeVector(int nodeId);
