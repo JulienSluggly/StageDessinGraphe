@@ -1053,6 +1053,8 @@ long Graphe::getNbCroisementGrid() {
         }
         indexPasse[index] = true;
     }
+    nombreCroisement = score;
+    isNombreCroisementUpdated = true;
     return score;
 }
 

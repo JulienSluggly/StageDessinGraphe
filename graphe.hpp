@@ -17,6 +17,8 @@
 #include <omp.h>
 #include <mutex>
 
+extern bool globalDebugVar;
+
 class Graphe {
 public:
 	std::vector<Emplacement> _emplacements;

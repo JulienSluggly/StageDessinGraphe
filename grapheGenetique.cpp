@@ -1182,19 +1182,21 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
         graphes[i]->commonNodeEdges = &commonNodesGenetique;
         graphes[i]->placementFMME();
         graphes[i]->setupGridAndRegistration({});
-        graphes[i]->getNbCroisement();
+        graphes[i]->getNbCroisementGrid();
     }
-    //sort(graphes.begin(), graphes.end());
     sort(graphes.begin(), graphes.end(),compareGraphePtr);
     int currentIteration = 0; bestIteration = 0;
     long bestCrossingResult = graphes[0]->nombreCroisement;
 
+    bool useRecuit = false;
+
     tcout() << bestCrossingResult << " Meilleur debut genetique\n[";
     for (int i = 0; i<10;i++) { std::cout << graphes[i]->nombreCroisement << " "; }
     std::cout << "]" << std::endl;
-    for (int i = 0; i<graphes.size();i++) { graphes[i]->debugEverything(); }
+    //for (int i = 0; i<graphes.size();i++) { graphes[i]->debugEverything(); }
     bool noChange = false;
     while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
+        if (currentIteration == 98) { globalDebugVar = true; }
         int numberOfNoChange = 0;
         for (int i = population/2; i < population; ++i) {
             graphes[i]->clearNodeEmplacement();
@@ -1205,9 +1207,12 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
             bool result;
             result = graphes[i]->croisementAleatoireV2(*graphes[grapheID1], *graphes[grapheID2]);
             if (!result) { numberOfNoChange++; }
+
             double tb;
             graphes[i]->reinitGrille();
-            graphes[i]->recuitSimuleLimite(tb,start,{},0.99999,0.005);
+            if (useRecuit) { graphes[i]->recuitSimuleLimite(tb,start,{},0.99999,0.005); }
+            else { graphes[i]->nombreCroisement = graphes[i]->getNbCroisementGrid(); }
+
             if (graphes[i]->nombreCroisement < bestCrossingResult) {
                 end = std::chrono::system_clock::now();
                 bestCrossingResult = graphes[i]->nombreCroisement;
@@ -1218,7 +1223,6 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
             noChange = true;
         }
         ++currentIteration;
-        //sort(graphes.begin(), graphes.end());
         sort(graphes.begin(), graphes.end(),compareGraphePtr);
         tcout() << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " Number of no Change: " << numberOfNoChange <<"\n[";
         for (int i = 0; i<10;i++) {
@@ -1237,13 +1241,14 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
 // Ne met pas à jour la variable nombreCroisement du graphe
 bool Graphe::croisementAleatoireV2(Graphe& graphe1, Graphe& graphe2) {
     int nbNoeudATraiter = graphe1._noeuds.size() - graphe1.nbNoeudEnCommun(graphe2);
-    //tcout() << "Nb noeud a traiter au debut: " << nbNoeudATraiter << "\n";
     if (nbNoeudATraiter == 0) {
-        copyFromGraphe(graphe1);
+        copyNodesFromGraphe(graphe1);
         return false;
     }
     std::vector<int> saveGraphe1 = graphe1.saveCopy();
     std::vector<int> saveGraphe2 = graphe2.saveCopy();
+    bool isNombreCroisementUpdatedG1 = graphe1.isNombreCroisementUpdated;
+    bool isNombreCroisementUpdatedG2 = graphe2.isNombreCroisementUpdated;
     Graphe* currentGraphe = nullptr, * otherGraphe = nullptr;
     int currentGrapheNumber = generateRand(1);
     if (currentGrapheNumber == 0) { currentGraphe = &graphe1; otherGraphe = &graphe2; }
@@ -1324,6 +1329,8 @@ bool Graphe::croisementAleatoireV2(Graphe& graphe1, Graphe& graphe2) {
     _emplacements.swap(graphe1._emplacements);
     graphe1.loadCopy(saveGraphe1);
     graphe2.loadCopy(saveGraphe2);
+    graphe1.isNombreCroisementUpdated = isNombreCroisementUpdatedG1;
+    graphe2.isNombreCroisementUpdated = isNombreCroisementUpdatedG2;
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
     isIntersectionVectorUpdated = false;

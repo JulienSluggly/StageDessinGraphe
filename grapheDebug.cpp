@@ -1,6 +1,8 @@
 #include "graphe.hpp"
 #include <iostream>
 
+bool globalDebugVar = false;
+
 void Graphe::afficherLiens(std::string nom) {
     tcout() << "-----------------------------------------------" << std::endl;
     tcout() << "Affichage DEBUG Aretes: " << nomGraphe << " " << nom << std::endl;

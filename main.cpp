@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
 	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
-	G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,10,3,nomFichierGraph,nomFichierSlots); 
+	G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,100,300,nomFichierGraph,nomFichierSlots); 
 	//G.placementFMME();
 	//G.stressMajorizationReel();
 #if defined(LINUX_OS)
