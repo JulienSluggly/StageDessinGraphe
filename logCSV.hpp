@@ -63,6 +63,8 @@ public:
 
 	int currentIteration = 1;
 
+	int singleFileName = -1; // Pour la sauvegarde du fichier, utilise le numero comme nom si différent de -1
+
 #if defined(LINUX_OS)
 	std::chrono::_V2::system_clock::time_point start; // Temps de debut de run
 	std::chrono::_V2::system_clock::time_point finPlacement; // Temps de fin de placement
@@ -71,7 +73,7 @@ public:
 	std::chrono::system_clock::time_point finPlacement; // Temps de fin de placement
 #endif
 
-    LogGraphe(const std::string& fileG, const std::string& fileS, const std::string& methodePlacement, const std::string& methodeAlgo, std::vector<std::vector<double>>& params,int threadId);
+    LogGraphe(const std::string& fileG, const std::string& fileS, const std::string& methodePlacement, const std::string& methodeAlgo, std::vector<std::vector<double>>& params,int threadId, int singleFile);
 
 	void writeGrapheToFile(Graphe& G, int tid);
 	void writeResultToFile();
@@ -91,9 +93,10 @@ public:
 };
 
 
-LogGraphe::LogGraphe(const std::string& fileG, const std::string& fileS, const std::string& methodePlacement, const std::string& methodeAlgo, std::vector<std::vector<double>>& params,int threadId) {
+LogGraphe::LogGraphe(const std::string& fileG, const std::string& fileS, const std::string& methodePlacement, const std::string& methodeAlgo, std::vector<std::vector<double>>& params,int threadId, int singleFile) {
     customParam = params;
     tid = threadId;
+	singleFileName = singleFile;
     
     nomGraphe = fileG;
 	std::reverse(nomGraphe.begin(), nomGraphe.end());
@@ -174,7 +177,14 @@ void LogGraphe::writeRecuitResultToFile() {
 	edgeCostMoyenne = moyenneVector(edgeCostVector);
 	placementInterMoyenne = moyenneVector(placementInterVector);
 
-	std::string nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + "-" + to_string(nombreSlots) + ".csv";
+	std::string nomFichier;
+	if (singleFileName != -1) {
+		nomFichier = chemin + "/resultats/" + to_string(singleFileName) + ".csv";
+	}
+	else {
+		nomFichier = chemin + "/resultats/" + nomGraphe + to_string(tid) + "-" + to_string(nombreSlots) + ".csv";
+	}
+
 	std::ofstream resultats(nomFichier, std::ios_base::app);
 
 	char date[80];
@@ -412,8 +422,8 @@ void LogGraphe::heuristiqueGraphe(Graphe& G) {
     nombreRecuitVector.push_back(nombreRecuit);
 }
 
-void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0, std::string typeFile="JSON", int timeLimit=3600) {
-	LogGraphe LG(fileGraph,fileSlots,methodePlacementName,methodeAlgoName,customParam,tid);
+void generateCSV(int nbEssay, const std::string& methodePlacementName, const std::string& methodeAlgoName, std::string fileGraph, std::string fileSlots, std::vector<std::vector<double>> customParam={{}}, bool useReel=false, int tid=0, std::string typeFile="JSON", int timeLimit=3600, int singleFile=-1) {
+	LogGraphe LG(fileGraph,fileSlots,methodePlacementName,methodeAlgoName,customParam,tid,singleFile);
 	bool useTimeLimit = (timeLimit != -1);
 	bool saveResult = true;
 	auto totalStart = std::chrono::system_clock::now();

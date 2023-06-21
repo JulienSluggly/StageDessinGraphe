@@ -142,28 +142,83 @@ void createQuickCrossData(Graphe& G, std::string nomFichierGraph) {
 }
 
 void runFunc() {
-	for (int i=40;i<70;i++) {
-		Graphe G;
-		G.initCompleteGraph(i);
-		tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << std::endl;
-		std::string nomGraphe = std::to_string(i) + "complet.json";
-		G.writeToJsonGraph(nomGraphe);
+	Graphe g1;
+	Graphe g2;
+	Graphe g3;
+	std::string g1file = chemin + "benchGraphs/runsDone/graph1recuit.json";
+	std::string g2file = chemin + "benchGraphs/runsDone/graph2recuit.json";
+	std::string g3file = chemin + "benchGraphs/runsDone/graph3recuit.json";
+	g1.readFromJsonGraphReel(g1file);
+	g2.readFromJsonGraphReel(g2file);
+	g3.readFromJsonGraphReel(g3file);
+	std::ofstream resultats("distanceRecuit.csv", std::ios_base::app);
+	double maxXg1=0, maxYg1=0, maxXg2=0, maxYg2=0, maxXg3=0, maxYg3=0;
+	double x1g1, x2g1, y1g1, y2g1;
+	double x1g2, x2g2, y1g2, y2g2;
+	double x1g3, x2g3, y1g3, y2g3;
+	for (int i=0;i<g1._noeuds.size();i++) {
+		if (g1._noeuds[i]._xreel > maxXg1) { maxXg1 = g1._noeuds[i]._xreel; }
+		if (g1._noeuds[i]._yreel > maxYg1) { maxYg1 = g1._noeuds[i]._yreel; }
+		if (g2._noeuds[i]._xreel > maxXg2) { maxXg2 = g2._noeuds[i]._xreel; }
+		if (g2._noeuds[i]._yreel > maxYg2) { maxYg2 = g2._noeuds[i]._yreel; }
+		if (g3._noeuds[i]._xreel > maxXg3) { maxXg3 = g3._noeuds[i]._xreel; }
+		if (g3._noeuds[i]._yreel > maxYg3) { maxYg3 = g3._noeuds[i]._yreel; }
 	}
+	x1g1 = maxXg1/3.0;
+	x2g1 = (maxXg1/3.0)*2.0;
+	x1g2 = maxXg2/3.0;
+	x2g2 = (maxXg2/3.0)*2.0;
+	x1g3 = maxXg3/3.0;
+	x2g3 = (maxXg3/3.0)*2.0;
+	y1g1 = maxYg1/3.0;
+	y2g1 = (maxYg1/3.0)*2.0;
+	y1g2 = maxYg2/3.0;
+	y2g2 = (maxYg2/3.0)*2.0;
+	y1g3 = maxYg3/3.0;
+	y2g3 = (maxYg3/3.0)*2.0;
+
+	double lx1, lx2, ly1, ly2;
+	Noeud* n;
+	for (int i=0;i<g1._noeuds.size();i++) {
+		for (int nbG=0;nbG<3;nbG++) {
+			if (nbG==0) { n = &g1._noeuds[i]; lx1 = x1g1; lx2 = x2g1; ly1 = y1g1; ly2 = y2g1; }
+			else if (nbG==1) { n = &g2._noeuds[i]; lx1 = x1g2; lx2 = x2g2; ly1 = y1g2; ly2 = y2g2; }
+			else if (nbG==2) { n = &g3._noeuds[i]; lx1 = x1g3; lx2 = x2g3; ly1 = y1g3; ly2 = y2g3; }
+
+			double xn = n->_xreel;
+			double yn = n->_yreel;
+			std::string position;
+			if ((xn<=lx1)&&(yn<=ly1)) { position = "LL"; }
+			else if ((xn<=lx2)&&(yn<=ly1)) { position = "ML"; }
+			else if (yn<=ly1) { position = "RL"; }
+			else if ((xn<=lx1)&&(yn<=ly2)) { position = "LM"; }
+			else if ((xn<=lx2)&&(yn<=ly2)) { position = "MM"; }
+			else if (yn<=ly2) { position = "RM"; }
+			else if (xn<=lx1) { position = "LT"; }
+			else if (xn<=lx2) { position = "MT"; }
+			else { position = "RT"; }
+
+			resultats << position;
+			if (nbG !=2) { resultats << ","; }
+			else { resultats << std::endl; }
+
+		}
+	}
+	resultats.close();
 }
 
 int main(int argc, char *argv[]) {
-	//generateRandomGraphique("",200,2,100.0); return 0;
-	bool useProfiler = true;
+	bool useProfiler = false;
 #if defined(GPERF_INSTALLED)
 	std::string cheminProfile = chemin + "profilerData/profile.output";
 	if (useProfiler) { ProfilerStart(cheminProfile.c_str()); }
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	//initRandomSeed();
-	initSameSeed();
-	//allRunsByOnFolderSingleInput(argv[1]); return 0;
-	bool useCoordReel = false;
+	initRandomSeed();
+	//initSameSeed();
+	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
+	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
 	std::string nomFichierSlots = "3X-10-input-slots";
@@ -184,7 +239,8 @@ int main(int argc, char *argv[]) {
 	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
-	G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,100,300,nomFichierGraph,nomFichierSlots); 
+	//G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,3,1800,nomFichierGraph,nomFichierSlots); 
+	G.grapheGenetiqueReel(tempsBest,bestIteration,lastIteration,100,500,nomFichierGraph);
 	//G.placementFMME();
 	//G.stressMajorizationReel();
 #if defined(LINUX_OS)
@@ -202,8 +258,6 @@ int main(int argc, char *argv[]) {
 	//G.recuitSimule(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true);
-
-	//G.rerecuitSimule(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true);
 	//G.recuitSimuleChallenge();
 	//G.rerecuitSimuleChallenge();
 	//G.recuitSimule(tempsBest,start,{});

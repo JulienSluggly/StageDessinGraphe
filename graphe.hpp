@@ -185,6 +185,8 @@ public:
 	// Calcule le score d'intersection du graphe et le met a jour.
 	long getNbCroisementGrid();
 
+	long getNbCroisementGridReel();
+
 	// Calcule le score d'intersection du graphe en coordonnée flottantes et le met a jour.
 	long getNbCroisementReel();
 
@@ -531,6 +533,8 @@ public:
 
 	bool croisementAleatoireV2(Graphe& graphe1, Graphe& graphe2);
 
+	bool croisementReel(Graphe& graphe1, Graphe& graphe2);
+
 	// Effectue le croisement entre deux parents,
 	// On selectionne un noeud en alternant de parent, celui qui creer le moin d'intersection si le place chez l'enfant
 	// Renvoie vrai si les deux parents ne sont pas identique
@@ -664,6 +668,8 @@ public:
 	void grapheGenetique(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot, bool useRecuit=false, bool useRand=false, int modeCroisement=0);
 
 	void grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe, const std::string& nomSlot);
+
+	void grapheGenetiqueReel(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe);
 
 	// Creer la grille d'emplacement de taille gridHeight*gridWidth
 	void generateGrid(int gridWidth=-1, int gridHeight=-1);

@@ -295,6 +295,8 @@ void Graphe::copyFromGraphe(Graphe& graphe) {
             int idEmplacement = graphe._noeuds[i].getEmplacement()->getId();
             _noeuds[i].setEmplacement(&_emplacements[idEmplacement]);
         }
+        _noeuds[i]._xreel = graphe._noeuds[i]._xreel;
+        _noeuds[i]._yreel = graphe._noeuds[i]._yreel;
     }
     nombreCroisement = graphe.nombreCroisement;
     isNombreCroisementUpdated = graphe.isNombreCroisementUpdated;
@@ -507,6 +509,13 @@ void Graphe::deleteGrille() {
     }
     for (int i=0;i<_aretes.size();i++) {
         _aretes[i].vecIdCellules.clear();
+    }
+    for (int i=0;i<_noeuds.size();i++) {
+        if (_noeuds[i].idCelluleVec != nullptr) { 
+            _noeuds[i].idCelluleVec->clear();
+            delete _noeuds[i].idCelluleVec;
+            _noeuds[i].idCelluleVec = nullptr;
+        }
     }
     if (grille_with_move) {
         for (int i=0;i<_emplacements.size();i++) {

@@ -1230,7 +1230,7 @@ long Graphe::recuitSimuleLimite(double &timeBest, std::chrono::time_point<std::c
     setupNombreCroisement(nbCroisement,bestCroisement,debutCroisement);
     calculDelaiRefroidissement(delay,customParam,0);
     #if defined(DEBUG_GRAPHE)
-        tcout() << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
+        tcout() << "Nb Croisement avant recuit: " << nbCroisement << " cool: " << cool << std::endl;
     #endif
     int nodeId, slotId, idSwappedNode, improve;
     bool swapped;

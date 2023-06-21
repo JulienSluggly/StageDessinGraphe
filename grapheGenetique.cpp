@@ -1188,29 +1188,30 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
     int currentIteration = 0; bestIteration = 0;
     long bestCrossingResult = graphes[0]->nombreCroisement;
 
-    bool useRecuit = false;
+    bool useRecuit = true;
 
     tcout() << bestCrossingResult << " Meilleur debut genetique\n[";
-    for (int i = 0; i<10;i++) { std::cout << graphes[i]->nombreCroisement << " "; }
+    for (int i = 0; i<std::min(10,(int)graphes.size());i++) { std::cout << graphes[i]->nombreCroisement << " "; }
     std::cout << "]" << std::endl;
     //for (int i = 0; i<graphes.size();i++) { graphes[i]->debugEverything(); }
     bool noChange = false;
+    double cool = 0.999;
+    double step = (0.999999-0.999)/((double)maxIteration/4.0);
     while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
-        if (currentIteration == 98) { globalDebugVar = true; }
         int numberOfNoChange = 0;
-        for (int i = population/2; i < population; ++i) {
+        for (int i = ceil((double)population/2.0); i < population; ++i) {
             graphes[i]->clearNodeEmplacement();
             int grapheID1, grapheID2;
-            grapheID1 = generateRand(population/2 - 1);
-            grapheID2 = generateRand(population/2 - 1);
-            while (grapheID2 == grapheID1) { grapheID2 = generateRand(population/2 - 1); }
+            grapheID1 = generateRand(ceil((double)population/2.0) - 1);
+            grapheID2 = generateRand(ceil((double)population/2.0) - 1);
+            while (grapheID2 == grapheID1) { grapheID2 = generateRand(ceil((double)population/2.0) - 1); }
             bool result;
             result = graphes[i]->croisementAleatoireV2(*graphes[grapheID1], *graphes[grapheID2]);
             if (!result) { numberOfNoChange++; }
 
             double tb;
             graphes[i]->reinitGrille();
-            if (useRecuit) { graphes[i]->recuitSimuleLimite(tb,start,{},0.99999,0.005); }
+            if (useRecuit) { graphes[i]->recuitSimuleLimite(tb,start,{},cool,100.0); }
             else { graphes[i]->nombreCroisement = graphes[i]->getNbCroisementGrid(); }
 
             if (graphes[i]->nombreCroisement < bestCrossingResult) {
@@ -1219,13 +1220,14 @@ void Graphe::grapheGenetiqueV2(double &timeBest, int &bestIteration, int &lastIt
                 bestIteration = currentIteration + 1;
             }
         }
-        if (numberOfNoChange >= (population / 2)-1) {
+        cool = std::min(cool+step,0.999999);
+        if (numberOfNoChange >= ceil((double)population/2.0)-1) {
             noChange = true;
         }
         ++currentIteration;
         sort(graphes.begin(), graphes.end(),compareGraphePtr);
         tcout() << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " Number of no Change: " << numberOfNoChange <<"\n[";
-        for (int i = 0; i<10;i++) {
+        for (int i = 0; i<std::min(10,(int)graphes.size());i++) {
             std::cout << graphes[i]->nombreCroisement << " ";
         }
         std::cout << "]" << std::endl;
@@ -1335,4 +1337,93 @@ bool Graphe::croisementAleatoireV2(Graphe& graphe1, Graphe& graphe2) {
     isNodeScoreUpdated = false;
     isIntersectionVectorUpdated = false;
     return true;
+}
+
+void Graphe::grapheGenetiqueReel(double &timeBest, int &bestIteration, int &lastIteration, int population, int maxIteration, const std::string& nomGraphe) {
+    auto start = std::chrono::system_clock::now(); auto end = start;
+    std::vector<Graphe*> graphes;
+    graphes.resize(population);
+    std::vector<std::vector<int>> commonNodesGenetique;
+    for (int i = 0; i < population; ++i) {
+        graphes[i] = new Graphe();
+        graphes[i]->useCoordReel = true;
+        graphes[i]->setupGraphe(nomGraphe,"");
+        graphes[i]->nomGraphe = "Graphe" + std::to_string(i);
+        if (i==0) { graphes[0]->fillCommonNodeVectorsGenetique(commonNodesGenetique); }
+        graphes[i]->commonNodeEdges = &commonNodesGenetique;
+        graphes[i]->placementFMME();
+        graphes[i]->translateGrapheToOriginReel(-1);
+        graphes[i]->setupGridAndRegistration({});
+        graphes[i]->getNbCroisementGridReel();
+    }
+    sort(graphes.begin(), graphes.end(),compareGraphePtr);
+    int currentIteration = 0; bestIteration = 0;
+    long bestCrossingResult = graphes[0]->nombreCroisement;
+
+    bool useRecuit = true;
+
+    tcout() << bestCrossingResult << " Meilleur debut genetique\n[";
+    for (int i = 0; i<std::min(10,(int)graphes.size());i++) { std::cout << graphes[i]->nombreCroisement << " "; }
+    std::cout << "]" << std::endl;
+    //for (int i = 0; i<graphes.size();i++) { graphes[i]->debugEverything(); }
+    bool noChange = false;
+    double cool = 0.99;
+    while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
+        int numberOfNoChange = 0;
+        for (int i = ceil((double)population/2.0); i < population; ++i) {
+            graphes[i]->clearNodeEmplacement();
+            int grapheID1, grapheID2;
+            grapheID1 = generateRand(ceil((double)population/2.0) - 1);
+            grapheID2 = generateRand(ceil((double)population/2.0) - 1);
+            while (grapheID2 == grapheID1) { grapheID2 = generateRand(ceil((double)population/2.0) - 1); }
+            bool result;
+            result = graphes[i]->croisementReel(*graphes[grapheID1], *graphes[grapheID2]);
+            if (!result) { numberOfNoChange++; }
+
+            double tb;
+            graphes[i]->setupGridAndRegistration({});
+            if (useRecuit) { graphes[i]->recuitSimuleReelLimite(tb,start,{},cool,100.0); }
+            else { graphes[i]->nombreCroisement = graphes[i]->getNbCroisementGridReel(); }
+
+            if (graphes[i]->nombreCroisement < bestCrossingResult) {
+                end = std::chrono::system_clock::now();
+                bestCrossingResult = graphes[i]->nombreCroisement;
+                bestIteration = currentIteration + 1;
+            }
+        }
+        if (numberOfNoChange >= ceil((double)population/2.0)-1) {
+            noChange = true;
+        }
+        ++currentIteration;
+        sort(graphes.begin(), graphes.end(),compareGraphePtr);
+        tcout() << "Iteration: " << currentIteration << " Meilleur graphe : " << bestCrossingResult << " Number of no Change: " << numberOfNoChange <<"\n[";
+        for (int i = 0; i<std::min(10,(int)graphes.size());i++) {
+            std::cout << graphes[i]->nombreCroisement << " ";
+        }
+        std::cout << "]" << std::endl;
+        //for (int i = 0; i<graphes.size();i++) { graphes[i]->debugEverything(); }
+    }
+    std::chrono::duration<double> secondsTotal = end - start;
+    timeBest = secondsTotal.count();
+    lastIteration = currentIteration;
+    copyFromGraphe(*graphes[0]);
+}
+
+bool Graphe::croisementReel(Graphe& graphe1, Graphe& graphe2) {
+    bool changed = false;
+    gridWidth = 0;
+    gridHeight = 0;
+    for (int i=0;i<_noeuds.size();i++) {
+        double newX = (graphe1._noeuds[i]._xreel + graphe2._noeuds[i]._xreel)/2.0;
+        double newY = (graphe1._noeuds[i]._yreel + graphe2._noeuds[i]._yreel)/2.0;
+        if ((!changed)&&((newX != _noeuds[i]._xreel)||(newY != _noeuds[i]._yreel))) { changed = true; }
+        _noeuds[i]._xreel = newX;
+        _noeuds[i]._yreel = newY;
+        if (newX > gridWidth) { gridWidth = (int)std::ceil(newX); }
+        if (newY > gridHeight) { gridHeight = (int)std::ceil(newY); }
+    }
+    isNombreCroisementUpdated = false;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
+    return changed;
 }

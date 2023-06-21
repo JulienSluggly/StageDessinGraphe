@@ -29,3 +29,10 @@ retest tres haute temperature?
 Adapter code aux coord entieres sans emplacement
 
 Optimiser le recalc cellule entier
+
+Test rome graphs et bench avec plusieurs tirages uniformes
+
+Genetique coord reelle
+
+Check si apres le recuit, les noeuds ont des coord similaires
+
