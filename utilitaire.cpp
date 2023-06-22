@@ -23,10 +23,12 @@ std::string typeSeed;
 
 std::uniform_real_distribution<double> recuitImproveDis(0.0,1.0);
 
-std::uniform_real_distribution<double>* recuitReelXDis;
-std::uniform_real_distribution<double>* recuitReelYDis;
+std::uniform_real_distribution<double>* recuitReelXDis = nullptr;
+std::uniform_real_distribution<double>* recuitReelYDis = nullptr;
 
 void initCoordReelDistribution(double maxX, double maxY) {
+    if (recuitReelXDis != nullptr) { delete recuitReelXDis; }
+    if (recuitReelYDis != nullptr) { delete recuitReelYDis; }
     recuitReelXDis = new std::uniform_real_distribution<double>(0.0,maxX);
     recuitReelYDis = new std::uniform_real_distribution<double>(0.0,maxY);
 }

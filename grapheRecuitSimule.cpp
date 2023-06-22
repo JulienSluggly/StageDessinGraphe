@@ -1292,7 +1292,7 @@ long Graphe::recuitSimuleReelLimite(double &timeBest, std::chrono::time_point<st
     setupNombreCroisement(nbCroisement,bestCroisement,debutCroisement);
     calculDelaiRefroidissement(delay,customParam,0);
     setupSelectionEmplacement(modeEmplacement,t,cool,seuil,customParam);
-    #if defined(DEBUG_GRAPHE)
+    #if defined(DEBUG_GRAPHE_RECUIT_PROGRESS)
         tcout() << "Nb Croisement avant recuit: " << nbCroisement << std::endl;
     #endif
     int nodeId, improve;
@@ -1333,7 +1333,7 @@ long Graphe::recuitSimuleReelLimite(double &timeBest, std::chrono::time_point<st
     updateGraphDataRecuit(useScore,useGrille);
     std::chrono::duration<double> secondsBest = bestEnd - start;
     timeBest = secondsBest.count();
-    #if defined(DEBUG_GRAPHE)
+    #if defined(DEBUG_GRAPHE_RECUIT_PROGRESS)
         tcout() << "Meilleur resultat du recuit: " << bestCroisement << std::endl;
     #endif
     return debutCroisement - bestCroisement;

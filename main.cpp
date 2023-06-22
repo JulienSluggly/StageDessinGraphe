@@ -215,8 +215,8 @@ int main(int argc, char *argv[]) {
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	initRandomSeed();
-	//initSameSeed();
+	//initRandomSeed();
+	initSameSeed();
 	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";

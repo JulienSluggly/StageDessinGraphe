@@ -1368,6 +1368,7 @@ void Graphe::grapheGenetiqueReel(double &timeBest, int &bestIteration, int &last
     //for (int i = 0; i<graphes.size();i++) { graphes[i]->debugEverything(); }
     bool noChange = false;
     double cool = 0.99;
+    globalDebugVar = true;
     while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
         int numberOfNoChange = 0;
         for (int i = ceil((double)population/2.0); i < population; ++i) {
@@ -1425,5 +1426,6 @@ bool Graphe::croisementReel(Graphe& graphe1, Graphe& graphe2) {
     isNombreCroisementUpdated = false;
     isNodeScoreUpdated = false;
     isIntersectionVectorUpdated = false;
+    initCoordReelDistribution((double) gridWidth, (double) gridHeight);
     return changed;
 }

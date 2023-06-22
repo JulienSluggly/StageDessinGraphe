@@ -1094,7 +1094,7 @@ void Graphe::recalcSpecificNodeCell(int nodeId) {
     int numX = floor(dnumX);
     int numY = floor(dnumY);
 
-    double epsilon = 0.000001;
+    double epsilon = 0.00001;
     int numX2 = floor(dnumX + epsilon);
     int numY2 = floor(dnumY + epsilon);
     if (numX2 == numX) { numX2 = floor(dnumX - epsilon); }
