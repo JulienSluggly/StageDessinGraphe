@@ -215,8 +215,8 @@ int main(int argc, char *argv[]) {
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	//initRandomSeed();
-	initSameSeed();
+	initRandomSeed();
+	//initSameSeed();
 	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
 	bool useCoordReel = true;
 	std::string nomFichierGraph = "graph-10-input";
@@ -228,6 +228,7 @@ int main(int argc, char *argv[]) {
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
 	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	getGrapheMaxFace(G); return 0;
 	//std::string kregularFile = chemin + "benchGraphs/runsSingle/r3/grafo10781.100.graphml";
 	//G.readFromGraphmlGraph(kregularFile);
 	G.calcMaxAndAverageDegree();
@@ -240,7 +241,7 @@ int main(int argc, char *argv[]) {
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 	//G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,3,1800,nomFichierGraph,nomFichierSlots); 
-	G.grapheGenetiqueReel(tempsBest,bestIteration,lastIteration,100,500,nomFichierGraph);
+	G.grapheGenetiqueReel(tempsBest,bestIteration,lastIteration,50,50000,nomFichierGraph);
 	//G.placementFMME();
 	//G.stressMajorizationReel();
 #if defined(LINUX_OS)

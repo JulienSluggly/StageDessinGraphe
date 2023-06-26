@@ -74,6 +74,8 @@ public:
 
 	bool debugVar = false; // Debug print only, pas utile
 
+	std::vector<int> maxFace;
+
 	std::string nomGraphe = "Graphe";
 
 	std::vector<double> recuitDistanceAll; // Toutes les distances tirées avec déplacement effectué

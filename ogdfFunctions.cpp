@@ -911,6 +911,21 @@ void ogdfRun(Graphe &G) {
 	tcout() << "Crossing Number: " << crossingModule(ogdfG) << std::endl;
 }
 
+void getGrapheMaxFace(Graphe& G) {
+	ogdf::Graph ogdfG;
+	createOGDFGraphFromGraphe(G,ogdfG);
+	ogdf::ConstCombinatorialEmbedding cce(ogdfG);
+	ogdf::face fa = cce.maximalFace();
+	std::unordered_set<int> nodeId;
+	for (auto elem : fa->entries) {
+		nodeId.insert(elem->theNode()->index());
+		nodeId.insert(elem->twinNode()->index());
+	}
+	for (const int& nodeIndex : nodeId) {
+		std::cout << nodeIndex << std::endl;
+	}
+}
+
 #else
 
 void ogdfReadFromMM(Graphe& G, std::istream& inStream) { printf("OGDF NOT INSTALLED.\n"); }

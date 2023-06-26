@@ -1351,7 +1351,7 @@ void Graphe::grapheGenetiqueReel(double &timeBest, int &bestIteration, int &last
         graphes[i]->nomGraphe = "Graphe" + std::to_string(i);
         if (i==0) { graphes[0]->fillCommonNodeVectorsGenetique(commonNodesGenetique); }
         graphes[i]->commonNodeEdges = &commonNodesGenetique;
-        graphes[i]->placementFMME();
+        graphes[i]->placementFMME(false);
         graphes[i]->translateGrapheToOriginReel(-1);
         graphes[i]->setupGridAndRegistration({});
         graphes[i]->getNbCroisementGridReel();
@@ -1367,7 +1367,7 @@ void Graphe::grapheGenetiqueReel(double &timeBest, int &bestIteration, int &last
     std::cout << "]" << std::endl;
     //for (int i = 0; i<graphes.size();i++) { graphes[i]->debugEverything(); }
     bool noChange = false;
-    double cool = 0.99;
+    double cool = 0.9945;
     globalDebugVar = true;
     while (currentIteration < maxIteration && bestCrossingResult>0 && !noChange) {
         int numberOfNoChange = 0;

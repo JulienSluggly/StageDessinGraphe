@@ -20,19 +20,14 @@ Parseur de fichier sans librairie json
 
 Implementer fast multipole multilevel avec nos contraintes?
 
-Restructurer les methodes de graphe, ne garder en methode de classe que celle qui font sens
-
 Implementer le recuit only improve et best deplacement a la fin des 1h d'execution
 
 retest tres haute temperature?
 
 Adapter code aux coord entieres sans emplacement
 
-Optimiser le recalc cellule entier
-
 Test rome graphs et bench avec plusieurs tirages uniformes
 
-Genetique coord reelle
+tester forcer max face a l'exterieur pour le recuit
 
-Check si apres le recuit, les noeuds ont des coord similaires
-
+afficher la max face avec ogdf dans l'affichage opengl

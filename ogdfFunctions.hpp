@@ -95,4 +95,6 @@ void ogdfReadQuickCrossToGraph(std::string input, Graphe& G);
 
 void ogdfReadQuickCrossToGraphCrossings(std::string quickcrossInput, std::string graphInput, Graphe& G);
 
+void getGrapheMaxFace(Graphe& G);
+
 #endif
