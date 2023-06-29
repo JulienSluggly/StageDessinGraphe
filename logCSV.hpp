@@ -30,6 +30,11 @@ public:
 	bool needTriangulation;
 	bool needGrille; // Est ce que la structure de cellules est utilisée
 
+	int nombreNoeud = -1;
+	int nombreArete = -1;
+	int degreeMax = -1;
+	double degreeMoyen = -1;
+
 	std::vector<long> scoreVector; // Nombre d'intersection AVEC pénalité de chaque run
 	std::vector<double> tempsExecVector; // Temps total mis par une run (debut boucle a fin de la boucle)
 	std::vector<double> tempsBestVector; // Temps mis pour trouver le meilleur resultat de chaque execution
@@ -197,6 +202,10 @@ void LogGraphe::writeRecuitResultToFile() {
 	resultats << nomGraphe << ","; // NOM GRAPHE
 	resultats << methodePlacementName << "," // ALGO PLACEMENT
 		<< methodeAlgoName << "," // ALGO DEPLACEMENT
+		<< nombreNoeud << "," // NOMBRE NOEUD
+		<< nombreArete << "," // NOMBRE ARETE
+		<< std::setprecision(2) << degreeMoyen << "," // DEGREE MOYEN DES NOEUDS
+		<< degreeMax << ","
 		<< std::setprecision(0) << scoreVector.size() << ","; // NOMBRE RUN
 	if (nombreSlots > 0) { resultats << nombreSlots << ","; } // NOMBRE EMPLACEMENT OU FLOTTANTS
 	else { resultats << "FLOTTANTS,"; } // NOMBRE EMPLACEMENT OU FLOTTANTS
@@ -327,6 +336,11 @@ void LogGraphe::setupGrapheWithTypeFile(Graphe& G, std::string& typeFile, std::s
         exit(2);
     }
     G.fillCommonNodeVectors();
+	G.calcMaxAndAverageDegree();
+	nombreNoeud = G._noeuds.size();
+	nombreArete = G._aretes.size();
+	degreeMoyen = G.avgVoisin;
+	degreeMax = G.maxVoisin;
 }
 
 void LogGraphe::placementGraphe(Graphe& G) {
@@ -435,7 +449,7 @@ void generateCSV(int nbEssay, const std::string& methodePlacementName, const std
 		G.useCoordReel = useReel;
 
 		LG.setupGrapheWithTypeFile(G,typeFile,fileGraph,fileSlots);
-		printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Nodes: %lu | TotalRun: %.1fs | Seed: %u | Param: %s\n",tid,LG.currentIteration,nbEssay,LG.nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),G._noeuds.size(),secondsTotalExec.count(),getSeed(tid),LG.getParamAsString().c_str());
+		printf("Tid: %d | Iter: %d Max: %d | %s | %s | %s | Slots: %lu | Nodes: %lu | Edges: %lu | TotalRun: %.1fs | Seed: %u | Param: %s\n",tid,LG.currentIteration,nbEssay,LG.nomGraphe.c_str(),methodePlacementName.c_str(),methodeAlgoName.c_str(),G._emplacements.size(),G._noeuds.size(),G._aretes.size(),secondsTotalExec.count(),getSeed(tid),LG.getParamAsString().c_str());
 
 		LG.placementGraphe(G); // Algorithme de placement initial
 

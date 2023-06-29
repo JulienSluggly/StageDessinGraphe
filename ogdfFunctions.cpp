@@ -47,6 +47,7 @@
 #include "graphe.hpp"
 #include "limits.h"
 #include <fstream>
+#include <filesystem>
 
 std::vector<ogdf::node> vecNoeudAOGDFNode;
 
@@ -119,20 +120,29 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph 
 	vecNoeudAOGDFNode.clear();
 	int nodeNumber = G._noeuds.size();
 	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
+	bool isGraphePlace = G.estPlace();
 	for (int i = 0; i < nodeNumber; i++) {
 		nodeTab[i] = ogdfG.newNode();
 		vecNoeudAOGDFNode.push_back(nodeTab[i]);
-		if (G.estPlace()) {
-			ogdfGL.x(nodeTab[i]) = G._noeuds[i].getX();
-			ogdfGL.y(nodeTab[i]) = G._noeuds[i].getY();
-		}
-		else if (G.useCoordReel) {
-			ogdfGL.x(nodeTab[i]) = G._noeuds[i]._xreel;
-			ogdfGL.y(nodeTab[i]) = G._noeuds[i]._yreel;
+		if (G.useCoordReel) {
+			if (isGraphePlace) {
+				ogdfGL.x(nodeTab[i]) = G._noeuds[i]._xreel;
+				ogdfGL.y(nodeTab[i]) = G._noeuds[i]._yreel;
+			}
+			else {
+				ogdfGL.x(nodeTab[i]) = 0;
+				ogdfGL.y(nodeTab[i]) = 0;
+			}
 		}
 		else {
-			ogdfGL.x(nodeTab[i]) = 0;
-			ogdfGL.y(nodeTab[i]) = 0;
+			if (isGraphePlace) {
+				ogdfGL.x(nodeTab[i]) = G._noeuds[i].getX();
+				ogdfGL.y(nodeTab[i]) = G._noeuds[i].getY();
+			}
+			else {
+				ogdfGL.x(nodeTab[i]) = 0;
+				ogdfGL.y(nodeTab[i]) = 0;
+			}
 		}
 		G._noeuds[i].ogdfId = nodeTab[i]->index();
 	}
@@ -903,11 +913,12 @@ void ogdfOtherTest(Graphe& G) {
 void ogdfRun(Graphe &G) {
 	ogdf::Graph ogdfG;
 	ogdf::GridLayout ogdfGL{ ogdfG };
+	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
 	tcout() << "Connexe: " << ogdf::isConnected(ogdfG) << std::endl;
 	tcout() << "Biconnected: " << ogdf::isBiconnected(ogdfG) << std::endl;
 	tcout() << "Graph genus: " << ogdfG.genus() << std::endl;
+	tcout() << "Graph planarity: " << ogdf::isPlanar(ogdfG) << std::endl;
 
-	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
 	tcout() << "Crossing Number: " << crossingModule(ogdfG) << std::endl;
 }
 
@@ -923,6 +934,39 @@ void getGrapheMaxFace(Graphe& G) {
 	}
 	for (const int& nodeIndex : nodeId) {
 		std::cout << nodeIndex << std::endl;
+	}
+}
+
+void sortByGenus() {
+	std::string path = chemin + "benchGraphs/rome/";
+	std::string destination = chemin + "benchGraphs/romeNP/";
+	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+		tcout() << dirEntry.path() << std::endl;
+		Graphe G;
+		G.readFromGraphmlGraph(dirEntry.path());
+		ogdf::Graph ogdfG;
+		createOGDFGraphFromGraphe(G,ogdfG);
+		if (!ogdf::isPlanar(ogdfG)) {
+			std::string nomGraphe = dirEntry.path();
+			std::reverse(nomGraphe.begin(), nomGraphe.end());
+			nomGraphe = nomGraphe.substr(0, nomGraphe.find('/'));
+			std::reverse(nomGraphe.begin(), nomGraphe.end());
+			std::string output = destination + nomGraphe;
+			std::filesystem::copy(dirEntry.path(), output);
+		}
+	}
+}
+
+void testGenusFolder() {
+	std::string path = chemin + "benchGraphs/romeNP/";
+	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+		Graphe G;
+		G.readFromGraphmlGraph(dirEntry.path());
+		ogdf::Graph ogdfG;
+		createOGDFGraphFromGraphe(G,ogdfG);
+		if (ogdfG.genus() == 0) {
+			tcout() << dirEntry.path() << std::endl;
+		}
 	}
 }
 

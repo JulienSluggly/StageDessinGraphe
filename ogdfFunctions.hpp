@@ -97,4 +97,8 @@ void ogdfReadQuickCrossToGraphCrossings(std::string quickcrossInput, std::string
 
 void getGrapheMaxFace(Graphe& G);
 
+void sortByGenus();
+
+void testGenusFolder();
+
 #endif

@@ -1276,6 +1276,7 @@ long Graphe::recuitSimuleLimite(double &timeBest, std::chrono::time_point<std::c
     }
     loadBestResultRecuit(bestResultVector,bestResultGraphe,bestCroisement,useScore,useGrille);
     updateGraphDataRecuit(useScore,useGrille);
+    reinitGrille();
     std::chrono::duration<double> secondsBest = bestEnd - start;
     timeBest = secondsBest.count();
     #if defined(DEBUG_GRAPHE)

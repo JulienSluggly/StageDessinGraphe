@@ -22,6 +22,9 @@ plt.ylim(y_min, y_max)
 plt.grid(which='minor', axis='y', linestyle='solid', color='gray', alpha=0.2)
 plt.grid(which='major', axis='y', linestyle='solid', color='gray', alpha=0.5)
 
+# Remove tick marks from the y-axis
+plt.tick_params(axis='y', length=0)
+
 plt.savefig('/content/plot.png', dpi=300)
 
 # Display the plot

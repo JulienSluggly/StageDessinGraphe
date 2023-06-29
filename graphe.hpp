@@ -25,6 +25,8 @@ public:
 	std::vector<Aretes> _aretes;
 	std::vector<Noeud> _noeuds;
 
+	std::vector<int> _noeudsSeuls;
+
 	std::mutex* mutexEmplacements;
 	std::mutex* mutexAretes;
 	std::mutex* mutexNoeud;
@@ -199,6 +201,18 @@ public:
 	// Calcule le score d'intersection pour un noeud dans un graphe qui n'est pas forcement entierement place
 	// Ne met pas a jour le nombre de croisement
 	long getNbCroisementGloutonScore(int nodeId);
+
+	long getNbCroisementNoeudIsole(int nodeId);
+
+	long getNbCroisementNoeudIsole(int nodeId, int swapIndex);
+
+	long getNbCroisementNoeudIsoleGrid(int nodeId);
+
+	long getNbCroisementNoeudIsoleGrid(int nodeId, int swapIndex);
+
+	long getNbCroisementNoeudIsoleGridLimite(int nodeId,bool& depasse, double limiteScore);
+
+	long getNbCroisementNoeudIsoleGridLimite(int nodeId, int swapIndex,bool& depasse, double limiteScore);
 
 	// Selectionne deux noeud et retourne celui avec le score le plus faible. (le moin d'intersection)
 	int selectionNoeudTournoiBinaire(bool isScoreUpdated=false);
@@ -760,6 +774,8 @@ public:
 	// Met a jour les cellules dans le noeud uniquement
 	void recalcSpecificNodeCell(int nodeId);
 
+	void recalcNoeudIsoleGrid(int nodeId);
+
 	// Ajoute les id dans les cellules et dans l'arete
 	void initAreteCellule(int areteId);
 
@@ -909,6 +925,10 @@ public:
 	void rechercheTabouReelCUDA();
 
 	void placementFMME(bool minute=false);
+
+	void updatePenalite(int pen1, int pen2);
+
+	void updateIsolatedNodes();
 
 };
 

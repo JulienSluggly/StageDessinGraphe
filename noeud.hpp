@@ -28,6 +28,8 @@ public:
 	double _xreel = -12345;
 	double _yreel = -12345;
 	std::vector<int>* idCelluleVec = nullptr;
+
+	int previousEmplacement = -1; // Utile pour les noeuds isolés
 	
 	int areteCommune(Noeud* noeudVoisin) {
 		for (const int& idArete1 : _aretes) {
@@ -54,6 +56,7 @@ public:
 		}
 		return nbVoisinPlaces;
 	}
+	bool estIsole() { return (voisins.size() == 0); }
 	int getX()  const { return _emplacement->getX(); }
 	int getY()  const { return _emplacement->getY(); }
 	// Indique si deux noeuds ont les mêmes coordonnées
@@ -64,6 +67,7 @@ public:
 
 	void setEmplacement(Emplacement* emplacement) {
 		if (_emplacement != nullptr) {
+			previousEmplacement = _emplacement->_id;
 			_emplacement->removeNoeud();
 		}
 		_emplacement = emplacement;
@@ -80,9 +84,11 @@ public:
 	int ecraseNoeud(Emplacement& emplacement) {
 		int oldNodeId = -1;
 		if (_emplacement != nullptr) {
+			previousEmplacement = _emplacement->_id;
 			_emplacement->removeNoeud();
 		}
 		if (emplacement._noeud != nullptr) {
+			emplacement._noeud->previousEmplacement = emplacement._id;
 			oldNodeId = emplacement._noeud->getId();
 			emplacement._noeud->clearEmplacement();
 		}
@@ -105,6 +111,9 @@ public:
 		n2->clearEmplacement();
 		this->setEmplacement(emp2);
 		n2->setEmplacement(emp1);
+		int tmpId = previousEmplacement;
+		previousEmplacement = n2->previousEmplacement;
+		n2->previousEmplacement = tmpId;
 	}
 
 	std::string voisinString() {

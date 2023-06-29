@@ -38,6 +38,8 @@ void Graphe::readFromJsonGraph(std::string input) {
 		id2 = j["edges"][i]["target"];
 		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
 	}
+	updatePenalite(_aretes.size(),_aretes.size());
+	updateIsolatedNodes();
 }
 
 // Lecture des slots
@@ -100,6 +102,8 @@ void Graphe::readFromJsonChallenge(std::string input) {
 		id2 = j["edges"][i]["target"];
 		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
 	}
+	updatePenalite(_aretes.size(),_aretes.size());
+	updateIsolatedNodes();
 }
 
 // ----- CREATION D'UN Graph A PARTIR D'UN FICHIER JSON -----
@@ -153,6 +157,8 @@ void Graphe::readFromJsonGraphAndSlot(std::string input) {
 		id2 = j["edges"][i]["target"];
 		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
 	}
+	updatePenalite(_aretes.size(),_aretes.size());
+	updateIsolatedNodes();
 }
 
 void Graphe::readFromJsonGraphReel(std::string input) {
@@ -185,6 +191,8 @@ void Graphe::readFromJsonGraphReel(std::string input) {
 		id2 = j["edges"][i]["target"];
 		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
 	}
+	updatePenalite(_aretes.size(),_aretes.size());
+	updateIsolatedNodes();
 }
 
 // Sauvegarde des slots dans le fichier output
@@ -476,6 +484,8 @@ void Graphe::readFromGraphmlGraph(std::string input) {
 		int id2 = std::stoi(idTargetString.substr(1));
 		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
     }
+	updatePenalite(_aretes.size(),_aretes.size());
+	updateIsolatedNodes();
 }
 #else
 void Graphe::readFromGraphmlGraph(std::string input) {
