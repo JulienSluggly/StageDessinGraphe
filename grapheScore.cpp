@@ -120,7 +120,7 @@ long Graphe::getNbCroisementReel() {
 // Ne met pas a jour le nombre de croisement.
 long Graphe::getNbCroisementGlouton() {
     long total = 0;
-    for (int i = 0; i < _aretes.size() - 1; ++i) {
+    for (int i = 0; i < _aretes.size(); ++i) {
         if (_aretes[i].estPlace()) {
             for (int j = i + 1; j < _aretes.size(); ++j) {
                 if (_aretes[j].estPlace()) {
@@ -1147,7 +1147,7 @@ void Graphe::updateNodeScore(int idNode) {
 // Ne modifie pas le score
 long Graphe::getNbCroisementConst() const {
     long total = 0;
-    for (int i = 0; i < _aretes.size() - 1; ++i) {
+    for (int i = 0; i < _aretes.size(); ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
             if ((*commonNodeEdges)[i][j] == -1) {
                 bool isIllegal = false;
@@ -1160,6 +1160,9 @@ long Graphe::getNbCroisementConst() const {
                 if (surSegment(_aretes[i], _noeuds[(*commonNodeEdges)[j][i]])) { total += PENALITE_MAX_SELF; }
                 else if (surSegment(_aretes[j], _noeuds[(*commonNodeEdges)[i][j]])) { total += PENALITE_MAX_SELF; }
             }
+        }
+        for (int k=0;k<_noeudsSeuls.size();k++) {
+            if (surSegment(_aretes[i],_noeuds[_noeudsSeuls[k]])) { total += PENALITE_MAX; }
         }
     }
     return total;
@@ -1191,7 +1194,7 @@ long Graphe::getNbCroisementDiff() {
     nombreInter = 0;
     nombreInterIll = 0;
     nombreInterIllSelf = 0;
-    for (int i = 0; i < _aretes.size() - 1; ++i) {
+    for (int i = 0; i < _aretes.size(); ++i) {
         for (int j = i + 1; j < _aretes.size(); ++j) {
             if ((*commonNodeEdges)[i][j] == -1) {
                 bool isIllegal = false;
@@ -1204,6 +1207,9 @@ long Graphe::getNbCroisementDiff() {
                 if (surSegment(_aretes[i], _noeuds[(*commonNodeEdges)[j][i]])) { nombreInterIllSelf++; }
                 else if (surSegment(_aretes[j], _noeuds[(*commonNodeEdges)[i][j]])) {nombreInterIllSelf++; }
             }
+        }
+        for (int k=0;k<_noeudsSeuls.size();k++) {
+            if (surSegment(_aretes[i],_noeuds[_noeudsSeuls[k]])) { nombreInterIll++; }
         }
     }
     return nombreInter+nombreInterIll+nombreInterIllSelf;
@@ -1238,8 +1244,12 @@ long Graphe::getNbCroisementDiffGrid() {
     nombreInterIllSelf = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
     std::vector<bool> indexPasseCellule(_aretes.size(),false);
-    for (int index = 0; index < _aretes.size() - 1; ++index) {
-        if (index != 0) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
+    std::vector<bool>* indexPasseIsole = nullptr;
+    for (int index = 0; index < _aretes.size(); ++index) {
+        if (index != 0) { 
+            indexPasseCellule.assign(indexPasseCellule.size(), false);
+            if (indexPasseIsole != nullptr) { indexPasseIsole->assign(indexPasseIsole->size(),false); }
+        }
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (const int& index2 : vecId) {
@@ -1258,6 +1268,15 @@ long Graphe::getNbCroisementDiffGrid() {
                     indexPasseCellule[index2] = true;
                 }
             }
+            std::vector<int>& vecNodeIsole = grillePtr[_aretes[index].vecIdCellules[j]]->vecSingleNodeId;
+            if (vecNodeIsole.size() > 0) {
+                for (const int indexIsole : vecNodeIsole) {
+                    if (!(*indexPasseIsole)[indexIsole]) {
+                        if (surSegment(_aretes[index], _noeuds[indexIsole])) { nombreInterIll++; }
+                        (*indexPasseIsole)[indexIsole] = true;
+                    }
+                }
+            }
         }
         indexPasse[index] = true;
     }
@@ -1268,8 +1287,12 @@ long Graphe::getNbCroisementGrid() {
     long score = 0;
     std::vector<bool> indexPasse(_aretes.size(),false);
     std::vector<bool> indexPasseCellule(_aretes.size(),false);
+    std::vector<bool>* indexPasseIsole = nullptr;
     for (int index = 0; index < _aretes.size() - 1; ++index) {
-        if (index != 0) { indexPasseCellule.assign(indexPasseCellule.size(), false); }
+        if (index != 0) {
+            indexPasseCellule.assign(indexPasseCellule.size(), false);
+            if (indexPasseIsole != nullptr) { indexPasseIsole->assign(indexPasseIsole->size(),false); }
+        }
         for (int j = 0; j < _aretes[index].vecIdCellules.size(); ++j) {
             std::vector<int>& vecId = grillePtr[_aretes[index].vecIdCellules[j]]->vecAreteId;
             for (const int& index2 : vecId) {
@@ -1286,6 +1309,15 @@ long Graphe::getNbCroisementGrid() {
                         else if (surSegment(_aretes[index2], _noeuds[(*commonNodeEdges)[index][index2]])) { score += PENALITE_MAX_SELF; }
                     }
                     indexPasseCellule[index2] = true;
+                }
+            }
+            std::vector<int>& vecNodeIsole = grillePtr[_aretes[index].vecIdCellules[j]]->vecSingleNodeId;
+            if (vecNodeIsole.size() > 0) {
+                for (const int indexIsole : vecNodeIsole) {
+                    if (!(*indexPasseIsole)[indexIsole]) {
+                        if (surSegment(_aretes[index], _noeuds[indexIsole])) { score += PENALITE_MAX; }
+                        (*indexPasseIsole)[indexIsole] = true;
+                    }
                 }
             }
         }
