@@ -538,8 +538,8 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
         total += debugNoeudNonPlace(displayOther);
         if (displaySelf) { tcout() << "Debut debug desync noeud emplacement\n"; }
         total += debugDesyncNoeudEmplacement(displayOther);
-        if (displaySelf) { tcout() << "Debut debug methode intersection\n"; }
-        total += debugOldCroisement(displayOther);
+        //if (displaySelf) { tcout() << "Debut debug methode intersection\n"; }
+        //total += debugOldCroisement(displayOther);
     }
     if (isNodeScoreUpdated) {
         if (displaySelf) { tcout() << "Debut debug score noeud\n"; }

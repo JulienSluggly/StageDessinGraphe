@@ -1,35 +1,11 @@
-Moyenne sur les crossing number?
-
-Iterative edge insertion and optimize at each step the number of crossings
-
-Selection de noeud pas au hasard mais ordonnée par score? ordonné, avant puis arriere?
-
-Tester AT&T, Triangulation+X
-
-Faire une version ogdf placement au plus proche qui place les voisins d'un noeud au plus proche recursivement parcour en largeur?
-
-Refaire le recuit score en intégrant la grille
-
-Restructurer le code genetique pour les appels des differentes fonctions
-
-Genetique qui place n/2 noeud iterativement et produit deux enfants
-
-Changement de repere, ACP
-
 Parseur de fichier sans librairie json
 
 Implementer fast multipole multilevel avec nos contraintes?
 
 Implementer le recuit only improve et best deplacement a la fin des 1h d'execution
 
-retest tres haute temperature?
-
 Adapter code aux coord entieres sans emplacement
 
-Test rome graphs et bench avec plusieurs tirages uniformes
-
-tester forcer max face a l'exterieur pour le recuit
-
-afficher la max face avec ogdf dans l'affichage opengl
-
 version bestDeplacement opti cellule
+
+Cas ou il y a beaucoup de noeuds isole, fmme plante, faire un check pour autre algo de placement

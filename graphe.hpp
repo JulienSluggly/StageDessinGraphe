@@ -926,11 +926,17 @@ public:
 	void rechercheTabouCUDA();
 	void rechercheTabouReelCUDA();
 
+	// Algorithme FMME avec ou sans emplacement, minute indique si on garde le meilleur placement sur une minute
 	void placementFMME(bool minute=false);
 
+	// Modifie les valeurs de PENALITE_MAX et PENALITE_MAX_SELF par les valeurs pen1 et pen2, par défaut le nombre de noeud dans le graphe
 	void updatePenalite(int pen1, int pen2);
 
+	// Remplie le vecteur _noeudsSeuls du graphe
 	void updateIsolatedNodes();
+
+	// Ajoute des noeuds isolés dans le graphe jusqu'a en avoir autant que d'emplacements
+	void fillWithSingleNodes();
 
 };
 

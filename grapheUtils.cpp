@@ -2013,7 +2013,7 @@ void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
             exit(3);
         }
     }
-    updatePenalite(_aretes.size(),_aretes.size());
+    updatePenalite(_noeuds.size(),_noeuds.size());
     updateIsolatedNodes();
 }
 
@@ -2883,4 +2883,15 @@ void Graphe::generateKRegular(int nbNoeud, int degre) {
         }
     }
 
+}
+
+void Graphe::fillWithSingleNodes() {
+    int nombreNoeud = _noeuds.size();
+    int nombreEmplacement = _emplacements.size();
+    while (nombreNoeud < nombreEmplacement) {
+        _noeuds.push_back(Noeud(nombreNoeud));
+        nombreNoeud++;
+    }
+    updateIsolatedNodes();
+    updatePenalite(_noeuds.size(),_noeuds.size());
 }

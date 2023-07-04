@@ -47,9 +47,10 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 	if (lastIteration != -1) tcout() << "Max iteration: " << lastIteration << "\n";
 	if (nombreRecuit != 0) tcout() << "Nombre de rechauffe: " << nombreRecuit << "\n";
 	if ((G.useCoordReel)||(G.estPlace())) { 
-		tcout() << "Nombre intersection apres placement: ";
-		if (!G.useCoordReel) { std::cout << G.getNbCroisementConst() << std::endl; }
-		else { std::cout << G.getNbCroisementReelConst() << std::endl; }
+		long nbInter;
+		if (!G.useCoordReel) { nbInter = G.getNbCroisementConst(); }
+		else { nbInter = G.getNbCroisementReelConst(); }
+		tcout() << "Nombre intersection apres placement: " << nbInter << std::endl;
 		if (G.hasIllegalCrossing())  {
 			tcout() << "Solution illegale.\n";
 			if (!G.useCoordReel) { G.getNbCroisementDiff(); } else { G.getNbCroisementDiffReel(); }
@@ -215,14 +216,14 @@ int main(int argc, char *argv[]) {
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	//initRandomSeed();
-	initSameSeed();
+	initRandomSeed();
+	//initSameSeed();
 	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
 	bool useCoordReel = false;
 	std::string nomFichierGraph = "5completModif";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	std::string nomFichierSlots = "3X-1-input-slots";
-	//std::string nomFichierSlots = "Grid";
+	//std::string nomFichierSlots = "3X-1-input-slots";
+	std::string nomFichierSlots = "Grid";
 	if (useCoordReel) { tcout() << "Fichier Graphe: " + nomFichierGraph << std::endl; }
 	else { tcout() << "Fichier Graphe: " + nomFichierGraph << " Fichier Slots: " << nomFichierSlots << std::endl; }
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
@@ -234,7 +235,6 @@ int main(int argc, char *argv[]) {
 	//G.writeToJsonChallenge("testchallenge");
 	G.calcMaxAndAverageDegree();
 	G.fillCommonNodeVectors();
-	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (useCoordReel) { tcout() << "Coordonnees flottantes, pas d'emplacements.\n"; }
 	else { tcout() << "Coordonnees entieres, utilisation d'emplacements\n"; }
 	tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << " Penalite: " << G.PENALITE_MAX << std::endl;
@@ -244,6 +244,8 @@ int main(int argc, char *argv[]) {
 	//G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,3,1800,nomFichierGraph,nomFichierSlots); 
 	//G.grapheGenetiqueReel(tempsBest,bestIteration,lastIteration,50,50000,nomFichierGraph);
 	G.placementFMME();
+	//G.placementAleatoire();
+	//G.stressMajorization({});
 	//G.stressMajorizationReel();
 #if defined(LINUX_OS)
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
@@ -269,7 +271,7 @@ int main(int argc, char *argv[]) {
 		//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 		//G.afficherInfo();
 		
-		G.recuitSimuleLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,-1);
+		//G.recuitSimuleLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,-1);
 
 		//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{15,7200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,300,true,true);
 
