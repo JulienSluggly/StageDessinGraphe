@@ -31,3 +31,5 @@ Test rome graphs et bench avec plusieurs tirages uniformes
 tester forcer max face a l'exterieur pour le recuit
 
 afficher la max face avec ogdf dans l'affichage opengl
+
+version bestDeplacement opti cellule

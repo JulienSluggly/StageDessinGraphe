@@ -144,7 +144,7 @@ void createQuickCrossData(Graphe& G, std::string nomFichierGraph) {
 void runFunc() {
 	int totalFichier = 8253;
 	std::string path = chemin + "benchGraphs/romeNP/";
-	std::string destination = chemin + "benchGraphs/tirage1/";
+	std::string destination = chemin + "benchGraphs/tirage3/";
 	for (int i=0;i<100;i++) {
 		int numero = 0;
 		int randomVal = generateRand(totalFichier-1);
@@ -164,6 +164,49 @@ void runFunc() {
 	}
 }
 
+void runFunc2() {
+	std::string file = chemin + "benchGraphs/tri.64";
+	std::ifstream infile(file);
+	std::string line;
+	int numeroLigne = 0;
+	while (std::getline(infile, line)) {
+		std::string nomOutput = "tri64." + std::to_string(numeroLigne) + ".s6";
+		std::ofstream output(nomOutput, std::ios_base::app);
+		output << line;
+		output.close();
+		numeroLigne++;
+	}
+	infile.close();
+}
+
+void runFunc3() {
+	std::string path = chemin + "benchGraphs/trig+X/";
+	int numero = 0;
+	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
+		Graphe G;
+		G.useCoordReel = true;
+		std::string nomFichier = "trig64." + std::to_string(numero) + ".json";
+		tcout() << dirEntry.path() << std::endl;
+		G.readFromJsonGraph(dirEntry.path());
+		tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
+		int nombreAreteAjoute = 0;
+		int idArete = G._aretes.size();
+		while (nombreAreteAjoute < 10) {
+			int nodeId1 = generateRand(G._noeuds.size()-1);
+			int nodeId2 = generateRand(G._noeuds.size()-1);
+			while (nodeId2 == nodeId1) { nodeId2 = generateRand(G._noeuds.size()-1); }
+			if (!G._noeuds[nodeId1].estVoisin(&G._noeuds[nodeId2])) {
+				G._aretes.push_back(Aretes(&G._noeuds[nodeId1],&G._noeuds[nodeId2],idArete));
+				idArete++;
+				nombreAreteAjoute++;
+			}
+		}
+		tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
+		G.writeToJsonGraph(nomFichier);
+		numero++;
+	}
+}
+
 int main(int argc, char *argv[]) {
 	bool useProfiler = false;
 #if defined(GPERF_INSTALLED)
@@ -172,13 +215,13 @@ int main(int argc, char *argv[]) {
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	initRandomSeed();
-	//initSameSeed();
+	//initRandomSeed();
+	initSameSeed();
 	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
 	bool useCoordReel = false;
-	std::string nomFichierGraph = "graph-10-input";
+	std::string nomFichierGraph = "5completModif";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	std::string nomFichierSlots = "3X-10-input-slots";
+	std::string nomFichierSlots = "3X-1-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	if (useCoordReel) { tcout() << "Fichier Graphe: " + nomFichierGraph << std::endl; }
 	else { tcout() << "Fichier Graphe: " + nomFichierGraph << " Fichier Slots: " << nomFichierSlots << std::endl; }
@@ -194,7 +237,7 @@ int main(int argc, char *argv[]) {
 	int nbNoeud = std::min((int)G._noeuds.size()*2,6000);
 	if (useCoordReel) { tcout() << "Coordonnees flottantes, pas d'emplacements.\n"; }
 	else { tcout() << "Coordonnees entieres, utilisation d'emplacements\n"; }
-	tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
+	tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << " Penalite: " << G.PENALITE_MAX << std::endl;
 	tcout() << "Debut placement.\n";
 	auto start = std::chrono::system_clock::now();
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
@@ -225,6 +268,7 @@ int main(int argc, char *argv[]) {
 		//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,500);
 		//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 		//G.afficherInfo();
+		
 		G.recuitSimuleLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,-1);
 
 		//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{15,7200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,300,true,true);

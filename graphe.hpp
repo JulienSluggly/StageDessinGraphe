@@ -746,6 +746,8 @@ public:
 	// Enregistre avec alignements d'emplacements
 	void registerSlotsInGrid();
 
+	void registerIsolatedNodesInGrid();
+
 	// Enregistre avec alignements d'emplacements
 	void registerSlotsInGridNoMove();
 

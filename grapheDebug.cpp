@@ -532,8 +532,8 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
         total += afficherNoeudDouble(displayOther);
         if (displaySelf) { tcout() << "Debut debug emplacement double\n"; }
         total += afficherEmplacementDouble(displayOther);
-        if (displaySelf) { tcout() << "Debut debug noeud seul\n"; }
-        total += afficherNoeudSeul(displayOther);
+        //if (displaySelf) { tcout() << "Debut debug noeud seul\n"; }
+        //total += afficherNoeudSeul(displayOther);
         if (displaySelf) { tcout() << "Debut debug noeud non place\n"; }
         total += debugNoeudNonPlace(displayOther);
         if (displaySelf) { tcout() << "Debut debug desync noeud emplacement\n"; }

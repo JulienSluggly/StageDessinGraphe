@@ -994,6 +994,26 @@ void Graphe::registerNodesAndEdgesInGrid() {
     registerEdgesInGridReel();
 }
 
+void Graphe::registerIsolatedNodesInGrid() {
+    for (int i=0;i < _noeudsSeuls.size();i++) {
+        int nodeId = _noeudsSeuls[i];
+        if (_noeuds[nodeId].idCelluleVec == nullptr) {
+            _noeuds[nodeId].idCelluleVec = new std::vector<int>();
+        }
+        if (_noeuds[nodeId].getEmplacement()->idCelluleVec != nullptr) {
+            *_noeuds[nodeId].idCelluleVec = *_noeuds[nodeId].getEmplacement()->idCelluleVec;
+        }
+        else {
+            _noeuds[nodeId].idCelluleVec->push_back(_noeuds[nodeId].getEmplacement()->idCellule);
+        }
+        for (const int cellId : (*_noeuds[nodeId].idCelluleVec)) {
+            int numero = grillePtr[cellId]->vecSingleNodeId.size();
+            grillePtr[cellId]->vecSingleNodeId.push_back(nodeId);
+            grillePtr[cellId]->containSingleNodeId[nodeId] = numero;
+        }
+    }
+}
+
 void Graphe::registerNodesInGrid() {
     double sizeColumn = grille[0][0].getBottomRightXReel() - grille[0][0].getBottomLeftXReel();
     double sizeRow = grille[0][0].getTopLeftYReel() - grille[0][0].getBottomLeftYReel();
@@ -1694,8 +1714,7 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
 }
 
 void Graphe::recalcNoeudIsoleGrid(int nodeId) {
-    int oldSlotId = _noeuds[nodeId].previousEmplacement;
-    for (const int cellId : (*_emplacements[oldSlotId].idCelluleVec)) {
+    for (const int cellId : (*_noeuds[nodeId].idCelluleVec)) {
         int numero = grillePtr[cellId]->containSingleNodeId[nodeId];
         int lastNumero = grillePtr[cellId]->vecSingleNodeId.size() - 1;
         grillePtr[cellId]->containSingleNodeId[nodeId] = -1;
@@ -1703,6 +1722,18 @@ void Graphe::recalcNoeudIsoleGrid(int nodeId) {
         grillePtr[cellId]->vecSingleNodeId.pop_back();
         int nodeIdRemplace = grillePtr[cellId]->vecSingleNodeId[numero];
         grillePtr[cellId]->containSingleNodeId[nodeIdRemplace] = numero;
+    }
+    _noeuds[nodeId].idCelluleVec->clear();
+    if (_noeuds[nodeId].getEmplacement()->idCelluleVec != nullptr) {
+        *_noeuds[nodeId].idCelluleVec = *_noeuds[nodeId].getEmplacement()->idCelluleVec;
+    }
+    else {
+        _noeuds[nodeId].idCelluleVec->push_back(_noeuds[nodeId].getEmplacement()->idCellule);
+    }
+    for (const int cellId : (*_noeuds[nodeId].idCelluleVec)) {
+        int numero = grillePtr[cellId]->vecSingleNodeId.size();
+        grillePtr[cellId]->vecSingleNodeId.push_back(nodeId);
+        grillePtr[cellId]->containSingleNodeId[nodeId] = numero;
     }
 }
 
@@ -1958,7 +1989,7 @@ void Graphe::applyNewAreteCelluleVec(std::vector<std::vector<int>>& vecId, int n
 
 void Graphe::updatePenalite(int pen1, int pen2) {
     PENALITE_MAX = pen1;
-    PENALITE_MAX = pen2;
+    PENALITE_MAX_SELF = pen2;
 }
 
 void Graphe::setupGraphe(std::string fileGraphe, std::string fileSlot) {
@@ -2183,9 +2214,6 @@ Emplacement* Graphe::getClosestEmplacementFromPointGrid(double x, double y, bool
             searchVector.push_back(make_pair(j,i));
         }
     }
-    //tcout() << "dnumX: " << dnumX << " dnumY: " << dnumY << std::endl;
-    //tcout() << "numX: " << numX << " numY: " << numY << std::endl;
-    //tcout() << "StartX: " << startX << " EndX: " << endX << " StartY: " << startY << " EndY: " << endY << std::endl;
     double minDist = std::numeric_limits<double>::max();
     int closestEmpId = -1;
     while (closestEmpId == -1) {
@@ -2668,7 +2696,7 @@ void Graphe::fillCommonNodeVectors() {
         commonNodeEdges->push_back(tmpVec);
     }
     for (int i=0;i<_noeuds.size();i++) {
-        for (int j=0;j<_noeuds[i].voisins.size()-1;j++) {
+        for (int j=0;j<(int)_noeuds[i].voisins.size()-1;j++) {
             Noeud* n1 = _noeuds[i].voisins[j];
             int index1 = _noeuds[i]._aretes[j];
             for (int k=j+1;k<_noeuds[i].voisins.size();k++) {
@@ -2748,7 +2776,11 @@ void Graphe::setupGridAndRegistration(std::vector<std::vector<double>> customPar
         }
     }
     if (useCoordReel) { initGrilleReel(row,row); registerNodesAndEdgesInGrid(); }
-    else { initGrille(row,row); registerSlotsAndEdgesInGrid(); }
+    else { 
+        initGrille(row,row); 
+        registerSlotsAndEdgesInGrid(); 
+        registerIsolatedNodesInGrid();
+    }
 }
 
 void resetKRegular(std::vector<std::vector<int>>& voisinage, std::vector<int>& values, int valuesSize) {

@@ -201,6 +201,37 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::Graph &ogdfG) {
 	delete[] nodeTab;
 }
 
+void ogdfReadFromGraph6(Graphe& G, std::string input) {
+	ogdf::Graph ogdfG;
+	std::istringstream strInput(input);
+	ogdf::GraphIO::readGraph6(ogdfG,strInput);
+	createGrapheFromOGDFGraphe(G,ogdfG);
+}
+
+void ogdfReadFromSparse6(Graphe& G, std::string input) {
+	ogdf::Graph ogdfG;
+
+	std::ifstream fichier(input);
+	std::string ligne;
+	std::getline(fichier, ligne);
+	std::istringstream ligneStream(ligne);
+
+	if (!ogdf::GraphIO::readSparse6(ogdfG,ligneStream)) { tcout() << "Erreur lecture\n"; }
+	tcout() << ogdfG.nodes.size() << std::endl;
+	createGrapheFromOGDFGraphe(G,ogdfG);
+}
+
+void ogdfReadFromFile(Graphe& G, std::string input) {
+	ogdf::Graph ogdfG;
+
+
+
+	std::istringstream strInput(input);
+	if (!ogdf::GraphIO::read(ogdfG,strInput)) { tcout() << "Erreur lecture fichier\n"; }
+	tcout() << ogdfG.nodes.size() << std::endl;
+	createGrapheFromOGDFGraphe(G,ogdfG);
+}
+
 void ogdfWriteToGraph6(Graphe& G, std::string output) {
 	ogdf::Graph ogdfG;
 	createOGDFGraphFromGraphe(G,ogdfG);
