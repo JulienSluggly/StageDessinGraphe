@@ -427,7 +427,7 @@ int Graphe::debugDesyncAreteCell(bool display, std::string nom) {
     int retour = 4000;
     if (display) {
         tcout() << "-----------------------------------------------" << std::endl;
-        tcout() << "Affichage DEBUG desync emplacement cellule: " << nomGraphe << " " << nom << std::endl;
+        tcout() << "Affichage DEBUG desync arete cellule: " << nomGraphe << " " << nom << std::endl;
     }
     long nbFail = 0;
     for (int i = 0; i < _aretes.size(); i++) {

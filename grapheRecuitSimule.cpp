@@ -1410,6 +1410,57 @@ void Graphe::bestDeplacement() {
     #endif
 }
 
+// Applique l'algorithme meilleur deplacement sur le graphe.
+// On parcoure tout les noeuds et on teste chaque deplacement possible et on effectue le meilleur s'il ameliore le score. (O(n²*e))
+// Met a jour le nombre de croisement du graphe.
+void Graphe::bestDeplacementLimite() {
+    long nbIntersection;
+    if (isNombreCroisementUpdated) { nbIntersection = nombreCroisement; }
+    else { nbIntersection = getNbCroisementGrid(); }
+    int bestImprove = TRES_GRANDE_VALEUR;
+    double improve;
+    bool makeMove;
+    int bestNodeId = -1, bestSlotId = -1, idSwappedNode = -1;
+    bool swapped;
+    int nbTour = 0;
+    do {
+        bestImprove = TRES_GRANDE_VALEUR;
+        for (int nodeId = 0; nodeId < _noeuds.size(); nodeId++) {
+            double limiteImprove = -1;
+            Emplacement* oldEmplacement = _noeuds[nodeId].getEmplacement();
+            for (int slotId = 0; slotId < _emplacements.size(); slotId++) {
+                if (slotId != oldEmplacement->getId()) {
+                    makeMove = false;
+                    swapped = false;
+                    idSwappedNode = -1;
+                    improve = calculImproveLimite(nodeId,slotId,swapped,idSwappedNode,true,makeMove,limiteImprove);
+                    moveNodeToSlot(nodeId,oldEmplacement->getId(),false,true);
+                    if ((makeMove)&&(improve<bestImprove)) {
+                        bestImprove = improve;
+                        bestNodeId = nodeId;
+                        bestSlotId = slotId;
+                        limiteImprove = bestImprove - 1;
+                        tcout() << "Recherche Best Deplacement meilleur solution: " << bestImprove << " node: " << bestNodeId << " slot: " << bestSlotId << " tour: " << nbTour << std::endl;
+                    }
+                }
+            }
+        }
+        if (bestImprove < 0) {
+            globalDebugVar = true;
+            moveNodeToSlot(bestNodeId,bestSlotId,false,true);
+            nbIntersection += bestImprove;
+        }
+        nbTour++;
+    } while (bestImprove < TRES_GRANDE_VALEUR);
+    nombreCroisement = nbIntersection;
+    isNombreCroisementUpdated = true;
+    isNodeScoreUpdated = false;
+    isIntersectionVectorUpdated = false;
+    #if defined(DEBUG_GRAPHE)
+        tcout() << "Meilleur resultat de l'algo meilleur deplacement: " << nbIntersection << std::endl;
+    #endif
+}
+
 void Graphe::rechercheTabou() {
     std::vector<int> bestResultVector = saveCopy();
     long nbCroisement, bestCroisement, bestImproveFound;

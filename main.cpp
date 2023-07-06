@@ -216,14 +216,15 @@ int main(int argc, char *argv[]) {
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	initRandomSeed();
-	//initSameSeed();
+	//initRandomSeed();
+	initSameSeed();
 	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
 	bool useCoordReel = false;
 	std::string nomFichierGraph = "5completModif";
+	//std::string nomFichierGraph = "graph-10-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	//std::string nomFichierSlots = "3X-1-input-slots";
-	std::string nomFichierSlots = "Grid";
+	std::string nomFichierSlots = "3X-1-input-slots";
+	//std::string nomFichierSlots = "Grid";
 	if (useCoordReel) { tcout() << "Fichier Graphe: " + nomFichierGraph << std::endl; }
 	else { tcout() << "Fichier Graphe: " + nomFichierGraph << " Fichier Slots: " << nomFichierSlots << std::endl; }
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
@@ -270,6 +271,8 @@ int main(int argc, char *argv[]) {
 		//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,500);
 		//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 		//G.afficherInfo();
+
+		G.bestDeplacementLimite();
 		
 		//G.recuitSimuleLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,-1);
 

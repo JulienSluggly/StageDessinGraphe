@@ -1245,6 +1245,7 @@ long Graphe::getNbCroisementDiffGrid() {
     std::vector<bool> indexPasse(_aretes.size(),false);
     std::vector<bool> indexPasseCellule(_aretes.size(),false);
     std::vector<bool>* indexPasseIsole = nullptr;
+    if (_noeudsSeuls.size() > 0) { indexPasseIsole = new std::vector<bool>(_noeuds.size(),false); }
     for (int index = 0; index < _aretes.size(); ++index) {
         if (index != 0) { 
             indexPasseCellule.assign(indexPasseCellule.size(), false);
@@ -1288,7 +1289,8 @@ long Graphe::getNbCroisementGrid() {
     std::vector<bool> indexPasse(_aretes.size(),false);
     std::vector<bool> indexPasseCellule(_aretes.size(),false);
     std::vector<bool>* indexPasseIsole = nullptr;
-    for (int index = 0; index < _aretes.size() - 1; ++index) {
+    if (_noeudsSeuls.size() > 0) { indexPasseIsole = new std::vector<bool>(_noeuds.size(),false); }
+    for (int index = 0; index < _aretes.size(); ++index) {
         if (index != 0) {
             indexPasseCellule.assign(indexPasseCellule.size(), false);
             if (indexPasseIsole != nullptr) { indexPasseIsole->assign(indexPasseIsole->size(),false); }

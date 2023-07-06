@@ -863,14 +863,10 @@ void Graphe::registerEdgesInGrid() {
             int direction = getDirectionArete(i);
             int idCell = _aretes[i].getNoeud1()->getEmplacement()->idCellule;
             int idCellArrive = _aretes[i].getNoeud2()->getEmplacement()->idCellule;
-            int idCellX = idCell % grille[0].size();
-            int idCellY = idCell / grille[0].size();
             _aretes[i].vecIdCellules.push_back(idCell);
-            grille[idCellY][idCellX].vecAreteId.push_back(i); 
             while (idCell != idCellArrive) {
                 switch(direction) {
                     case 0:
-                        idCellX++;
                         idCell++;
                         break;
                     case 1: {
@@ -878,26 +874,19 @@ void Graphe::registerEdgesInGrid() {
                         int cellY = grillePtr[idCell]->getTopRightY();
                         int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
                         if (alignement == 1) {
-                            idCellX++;
                             idCell++;
                         }
                         else if (alignement == -1) {
-                            idCellY++;
                             idCell += nombreColonne;
                         }
                         else {
                             _aretes[i].vecIdCellules.push_back(idCell+nombreColonne);
-                            grille[idCellY+1][idCellX].vecAreteId.push_back(i);
                             _aretes[i].vecIdCellules.push_back(idCell+1);
-                            grille[idCellY][idCellX+1].vecAreteId.push_back(i);
                             idCell = idCell + nombreColonne + 1;
-                            idCellX++;
-                            idCellY++;
                         }
                         break;
                     }
                     case 2:
-                        idCellY++;
                         idCell += nombreColonne;
                         break;
                     case 3: {
@@ -905,26 +894,19 @@ void Graphe::registerEdgesInGrid() {
                         int cellY = grillePtr[idCell]->getTopLeftY();
                         int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
                         if (alignement == 1) {
-                            idCellY++;
                             idCell += nombreColonne;
                         }
                         else if (alignement == -1) {
-                            idCellX--;
                             idCell--;
                         }
                         else {
                             _aretes[i].vecIdCellules.push_back(idCell+nombreColonne);
-                            grille[idCellY+1][idCellX].vecAreteId.push_back(i);
                             _aretes[i].vecIdCellules.push_back(idCell-1);
-                            grille[idCellY][idCellX-1].vecAreteId.push_back(i);
                             idCell = idCell + nombreColonne - 1;
-                            idCellX--;
-                            idCellY++;
                         }
                         break;
                     }
                     case 4:
-                        idCellX--;
                         idCell--;
                         break;
                     case 5: {
@@ -932,26 +914,19 @@ void Graphe::registerEdgesInGrid() {
                         int cellY = grillePtr[idCell]->getBottomLeftY();
                         int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
                         if (alignement == 1) {
-                            idCellX--;
                             idCell--;
                         }
                         else if (alignement == -1) {
-                            idCellY--;
                             idCell -= nombreColonne;
                         }
                         else {
                             _aretes[i].vecIdCellules.push_back(idCell-nombreColonne);
-                            grille[idCellY-1][idCellX].vecAreteId.push_back(i);
                             _aretes[i].vecIdCellules.push_back(idCell-1);
-                            grille[idCellY][idCellX-1].vecAreteId.push_back(i);
                             idCell = idCell - nombreColonne - 1;
-                            idCellX--;
-                            idCellY--;
                         }
                         break;
                     }
                     case 6:
-                        idCellY--;
                         idCell -= grille[0].size();
                         break;
                     case 7: {
@@ -959,27 +934,20 @@ void Graphe::registerEdgesInGrid() {
                         int cellY = grillePtr[idCell]->getBottomRightY();
                         int alignement = aGaucheInt(n1X,n1Y,n2X,n2Y,cellX,cellY);
                         if (alignement == 1) {
-                            idCellY--;
                             idCell -= nombreColonne;
                         }
                         else if (alignement == -1) {
-                            idCellX++;
                             idCell++;
                         }
                         else {
                             _aretes[i].vecIdCellules.push_back(idCell-nombreColonne);
-                            grille[idCellY-1][idCellX].vecAreteId.push_back(i);
                             _aretes[i].vecIdCellules.push_back(idCell+1);
-                            grille[idCellY][idCellX+1].vecAreteId.push_back(i);
                             idCell = idCell - nombreColonne + 1;
-                            idCellX++;
-                            idCellY--;
                         }
                         break;
                     }
                 }
                 _aretes[i].vecIdCellules.push_back(idCell);
-                grille[idCellY][idCellX].vecAreteId.push_back(i);
             }
             for (const int& idCellule : _aretes[i].vecIdCellules) {
                 grillePtr[idCellule]->containAreteId[i] = grillePtr[idCellule]->vecAreteId.size();
@@ -1173,7 +1141,6 @@ void Graphe::registerEdgesInGridReel() {
         double n2Y = _aretes[i].getNoeud2()->_yreel;
         int direction = getDirectionAreteReel(i);
         std::vector<int>* vecCellDepart = _aretes[i].getNoeud1()->idCelluleVec;
-        int idCellX, idCellY;
         for (const int& tmpIdCell : *vecCellDepart) {
             _aretes[i].vecIdCellules.push_back(tmpIdCell);
         }

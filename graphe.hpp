@@ -350,6 +350,8 @@ public:
 	// Met a jour le nombre de croisement du graphe.
 	void bestDeplacement();
 
+	void bestDeplacementLimite();
+
 	// Selectionne les emplacements disponibles a egale distance d'un point et en renvoie un aleatoirement.
 	Emplacement* getEmplacementPlusProche(std::pair<int,int>& origin);
 
