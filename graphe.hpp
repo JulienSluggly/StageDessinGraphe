@@ -647,6 +647,10 @@ public:
 
 	void readFromJsonGraphReel(std::string input);
 
+	void readFromCSVGraphReel(std::string input);
+
+	void writeToCSVGraphReel(std::string output);
+
 	void readQuickCrossGraphAndCoord(std::string fileArete, std::string fileCoord);
 
 	void readQuickCrossGraph(std::string fileArete);

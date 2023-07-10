@@ -727,3 +727,60 @@ void Graphe::writeToJsonCleanGraphe(std::string output) {
 	std::ofstream o(output);
 	o << std::setw(4) << j << std::endl;
 }
+
+void Graphe::readFromCSVGraphReel(std::string input) {
+	std::ifstream infile(input);
+	std::string line;
+	std::getline(infile,line);
+	std::getline(infile,line);
+	std::istringstream iss(line);
+	std::string subs;
+	iss >> subs;
+	int nombreNoeud = stoi(subs);
+	_noeuds.reserve(nombreNoeud * 2);
+	int numeroLigne = 0;
+	int idArete = 0;
+	std::string deli = ",";
+	while (std::getline(infile, line)) {
+		std::istringstream iss(line);
+		std::string tmpSub;
+		std::string subs;
+		std::string subs2;
+		iss >> subs2;
+		size_t pos = 0;
+		std::string token;
+		while ((pos = subs2.find(deli)) != std::string::npos) {
+			subs = subs2.substr(0, pos);
+			subs2.erase(0, pos + deli.length());
+		}
+
+		if (numeroLigne<nombreNoeud) {
+			double coord1 = stod(subs);
+			double coord2 = stod(subs2);
+			_noeuds.push_back(Noeud(numeroLigne));
+			_noeuds[numeroLigne]._xreel = coord1;
+			_noeuds[numeroLigne]._yreel = coord2;
+		}
+		else {
+			int id1 = stoi(subs);
+			int id2 = stoi(subs2);
+			_aretes.push_back(Aretes(&_noeuds[id1],&_noeuds[id2],idArete));
+			idArete++;
+		}
+		numeroLigne++;
+	}
+	infile.close();
+}
+
+void Graphe::writeToCSVGraphReel(std::string output) {
+	std::ofstream csvFile(output, std::ios_base::app);
+	csvFile << "Has Coordinates\n";
+	csvFile << _noeuds.size() << "\n";
+	for (int i=0;i<_noeuds.size();i++) {
+		csvFile << (int)_noeuds[i]._xreel << "," << (int)_noeuds[i]._yreel << "\n";
+	}
+	for (int i=0;i<_aretes.size();i++) {
+		csvFile << _aretes[i].getNoeud1()->_id << "," << _aretes[i].getNoeud2()->_id << "\n";
+	}
+	csvFile.close();
+}

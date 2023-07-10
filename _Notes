@@ -6,6 +6,4 @@ Implementer le recuit only improve et best deplacement a la fin des 1h d'executi
 
 Adapter code aux coord entieres sans emplacement
 
-version bestDeplacement opti cellule
-
 Cas ou il y a beaucoup de noeuds isole, fmme plante, faire un check pour autre algo de placement

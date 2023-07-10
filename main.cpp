@@ -216,20 +216,21 @@ int main(int argc, char *argv[]) {
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	//initRandomSeed();
-	initSameSeed();
-	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
-	bool useCoordReel = false;
-	std::string nomFichierGraph = "5completModif";
-	//std::string nomFichierGraph = "graph-10-input";
+	initRandomSeed();
+	//initSameSeed();
+	if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
+	bool useCoordReel = true;
+	//std::string nomFichierGraph = "5completModif";
+	std::string nomFichierGraph = "graph-2-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	std::string nomFichierSlots = "3X-1-input-slots";
+	std::string nomFichierSlots = "3X-10-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	if (useCoordReel) { tcout() << "Fichier Graphe: " + nomFichierGraph << std::endl; }
 	else { tcout() << "Fichier Graphe: " + nomFichierGraph << " Fichier Slots: " << nomFichierSlots << std::endl; }
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	G.readFromCSVGraphReel("/home/uha/Téléchargements/testGraphMGDrawVis/graph2result.csv");
+	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
 	//G.readFromJsonGraphReel(pathGraph);
 	//std::string kregularFile = chemin + "benchGraphs/runsSingle/r3/grafo10781.100.graphml";
 	//G.readFromGraphmlGraph(kregularFile);
@@ -244,7 +245,9 @@ int main(int argc, char *argv[]) {
 	double tempsBest = -1; int bestIteration = -1; int lastIteration = -1; int nombreRecuit=0;
 	//G.grapheGenetiqueV2(tempsBest,bestIteration,lastIteration,3,1800,nomFichierGraph,nomFichierSlots); 
 	//G.grapheGenetiqueReel(tempsBest,bestIteration,lastIteration,50,50000,nomFichierGraph);
-	G.placementFMME();
+	
+	//G.placementFMME();
+	
 	//G.placementAleatoire();
 	//G.stressMajorization({});
 	//G.stressMajorizationReel();
@@ -272,15 +275,16 @@ int main(int argc, char *argv[]) {
 		//G.recuitSimuleReel(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,500);
 		//G.afficherInfo();
 
-		G.bestDeplacementLimite();
-		
 		//G.recuitSimuleLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,-1);
+
+		//G.bestDeplacementLimite();
 
 		//G.rerecuitSimuleReel(tempsBest,nombreRecuit,start,{{15,7200}},-1,0.99999,0.99,100.0,0.0001,1,0,2,true,false,300,true,true);
 
 		stopGprofProfiler(useProfiler);
 		printDebugData(G,tempsBest,bestIteration,lastIteration,nombreRecuit,start,finPlacement);
 	}
+	G.writeToCSVGraphReel("graph2.csv");
 	#ifdef OPENGL_INSTALLED
 	bool useOpenGL = true;
 	if (useOpenGL) {

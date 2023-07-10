@@ -1417,6 +1417,7 @@ void Graphe::bestDeplacementLimite() {
     long nbIntersection;
     if (isNombreCroisementUpdated) { nbIntersection = nombreCroisement; }
     else { nbIntersection = getNbCroisementGrid(); }
+    tcout() << "Debut Best Deplacement Limite, nombre de croisement: " << nbIntersection << std::endl;
     int bestImprove = TRES_GRANDE_VALEUR;
     double improve;
     bool makeMove;
@@ -1449,6 +1450,7 @@ void Graphe::bestDeplacementLimite() {
             globalDebugVar = true;
             moveNodeToSlot(bestNodeId,bestSlotId,false,true);
             nbIntersection += bestImprove;
+            tcout() << "Deplacement " << nbTour << " croisements: " << nbIntersection << std::endl;
         }
         nbTour++;
     } while (bestImprove < TRES_GRANDE_VALEUR);
