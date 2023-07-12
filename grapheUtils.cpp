@@ -1556,10 +1556,15 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
         vecCellAlreadyPassed[tmpIdCell] = true;
     }
     int idCell = vecCellId[0];
+    bool aligneHorizontal = false, aligneVertical = false;
+    if ((direction == 0)||(direction == 4)) { aligneHorizontal = checkNodeAlignementHorizontal(startNodeId); }
+    else if ((direction == 2)||(direction == 6)) { aligneVertical = checkNodeAlignementVertical(startNodeId); }
     std::vector<int>* vecArrive = _aretes[areteId].getNoeud2()->idCelluleVec;
     int nombreColonne = grille[0].size();
     bool endNotFound = true;
-    for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell) { endNotFound = false; } }
+    for (const int& arriveNums : *vecArrive) { 
+        if (arriveNums == idCell) { endNotFound = false; } 
+    }
     while(endNotFound) {
         switch(direction) {
             case 0:
@@ -1629,7 +1634,7 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
                 break;
             }
             case 6:
-                idCell -= grille[0].size();
+                idCell -= nombreColonne;
                 break;
             case 7: {
                 double cellX = grillePtr[idCell]->getBottomRightXReel();
@@ -1654,12 +1659,15 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
         if (!vecCellAlreadyPassed[idCell]) { vecCellId.push_back(idCell); vecCellAlreadyPassed[idCell] = true; }
         for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell) { endNotFound = false; } }
     }
+    if (globalDebugVar2) tcout() << "T1\n";
     for (const int& tmpIdCell : *vecArrive) {
         if (!vecCellAlreadyPassed[tmpIdCell]) { vecCellId.push_back(tmpIdCell); vecCellAlreadyPassed[tmpIdCell] = true; }
     }
+    if (globalDebugVar2) tcout() << "T2\n";
     int sameUntil=0;
     int minSize = min(vecCellId.size(),_aretes[areteId].vecIdCellules.size());
     for (;((sameUntil<minSize)&&(vecCellId[sameUntil]==_aretes[areteId].vecIdCellules[sameUntil]));sameUntil++);
+    if (globalDebugVar2) tcout() << "T3\n";
     for (int i=sameUntil;i<_aretes[areteId].vecIdCellules.size();i++) {
         int indexCell = _aretes[areteId].vecIdCellules[i];
         int lastElem = grillePtr[indexCell]->vecAreteId.size() - 1;
@@ -1671,13 +1679,16 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
         grillePtr[indexCell]->containAreteId[areteId] = -1;
         grillePtr[indexCell]->vecAreteId.pop_back();
     }
+    if (globalDebugVar2) tcout() << "T4\n";
     for (int i=sameUntil;i<vecCellId.size();i++) {
         if (grillePtr[vecCellId[i]]->containAreteId[areteId] == -1) {
             grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
             grillePtr[vecCellId[i]]->containAreteId[areteId] = grillePtr[vecCellId[i]]->vecAreteId.size() - 1;
         }
     }
+    if (globalDebugVar2) tcout() << "T5\n";
     _aretes[areteId].vecIdCellules.swap(vecCellId);
+    if (globalDebugVar2) tcout() << "T6\n";
 }
 
 void Graphe::recalcNoeudIsoleGrid(int nodeId) {
@@ -2861,4 +2872,30 @@ void Graphe::fillWithSingleNodes() {
     }
     updateIsolatedNodes();
     updatePenalite(_noeuds.size(),_noeuds.size());
+}
+
+bool equalWithEpsilon(double a, double b, double epsilon) {
+    return ((a+epsilon > b)&&(a-epsilon < b));
+}
+
+bool Graphe::checkNodeAlignementHorizontal(int nodeId) {
+    double epsilon = 0.0001;
+    if (_noeuds[nodeId].idCelluleVec->size() <= 1) return false;
+    for (const int& celluleId : *_noeuds[nodeId].idCelluleVec) {
+        double n1Y = grillePtr[celluleId]->getBottomLeftY();
+        double n2Y = grillePtr[celluleId]->getTopLeftY();
+        if ((!equalWithEpsilon(_noeuds[nodeId]._yreel,n1Y,epsilon))&&(!equalWithEpsilon(_noeuds[nodeId]._yreel,n2Y,epsilon))) return false;
+    }
+    return true;
+}
+
+bool Graphe::checkNodeAlignementVertical(int nodeId) {
+    double epsilon = 0.0001;
+    if (_noeuds[nodeId].idCelluleVec->size() <= 1) return false;
+    for (const int& celluleId : *_noeuds[nodeId].idCelluleVec) {
+        double n1X = grillePtr[celluleId]->getBottomLeftX();
+        double n2X = grillePtr[celluleId]->getBottomRightX();
+        if ((!equalWithEpsilon(_noeuds[nodeId]._xreel,n1X,epsilon))&&(!equalWithEpsilon(_noeuds[nodeId]._xreel,n2X,epsilon))) return false;
+    }
+    return true;
 }

@@ -1,7 +1,7 @@
 #include "geometrie.hpp"
 #include <algorithm>
 
-double double_epsilon = 0.00001;
+double double_epsilon = 0.0001;
 
 //renvoie 1,2,3 ou 4 si lpoint t est 1: en haut � droite, 2: en haut � gauche, 3: en bas � gauche, 4: en bas � droite du point s
 //on consid�re s != t

@@ -2,6 +2,8 @@
 #include <iostream>
 
 bool globalDebugVar = false;
+bool globalDebugVar2 = false;
+bool globalDebugVar3 = false;
 
 void Graphe::afficherLiens(std::string nom) {
     tcout() << "-----------------------------------------------" << std::endl;

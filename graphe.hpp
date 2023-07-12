@@ -18,6 +18,8 @@
 #include <mutex>
 
 extern bool globalDebugVar;
+extern bool globalDebugVar2;
+extern bool globalDebugVar3;
 
 class Graphe {
 public:
@@ -943,6 +945,9 @@ public:
 
 	// Ajoute des noeuds isolés dans le graphe jusqu'a en avoir autant que d'emplacements
 	void fillWithSingleNodes();
+
+	bool checkNodeAlignementHorizontal(int nodeId);
+	bool checkNodeAlignementVertical(int nodeId);
 
 };
 
