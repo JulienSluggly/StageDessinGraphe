@@ -29,8 +29,6 @@ public:
 
     void runAlgo(std::vector<double> customParam={});
 
-    void runAlgoReel();
-
     void bfs_SPAP();
 
     void bfs_SPSS(int nodeId, std::vector<double>& shortestPathArray);
@@ -39,17 +37,9 @@ public:
 
     void minimizeStress(std::vector<double> customParam={});
 
-    void minimizeStressReel();
-
-    double minimizeStressDynStress(int nombreIter=400, std::vector<double> customParam={});
-
-    long minimizeStressDynCross(int nombreIter=400, std::vector<double> customParam={});
-
     bool nextIteration(std::vector<double> customParam={});
 
     bool nextIterationDelay(int iteration);
-
-    bool nextIterationReel();
 
     bool nextIterationDelayTest(int iteration,std::vector<double> customParam={});
 
@@ -61,19 +51,11 @@ public:
 
     double calcStress();
 
-    double calcStressReel();
-
-    void runAlgoDynStress();
-
     void addToEdgeCost(double n);
 
     void setEdgeCost(double n);
 
     void updateStressCoord();
-
-    void runAlgoDynCross();
-
-    void runAlgoDynDichStress();
 
 };
 

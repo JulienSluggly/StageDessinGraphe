@@ -4,7 +4,6 @@
 #include "emplacement.hpp"
 #include <iostream>
 #include <cstring>
-#include <omp.h>
 #include "personnel.hpp"
 #include <limits.h>
 #include "ogdfFunctions.hpp"
@@ -23,46 +22,20 @@ std::string typeSeed;
 
 std::uniform_real_distribution<double> recuitImproveDis(0.0,1.0);
 
-std::uniform_real_distribution<double>* recuitReelXDis = nullptr;
-std::uniform_real_distribution<double>* recuitReelYDis = nullptr;
-
-void initCoordReelDistribution(double maxX, double maxY) {
-    if (recuitReelXDis != nullptr) { delete recuitReelXDis; }
-    if (recuitReelYDis != nullptr) { delete recuitReelYDis; }
-    recuitReelXDis = new std::uniform_real_distribution<double>(0.0,maxX);
-    recuitReelYDis = new std::uniform_real_distribution<double>(0.0,maxY);
-}
-
 double generateDoubleRandRecuitImprove() {
     return recuitImproveDis(*genVector[0]);
-}
-
-double generateDoubleRandRecuitX() {
-    return (*recuitReelXDis)(*genVector[0]);
-}
-
-double generateDoubleRandRecuitY() {
-    return (*recuitReelYDis)(*genVector[0]);
 }
 
 // Retourne une valeur réelle comprise dans [0.0,n[
 double generateDoubleRand(double n) {
     std::uniform_real_distribution<> dis(0.0, n);
-#if defined(OPENMP_INSTALLED)
-    return dis(*genVector[omp_get_thread_num()]);
-#else
     return dis(*genVector[numGen]);
-#endif
 }
 
 // Retourne une valeur entiere comprise dans [0,n]
 int generateRand(int n) {
     std::uniform_int_distribution<> dis(0, n);
-#if defined(OPENMP_INSTALLED)
-    return dis(*genVector[omp_get_thread_num()]);
-#else
     return dis(*genVector[numGen]);
-#endif
 }
 
 void initSameSeed(unsigned int n) {
@@ -71,7 +44,7 @@ void initSameSeed(unsigned int n) {
     isSeedRandom = false;
     seed = n;
     genVector.clear();
-    int maxThread = omp_get_max_threads();
+    int maxThread = 1;
     for (int i=0;i<maxThread;i++) {
         genVector.push_back(new std::mt19937(n));
         seedThread.push_back(n);
@@ -87,7 +60,7 @@ void initSameSeedIncThread(unsigned int n) {
     isSeedRandom = false;
     seed = n;
     genVector.clear();
-    int maxThread = omp_get_max_threads();
+    int maxThread = 1;
     for (int i=0;i<maxThread;i++) {
         genVector.push_back(new std::mt19937(n+i));
         seedThread.push_back(n+i);
@@ -101,7 +74,7 @@ void initRandomSeed() {
     typeSeed = "RANDOM";
     isSeedRandom = true;
     genVector.clear();
-    int maxThread = omp_get_max_threads();
+    int maxThread = 1;
     for (int i=0;i<maxThread;i++) {
         std::random_device rd;
         unsigned int tmpSeed = rd();
@@ -229,9 +202,5 @@ std::ostream& tcout() {
 #else
     localtime_s(&bt,&t);
 #endif
-#if defined(OPENMP_INSTALLED)
-    return std::cout << "(" << std::put_time(&bt, "%d-%m-%Y %H:%M:%S") << " TID: " << ::omp_get_thread_num() << ") ";
-#else
     return std::cout << "(" << std::put_time(&bt, "%d-%m-%Y %H:%M:%S") << ") ";
-#endif
 }

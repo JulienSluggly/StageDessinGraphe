@@ -62,10 +62,6 @@ void ogdfFastMultipoleMultilevelEmbedder(Graphe& G);
 
 void ogdfFastMultipoleMultilevelEmbedderMinute(Graphe& G);
 
-void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G);
-
-void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G);
-
 void ogdfMultilevelLayout(Graphe& G);
 
 void ogdfFMMMLayout(Graphe& G);
@@ -81,8 +77,6 @@ void ogdfOtherTest(Graphe& G);
 void ogdfGutwenger(Graphe& G);
 
 void ogdfStarReinsertion(Graphe& G);
-
-void ogdfGetCoordsReel(Graphe& G, Graph& ogdfG, GraphAttributes& ogdfGA);
 
 int ogdfTotalNumberOfBends(GraphAttributes& ogdfGA);
 

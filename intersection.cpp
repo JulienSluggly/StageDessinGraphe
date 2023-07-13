@@ -1,8 +1,21 @@
 #include "intersection.hpp"
-#include "geometrie.hpp"
 
 using std::min;
 using std::max;
+
+//s= source, t=target, c=comp=nouveau noeud à ajouter, renvoie vrai si c est à gauche de (s;t) faux sinon
+bool aGauche(int sx, int sy, int tx, int ty, int cx, int cy) {
+	return ((static_cast<long long>(tx) - sx) * (static_cast<long long>(cy) - sy) -
+		(static_cast<long long>(ty) - sy) * (static_cast<long long>(cx) - sx)) > 0;
+}
+//si 'c' est à gauche de (s;t) renvoie 1, si 'c' est à droite de (s;t) renvoie -1, si 'c','s' et 't' sont alignés renvoie 0
+int aGaucheInt(int sx, int sy, int tx, int ty, int cx, int cy) {
+	long long det = ((static_cast<long long>(tx) - sx) * (static_cast<long long>(cy) - sy) -
+		(static_cast<long long>(ty) - sy) * (static_cast<long long>(cx) - sx));
+	if (det > 0) return 1;
+	if (det < 0) return -1;
+	return 0;
+}
 
 int area2(int ax, int ay, int bx, int by, int cx, int cy) {
 	return (bx-ax)*(cy-ay)-(cx-ax)*(by-ay);
@@ -91,116 +104,6 @@ bool surSegment(const Aretes& lien, const Noeud& noeud)
 {
 	return surSegment(lien.getNoeud1()->getEmplacement(),
 		lien.getNoeud2()->getEmplacement(), noeud.getEmplacement());
-}
-
-//renvoie vrai si les segments [p,q] et [r,s] se croisent
-bool oldSeCroisent(int px, int py, int qx, int qy, int rx, int ry, int sx, int sy) {
-
-	//[P;Q] est a l'ouest de [R;S]
-	if (max(px, qx) < min(rx, sx)) {
-		return false;
-	}
-	//[P;Q] est a l'est de [R;S]
-	if (min(px, qx) > max(rx, sx)) {
-		return false;
-	}
-	//[P;Q] est au sud de [R;S]
-	if (max(py, qy) < min(ry, sy)) {
-		return false;
-	}
-	//[P;Q] est au sud de [R;S]
-	if (min(py, qy) > max(ry, sy)) {
-		return false;
-	}
-
-	//R est a gauche, droite ou aligné a [P;Q]
-	int ag1 = aGaucheInt(px, py, qx, qy, rx, ry);
-	//S est a gauche, droite ou aligné a [P;Q]
-	int ag2 = aGaucheInt(px, py, qx, qy, sx, sy);
-	//P est a gauche, droite ou aligné a [R;S]
-	int ag3 = aGaucheInt(rx, ry, sx, sy, px, py);
-	//Q est a gauche, droite ou aligné a [R;S]
-	int ag4 = aGaucheInt(rx, ry, sx, sy, qx, qy);
-
-	//R et S sont du meme cote par rapport a PQ
-	//OU P et Q sont du meme cote par rapport a RS
-	if (ag1 * ag2 == 1 || ag3 * ag4 == 1) {
-		return false;
-	}
-	//Il restetrois cas, SOIT
-	//R et S sont de cotes opposes par rapport a PQ ET P et Q sont de cotes opposes par rapport a RS
-	//SOIT
-	//les quatre points sont alignes
-	//SOIT
-	//il ne reste plus que les cas ou un produit est à 0 et l'autre à -1
-	//trois points sont alignes
-	//deux points sont de cotes opposes par rapport a un segment
-	//les segments se croisent forcement
-	return true;
-}
-
-bool oldSeCroisent(Emplacement *p, Emplacement *q, Emplacement *r, Emplacement *s)
-{
-	return oldSeCroisent(p->getX(), p->getY(), q->getX(), q->getY(), r->getX(), r->getY(), s->getX(), s->getY());
-}
-
-bool oldSeCroisent(const Aretes &aretes1, const Aretes &aretes2) {
-	return oldSeCroisent(aretes1.getNoeud1()->getEmplacement(), aretes1.getNoeud2()->getEmplacement(), aretes2.getNoeud1()->getEmplacement(), aretes2.getNoeud2()->getEmplacement());
-}
-
-double area2Reel(double ax, double ay, double bx, double by, double cx, double cy) {
-	return (bx-ax)*(cy-ay)-(cx-ax)*(by-ay);
-}
-
-bool leftReel(double ax, double ay, double bx, double by, double cx, double cy) {
-	return area2Reel(ax,ay,bx,by,cx,cy) > 0;
-}
-
-bool collinearReel(double ax,double ay,double bx, double by, double cx, double cy) {
-	return area2Reel(ax,ay,bx,by,cx,cy) == 0;
-}
-
-bool intersectPropReel(double ax, double ay, double bx, double by, double cx, double cy,double dx,double dy) {
-	if (collinearReel(ax,ay,bx,by,cx,cy)||collinearReel(ax,ay,bx,by,dx,dy)||collinearReel(cx,cy,dx,dy,ax,ay)||collinearReel(cx,cy,dx,dy,bx,by))
-		return false;
-	return xorBool(leftReel(ax,ay,bx,by,cx,cy),leftReel(ax,ay,bx,by,dx,dy))&&xorBool(leftReel(cx,cy,dx,dy,ax,ay),leftReel(cx,cy,dx,dy,bx,by));
-}
-
-bool betweenReel(double ax,double ay,double bx, double by, double cx, double cy) {
-	if (!collinearReel(ax,ay,bx,by,cx,cy))
-		return false;
-	if (ax != bx)
-		return ((ax <= cx)&&(cx <= bx))||((ax >= cx)&&(cx >= bx));
-	else
-		return ((ay <= cy)&&(cy <= by)||((ay >= cy)&&(cy >= by)));
-}
-
-bool seCroisentReel(double ax, double ay,double bx,double by,double cx,double cy,double dx,double dy, bool& isIllegal) {
-	if (intersectPropReel(ax,ay,bx,by,cx,cy,dx,dy))
-		return true;
-	else if (betweenReel(ax,ay,bx,by,cx,cy)||betweenReel(ax,ay,bx,by,dx,dy)||betweenReel(cx,cy,dx,dy,ax,ay)||betweenReel(cx,cy,dx,dy,bx,by)) {
-		isIllegal = true;
-		return true;
-	}
-	return false;
-}
-
-bool seCroisentReel(const Aretes &aretes1, const Aretes &aretes2, bool& isIllegal) {
-	return seCroisentReel(aretes1.getNoeud1()->_xreel,aretes1.getNoeud1()->_yreel, aretes1.getNoeud2()->_xreel,aretes1.getNoeud2()->_yreel, aretes2.getNoeud1()->_xreel,aretes2.getNoeud1()->_yreel, aretes2.getNoeud2()->_xreel,aretes2.getNoeud2()->_yreel,isIllegal);
-}
-
-// Renvoie vrai si c est sur le segment ab
-bool surSegmentReel(double ax, double ay, double bx, double by, double cx, double cy) {
-	if (!collinearReel(ax,ay,bx,by,cx,cy))
-		return false;
-	if (ax != bx)
-		return ((ax <= cx)&&(cx <= bx))||((ax >= cx)&&(cx >= bx));
-	else
-		return ((ay <= cy)&&(cy <= by)||((ay >= cy)&&(cy >= by)));
-}
-
-bool surSegmentReel(const Aretes& lien, const Noeud& noeud) {
-	return surSegmentReel(lien.getNoeud1()->_xreel,lien.getNoeud1()->_yreel,lien.getNoeud2()->_xreel,lien.getNoeud2()->_yreel, noeud._xreel,noeud._yreel);
 }
 
 // compute the intersection point of two edges

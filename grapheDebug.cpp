@@ -44,16 +44,6 @@ void Graphe::afficherNoeuds(std::string nom) {
     tcout() << "-----------------------------------------------" << std::endl;
 }
 
-void Graphe::afficherNoeudsReel(std::string nom) {
-    tcout() << "-----------------------------------------------" << std::endl;
-    tcout() << "Affichage DEBUG Noeuds: " << nomGraphe << " " << nom << std::endl;
-    tcout() << "Nb Noeuds: " << _noeuds.size() << std::endl;
-    for (int i = 0; i < _noeuds.size(); i++) {
-        tcout() << "id: " << _noeuds[i].getId() << " xreel: " << _noeuds[i]._xreel << " yreel: " << _noeuds[i]._yreel << std::endl;
-    }
-    tcout() << "-----------------------------------------------" << std::endl;
-}
-
 void Graphe::afficherEmplacement(std::string nom) {
     tcout() << "-----------------------------------------------" << std::endl;
     tcout() << "Affichage DEBUG Emplacements: " << nomGraphe << " " << nom << std::endl;
@@ -256,57 +246,7 @@ int Graphe::debugDesyncNoeudEmplacement(bool display, std::string nom) {
     return retour;
 }
 
-int Graphe::debugOldCroisement(bool display, std::string nom) {
-    int retour = 100;
-    if (display) { 
-        tcout() << "-----------------------------------------------" << std::endl;
-        tcout() << "Affichage DEBUG Score Methode Graphe: " << nomGraphe << " " << nom << std::endl;
-    }
-    bool scoreFaux = true;
-    long scoreActuel = getNbCroisementConst();
-    long scoreOld = getNbCroisementOldMethodConst();
-    if (scoreActuel != scoreOld) {
-        tcout() << "Actuel: " << scoreActuel << " old: " << scoreOld << std::endl;
-        if (!display) { tcout() << "-----------------------------------------------" << std::endl; }
-        scoreFaux = false;
-    }
-    if (scoreFaux) {
-        if (display) { tcout() << "Score Correct" << std::endl; }
-        retour = 0;
-    }
-    if (display) { tcout() << "-----------------------------------------------" << std::endl; }
-    return retour;
-}
-
-int Graphe::debugScoreNoeud(bool display, std::string nom) {
-    int retour = 200;
-    if (display) {
-        tcout() << "-----------------------------------------------" << std::endl;
-        tcout() << "Affichage DEBUG Score Noeud: " << nomGraphe << " " << nom << std::endl;
-    }
-    long nbWrongScore = 0;
-    for (int i = 0; i < _noeuds.size(); i++) {
-        if (_noeuds[i].getEmplacement() != nullptr) {
-            long scoreReel = getScoreCroisementNode(i);
-            long scoreArrays = getScoreCroisementNodeFromArrays(i);
-            if ((scoreReel != _noeuds[i].score)||(scoreReel != scoreArrays)) {
-                tcout() << "Noeud: " << i << " Score:" << _noeuds[i].score << " Score Reel: " << scoreReel << " Score Arrays: " << scoreArrays << std::endl;
-                nbWrongScore++;
-            }
-        }
-    }
-    if (nbWrongScore == 0) {
-        if (display) { tcout() << "Aucun" << std::endl; }
-        retour = 0;
-    }
-    else {
-        if (!display) { tcout() << "-----------------------------------------------" << std::endl; }
-    }
-    if (display) { tcout() << "-----------------------------------------------" << std::endl; }
-    return retour;
-}
-
-int Graphe::debugScoreGraphe(bool display, bool useArray, std::string nom) {
+int Graphe::debugScoreGraphe(bool display, std::string nom) {
     int retour = 400;
     if (display) { 
         tcout() << "-----------------------------------------------" << std::endl;
@@ -314,77 +254,15 @@ int Graphe::debugScoreGraphe(bool display, bool useArray, std::string nom) {
     }
     bool scoreFaux = true;
     long scoreReel;
-    if (useCoordReel) { scoreReel = getNbCroisementReelConst(); }
-    else { scoreReel = getNbCroisementConst(); }
-
-    if (useArray) {
-        long scoreArray = getNbCroisementArray();
-        if ((nombreCroisement != scoreReel)||(nombreCroisement != scoreArray)) {
-            tcout() << "Croisement: " << nombreCroisement << " reel: " << scoreReel << " array: " << scoreArray << std::endl;
-            if (!display) { tcout() << "-----------------------------------------------" << std::endl; }
-            scoreFaux = false;
-        }
-    }
-    else {
-        if (nombreCroisement != scoreReel) {
-            tcout() << "Croisement: " << nombreCroisement << " reel: " << scoreReel << std::endl;
-            if (!display) { tcout() << "-----------------------------------------------" << std::endl; }
-            scoreFaux = false;
-        }
+    scoreReel = getNbCroisementConst();
+    if (nombreCroisement != scoreReel) {
+        tcout() << "Croisement: " << nombreCroisement << " reel: " << scoreReel << std::endl;
+        if (!display) { tcout() << "-----------------------------------------------" << std::endl; }
+        scoreFaux = false;
     }
     if (scoreFaux) {
         if (display) { tcout() << "Score Correct" << std::endl; }
         retour = 0;
-    }
-    if (display) { tcout() << "-----------------------------------------------" << std::endl; }
-    return retour;
-}
-
-int Graphe::debugInterArrays(bool display, std::string nom) {
-    int retour = 1000;
-    if (display) {
-        tcout() << "-----------------------------------------------" << std::endl;
-        tcout() << "Affichage DEBUG Inter Arrays: " << nomGraphe << " " << nom << std::endl;
-    }
-    long nbWrongArray = 0;
-    for (int i = 0; i < _aretes.size(); i++) {
-        for (const int& idOtherArray : _aretes[i].intersections) {
-            if (_aretes[idOtherArray].intersections.count(i) == 0) {
-                tcout() << "Inter: " << i << "&" << idOtherArray << std::endl;
-                nbWrongArray++;
-            }
-            if (idOtherArray == i) {
-                tcout() << "Inter: " << i << " self in array: " << idOtherArray << std::endl;
-                nbWrongArray++;
-            }
-        }
-        for (const int& idOtherArray : _aretes[i].intersectionsIll) {
-            if (_aretes[idOtherArray].intersectionsIll.count(i) == 0) {
-                tcout() << "InterIll: " << i << "&" << idOtherArray << std::endl;
-                nbWrongArray++;
-            }
-            if (idOtherArray == i) {
-                tcout() << "InterIll: " << i << " self in array: " << idOtherArray << std::endl;
-                nbWrongArray++;
-            }
-        }
-        for (const int& idOtherArray : _aretes[i].intersectionsIllSelf) {
-            if (_aretes[idOtherArray].intersectionsIllSelf.count(i) == 0) {
-                tcout() << "InterIllSelf: " << i << "&" << idOtherArray << std::endl;
-                nbWrongArray++;
-            }
-            if (idOtherArray == i) {
-                tcout() << "InterIllSelf: " << i << " self in array: " << idOtherArray << std::endl;
-                nbWrongArray++;
-            }
-        }
-    }
-    if (nbWrongArray == 0) {
-        if (display) { tcout() << "Aucun" << std::endl; }
-        retour = 0;
-    }
-    else {
-        if (!display) { tcout() << "-----------------------------------------------" << std::endl; }
     }
     if (display) { tcout() << "-----------------------------------------------" << std::endl; }
     return retour;
@@ -543,23 +421,9 @@ int Graphe::debugEverything(bool displayOther, bool displaySelf) {
         //if (displaySelf) { tcout() << "Debut debug methode intersection\n"; }
         //total += debugOldCroisement(displayOther);
     }
-    if (isNodeScoreUpdated) {
-        if (displaySelf) { tcout() << "Debut debug score noeud\n"; }
-        total += debugScoreNoeud(displayOther);
-    }
     if (isNombreCroisementUpdated) {
-        if (isIntersectionVectorUpdated) {
-            if (displaySelf) { tcout() << "Debut debug score graphe avec array\n"; }
-            total += debugScoreGraphe(displayOther,true);
-        }
-        else {
-            if (displaySelf) { tcout() << "Debut debug score graphe\n"; }
-            total += debugScoreGraphe(displayOther);
-        }
-    }
-    if (isIntersectionVectorUpdated) {
-        if (displaySelf) { tcout() << "Debut debug inter array\n"; }
-        total += debugInterArrays(displayOther);
+        if (displaySelf) { tcout() << "Debut debug score graphe\n"; }
+        total += debugScoreGraphe(displayOther);
     }
     if (grille.size() > 0) {
         if (!useCoordReel) {

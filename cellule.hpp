@@ -1,8 +1,6 @@
 #ifndef CELLULE_HPP
 #define CELLULE_HPP
 
-#include <mutex>
-
 class Cellule {
 public:
 	int _id; // id unique
@@ -12,9 +10,6 @@ public:
     int _x1, _y1; // Coin haut gauche
     int _x2, _y2; // Coin bas droite
 
-    double _x1reel, _y1reel; // Coin haut gauche
-    double _x2reel, _y2reel; // Coin bas droite
-
     std::vector<int> vecEmplacementId;
     std::vector<int> vecAreteId;
 
@@ -23,25 +18,9 @@ public:
     std::vector<int> vecSingleNodeId;
     std::vector<int> containSingleNodeId;
 
-    std::mutex* mutexEmplacement;
-    std::mutex* mutexArete;
-
     Cellule(int id, int nx, int ny, int x1, int y1, int x2, int y2, int nbArete, int nbNode) {
         _id = id; _numeroX = nx; _numeroY = ny;
         _x1 = x1; _x2 = x2; _y1 = y1; _y2 = y2;
-        _x1reel = -1; _x2reel = -1; _y1reel = -1; _y2reel = -1;
-        mutexEmplacement = new mutex();
-        mutexArete = new mutex();
-        containAreteId.resize(nbArete,-1);
-        containSingleNodeId.resize(nbNode,-1);
-    }
-
-    Cellule(int id, int nx, int ny, double x1, double y1, double x2, double y2, int nbArete, int nbNode) {
-        _id = id; _numeroX = nx; _numeroY = ny;
-        _x1reel = x1; _x2reel = x2; _y1reel = y1; _y2reel = y2;
-        _x1 = -1; _x2 = -1; _y1 = -1; _y2 = -1;
-        mutexEmplacement = new mutex();
-        mutexArete = new mutex();
         containAreteId.resize(nbArete,-1);
         containSingleNodeId.resize(nbNode,-1);
     }
@@ -54,15 +33,6 @@ public:
     int getBottomLeftY() { return _y2; }
     int getBottomRightX() { return _x2; }
     int getBottomRightY() { return _y2; }
-
-    double getTopLeftXReel() { return _x1reel; }
-    double getTopLeftYReel() { return _y1reel; }
-    double getTopRightXReel() { return _x2reel; }
-    double getTopRightYReel() { return _y1reel; }
-    double getBottomLeftXReel() { return _x1reel; }
-    double getBottomLeftYReel() { return _y2reel; }
-    double getBottomRightXReel() { return _x2reel; }
-    double getBottomRightYReel() { return _y2reel; }
 
 };
 

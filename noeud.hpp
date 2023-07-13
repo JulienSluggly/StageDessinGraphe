@@ -13,8 +13,7 @@ public:
 	std::vector<int> _aretes; // Contient les indices des aretes contenant ce noeud
 	int _id; // Id du noeud dans le tableau du graphe, unique et >= 0
 	std::vector<Noeud*> voisins; // Voisins directs relié par une arete
-	std::mutex* mutexAreteVoisin = nullptr;
-	Noeud(int id) { _id = id; mutexAreteVoisin = new std::mutex(); }
+	Noeud(int id) { _id = id; }
 	
 	// Attention ce score n'est pas toujours a jour!
 	long score = -1; // Score d'intersection du noeud
@@ -25,8 +24,6 @@ public:
 	double stressY = -1;
 	double pivotX = -1;
 	double pivotY = -1;
-	double _xreel = -12345;
-	double _yreel = -12345;
 	std::vector<int>* idCelluleVec = nullptr;
 	
 	int areteCommune(Noeud* noeudVoisin) {
@@ -77,11 +74,6 @@ public:
 		}
 		_emplacement = emplacement;
 		emplacement->setNoeud(this);
-	}
-
-	void setCoordReel(std::pair<double,double>& coord) {
-		_xreel = coord.first;
-		_yreel = coord.second;
 	}
 
 	// Force le noeud à l'emplacement en enlevant l'ancien noeud s'il y en avait un.
