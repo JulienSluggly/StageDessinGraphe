@@ -847,7 +847,6 @@ void Graphe::rerecuitSimuleReel(double &timeBest,int &nombreRecuit,std::chrono::
         #if defined(DEBUG_GRAPHE)
             tcout() << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " Crossings: " << lastCroisement << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif
-        if (i == 4) globalDebugVar = true;
         nombreRecuit++;
         long nbInterSuppr = recuitSimuleReelLimite(recuitTimeBest,start,customParam, cool, t, seuil, delay, modeNoeud, modeEmplacement, useGrille, useScore,timeLimit);
         updateRecuitCycleVague(nbInterSuppr>0);
@@ -1304,7 +1303,6 @@ long Graphe::recuitSimuleReelLimite(double &timeBest, std::chrono::time_point<st
     double randDouble, limiteImprove;
     bool makeMove;
     for (int iter = 0; t > seuil && nbCroisement > 0 && ((secondsTotal.count() < timeLimit)||(timeLimit == -1)); iter++) {
-        if ((globalDebugVar)&&(iter == 827012)) globalDebugVar2 = true;
         nodeId = selectionNoeud(modeNoeud, t);
         oldCoord.first = _noeuds[nodeId]._xreel;
         oldCoord.second = _noeuds[nodeId]._yreel;

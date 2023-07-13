@@ -216,10 +216,8 @@ int main(int argc, char *argv[]) {
 #endif
 	if (argc > 2) { initCPUSet(std::stoi(argv[2])); }
 	else { initCPUSet(); }
-	//initRandomSeed();
-	initSameSeed(372362249);
-	char* pathTe = "/home/uha/Documents/DessinGrapheCmake/src/benchGraphs/test";
-	allRunsByOnFolderSingleInput(pathTe);
+	initRandomSeed();
+	//initSameSeed(372362249);
 	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
 	bool useCoordReel = true;
 	//std::string nomFichierGraph = "5completModif";

@@ -8,6 +8,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+double epsilon = 0.0001;
+
 Graphe::Graphe() {
     initGraphData();
 }
@@ -666,7 +668,6 @@ void Graphe::registerSlotsInGridNoMove() {
         int numX = floor(dnumX);
         int numY = floor(dnumY);
 
-        double epsilon = 0.00001;
         int numX2 = floor(dnumX + epsilon);
         int numY2 = floor(dnumY + epsilon);
         if (numX2 == numX) { numX2 = floor(dnumX - epsilon); }
@@ -996,7 +997,6 @@ void Graphe::registerNodesInGrid() {
         int numX = floor(dnumX);
         int numY = floor(dnumY);
 
-        double epsilon = 0.000001;
         int numX2 = floor(dnumX + epsilon);
         int numY2 = floor(dnumY + epsilon);
         if (numX2 == numX) { numX2 = floor(dnumX - epsilon); }
@@ -1047,7 +1047,6 @@ void Graphe::registerNodeInGrid(int i) {
     int numX = floor(dnumX);
     int numY = floor(dnumY);
 
-    double epsilon = 0.000001;
     int numX2 = floor(dnumX + epsilon);
     int numY2 = floor(dnumY + epsilon);
     if (numX2 == numX) { numX2 = floor(dnumX - epsilon); }
@@ -1095,7 +1094,6 @@ void Graphe::recalcSpecificNodeCell(int nodeId) {
     int numX = floor(dnumX);
     int numY = floor(dnumY);
 
-    double epsilon = 0.00001;
     int numX2 = floor(dnumX + epsilon);
     int numY2 = floor(dnumY + epsilon);
     if (numX2 == numX) { numX2 = floor(dnumX - epsilon); }
@@ -1396,7 +1394,6 @@ int Graphe::getDirectionAreteReel(int idArete) {
     double x2 = _aretes[idArete].getNoeud2()->_xreel;
     double y2 = _aretes[idArete].getNoeud2()->_yreel;
 
-    double epsilon = 0.0001;
     if ((x2 > x1 + epsilon)&&(x2 - epsilon > x1)) { // Dirigé vers la droite
         if ((y2 > y1 + epsilon)&&(y2 - epsilon > y1)) { // Dirigé en haut à droite
             return 1;
@@ -1559,16 +1556,26 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
     bool aligneHorizontal = false, aligneVertical = false;
     if ((direction == 0)||(direction == 4)) { aligneHorizontal = checkNodeAlignementHorizontal(startNodeId); }
     else if ((direction == 2)||(direction == 6)) { aligneVertical = checkNodeAlignementVertical(startNodeId); }
+    if (aligneHorizontal||aligneVertical) {
+        for (const int& tmpId : vecCellId) {
+            if (tmpId < idCell) { idCell = tmpId; }
+        }
+    }
     std::vector<int>* vecArrive = _aretes[areteId].getNoeud2()->idCelluleVec;
     int nombreColonne = grille[0].size();
     bool endNotFound = true;
     for (const int& arriveNums : *vecArrive) { 
-        if (arriveNums == idCell) { endNotFound = false; } 
+        if (arriveNums == idCell) { endNotFound = false; break; } 
     }
     while(endNotFound) {
         switch(direction) {
             case 0:
                 idCell++;
+                if (aligneHorizontal) {
+                    int idCell1 = idCell+nombreColonne;
+                    if (!vecCellAlreadyPassed[idCell1]) { vecCellId.push_back(idCell1); vecCellAlreadyPassed[idCell1] = true; }
+                    for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell1) { endNotFound = false; break; } }
+                }
                 break;
             case 1: {
                 double cellX = grillePtr[idCell]->getTopRightXReel();
@@ -1591,6 +1598,11 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
             }
             case 2:
                 idCell += nombreColonne;
+                if (aligneVertical) {
+                    int idCell1 = idCell+1;
+                    if (!vecCellAlreadyPassed[idCell1]) { vecCellId.push_back(idCell1); vecCellAlreadyPassed[idCell1] = true; }
+                    for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell1) { endNotFound = false; break; } }
+                }
                 break;
             case 3: {
                 double cellX = grillePtr[idCell]->getTopLeftXReel();
@@ -1613,6 +1625,11 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
             }
             case 4:
                 idCell--;
+                if (aligneHorizontal) {
+                    int idCell1 = idCell+nombreColonne;
+                    if (!vecCellAlreadyPassed[idCell1]) { vecCellId.push_back(idCell1); vecCellAlreadyPassed[idCell1] = true; }
+                    for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell1) { endNotFound = false; break; } }
+                }
                 break;
             case 5: {
                 double cellX = grillePtr[idCell]->getBottomLeftXReel();
@@ -1635,6 +1652,11 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
             }
             case 6:
                 idCell -= nombreColonne;
+                if (aligneVertical) {
+                    int idCell1 = idCell+1;
+                    if (!vecCellAlreadyPassed[idCell1]) { vecCellId.push_back(idCell1); vecCellAlreadyPassed[idCell1] = true; }
+                    for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell1) { endNotFound = false; break; } }
+                }
                 break;
             case 7: {
                 double cellX = grillePtr[idCell]->getBottomRightXReel();
@@ -1657,17 +1679,14 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
             }
         }
         if (!vecCellAlreadyPassed[idCell]) { vecCellId.push_back(idCell); vecCellAlreadyPassed[idCell] = true; }
-        for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell) { endNotFound = false; } }
+        for (const int& arriveNums : *vecArrive) { if (arriveNums == idCell) { endNotFound = false; break; } }
     }
-    if (globalDebugVar2) tcout() << "T1\n";
     for (const int& tmpIdCell : *vecArrive) {
         if (!vecCellAlreadyPassed[tmpIdCell]) { vecCellId.push_back(tmpIdCell); vecCellAlreadyPassed[tmpIdCell] = true; }
     }
-    if (globalDebugVar2) tcout() << "T2\n";
     int sameUntil=0;
     int minSize = min(vecCellId.size(),_aretes[areteId].vecIdCellules.size());
     for (;((sameUntil<minSize)&&(vecCellId[sameUntil]==_aretes[areteId].vecIdCellules[sameUntil]));sameUntil++);
-    if (globalDebugVar2) tcout() << "T3\n";
     for (int i=sameUntil;i<_aretes[areteId].vecIdCellules.size();i++) {
         int indexCell = _aretes[areteId].vecIdCellules[i];
         int lastElem = grillePtr[indexCell]->vecAreteId.size() - 1;
@@ -1679,16 +1698,13 @@ void Graphe::recalcAreteCelluleReel(int areteId) {
         grillePtr[indexCell]->containAreteId[areteId] = -1;
         grillePtr[indexCell]->vecAreteId.pop_back();
     }
-    if (globalDebugVar2) tcout() << "T4\n";
     for (int i=sameUntil;i<vecCellId.size();i++) {
         if (grillePtr[vecCellId[i]]->containAreteId[areteId] == -1) {
             grillePtr[vecCellId[i]]->vecAreteId.push_back(areteId);
             grillePtr[vecCellId[i]]->containAreteId[areteId] = grillePtr[vecCellId[i]]->vecAreteId.size() - 1;
         }
     }
-    if (globalDebugVar2) tcout() << "T5\n";
     _aretes[areteId].vecIdCellules.swap(vecCellId);
-    if (globalDebugVar2) tcout() << "T6\n";
 }
 
 void Graphe::recalcNoeudIsoleGrid(int nodeId) {
@@ -2874,12 +2890,11 @@ void Graphe::fillWithSingleNodes() {
     updatePenalite(_noeuds.size(),_noeuds.size());
 }
 
-bool equalWithEpsilon(double a, double b, double epsilon) {
-    return ((a+epsilon > b)&&(a-epsilon < b));
+bool equalWithEpsilon(double a, double b, double eps) {
+    return ((a+eps > b)&&(a-eps < b));
 }
 
 bool Graphe::checkNodeAlignementHorizontal(int nodeId) {
-    double epsilon = 0.0001;
     if (_noeuds[nodeId].idCelluleVec->size() <= 1) return false;
     for (const int& celluleId : *_noeuds[nodeId].idCelluleVec) {
         double n1Y = grillePtr[celluleId]->getBottomLeftY();
@@ -2890,7 +2905,6 @@ bool Graphe::checkNodeAlignementHorizontal(int nodeId) {
 }
 
 bool Graphe::checkNodeAlignementVertical(int nodeId) {
-    double epsilon = 0.0001;
     if (_noeuds[nodeId].idCelluleVec->size() <= 1) return false;
     for (const int& celluleId : *_noeuds[nodeId].idCelluleVec) {
         double n1X = grillePtr[celluleId]->getBottomLeftX();

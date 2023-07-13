@@ -20,6 +20,7 @@
 extern bool globalDebugVar;
 extern bool globalDebugVar2;
 extern bool globalDebugVar3;
+extern double epsilon;
 
 class Graphe {
 public:
