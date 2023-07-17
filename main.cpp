@@ -208,7 +208,36 @@ void runFunc3() {
 	}
 }
 
+void openGLCurrentFolder() {
+	std::string cheminFichier;
+	std::string nomFichier;
+	std::string nomGraphe;
+
+	std::filesystem::path graphFolder = std::filesystem::current_path() / "originalGraph";
+	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(graphFolder)) {
+		cheminFichier = dirEntry.path().string();
+        nomFichier = dirEntry.path().string();
+        std::reverse(nomFichier.begin(), nomFichier.end());
+        nomFichier = nomFichier.substr(0, nomFichier.find('/'));
+        std::reverse(nomFichier.begin(), nomFichier.end());
+
+        if (containsString(nomFichier,".json")) {
+            nomGraphe = nomFichier.substr(0, nomFichier.find('.'));
+			break;
+        }
+    }
+
+	Graphe G(nomGraphe);
+	G.readFromJsonChallenge(cheminFichier);
+	G.calcMaxAndAverageDegree();
+	G.fillCommonNodeVectors();
+	G.setupGridAndRegistration({});
+	dispOpenGL(G,G.gridWidth,G.gridHeight,false);
+	exit(0);
+}
+
 int main(int argc, char *argv[]) {
+	openGLCurrentFolder(); return 0;
 	bool useProfiler = false;
 #if defined(GPERF_INSTALLED)
 	std::string cheminProfile = chemin + "profilerData/profile.output";
@@ -219,18 +248,20 @@ int main(int argc, char *argv[]) {
 	initRandomSeed();
 	//initSameSeed(372362249);
 	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
-	bool useCoordReel = true;
+	bool useCoordReel = false;
 	//std::string nomFichierGraph = "5completModif";
-	std::string nomFichierGraph = "graph-2-input";
+	std::string nomFichierGraph = "graph-12-input";
 	if (argc > 1) { nomFichierGraph = argv[1]; }
-	std::string nomFichierSlots = "3X-10-input-slots";
+	std::string nomFichierSlots = "3X-12-input-slots";
 	//std::string nomFichierSlots = "Grid";
 	if (useCoordReel) { tcout() << "Fichier Graphe: " + nomFichierGraph << std::endl; }
 	else { tcout() << "Fichier Graphe: " + nomFichierGraph << " Fichier Slots: " << nomFichierSlots << std::endl; }
 	Graphe G(nomFichierGraph); G.useCoordReel = useCoordReel;
 	std::string pathGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-	G.readFromCSVGraphReel("/home/uha/Téléchargements/testGraphMGDrawVis/graph2resultLHS.csv");
-	//G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	//G.readFromCSVGraphReel("/home/uha/Téléchargements/testGraphMGDrawVis/graph2resultLHS.csv");
+	G.setupGraphe(nomFichierGraph,nomFichierSlots);
+	std::string output = nomFichierGraph + ".json";
+	G.writeToJsonChallenge(output); return 0;
 	//G.readFromJsonGraphReel(pathGraph);
 	//std::string kregularFile = chemin + "benchGraphs/runsSingle/r3/grafo10781.100.graphml";
 	//G.readFromGraphmlGraph(kregularFile);
@@ -276,7 +307,9 @@ int main(int argc, char *argv[]) {
 		//G.afficherInfo();
 
 		//G.recuitSimuleLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,-1);
-		G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,-1);
+		//G.recuitSimuleReelLimite(tempsBest,start,{},0.99999,100.0,0.0001,1,0,2,true,false,-1);
+
+		G.recuitSimuleChallenge();
 
 		//G.bestDeplacementLimite();
 

@@ -17,23 +17,28 @@
 #include <omp.h>
 #include <mutex>
 
-extern bool globalDebugVar;
-extern bool globalDebugVar2;
-extern bool globalDebugVar3;
+extern bool globalDebugVar; // Utile pour le debug uniquement
+extern bool globalDebugVar2; // Utile pour le debug uniquement
+extern bool globalDebugVar3; // Utile pour le debug uniquement
+
+// 0.0001
 extern double epsilon;
 
 class Graphe {
 public:
-	std::vector<Emplacement> _emplacements;
-	std::vector<Aretes> _aretes;
-	std::vector<Noeud> _noeuds;
+	std::vector<Emplacement> _emplacements; // L'id d'un emplacement correspond à son index dans ce tableau
+	std::vector<Aretes> _aretes; // L'id d'une arete correspond à son index dans ce tableau
+	std::vector<Noeud> _noeuds; // L'id d'un noeud correspond à son index dans ce tableau
 
+	// Contient l'id des noeuds de degré 0
 	std::vector<int> _noeudsSeuls;
 
+	// Les mutex sont utilisés pour le recuit simulé multithreadé
 	std::mutex* mutexEmplacements;
 	std::mutex* mutexAretes;
 	std::mutex* mutexNoeud;
 
+	// Contient les aretes qui ont des intersections pour l'affichage OpenGL
 	std::set<Aretes*> areteIll;
 	std::set<Aretes*> areteIllSelf;
 	std::set<Aretes*> areteInter;
@@ -43,7 +48,7 @@ public:
 	PivotMDS _pmds;
 
 	std::vector<std::vector<Cellule>> grille;
-	std::vector<Cellule*> grillePtr;
+	std::vector<Cellule*> grillePtr; // Pointe sur les cellules de l'attribut 'grille'
 
 	// Chaque case contient le pointeur sur le noeud qui n'est pas en commun de l'arete i. commonNodeEdges[i][j]
 	// Si les aretes n'ont pas de noeud en commun, contient nullptr
@@ -51,8 +56,8 @@ public:
 
 	std::vector<std::vector<std::pair<int,int>>> activationGrid;
 
-	int PENALITE_MAX = 1000;
-	int PENALITE_MAX_SELF = 1001;
+	int PENALITE_MAX = 1000; // Penalite lors d'une intersection illégale, cette valeur est remplacée lors de l'appel a UpdatePenalite ou SetupGraphe
+	int PENALITE_MAX_SELF = 1001; // Penalite lors d'une intersection illégale entre noeud voisins, cette valeur est remplacée lors de l'appel a UpdatePenalite ou SetupGraphe
 	int gridHeight = 10;
 	int gridWidth = 10;
 	long TRES_GRANDE_VALEUR = 999999999; // 999999999
@@ -75,11 +80,12 @@ public:
 
 	int minXNode=-1,maxXNode=-1,minYNode=-1,maxYNode=-1; // Coord max des noeuds, pas forcément à jour.
 
+	// Valeur utilisés pour le tirage de coordonnées dans une boite autour de chaque noeud.
 	double boiteXSizeDepart=-1.0, boiteYSizeDepart=-1.0, diffXBoiteIter=-1.0, diffYBoiteIter=-1.0;
 
 	bool debugVar = false; // Debug print only, pas utile
 
-	std::vector<int> maxFace;
+	std::vector<int> maxFace; // Pas utilisé
 
 	std::string nomGraphe = "Graphe";
 
@@ -762,43 +768,6 @@ public:
 
 	void registerEdgesInGridNoMove();
 
-	// Renvoie un entier indiquant la direction de l'arete noeud1 vers noeud2.
-	//0=R,1=TR,2=T,3=TL,4=L,5=BL,6=B,7=BR
-	int getDirectionArete(int idArete);
-
-	// Renvoie un entier indiquant la direction de l'arete noeud1 vers noeud2.
-	//0=R,1=TR,2=T,3=TL,4=L,5=BL,6=B,7=BR
-	int getDirectionAreteReel(int idArete);
-
-	// Met a jour les cellules passée par l'arete areteId
-	void recalcAreteCellule(int areteId);
-
-	// Met a jour les cellules passée par l'arete areteId
-	void recalcAreteCelluleReel(int areteId);
-
-	// Met a jour les aretes du noeud dans les cellules
-	void recalcNodeCellule(int nodeId);
-
-	// Met a jour les aretes du noeud dans les cellules
-	void recalcNodeCelluleReel(int nodeId);
-
-	// Met a jour les cellules dans le noeud uniquement
-	void recalcSpecificNodeCell(int nodeId);
-
-	void recalcNoeudIsoleGrid(int nodeId);
-
-	// Ajoute les id dans les cellules et dans l'arete
-	void initAreteCellule(int areteId);
-
-	// Ajoute les id dans les cellules et dans les aretes du noeuds
-	void initNodeCellule(int nodeId);
-
-	// Calcule le vecteur de cellule sans le mettre a jour
-	void calcAreteCelluleVec(std::vector<int>& vecInt,int areteId);
-
-	// Calcule le vecteur de vecteur de cellule sans le mettre a jour
-	void calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int nodeId);
-
 	// Effectue la lecture de fichier json pour le graphe et les emplacements
 	void setupGraphe(std::string fileGraphe, std::string fileSlot);
 
@@ -822,12 +791,6 @@ public:
 	// Renvoie le noeud en coordonnées réelles le plus proche des coordonnées passées en parametres, utile pour openGL.
 	int getClosestNodeFromPointReel(double x, double y);
 
-	// Recherche l'emplacement le plus proche en parcourant les cellules
-	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree);
-
-	// Aggrandi le vecteur de recherche pour l'emplacement le plus proche lors du placement.
-	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
-
 	// Appelle l'algorithme de stress majorization sur le graphe.
 	void stressMajorization(std::vector<std::vector<double>> customParam = {{}}, int methode=0, bool useClosest=false);
 
@@ -845,9 +808,6 @@ public:
 
 	// Implémentation du pivotMDS d'ogdf
 	void placementPivotMDS(std::vector<std::vector<double>> customParam = {{}}, int edgeCost=45, int nbPivot=50);
-
-	// Appelé par la fonction rotateGraph
-	void rotateNode(double angle, int nodeId, double centerX, double centerY);
 
 	// Fonctionne avec ou sans emplacements, avec emplacements effectue une recherche d'emplacement le plus proche
 	void rotateGraph(double angle);
@@ -867,12 +827,6 @@ public:
 	// Renvoie la moyenne des longueurs des aretes du graphe
 	double moyenneLongueurAretesReel();
 
-	// Pas fini
-	void supprimerArete(int idArete);
-
-	// Pas fini
-	void supprimerNoeud(int idNoeud);
-
 	// Renvoie les identifiants des noeuds présents dans la plus grande composante connexe
 	std::vector<int> plusGrandeComposanteConnexe();
 
@@ -885,35 +839,10 @@ public:
 	// Ajoute les emplacement dont l'index d'activation est inferieur ou egal a l'index en parametre
 	void activateSlotsGridUntil(int index);
 
-	// Supprime le dernier noeud dans le tableau et met tout a jour.
-	// A appeler uniquement apres la création d'un noeud temporaire.
-	void supprimerNoeudTemporaire(int copyNodeId);
-
-	// ATTENTION LES THREADS QUI APPELLENT CETTE FONCTION DOIVENT AVOIR UN TID ALLANT DE 1 à NumThread-1
-	void supprimerNoeudTemporaireThread(int copyNodeId, int tid);
-
-	// Effectue un resize sur les vecteurs de noeuds et d'aretes pour supprimer les noeuds et aretes temporaires
-	void resizeVectorTemporaire(int nodeId, int nbNodeTemporaire);
-
-	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires.
-	int creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord);
-
-	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires. Version multithreadé
-	int creationNoeudTemporaireThread(int nodeId, std::pair<double,double>& coord, int tid);
-
-	// Place le noeud a la place du noeud temporaire, puis supprime le noeud temporaire
-	void replaceNoeudTemporaire(int nodeId);
-
 	// Initialise la matrice des aretes de noeuds communs
 	void fillCommonNodeVectors();
 
 	void fillCommonNodeVectorsGenetique(std::vector<std::vector<int>>& commonNodeEdgesGenetique);
-
-	// Met a jour la matrice de voisinage pour ce noeud
-	void addCommonNodeVector(int nodeId);
-
-	// Supprime les references de voisinage de ce noeud
-	void removeCommonNodeVector(int nodeId);
 
 	void printCommonMatrix();
 
@@ -932,6 +861,7 @@ public:
 	// Déplace le noeud nodeId à l'emplacement slotId, effectue un swap si pas disponible, met à jour la grille et le score.
 	void moveNodeToSlot(int nodeId, int slotId, bool useScore, bool useGrille);
 
+	// Heuristique Tabou utilisant CUDA
 	void rechercheTabouCUDA();
 	void rechercheTabouReelCUDA();
 
@@ -947,9 +877,59 @@ public:
 	// Ajoute des noeuds isolés dans le graphe jusqu'a en avoir autant que d'emplacements
 	void fillWithSingleNodes();
 
-	bool checkNodeAlignementHorizontal(int nodeId);
-	bool checkNodeAlignementVertical(int nodeId);
+	void supprimerArete(int idArete); // Pas fini
+	void supprimerNoeud(int idNoeud); // Pas fini
 
+	
+private:
+	// Recherche l'emplacement le plus proche en parcourant les cellules
+	void searchInCellClosestEmplacement(double x, double y,int cellX,int cellY,int& closestEmpId,double& minDist, bool isFree);
+	// Aggrandi le vecteur de recherche pour l'emplacement le plus proche lors du placement.
+	void enlargeSearchVector(std::vector<std::pair<int,int>>& searchVector);
+	// Renvoie un entier indiquant la direction de l'arete noeud1 vers noeud2.
+	//0=Right,1=TopRight,2=Top,3=TopLeft,4=Left,5=BottomLeft,6=Bottom,7=BottomRight
+	int getDirectionArete(int idArete);
+	// Renvoie un entier indiquant la direction de l'arete noeud1 vers noeud2.
+	//0=R,1=TR,2=T,3=TL,4=L,5=BL,6=B,7=BR
+	int getDirectionAreteReel(int idArete);
+	// Met a jour les cellules passée par l'arete areteId
+	void recalcAreteCellule(int areteId);
+	// Met a jour les cellules passée par l'arete areteId
+	void recalcAreteCelluleReel(int areteId);
+	// Met a jour les aretes du noeud dans les cellules
+	void recalcNodeCellule(int nodeId);
+	// Met a jour les aretes du noeud dans les cellules
+	void recalcNodeCelluleReel(int nodeId);
+	// Met a jour les cellules dans le noeud uniquement
+	void recalcSpecificNodeCell(int nodeId);
+	// Met a jour les cellules et le noeud
+	void recalcNoeudIsoleGrid(int nodeId);
+	// Ajoute les id dans les cellules et dans l'arete
+	void initAreteCellule(int areteId);
+	// Ajoute les id dans les cellules et dans les aretes du noeuds
+	void initNodeCellule(int nodeId);
+	// Calcule le vecteur de cellule sans le mettre a jour
+	void calcAreteCelluleVec(std::vector<int>& vecInt,int areteId);
+	// Calcule le vecteur de vecteur de cellule sans le mettre a jour
+	void calculeNodeCelluleVec(std::vector<std::vector<int>>& vecVecInt, int nodeId);
+	void rotateNode(double angle, int nodeId, double centerX, double centerY); // Appelé par la fonction rotateGraph
+	// Supprime le dernier noeud dans le tableau et met tout a jour.
+	// A appeler uniquement apres la création d'un noeud temporaire.
+	void supprimerNoeudTemporaire(int copyNodeId);
+	// ATTENTION LES THREADS QUI APPELLENT CETTE FONCTION DOIVENT AVOIR UN TID ALLANT DE 1 à NumThread-1
+	void supprimerNoeudTemporaireThread(int copyNodeId, int tid);
+	// Effectue un resize sur les vecteurs de noeuds et d'aretes pour supprimer les noeuds et aretes temporaires
+	void resizeVectorTemporaire(int nodeId, int nbNodeTemporaire);
+	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires.
+	int creationNoeudTemporaire(int nodeId, std::pair<double,double>& coord);
+	// Creer une copie du noeud nodeId aux coords coord en appliquant les modificateurs temporaires. Version multithreadé
+	int creationNoeudTemporaireThread(int nodeId, std::pair<double,double>& coord, int tid);
+	// Place le noeud a la place du noeud temporaire, puis supprime le noeud temporaire
+	void replaceNoeudTemporaire(int nodeId);
+	void addCommonNodeVector(int nodeId); // Met a jour la matrice de voisinage pour ce noeud
+	void removeCommonNodeVector(int nodeId); // Supprime les references de voisinage de ce noeud
+	bool checkNodeAlignementHorizontal(int nodeId); // Renvoie vrai si le noeud est placé sur la longeur d'une grille a epsilon pret
+	bool checkNodeAlignementVertical(int nodeId); // Renvoie vrai si le noeud est placé sur la hauteur d'une grille a epsilon pret
 };
 
 bool compareGraphePtr(Graphe* g1, Graphe* g2);

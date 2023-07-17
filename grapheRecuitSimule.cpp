@@ -1557,7 +1557,6 @@ void Graphe::moveNodeToSlot(int nodeId, int slotId, bool useScore, bool useGrill
 
 void Graphe::rechercheTabouCUDA() {
 #if defined(CUDA_INSTALLED)
-
     // Thread & Block number
     int blockSize = 256; // Maximum number of threads per block 1024, 256 best
     int gridSize = 68; // Maximum number of blocks 65535, 68 best
@@ -1631,7 +1630,6 @@ void Graphe::rechercheTabouCUDA() {
 
 void Graphe::rechercheTabouReelCUDA() {
 #if defined(CUDA_INSTALLED)
-
     // Thread & Block number
     int blockSize = 256; // Maximum number of threads per block 1024, 256 best
     int gridSize = 68; // Maximum number of blocks 65535, 68 best

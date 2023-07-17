@@ -68,12 +68,24 @@ void Graphe::readFromJsonSlots(std::string input) {
 	}
 }
 
+struct PairHash {
+    template <typename T1, typename T2>
+    std::size_t operator()(const std::pair<T1, T2>& pair) const {
+        auto hash1 = std::hash<T1>{}(pair.first);
+        auto hash2 = std::hash<T2>{}(pair.second);
+        return hash1 ^ hash2;
+    }
+};
+
 // Lecture des slots, noeuds et edges
 void Graphe::readFromJsonChallenge(std::string input) {
 	tcout() << "Fichier Graphe: " << input << std::endl;
 	std::ifstream inp(input);
 	json j;
 	inp >> j;
+
+
+	std::unordered_map<std::pair<int,int>,Emplacement*,PairHash> mapCoordEmplacement;
 
 	int slotsNumber = static_cast<int>(j["points"].size());
 	tcout() << "Nombre de slots dans le fichier json: " << slotsNumber << std::endl;
@@ -85,6 +97,7 @@ void Graphe::readFromJsonChallenge(std::string input) {
 		_emplacements.push_back(Emplacement(x,y,i));
 		if (x > gridWidth) { gridWidth = x; }
 		if (y > gridHeight) { gridHeight = y; }
+		mapCoordEmplacement.insert(make_pair(make_pair(x,y),&_emplacements[i]));
 	}
 
 	int nodeNumber = static_cast<int>(j["nodes"].size());
@@ -92,6 +105,13 @@ void Graphe::readFromJsonChallenge(std::string input) {
 	_noeuds.reserve(nodeNumber*2);
 	for (int i = 0; i < nodeNumber; i++) {
 		_noeuds.push_back(Noeud(i));
+		x = j["nodes"][i]["x"];
+		y = j["nodes"][i]["y"];
+		std::pair<int,int> coords(x,y);
+		auto elemMap = mapCoordEmplacement.find(coords);
+		if (elemMap != mapCoordEmplacement.end()) {
+			_noeuds[i].setEmplacement(elemMap->second);
+		}
 	}
 	int edgeNumber = static_cast<int>(j["edges"].size());
 	tcout() << "Nombre d'arete dans le json: " << edgeNumber << std::endl;
