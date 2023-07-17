@@ -5,6 +5,7 @@
 #include <climits>
 #include <algorithm>
 #include <omp.h>
+#include <filesystem>
 #include "intersection.hpp"
 
 // Selectionne deux noeud et retourne celui avec le score le plus faible. (le moin d'intersection)
@@ -543,7 +544,10 @@ long Graphe::recuitSimuleChallenge(double cool, double t, double seuil) {
             if (nbCroisement < bestCroisement) {
                 bestCroisement = nbCroisement;
                 saveBestResultRecuit(bestResultVector,bestResultGraphe);
-                #if defined(DEBUG_GRAPHE_PROGRESS)
+                std::filesystem::path resultFolder = std::filesystem::current_path() / "resultats";
+	            std::string outputName = resultFolder.string() + "/" + to_string(bestCroisement) + "-" + nomGraphe + ".json";
+                writeToJsonChallenge(outputName);
+                #if defined(DEBUG_GRAPHE)
                     tcout() << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
                 #endif
             }
@@ -589,7 +593,6 @@ void Graphe::rerecuitSimuleChallenge(double coolt, double t, double seuil) {
             tcout() << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " Crossings: " << lastCroisement << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif
         long nbInterSuppr = recuitSimuleChallenge(cool, t, seuil);
-        updateRecuitCycleVague(nbInterSuppr>0);
         t *= coolt;
         if (i==1) { t = startingTemp; }
         if (nbInterSuppr<=0) {
@@ -765,7 +768,7 @@ void Graphe::bestDeplacementLimite() {
                         bestNodeId = nodeId;
                         bestSlotId = slotId;
                         limiteImprove = bestImprove - 1;
-                        tcout() << "Recherche Best Deplacement meilleur solution: " << bestImprove << " node: " << bestNodeId << " slot: " << bestSlotId << " tour: " << nbTour << std::endl;
+                        //tcout() << "Recherche Best Deplacement meilleur solution: " << bestImprove << " node: " << bestNodeId << " slot: " << bestSlotId << " tour: " << nbTour << std::endl;
                     }
                 }
             }
@@ -774,6 +777,9 @@ void Graphe::bestDeplacementLimite() {
             moveNodeToSlot(bestNodeId,bestSlotId,true);
             nbIntersection += bestImprove;
             tcout() << "Deplacement " << nbTour << " croisements: " << nbIntersection << std::endl;
+            std::filesystem::path resultFolder = std::filesystem::current_path() / "resultats";
+            std::string outputName = resultFolder.string() + "/" + to_string(nombreCroisement) + "-" + nomGraphe + ".json";
+            writeToJsonChallenge(outputName);
         }
         nbTour++;
     } while (bestImprove < TRES_GRANDE_VALEUR);

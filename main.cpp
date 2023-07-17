@@ -40,7 +40,59 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 	tcout() << "Setup complete!" << std::endl;
 }
 
+void recuitSimuleCurrentFolder() {
+	std::string cheminFichier;
+	std::string nomFichier;
+	std::string nomGraphe;
+
+	std::filesystem::path graphFolder = std::filesystem::current_path() / "originalGraph";
+	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(graphFolder)) {
+		cheminFichier = dirEntry.path().string();
+        nomFichier = dirEntry.path().string();
+        std::reverse(nomFichier.begin(), nomFichier.end());
+        nomFichier = nomFichier.substr(0, nomFichier.find('/'));
+        std::reverse(nomFichier.begin(), nomFichier.end());
+
+        if (containsString(nomFichier,".json")) {
+            nomGraphe = nomFichier.substr(0, nomFichier.find('.'));
+			break;
+        }
+    }
+
+	initRandomSeed();
+	Graphe G(nomGraphe);
+	G.readFromJsonChallenge(cheminFichier);
+	G.calcMaxAndAverageDegree();
+	G.fillCommonNodeVectors();
+	std::vector<int> graphCopy;
+	long nbCroisementPlacement = G.TRES_GRANDE_VALEUR;
+	if (G.estPlace()) { 
+		graphCopy = G.saveCopy();
+		nbCroisementPlacement = G.getNbCroisement();
+		tcout() << "Le fichier de depart contient un placement avec " << nbCroisementPlacement << " croisements.\n";
+	}
+	G.placementFMME(true);
+	long nbCroisementFMME = G.getNbCroisement();
+	if (nbCroisementFMME > nbCroisementPlacement) {
+		tcout() << "Nombre de croisements apres placement FMME: " << nbCroisementFMME << std::endl;
+		tcout() << "Le placement de depart est conserve car meilleur que le FMME.\n";
+		G.loadCopy(graphCopy);
+		G.nombreCroisement = nbCroisementPlacement;
+	}
+	else {
+		tcout() << "Nombre de croisements apres placement FMME: " << nbCroisementFMME << std::endl;
+	}
+	G.setupGridAndRegistration({});
+	G.rerecuitSimuleChallenge();
+	G.bestDeplacementLimite();
+	std::filesystem::path resultFolder = std::filesystem::current_path() / "resultats";
+	std::string outputNameFinal = resultFolder.string() + "/" + to_string(G.nombreCroisement) + "-" + nomGraphe + "Final.json";
+	G.writeToJsonChallenge(outputNameFinal);
+	exit(0);
+}
+
 int main(int argc, char *argv[]) {
+	recuitSimuleCurrentFolder(); return 0;
 	initRandomSeed();
 	bool useCoordReel = false;
 	std::string nomFichierGraph = "graph-10-input";

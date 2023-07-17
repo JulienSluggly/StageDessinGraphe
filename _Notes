@@ -1,0 +1,7 @@
+Parseur de fichier sans librairie json
+
+Implementer fast multipole multilevel avec nos contraintes?
+
+Adapter code aux coord entieres sans emplacement
+
+Cas ou il y a beaucoup de noeuds isole, fmme plante, faire un check pour autre algo de placement

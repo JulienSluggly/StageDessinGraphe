@@ -205,10 +205,6 @@ public:
 	long calculScoreNodeMethode(int nodeId,int idSwappedNode, bool swapped, bool useGrille, bool useReel=false);
 	long calculScoreNodeMethodeLimite(int nodeId,int idSwappedNode, bool swapped, bool useGrille, bool& makeMove, double limiteScore,bool useReel=false);
 
-	// Met a jour le vecteur des cycles de vagues du recuit.
-	// Incrémente la derniere valeur du tableau si meme cycle, sinon pushback 1 du signe opposé à la dernière case.
-	void updateRecuitCycleVague(bool upgrade);
-
 	// Met a jour les valeurs de croisement au debut du recuit en appelant les fonctions adéquates.
 	void setupNombreCroisement(long& nbCroisement, long& bestCroisement, long& debutCroisement);
 
