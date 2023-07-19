@@ -40,26 +40,37 @@ void printDebugData(Graphe& G, double tempsBest, int bestIteration, int lastIter
 	tcout() << "Setup complete!" << std::endl;
 }
 
-void recuitSimuleCurrentFolder() {
+void recuitSimuleCurrentFolder(int argc, char** argv) {
 	std::string cheminFichier;
 	std::string nomFichier;
 	std::string nomGraphe;
 
-	std::filesystem::path graphFolder = std::filesystem::current_path() / "originalGraph";
-	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(graphFolder)) {
-		cheminFichier = dirEntry.path().string();
-        nomFichier = dirEntry.path().string();
-        std::reverse(nomFichier.begin(), nomFichier.end());
-        nomFichier = nomFichier.substr(0, nomFichier.find('/'));
-        std::reverse(nomFichier.begin(), nomFichier.end());
+	if (argc == 1) {
+		std::filesystem::path graphFolder = std::filesystem::current_path() / "originalGraph";
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(graphFolder)) {
+			cheminFichier = dirEntry.path().string();
+			nomFichier = dirEntry.path().string();
+			std::reverse(nomFichier.begin(), nomFichier.end());
+			nomFichier = nomFichier.substr(0, nomFichier.find('/'));
+			std::reverse(nomFichier.begin(), nomFichier.end());
 
-        if (containsString(nomFichier,".json")) {
-            nomGraphe = nomFichier.substr(0, nomFichier.find('.'));
-			break;
-        }
-    }
+			if (containsString(nomFichier,".json")) {
+				nomGraphe = nomFichier.substr(0, nomFichier.find('.'));
+				break;
+			}
+		}
+	}
+	else {
+		cheminFichier = argv[1];
+	}
 
-	initRandomSeed();
+	if (argc < 3) {
+		initRandomSeed();
+	}
+	else {
+		std::string seed = argv[2];
+		initSameSeed(stoi(seed));
+	}
 	Graphe G(nomGraphe);
 	G.readFromJsonChallenge(cheminFichier);
 	G.calcMaxAndAverageDegree();
@@ -83,7 +94,7 @@ void recuitSimuleCurrentFolder() {
 		tcout() << "Nombre de croisements apres placement FMME: " << nbCroisementFMME << std::endl;
 	}
 	G.setupGridAndRegistration({});
-	G.rerecuitSimuleChallenge();
+	//G.rerecuitSimuleChallenge();
 	G.bestDeplacementLimite();
 	std::filesystem::path resultFolder = std::filesystem::current_path() / "resultats";
 	std::string outputNameFinal = resultFolder.string() + "/" + to_string(G.nombreCroisement) + "-" + nomGraphe + "Final.json";
@@ -91,8 +102,48 @@ void recuitSimuleCurrentFolder() {
 	exit(0);
 }
 
+void debugCurrentFolder(int argc, char** argv) {
+	std::string cheminFichier;
+	std::string nomFichier;
+	std::string nomGraphe;
+
+	if (argc == 1) {
+		std::filesystem::path graphFolder = std::filesystem::current_path() / "originalGraph";
+		std::cout << graphFolder.string();
+		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(graphFolder)) {
+			cheminFichier = dirEntry.path().string();
+			nomFichier = dirEntry.path().string();
+			std::reverse(nomFichier.begin(), nomFichier.end());
+			nomFichier = nomFichier.substr(0, nomFichier.find('/'));
+			std::reverse(nomFichier.begin(), nomFichier.end());
+
+			if (containsString(nomFichier,".json")) {
+				nomGraphe = nomFichier.substr(0, nomFichier.find('.'));
+				break;
+			}
+		}
+	}
+	else {
+		cheminFichier = argv[1];
+	}
+
+	if (argc < 3) {
+		initRandomSeed();
+	}
+	else {
+		std::string seed = argv[2];
+		initSameSeed(stoi(seed));
+	}
+	Graphe G(nomGraphe);
+	G.readFromJsonChallenge(cheminFichier);
+	G.calcMaxAndAverageDegree();
+	G.fillCommonNodeVectors();
+	G.debugEverything(false,true);
+	exit(0);
+}
+
 int main(int argc, char *argv[]) {
-	recuitSimuleCurrentFolder(); return 0;
+	recuitSimuleCurrentFolder(argc, argv); return 0;
 	initRandomSeed();
 	bool useCoordReel = false;
 	std::string nomFichierGraph = "graph-10-input";
