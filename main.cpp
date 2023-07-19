@@ -157,7 +157,7 @@ void runFunc() {
 		int randomVal = generateRand(totalFichier-1);
 		for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 			if (numero == randomVal) {
-				std::string nomGraphe = dirEntry.path();
+				std::string nomGraphe = dirEntry.path().string();
 				std::reverse(nomGraphe.begin(), nomGraphe.end());
 				nomGraphe = nomGraphe.substr(0, nomGraphe.find('/'));
 				std::reverse(nomGraphe.begin(), nomGraphe.end());
@@ -193,7 +193,7 @@ void runFunc3() {
 		Graphe G;
 		G.useCoordReel = true;
 		std::string nomFichier = "trig64." + std::to_string(numero) + ".json";
-		tcout() << dirEntry.path() << std::endl;
+		tcout() << dirEntry.path().string() << std::endl;
 		G.readFromJsonGraph(dirEntry.path());
 		tcout() << "Nombre Noeuds: " << G._noeuds.size() << " Nombre Aretes: " << G._aretes.size() << " Nombre Emplacement: " << G._emplacements.size() << " Nombre Cellules: " << (int)ceil(sqrt(G._aretes.size())*1.5)*(int)ceil(sqrt(G._aretes.size())*1.5) << " Connexe: " << G.isGrapheConnected() << " Max Degre: " << G.maxVoisin << " Average Degre: " << G.avgVoisin << std::endl;
 		int nombreAreteAjoute = 0;

@@ -972,13 +972,13 @@ void sortByGenus() {
 	std::string path = chemin + "benchGraphs/rome/";
 	std::string destination = chemin + "benchGraphs/romeNP/";
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		tcout() << dirEntry.path() << std::endl;
+		tcout() << dirEntry.path().string() << std::endl;
 		Graphe G;
-		G.readFromGraphmlGraph(dirEntry.path());
+		G.readFromGraphmlGraph(dirEntry.path().string());
 		ogdf::Graph ogdfG;
 		createOGDFGraphFromGraphe(G,ogdfG);
 		if (!ogdf::isPlanar(ogdfG)) {
-			std::string nomGraphe = dirEntry.path();
+			std::string nomGraphe = dirEntry.path().string();
 			std::reverse(nomGraphe.begin(), nomGraphe.end());
 			nomGraphe = nomGraphe.substr(0, nomGraphe.find('/'));
 			std::reverse(nomGraphe.begin(), nomGraphe.end());
@@ -992,11 +992,11 @@ void testGenusFolder() {
 	std::string path = chemin + "benchGraphs/romeNP/";
 	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
 		Graphe G;
-		G.readFromGraphmlGraph(dirEntry.path());
+		G.readFromGraphmlGraph(dirEntry.path().string());
 		ogdf::Graph ogdfG;
 		createOGDFGraphFromGraphe(G,ogdfG);
 		if (ogdfG.genus() == 0) {
-			tcout() << dirEntry.path() << std::endl;
+			tcout() << dirEntry.path().string() << std::endl;
 		}
 	}
 }
