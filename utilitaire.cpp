@@ -71,7 +71,11 @@ void initSameSeed(unsigned int n) {
     isSeedRandom = false;
     seed = n;
     genVector.clear();
+#if defined(OPENMP_INSTALLED)
     int maxThread = omp_get_max_threads();
+#else
+    int maxThread = 1;
+#endif
     for (int i=0;i<maxThread;i++) {
         genVector.push_back(new std::mt19937(n));
         seedThread.push_back(n);
@@ -87,7 +91,11 @@ void initSameSeedIncThread(unsigned int n) {
     isSeedRandom = false;
     seed = n;
     genVector.clear();
+#if defined(OPENMP_INSTALLED)
     int maxThread = omp_get_max_threads();
+#else
+    int maxThread = 1;
+#endif
     for (int i=0;i<maxThread;i++) {
         genVector.push_back(new std::mt19937(n+i));
         seedThread.push_back(n+i);
@@ -101,7 +109,11 @@ void initRandomSeed() {
     typeSeed = "RANDOM";
     isSeedRandom = true;
     genVector.clear();
+#if defined(OPENMP_INSTALLED)
     int maxThread = omp_get_max_threads();
+#else
+    int maxThread = 1;
+#endif
     for (int i=0;i<maxThread;i++) {
         std::random_device rd;
         unsigned int tmpSeed = rd();

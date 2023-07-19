@@ -937,6 +937,7 @@ long Graphe::recuitSimuleReelThread(double &timeBest, std::chrono::time_point<st
 }
 
 long Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit) {
+#if defined(OPENMP_INSTALLED)
     int tid;
     thread_IsRecuitFinished = false;
     long nbCroisement, bestCroisement, debutCroisement;
@@ -1013,6 +1014,8 @@ long Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_poin
         }
     }
     return debutCroisement - bestCroisement;
+#endif
+    return -1;
 }
 
 // Lance l'algorithme de recuit simulé sur le graphe pour minimiser le nombre d'intersection
@@ -1020,6 +1023,7 @@ long Graphe::recuitSimuleReelThreadPool(double &timeBest, std::chrono::time_poin
 // modeNoeud et modeEMplacement sont le mode de sélection de noeud et d'emplacement, 0=Aléatoire, 1=TournoiBinaire, 2=TournoiMultiple, 3=Triangulation(Emplacement uniquement)
 // Par defaut utilise la grille et le Tournoi Multiple sur les Emplacements.
 long Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time_point<std::chrono::system_clock> start, std::vector<std::vector<double>> customParam, double cool, double t, double seuil, int delay, int modeNoeud, int modeEmplacement, bool useGrille, bool useScore, int timeLimit) {
+#if defined(OPENMP_INSTALLED)
     int tid;
     thread_IsRecuitFinished = false;
     std::pair<double,double> bestCoord;
@@ -1119,6 +1123,8 @@ long Graphe::recuitSimuleReelThreadSelection(double &timeBest, std::chrono::time
         }
     }
     return debutCroisement - bestCroisement;
+#endif
+    return -1;
 }
 
 void Graphe::recuitSimuleChallenge(double cool, double t, double seuil) {

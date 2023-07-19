@@ -41,6 +41,7 @@ void startRunsForAllSlots(std::pair<std::string, std::vector<std::string>>& pair
 
 // A besoin d'au moin slotFiles.size() threads pour effectuer toutes les executions.
 void customRecuit() {
+#if defined(OPENMP_INSTALLED)
 	std::string nomFichierGraph = "graph-10-input";
 	std::vector<std::string> slotFiles = { "11-input-slots", "2X-11-input-slots", "3X-11-input-slots", "GRID" };
 	int nthreads, tid;
@@ -62,9 +63,11 @@ void customRecuit() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void customRecuitFlottants() {
+#if defined(OPENMP_INSTALLED)
 	std::string nomFichierGraph = "graph-1-input";
 	int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -84,9 +87,11 @@ void customRecuitFlottants() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void customRecuitFlottantsAllRuns() {
+#if defined(OPENMP_INSTALLED)
 	std::vector<std::string> graphVector;
 	for (int i = 1; i <= 12; i++) {
 		graphVector.push_back("graph-" + std::to_string(i) + "-input");
@@ -115,9 +120,11 @@ void customRecuitFlottantsAllRuns() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void customRecuitAllRuns() {
+#if defined(OPENMP_INSTALLED)
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	for (int i = 1; i <= 12; i++) {
 		mapGraphSlots.push_back({ "graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots", "2X-" + std::to_string(i) + "-input-slots", "3X-" + std::to_string(i) + "-input-slots", "GRID"} });
@@ -146,6 +153,7 @@ void customRecuitAllRuns() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void allRunsSingleThread() {
@@ -176,6 +184,7 @@ void allRunsSingleThread() {
 
 // Multithreadé
 void allRunsLogged() {
+#if defined(OPENMP_INSTALLED)
 	std::unordered_map<std::string, std::vector<std::string>> mapGraphSlots;
 	std::vector<std::string> methodesPlacement = { "Aleatoire"};
 	std::vector<std::string> methodesAlgo = { "Rerecuit Simule Grille Best"};
@@ -210,9 +219,11 @@ void allRunsLogged() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void allRunsBySlots() {
+#if defined(OPENMP_INSTALLED)
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	//mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
 	for (int i = 5; i <= 12; i++) {
@@ -240,9 +251,11 @@ void allRunsBySlots() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void allRunsBySlotsSecondRun() {
+#if defined(OPENMP_INSTALLED)
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	//mapGraphSlots.push_back({"graph-8-input",{"8-input-slots","2X-8-input-slots","3X-8-input-slots","GRID"}});
 	for (int i = 9; i <= 12; i++) {
@@ -279,9 +292,11 @@ void allRunsBySlotsSecondRun() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void allRunsBySlotsThirdRun() {
+#if defined(OPENMP_INSTALLED)
 	std::vector<std::pair<std::string, std::vector<std::string>>> mapGraphSlots;
 	for (int i = 5; i <= 12; i++) {
 		mapGraphSlots.push_back({"graph-" + std::to_string(i) + "-input",{std::to_string(i) + "-input-slots","2X-" + std::to_string(i) + "-input-slots","3X-" + std::to_string(i) + "-input-slots","GRID"}});
@@ -310,6 +325,7 @@ void allRunsBySlotsThirdRun() {
 		printf("Thread: %d done.\n",tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void allRunsByOnFolderSingleInput(char* pathChar, int singleFile=-1) {
@@ -324,6 +340,7 @@ void allRunsByOnFolderSingleInput(char* pathChar, int singleFile=-1) {
 }
 
 void allRunsByOnFolder() {
+#if defined(OPENMP_INSTALLED)
 	tcout() << "Starting all run logs." << std::endl;
 	std::string path = chemin + "benchGraphs/runs/";
 	std::string slots = "Grid";
@@ -366,9 +383,11 @@ void allRunsByOnFolder() {
 		}
 		printf("Thread %d done.\n", tid);
 	}
+#endif
 }
 
 void allRunsRegularGraphs() {
+#if defined(OPENMP_INSTALLED)
 	tcout() << "Starting all run logs." << std::endl;
 	std::string path1 = chemin + "benchGraphs/kregular/3regular/";
 	std::string path2 = chemin + "benchGraphs/kregular/6regular/";
@@ -426,10 +445,12 @@ void allRunsRegularGraphs() {
 		}
 		printf("Thread %d done.\n", tid);
 	}
+#endif
 }
 
 // Multithreading sur un seul graphe pour differentes methodes
 void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSingleFile=false) {
+#if defined(OPENMP_INSTALLED)
 	int nthreads, tid;
 	int nbExec = 2;
 	std::vector<std::string> methodesPlacement = { "Aleatoire", "Aucun" };
@@ -456,6 +477,7 @@ void specificGraphMulti(std::string fileGraph, std::string fileSlots, bool useSi
 		tcout() << "Thread: " << tid << " done." << std::endl;
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void performanceTest() {
@@ -591,6 +613,7 @@ void performanceTest2() {
 }
 
 void testRomeGraphs() {
+#if defined(OPENMP_INSTALLED)
 	std::string path = chemin + "benchGraphs/rome100/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -624,6 +647,7 @@ void testRomeGraphs() {
 		}
 		printf("Thread %d done.\n",tid);
 	}
+#endif
 }
 
 void cleanDimacsGraphs() {
@@ -640,6 +664,7 @@ void cleanDimacsGraphs() {
 }
 
 void testCleanGraphs() {
+#if defined(OPENMP_INSTALLED)
 	std::string path = chemin + "benchGraphs/runs/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -679,9 +704,11 @@ void testCleanGraphs() {
 		}
 		printf("Thread %d done.\n",tid);
 	}
+#endif
 }
 
 void compareStressFMMM() {
+#if defined(OPENMP_INSTALLED)
 	std::string path = chemin + "benchGraphs/runs/";
 		int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -730,9 +757,11 @@ void compareStressFMMM() {
 		}
 		printf("Thread %d done.\n",tid);
 	}
+#endif
 }
 
 void testGraphsReel() {
+#if defined(OPENMP_INSTALLED)
 	std::string path = chemin + "benchGraphs/runs/";
 	int nthreads, tid;
 #pragma omp parallel private(tid)
@@ -769,9 +798,11 @@ void testGraphsReel() {
 		}
 		printf("Thread %d done.\n", tid);
 	}
+#endif
 }
 
 void testGraphsCompletReel() {
+#if defined(OPENMP_INSTALLED)
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -805,9 +836,11 @@ void testGraphsCompletReel() {
 		printf("Thread %d done.\n", tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void testThreads() {
+#if defined(OPENMP_INSTALLED)
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -845,9 +878,11 @@ void testThreads() {
 		printf("Thread %d done.\n", tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void testThreads2() {
+#if defined(OPENMP_INSTALLED)
 	int nthreads, tid;
 #pragma omp parallel private(tid)
 	{
@@ -878,6 +913,7 @@ void testThreads2() {
 		printf("Thread %d done.\n", tid);
 	}
 	printf("All Threads done.\n");
+#endif
 }
 
 void generateNKRegular(int n, int k, int d) {
