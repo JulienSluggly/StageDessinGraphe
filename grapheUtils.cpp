@@ -2897,8 +2897,8 @@ bool equalWithEpsilon(double a, double b, double eps) {
 bool Graphe::checkNodeAlignementHorizontal(int nodeId) {
     if (_noeuds[nodeId].idCelluleVec->size() <= 1) return false;
     for (const int& celluleId : *_noeuds[nodeId].idCelluleVec) {
-        double n1Y = grillePtr[celluleId]->getBottomLeftY();
-        double n2Y = grillePtr[celluleId]->getTopLeftY();
+        double n1Y = grillePtr[celluleId]->getBottomLeftYReel();
+        double n2Y = grillePtr[celluleId]->getTopLeftYReel();
         if ((!equalWithEpsilon(_noeuds[nodeId]._yreel,n1Y,epsilon))&&(!equalWithEpsilon(_noeuds[nodeId]._yreel,n2Y,epsilon))) return false;
     }
     return true;
@@ -2907,8 +2907,8 @@ bool Graphe::checkNodeAlignementHorizontal(int nodeId) {
 bool Graphe::checkNodeAlignementVertical(int nodeId) {
     if (_noeuds[nodeId].idCelluleVec->size() <= 1) return false;
     for (const int& celluleId : *_noeuds[nodeId].idCelluleVec) {
-        double n1X = grillePtr[celluleId]->getBottomLeftX();
-        double n2X = grillePtr[celluleId]->getBottomRightX();
+        double n1X = grillePtr[celluleId]->getBottomLeftXReel();
+        double n2X = grillePtr[celluleId]->getBottomRightXReel();
         if ((!equalWithEpsilon(_noeuds[nodeId]._xreel,n1X,epsilon))&&(!equalWithEpsilon(_noeuds[nodeId]._xreel,n2X,epsilon))) return false;
     }
     return true;

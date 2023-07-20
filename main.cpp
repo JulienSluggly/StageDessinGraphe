@@ -19,6 +19,7 @@
 #include "stressMaj.hpp"
 #include "solver.hpp"
 #include "graphique.hpp"
+#include "arg.h"
 
 #if defined(GPERF_INSTALLED)
 	#include <gperftools/profiler.h>
@@ -266,7 +267,7 @@ int main(int argc, char *argv[]) {
 	else { initCPUSet(); }
 	initRandomSeed();
 	//initSameSeed(372362249);
-	//if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
+	if (argc > 2) { allRunsByOnFolderSingleInput(argv[1],std::stoi(argv[2])); } else { allRunsByOnFolderSingleInput(argv[1]); } return 0;
 	bool useCoordReel = false;
 	//std::string nomFichierGraph = "5completModif";
 	std::string nomFichierGraph = "graph-12-input";
