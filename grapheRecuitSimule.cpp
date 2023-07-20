@@ -528,6 +528,10 @@ long Graphe::recuitSimuleChallenge(double cool, double t, double seuil) {
     int nodeId, slotId, idSwappedNode, improve;
     bool swapped;
     Emplacement* oldEmplacement;
+    std::filesystem::path resultFolder = std::filesystem::current_path() / "resultats";
+    auto start = std::chrono::system_clock::now();
+    auto debutEcriture = start;
+    std::chrono::duration<double> secondsTotal = debutEcriture - start;
     for (int iter = 0; t > seuil && nbCroisement > 0; iter++) {
         nodeId = generateRand(_noeuds.size() - 1);
         int nbTirage = (iter / 100000) + 3;
@@ -544,9 +548,11 @@ long Graphe::recuitSimuleChallenge(double cool, double t, double seuil) {
             if (nbCroisement < bestCroisement) {
                 bestCroisement = nbCroisement;
                 saveBestResultRecuit(bestResultVector,bestResultGraphe);
-                std::filesystem::path resultFolder = std::filesystem::current_path() / "resultats";
 	            std::string outputName = resultFolder.string() + "/" + to_string(bestCroisement) + "-" + nomGraphe + ".json";
-                writeToJsonChallenge(outputName);
+                if (isAbleToWriteFile) {
+                    writeToJsonChallenge(outputName);
+                    hasWrittenAFile = true;
+                }
                 #if defined(DEBUG_GRAPHE)
                     tcout() << "Meilleur Recuit: " << bestCroisement << " Iteration: " << iter << " t: " << t << std::endl;
                 #endif
@@ -561,6 +567,11 @@ long Graphe::recuitSimuleChallenge(double cool, double t, double seuil) {
                 _noeuds[nodeId].setEmplacement(oldEmplacement);
             }
             recalcNodeCellule(nodeId);
+        }
+        if (!isAbleToWriteFile) {
+            debutEcriture = std::chrono::system_clock::now();
+            secondsTotal = debutEcriture - start;
+            if (secondsTotal.count() > 300) { isAbleToWriteFile = true; }
         }
         t *= cool;
     }
@@ -587,8 +598,14 @@ void Graphe::rerecuitSimuleChallenge(double coolt, double t, double seuil) {
     auto totalEnd = std::chrono::system_clock::now();
     double startingTemp = t;
     t = 0.05;
+    std::filesystem::path resultFolder = std::filesystem::current_path() / "resultats";
     while (numberOfNoUpgrade < maxIter) {
-        if (i>1) { reinitGrille(); }
+        if (i>1) { reinitGrille(); isAbleToWriteFile = true; }
+        if (isAbleToWriteFile && !hasWrittenAFile) { 
+            std::string outputName = resultFolder.string() + "/" + to_string(nombreCroisement) + "-" + nomGraphe + ".json";
+            writeToJsonChallenge(outputName);
+            hasWrittenAFile = true;
+        }
         #if defined(DEBUG_GRAPHE)
             tcout() << "Starting Recuit Number: " << i << " t: " << t << " cool " << cool << " Crossings: " << lastCroisement << " NumNoUp: " << numberOfNoUpgrade << std::endl;
         #endif

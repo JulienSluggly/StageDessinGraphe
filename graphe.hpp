@@ -60,6 +60,9 @@ public:
 
 	int minXNode=-1,maxXNode=-1,minYNode=-1,maxYNode=-1; // Coord max des noeuds, pas forcément à jour.
 
+	bool isAbleToWriteFile = false;
+	bool hasWrittenAFile = false;
+
 	std::string nomGraphe = "Graphe";
 
 	Graphe();
