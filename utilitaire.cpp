@@ -1,7 +1,6 @@
 #include "utilitaire.hpp"
 #include <random>
 #include <algorithm>
-#include "emplacement.hpp"
 #include <iostream>
 #include <cstring>
 #include <omp.h>
@@ -202,15 +201,6 @@ int lowestInVector(std::vector<int> &vec) {
         }
     }
     return lowest;
-}
-
-bool comparePtrEmplacement(Emplacement* a, Emplacement* b) { return (a->getX() < b->getX()); }
-
-bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b) {
-    if (a->getX() == b->getX()) {
-        return (a->getY() < b->getY());
-    }
-    return (a->getX() < b->getX());
 }
 
 void removeFromVector(std::vector<int>& vec, int x) {

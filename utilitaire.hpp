@@ -6,7 +6,6 @@
 #include <iostream>
 #include <iomanip>
 #include <ctime>
-#include "emplacement.hpp"
 #include "personnel.hpp"
 
 #if defined(LINUX_OS)
@@ -58,12 +57,6 @@ double ecartTypeVector(const std::vector<T>& vec, double moyenne) {
     variance /= vec.size();
     return std::sqrt(variance);
 }
-
-// Fonction de sort par x
-bool comparePtrEmplacement(Emplacement* a, Emplacement* b);
-
-// Fonction de sort par x et y
-bool comparePtrEmplacementTri(Emplacement* a, Emplacement*b);
 
 // n la seed (0 par défaut)
 void initSameSeed(unsigned int n=0);

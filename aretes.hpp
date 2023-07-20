@@ -58,16 +58,6 @@ public:
 		return _noeud1;
 	}
 
-	// Retourne vrai si les deux noeuds sont placés
-	bool estPlace() {
-		return (_noeud1->getEmplacement() != nullptr && _noeud2->getEmplacement() != nullptr);
-	}
-
-	// Retourne vrai si au moin un noeud est placé
-	bool unPlace() {
-		return (_noeud1->getEmplacement() != nullptr || _noeud2->getEmplacement() != nullptr);
-	}
-
 	// Vide les sets d'intersections
 	void clearIntersectionsVector() {
 		intersections.clear();

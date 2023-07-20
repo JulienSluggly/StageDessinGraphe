@@ -27,16 +27,12 @@ bool show_cells = false;
 double currentZoom = 0.0;
 bool moving = false;
 int selectedNode = 0;
-bool show_selected_emplacement = false;
 bool show_selected_node = false;
 bool show_selected_cell = false;
 int selectedCellX = 0, selectedCellY=0;
 int maxCellX = 0, maxCellY = 0;
-int selectedEmplacement = 0;
 int maxNodeIndex = 0;
-int maxEmplacementIndex = 0;
 bool showIllegal = false;
-bool showEmplacement = true;
 bool showEdges = true;
 bool showNodes = true;
 bool stepSetup = false;
@@ -100,10 +96,7 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
 			dragOriginX = initialClicX; dragOriginY = initialClicY;
 		}
 		else {
-			if (show_selected_emplacement) {
-				keyPressFunctionNum = 27; singleKeyPress = true;
-			}
-			else if (show_cells) {
+			if (show_cells) {
 				// TO DO IF NEEDED
 			}
 			else if (show_selected_node) {
@@ -140,12 +133,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 			// GAUCHE,DROITE,HAUT,BAS deplace le point selectionne de 1 case dans la direction de la fleche
 		case GLFW_KEY_LEFT:
-			if (show_selected_emplacement) {
-				if (selectedEmplacement > 0) {
-					selectedEmplacement--;
-				}
-			}
-			else if (show_cells) {
+			if (show_cells) {
 				if (selectedCellX > 0) {
 					selectedCellX--;
 					show_selected_cell = true;
@@ -164,12 +152,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			}
 			break;
 		case GLFW_KEY_RIGHT:
-			if (show_selected_emplacement) {
-				if (selectedEmplacement < maxEmplacementIndex) {
-					selectedEmplacement++;
-				}
-			}
-			else if (show_cells) {
+			if (show_cells) {
 				if (selectedCellX < maxCellX) {
 					selectedCellX++;
 					show_selected_cell = true;
@@ -219,7 +202,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			keyPressFunctionNum = 20; singleKeyPress = true;
 			break;
 		case GLFW_KEY_8:
-			showEmplacement = !showEmplacement;
 			break;
 		case GLFW_KEY_9:
 			showEdges = !showEdges;
@@ -277,8 +259,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_F9: // Print current seed
 			keyPressFunctionNum = 21; singleKeyPress = true;
 			break;
-		case GLFW_KEY_F10: // Generate x2 Emplacements
-			keyPressFunctionNum = 30; singleKeyPress = true;
+		case GLFW_KEY_F10:
 			break;
 		case GLFW_KEY_F11: // ogdfGMMM
 			keyPressFunctionNum = 32; singleKeyPress = true;
@@ -303,7 +284,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			moving = !moving;
 			break;
 		case GLFW_KEY_E:
-			if (!useReel) { show_selected_emplacement = !show_selected_emplacement; }
 			break;
 		case GLFW_KEY_G:
 			show_cells = !show_cells;
@@ -334,69 +314,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		}
 }
 
-void openGLShowEmplacement(Graphe& G) {
-	if (showEmplacement) {
-		if (display_genetic) {
-			glPointSize(7);
-			glBegin(GL_POINTS);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			for (int i = 0; i < parent1._emplacements.size(); i++) {
-				glVertex2d(parent1._emplacements[i].getX(), parent1._emplacements[i].getY() + parent1.gridHeight*2);
-				glVertex2d(parent2._emplacements[i].getX() + parent1.gridWidth*2, parent2._emplacements[i].getY()+ parent1.gridHeight*2);
-				glVertex2d(enfant._emplacements[i].getX() + parent1.gridWidth, enfant._emplacements[i].getY());
-			}
-			glEnd();
-		}
-		else {
-			glPointSize(7);
-			glBegin(GL_POINTS);
-			glColor3f(0.0f, 1.0f, 0.0f);
-			for (int i = 0; i < G._emplacements.size(); i++) {
-				glVertex2d(G._emplacements[i].getX(), G._emplacements[i].getY());
-			}
-			if (show_selected_emplacement) {
-				glColor3f(0.5f, 0.0f, 0.0f);
-				glVertex2d(G._emplacements[selectedEmplacement].getX(), G._emplacements[selectedEmplacement].getY());
-			}
-			glEnd();
-		}
-	}
-}
-
-void openGLShowNodes(Graphe& G) {
-	if (showNodes) {
-		if (display_genetic) {
-			glPointSize(7);
-			glBegin(GL_POINTS);
-			glColor3f(1.0f, 0.0f, 0.0f);
-			// Affiche les nodes placés du parent 1, parent 2 et enfant.
-			for (int i = 0; i < parent1._noeuds.size(); i++) {
-				if (parent1._noeuds[i].getEmplacement() != nullptr) {
-					glVertex2d(parent1._noeuds[i].getX(), parent1._noeuds[i].getY()+ parent1.gridHeight*2);
-				}
-				if (parent2._noeuds[i].getEmplacement() != nullptr) {
-					glVertex2d(parent2._noeuds[i].getX() + parent1.gridWidth*2, parent2._noeuds[i].getY()+ parent1.gridHeight*2);
-				}
-				if (enfant._noeuds[i].getEmplacement() != nullptr) {
-					glVertex2d(enfant._noeuds[i].getX() + parent1.gridWidth, enfant._noeuds[i].getY());
-				}
-			}
-			glEnd();
-		}
-		else {
-			glPointSize(7);
-			glBegin(GL_POINTS);
-			glColor3f(1.0f, 0.0f, 0.0f);
-			for (int i = 0; i < G._noeuds.size(); i++) {
-				if (G._noeuds[i].estPlace()) {
-					glVertex2d(G._noeuds[i].getX(), G._noeuds[i].getY());
-				}
-			}
-			glEnd();
-		}
-	}
-}
-
 void openGLShowNodesReel(Graphe& G) {
 	if (showNodes) {
 		if (!display_genetic) {
@@ -407,69 +324,6 @@ void openGLShowNodesReel(Graphe& G) {
 				glVertex2d(G._noeuds[i]._xreel, G._noeuds[i]._yreel);
 			}
 			glEnd();
-		}
-	}
-}
-
-void openGLShowEdges(Graphe& G) {
-	if (showEdges) {
-		glLineWidth(3.0f);
-		if (display_genetic) {
-			glColor3f(1.0f, 1.0f, 1.0f);
-			for (int i = 0; i < parent1._aretes.size(); i++) {
-				if (parent1._aretes[i].getNoeud1()->estPlace() && parent1._aretes[i].getNoeud2()->estPlace()) {
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(parent1._aretes[i].getNoeud1()->getX(), parent1._aretes[i].getNoeud1()->getY() + parent1.gridHeight*2);
-					glVertex2d(parent1._aretes[i].getNoeud2()->getX(), parent1._aretes[i].getNoeud2()->getY() + parent1.gridHeight*2);
-					glEnd();
-				}
-				if (parent2._aretes[i].getNoeud1()->estPlace() && parent2._aretes[i].getNoeud2()->estPlace()) {
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(parent2._aretes[i].getNoeud1()->getX() + parent1.gridWidth*2, parent2._aretes[i].getNoeud1()->getY() + parent1.gridHeight*2);
-					glVertex2d(parent2._aretes[i].getNoeud2()->getX() + parent1.gridWidth*2, parent2._aretes[i].getNoeud2()->getY() + parent1.gridHeight*2);
-					glEnd();
-				}
-				if (enfant._aretes[i].getNoeud1()->estPlace() && enfant._aretes[i].getNoeud2()->estPlace()) {
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(enfant._aretes[i].getNoeud1()->getX() + parent1.gridWidth, enfant._aretes[i].getNoeud1()->getY());
-					glVertex2d(enfant._aretes[i].getNoeud2()->getX() + parent1.gridWidth, enfant._aretes[i].getNoeud2()->getY());
-					glEnd();
-				}
-			}
-		}
-		else {
-			glColor3f(1.0f, 1.0f, 1.0f);
-			for (int i = 0; i < G._aretes.size(); i++) {
-				if (G._aretes[i].estPlace()) {
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(G._aretes[i].getNoeud1()->getX(), G._aretes[i].getNoeud1()->getY());
-					glVertex2d(G._aretes[i].getNoeud2()->getX(), G._aretes[i].getNoeud2()->getY());
-					glEnd();
-				}
-			}
-			if (showIllegal) {
-				for (auto &a : G.areteInter) {
-					glColor3f(0.75f, 0.0f, 0.0f);
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
-					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
-					glEnd();
-				}
-				for (auto &a : G.areteIll) {
-					glColor3f(1.0f, 0.0f, 1.0f);
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
-					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
-					glEnd();
-				}
-				for (auto &a : G.areteIllSelf) {
-					glColor3f(0.3f, 0.2f, 0.5f);
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(a->getNoeud1()->getX(), a->getNoeud1()->getY());
-					glVertex2d(a->getNoeud2()->getX(), a->getNoeud2()->getY());
-					glEnd();
-				}
-			}
 		}
 	}
 }
@@ -508,70 +362,6 @@ void openGLShowEdgesReel(Graphe& G) {
 					glEnd();
 				}
 			}
-		}
-	}
-}
-
-void openGLShowTriangulation(Graphe& G) {
-	if (show_triangulation) {
-		glLineWidth(2.0f);
-		glColor3f(0.2f, 0.3f, 0.4f);
-		for (int i=0;i<G._c.nbDemiCote();i+=2) {
-			int x1 = G._c.demiCote(i)->sommet()->getX();
-			int y1 = G._c.demiCote(i)->sommet()->getY();
-			int x2 = G._c.demiCote(i)->oppose()->sommet()->getX();
-			int y2 = G._c.demiCote(i)->oppose()->sommet()->getY();
-			glBegin(GL_LINE_STRIP);
-			glVertex2d(x1, y1);
-			glVertex2d(x2, y2);
-			glEnd();
-		}
-	}
-}
-
-void openGLShowCells(Graphe& G) {
-	if (show_cells) {
-		glLineWidth(2.0f);
-		glColor3f(0.8f, 0.7f, 0.6f);
-		for (int i=0;i<G.grille.size();i++) {
-			for (int j=0;j<G.grille[i].size();j++) {
-				int x1 = G.grille[i][j].getBottomRightX();
-				int y1 = G.grille[i][j].getBottomRightY();
-				int x2 = G.grille[i][j].getBottomLeftX();
-				int y2 = G.grille[i][j].getTopRightY();
-				glBegin(GL_LINE_STRIP);
-				glVertex2d(x1, y1);
-				glVertex2d(x2, y1);
-				glEnd();
-				glBegin(GL_LINE_STRIP);
-				glVertex2d(x1, y1);
-				glVertex2d(x1, y2);
-				glEnd();
-				if (j == 0) {
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(x2, y1);
-					glVertex2d(x2, y2);
-					glEnd();
-				}
-				if (i == G.grille.size()-1) {
-					glBegin(GL_LINE_STRIP);
-					glVertex2d(x2, y2);
-					glVertex2d(x1, y2);
-					glEnd();
-				}
-			}
-		}
-		if (show_selected_cell) {
-			int x1 = G.grille[selectedCellY][selectedCellX].getTopLeftX();
-			int y1 = G.grille[selectedCellY][selectedCellX].getTopLeftY();
-			int x2 = G.grille[selectedCellY][selectedCellX].getBottomRightX();
-			int y2 = G.grille[selectedCellY][selectedCellX].getBottomRightY();
-			glBegin(GL_QUADS);
-			glVertex2f(x1, y1);
-			glVertex2f(x2, y1);
-			glVertex2f(x2, y2);
-			glVertex2f(x1, y2);
-			glEnd();
 		}
 	}
 }
@@ -623,25 +413,6 @@ void openGLShowCellsReel(Graphe& G) {
 	}
 }
 
-void openGLShowSelected(Graphe& G) {
-	glPointSize(7);
-	glBegin(GL_POINTS);
-	if (show_selected_node) {
-		if (G._noeuds[selectedNode].estPlace()) {
-			glColor3f(0.0f, 0.0f, 1.0f);
-			if (moving) {
-				glColor3f(0.0f, 0.5f, 0.0f);
-			}
-			glVertex2d(G._noeuds[selectedNode].getX(), G._noeuds[selectedNode].getY());
-		}
-	}
-	if (show_selected_emplacement) {
-		glColor3f(0.5f, 0.0f, 0.0f);
-		glVertex2d(G._emplacements[selectedEmplacement].getX(), G._emplacements[selectedEmplacement].getY());
-	}
-	glEnd();
-}
-
 void openGLShowSelectedReel(Graphe& G) {
 	glPointSize(7);
 	glBegin(GL_POINTS);
@@ -675,20 +446,15 @@ void openGLPrintRaccourcis(bool printRaccourcis) {
 		tcout() << "Touche Escape/Echap: Ferme la fenetre OpenGl." << std::endl;
 		tcout() << "Touche Gauche/Left: " << std::endl;
 		tcout() << "     -Si en mode selection de noeud(par defaut): Selectionne le noeud precedent." << std::endl;
-		tcout() << "     -Si en mode selection d'emplacement: Selectionne l'emplacement precedent." << std::endl;
-		tcout() << "     -Si en mode deplacement: Deplace le noeud selectionne a un emplacement precedent le sien." << std::endl;
 		tcout() << "Touche Droite/Right: Similaire a Gauche/Left mais pour le suivant." << std::endl;
 		tcout() << "Touche 1/&: Reinitialise les noeuds du graphe et effectue un placement aleatoire." << std::endl;
 		tcout() << "Touche 2/e: Reinitialise les noeuds du graphe et effectue un placement glouton." << std::endl;
 		tcout() << "Touche 3/\": Appelle la fonction Recuit Simule sur le graphe." << std::endl;
-		tcout() << "Touche 4/' Affiche le score du graphe, du noeud selectionne, et le score swap si l'emplacement selectionne n'est pas disponible." << std::endl;
 		tcout() << "Touche 5/( Calcule la moyenne de score de 1000 placements aleatoire et de 1000 placements gloutons." << std::endl;
 		tcout() << "Touche NumPad+/KeyPadAdd: Zoom." << std::endl;
 		tcout() << "Touche NumPad-/KeyPadMinus: Dezoom." << std::endl;
 		tcout() << "Touche N: Affiche le nombre de croisement dans le graphe." << std::endl;
 		tcout() << "Touche D: Active/Desactive le mode deplacement." << std::endl;
-		tcout() << "Touche E: Active/Desactive le mode selection d'emplacement." << std::endl;
-		tcout() << "Touche S: Si le mode selection d'emplacement est actif, effectue un swap entre le noeud selectionne et l'emplacement selectionne." << std::endl;
 		tcout() << "Touche I: Active/Desactive l'affichage de croisements(rouge) et croisements illegaux(violet)" << std::endl;
 		tcout() << "-------------------------------------" << std::endl;
 	}
@@ -700,20 +466,12 @@ void openGLKeyPressFunction(Graphe& G) {
 		bool recalcIllegal = false;
 		switch(keyPressFunctionNum) {
 		case 0: {// Save Graphe to JSON
-			G.writeToJsonGraph("currentGraphe.json");
-			G.writeToJsonSlots("currentGrapheSlots.json");
 			break;
 		}
 		case 1: {// Copie le graphe
-			graphCopy.clear();
-			graphCopy = G.saveCopy();
 			break;
 		}
 		case 2: {// Load copy
-			if (graphCopy.size() == G._noeuds.size()) { G.loadCopy(graphCopy); }
-			else { tcout() << "Copy failed.\n"; }
-			if (showIllegal) recalcIllegal = true;
-			historiqueOpenGL.clear();
 			break;
 		}
 		case 3: {// Recuit simule (KEY: 3")
@@ -730,246 +488,59 @@ void openGLKeyPressFunction(Graphe& G) {
 				tcout() << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
 				if (G.grillePtr.size() > 0) { G.reinitGrilleReel(); }
 			}
-			else {
-				tcout() << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
-				auto start = std::chrono::system_clock::now();
-				double timeBest;
-				bool useGrille = G.grillePtr.size() > 0;
-				if (useGrille) { G.reinitGrille(); }
-				G.recuitSimule(timeBest,start,{},0.99999,100.0,0.0001,1,0,2,useGrille);
-				auto end = std::chrono::system_clock::now();
-				std::chrono::duration<double> secondsTotal = end - start;
-				tcout() << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
-				tcout() << "Temps Meilleur: " << timeBest << " secondes.\n";
-				tcout() << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
-				if (useGrille) { G.reinitGrille(); }
-			}
 			historiqueOpenGL.clear();
 			break;
 		}
 		case 4: {// Step Recuit Simule
-			if (stepSetup) {
-				stepT = 100.0;
-				stepNbCrois = G.getNbCroisement();
-				stepSetup = false;
-			}
-			G.stepRecuitSimule(stepT, stepNbCrois);
-			if (stepT <= 0.0001 || stepNbCrois == 0) {
-				tcout() << stepT << " " << stepNbCrois << std::endl;
-			}
-			historiqueOpenGL.clear();
 			break;
 		}
 		case 5: {// Placement aleatoire (KEY: 1&)
-			if (display_genetic) {
-				parent1.clearNodeEmplacement();
-				parent2.clearNodeEmplacement();
-				enfant.clearNodeEmplacement();
-				parent1.placementAleatoire();
-				parent2.placementAleatoire();
-				parent1.initGraphAndNodeScoresAndCrossings();
-				parent2.initGraphAndNodeScoresAndCrossings();
-				nbNoeudATraiter = parent1._noeuds.size() - parent1.nbNoeudEnCommun(parent2);
-			}
-			else {
-				if (!useReel) {
-					G.clearNodeEmplacement();
-					G.placementAleatoire();
-					if (G.grillePtr.size() > 0) { G.reinitGrille(); }
-				}
-				else {
-					G.placementAleatoireReel();
-					if (G.grillePtr.size() > 0 ) { G.reinitGrilleReel(); }
-				}
-			}
+			G.placementAleatoireReel();
+			if (G.grillePtr.size() > 0 ) { G.reinitGrilleReel(); }
 			if (showIllegal) recalcIllegal = true;
 			historiqueOpenGL.clear();
 			break;
 		}
 		case 6: {// Placement Glouton Revisite
-			if (display_genetic) {
-				parent1.clearNodeEmplacement();
-				parent2.clearNodeEmplacement();
-				enfant.clearNodeEmplacement();
-				parent1.gloutonRevisite();
-				parent2.gloutonRevisite();
-				parent1.initGraphAndNodeScoresAndCrossings();
-				parent2.initGraphAndNodeScoresAndCrossings();
-				nbNoeudATraiter = parent1._noeuds.size() - parent1.nbNoeudEnCommun(parent2);
-			}
-			else {
-				G.clearNodeEmplacement();
-				G.gloutonRevisite();
-			}
-			if (showIllegal) recalcIllegal = true;
-			historiqueOpenGL.clear();
 			break;
 		}
 		case 7: {// Affiche score (KEY: 4')
-			if (!display_genetic) {
-				if (!useReel) {
-					G.getNbCroisementDiff();
-					tcout() << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
-					//tcout() << "Selected Node: " << selectedNode << " emplacement: " << G._noeuds[selectedNode].getEmplacement()->_id << " Selected Emplacement: " << selectedEmplacement << std::endl;
-					tcout() << "Nb Intersection: " << G.getNbCroisement() << std::endl;
-					//tcout() << "Selected node score: " << G.getScoreCroisementNode(selectedNode) << std::endl;
-					if (show_selected_emplacement) {
-						if (!G._emplacements[selectedEmplacement].estDisponible()) {
-							int swapId = G._emplacements[selectedEmplacement]._noeud->getId();
-							tcout() << "Selected emplacement score: " << G.getScoreCroisementNode(swapId) << std::endl;
-							int score = G.getScoreCroisementNode(selectedNode);
-							score += G.getScoreCroisementNode(swapId, selectedNode);
-							tcout() << "Score before swap: " << score << std::endl;
-							G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
-							score = G.getScoreCroisementNode(selectedNode);
-							score += G.getScoreCroisementNode(swapId, selectedNode);
-							tcout() << "Score after swap: " << score << std::endl;
-							G._noeuds[selectedNode].swap(G._noeuds[swapId].getEmplacement());
-						}
-					}
-				}
-				else {
-					G.getNbCroisementDiffReel();
-					tcout() << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
-				}
-			}
-			else {
-				tcout() << "Score Parent1: " << parent1.nombreCroisement << "&" << parent1.getNbCroisementConst() << "&" << parent1.getNbCroisementArray() << std::endl;
-				tcout() << "Score Parent2: " << parent2.nombreCroisement << "&" << parent2.getNbCroisementConst() << "&" << parent2.getNbCroisementArray() <<std::endl;
-				//tcout() << "Score Enfant: " << enfant.nombreCroisement<< "&" << enfant.getNbCroisementConst() << std::endl;
-			}
+			G.getNbCroisementDiffReel();
+			tcout() << "Total Inter: " << G.nombreInter + G.nombreInterIll + G.nombreInterIllSelf << " normales: " << G.nombreInter << " illegales: " << G.nombreInterIll << " self: " << G.nombreInterIllSelf << std::endl;
 			break;
 		}
-		case 8: {// Affiche le nombre d'intersection du graphe
-			if (display_genetic) {
-				if (parent1.estPlace()) tcout() << "Parent1 Nb Intersections: " << parent1.getNbCroisementConst() << " saved: " << parent1.nombreCroisement << " array: " << parent1.getNbCroisementArray() << std::endl;
-				if (parent2.estPlace()) tcout() << "Parent2 Nb Intersections: " << parent2.getNbCroisementConst() << " saved: " << parent2.nombreCroisement << " array: " << parent2.getNbCroisementArray() << std::endl;
-				if (enfant.estPlace()) tcout() << "Parent3 Nb Intersections: " << enfant.getNbCroisementConst() << " saved: " << enfant.nombreCroisement << " array: " << enfant.getNbCroisementArray() << std::endl;
-			}
-			else {
-				tcout() << "Nb Intersections: " << G.getNbCroisementConst() << " saved: " << G.nombreCroisement << " array: " << G.getNbCroisementArray() << std::endl;
-			}
+		case 8: {
 			break;
 		}
-		case 9: {// Move current node left
-			if (!display_genetic) {
-				G.clearSetAreteInter();
-				int numPos = G._noeuds[selectedNode].getEmplacement()->getId();
-				int i = numPos-1;
-				while (!G._emplacements[i].estDisponible() && i>= 0) {
-					i--;
-				}
-				G._noeuds[selectedNode].setEmplacement(&G._emplacements[i]);
-				if (showIllegal) recalcIllegal = true;
-			}
-			historiqueOpenGL.clear();
+		case 9: {
 			break;
 		}
-		case 10: {// Move current node right
-			if (!display_genetic) {
-				G.clearSetAreteInter();
-				int numPos = G._noeuds[selectedNode].getEmplacement()->getId();
-				int i = numPos+1;
-				while (!G._emplacements[i].estDisponible() && i<G._emplacements.size()) {
-					i++;
-				}
-				G._noeuds[selectedNode].setEmplacement(&G._emplacements[i]);
-				if (showIllegal) recalcIllegal = true;
-			}
-			historiqueOpenGL.clear();
+		case 10: {
 			break;
 		}
-		case 11: {// Make Swap (KEY: S)
-			G.clearSetAreteInter();
-			if (G._noeuds[selectedNode].getEmplacement()->getId() != selectedEmplacement) {
-				int oldEmplacement = G._noeuds[selectedNode].getEmplacement()->getId();
-				if (G._emplacements[selectedEmplacement].estDisponible()) {
-					G._noeuds[selectedNode].setEmplacement(&G._emplacements[selectedEmplacement]);
-				}
-				else {
-					G._noeuds[selectedNode].swap(&G._emplacements[selectedEmplacement]);
-				}
-				selectedEmplacement = oldEmplacement;
-			}
-			if (showIllegal) recalcIllegal = true;
-			historiqueOpenGL.clear();
+		case 11: {
 			break;
 		}
 		case 12: {// Debug All Info (KEY: F3)
-			if (display_genetic) {
-				parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
-				parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
-			}
-			else {
-				if (useReel) {
-					G.afficherNoeudsReel();
-				}
-				else {
-					G.afficherInfo();
-					//G.afficherNoeuds();
-					G.afficherLiens();
-					//G.afficherEmplacement();
-				}
+			if (useReel) {
+				G.afficherNoeudsReel();
 			}
 			break;
 		}
 		case 13: {// Debug Specific Info
-			if (display_genetic) {
-				//parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
-				//parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
-				parent1.afficherNoeuds();
-				parent2.afficherNoeuds();
-				//enfant.afficherInfo(); enfant.afficherEmplacement(); enfant.afficherLiens(); enfant.afficherNoeuds();
-			}
-			else {
-				G.afficherInfo();
-				//G.afficherNoeuds();
-				G.afficherLiens();
-				//G.afficherEmplacement();
-			}
+			G.afficherInfo();
 			break;
 		}
 		case 14: {
 			break;
 		}
-		case 15: {// Affiche fenetre genetique
-			if (!isGeneticSetUp) {
-				std::string nomFichierParent1 = chemin + "combined/" + "cgraph-1" + ".json";
-				std::string nomFichierParent2 = chemin + "combined/" + "cgraph-2" + ".json";
-				parent1.readFromJsonGraphAndSlot(nomFichierParent1);
-				parent2.readFromJsonGraphAndSlot(nomFichierParent2);
-				enfant.readFromJsonGraphAndSlot(nomFichierParent1);
-				enfant.clearNodeEmplacement();
-				nbNoeudATraiter = parent1._noeuds.size() - parent1.nbNoeudEnCommun(parent2);
-				isGeneticSetUp = true;
-				parent1.initGraphAndNodeScoresAndCrossings();
-				parent2.initGraphAndNodeScoresAndCrossings();
-				tcout() << "Genetic set up:\n" << "File Parent1: " << nomFichierParent1 << "\nFile Parent2: " << nomFichierParent2 << "\nNNT: " << nbNoeudATraiter << std::endl;
-				tcout() << "Score parent1: " << parent1.nombreCroisement << " Score parent2: " << parent2.nombreCroisement << std::endl;
-				parent1.debugScoreNoeud();
-				parent2.debugScoreNoeud();
-				//parent1.afficherInfo(); parent1.afficherEmplacement(); parent1.afficherLiens(); parent1.afficherNoeuds();
-				//parent2.afficherInfo(); parent2.afficherEmplacement(); parent2.afficherLiens(); parent2.afficherNoeuds();
-			}
-			gridHeight = parent1.gridHeight*3;
-			gridWidth = parent1.gridWidth*3;
+		case 15: {
 			break;
 		}
-		case 16: {// Step Genetique
-			if (display_genetic) {
-				if (nbNoeudATraiter > 0) {
-					enfant.stepCroisementVoisinageFrom(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
-					//enfant.stepCroisementVoisinageScore(parent1,parent2,false,nbNoeudATraiter,currentGrapheNumber);
-					tcout() << "NNT: " << nbNoeudATraiter << std::endl;
-				}
-			}
-			historiqueOpenGL.clear();
+		case 16: {
 			break;
 		}
-		case 17: {// Triangulation
-			if (!G.isCarteSetUp) {
-				G.triangulationDelaunay();
-			}
+		case 17: {
 			break;
 		}
 		case 18: {// Recalc Illegal (KEY: I)
@@ -978,49 +549,23 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 19: {// Affiche le contenu de la cellule (KEY:F8)
 			//G.afficherLiens();
-			if (show_selected_emplacement) {
-				tcout() << "Selected Emplacement: " << selectedEmplacement;
-				if (selectedEmplacement >= 0) {
-					if (G._emplacements[selectedEmplacement]._noeud != nullptr) {
-						tcout() << " Non Disponible. Node Id: " << G._emplacements[selectedEmplacement]._noeud->_id << std::endl;
-					}
-					else {
-						tcout() << " Disponible.\n";
-					}
-				}
-			}
 			if (show_selected_node) {
 				tcout() << "Selected Node: " << selectedNode;
 				if (selectedNode >= 0) {
-					if (G._noeuds[selectedNode]._emplacement != nullptr) {
-						tcout() << " Emplacement Id: " << G._noeuds[selectedNode]._emplacement->_id << std::endl;
-					}
-					else if (G.useCoordReel) {
+					if (G.useCoordReel) {
 						tcout() << " Coord: X: " << G._noeuds[selectedNode]._xreel << " Y: " << G._noeuds[selectedNode]._yreel << std::endl;
 					}
 				}
 			}
 			if (show_cells && show_selected_cell) {
 				tcout() << "Selected Cellule: " << selectedCellY << " " << selectedCellX << " id: " << selectedCellY * G.grille[0].size() + selectedCellX << std::endl;
-				for (const int& id : G.grille[selectedCellY][selectedCellX].vecEmplacementId) {
-					tcout() << "	Emplacement: " << id << " Noeud: " << G._emplacements[id]._noeud->_id << std::endl;
-				}
 				for (const int& id : G.grille[selectedCellY][selectedCellX].vecAreteId) {
 					tcout() << "	Arete: " << id << " N1: " << G._aretes[id].getNoeud1()->_id << " N2: " << G._aretes[id].getNoeud2()->_id << std::endl;
 				}
 			}
 			break;
 		}
-		case 20: {// Step Stress Majorization (KEY: 5)
-			if (!useReel) {
-				G.stepStressMajorization();
-				tcout() << "Iteration: " << G._sm.totalIterationDone << " Stress: " << G._sm.calcStress() << " EdgeCost: " << G._sm.m_edgeCosts << " MoyAretes: " << G.moyenneLongueurAretes()<< std::endl;
-			}
-			else {
-				G.stressMajorizationReel();
-			}
-			if (showIllegal) recalcIllegal = true;
-			historiqueOpenGL.clear();
+		case 20: {
 			break;
 		}
 		case 21: {// Print current seed
@@ -1030,30 +575,16 @@ void openGLKeyPressFunction(Graphe& G) {
 			tcout() << getSeed(0) << "\n";
 			break;
 		}
-		case 22: {//Ajoute 5 au m_edgecost du SM (KEY:PageUp)
-			if (G._sm.G != nullptr) {
-				G._sm.addToEdgeCost(2);
-				tcout() << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
-			}
+		case 22: {
 			break;
 		}
-		case 23: {//Enleve 5 au m_edgecost du SM (KEY:PageDown)
-			if (G._sm.G != nullptr) {
-				G._sm.addToEdgeCost(-2);
-				tcout() << "EdgeCost: " << G._sm.m_edgeCosts << std::endl;
-			}
+		case 23: {
 			break;
 		}
-		case 24: {//Rotate le graphe +5° (KEYPAD:7)
-			G.rotateGraph(5);
-			if (showIllegal) recalcIllegal = true;
-			historiqueOpenGL.clear();
+		case 24: {
 			break;
 		}
-		case 25: {//Rotate le graphe -5° (KEYPAD:4)
-			G.rotateGraph(-5);
-			if (showIllegal) recalcIllegal = true;
-			historiqueOpenGL.clear();
+		case 25: {
 			break;
 		}
 		case 26: {//Selection node (clic gauche avec modeNode)
@@ -1061,19 +592,9 @@ void openGLKeyPressFunction(Graphe& G) {
 				selectedNode = G.getClosestNodeFromPointReel(clicX,clicY); 
 				tcout() << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode]._xreel << " Y: " << G._noeuds[selectedNode]._yreel << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
 			}
-			else { 
-				selectedNode = G.getClosestNodeFromPoint(clicX,clicY);
-				tcout() << "Selected Node Id: " << G._noeuds[selectedNode]._id << " X: " << G._noeuds[selectedNode].getEmplacement()->_x << " Y: " << G._noeuds[selectedNode].getEmplacement()->_y << " Degre: " << G._noeuds[selectedNode].voisins.size() << " " << G._noeuds[selectedNode].voisinString() << std::endl;
-			}
 			break;
 		}
-		case 27: {//Selection emplacement (clic gauche avec modeEmplacement)
-			if (showEmplacement) {
-				selectedEmplacement = G.getClosestEmplacementFromPoint(clicX,clicY)->_id;
-			}
-			else {
-				selectedEmplacement = G._noeuds[G.getClosestNodeFromPoint(clicX,clicY)].getEmplacement()->_id;
-			}
+		case 27: {
 			break;
 		}
 		case 28: {// Recuit simule a basse temperature (KEY: F2)
@@ -1090,36 +611,17 @@ void openGLKeyPressFunction(Graphe& G) {
 				tcout() << "Nb Croisement fin recuit: " << G.getNbCroisementReelConst() << std::endl;
 				if (G.grillePtr.size() > 0) { G.reinitGrilleReel(); }
 			}
-			else {
-				tcout() << "Nb Croisement debut recuit: " << G.getNbCroisement() << std::endl;
-				auto start = std::chrono::system_clock::now();
-				double timeBest;
-				bool useGrille = G.grillePtr.size() > 0;
-				G.recuitSimule(timeBest,start,{},0.99999,0.01,0.0001,1,0,2,useGrille,false);
-				auto end = std::chrono::system_clock::now();
-				std::chrono::duration<double> secondsTotal = end - start;
-				tcout() << "Temps calcul: " << secondsTotal.count() << " secondes." << std::endl;
-				tcout() << "Temps Meilleur: " << timeBest << " secondes.\n";
-				tcout() << "Nb Croisement fin recuit: " << G.getNbCroisement() << std::endl;
-				if (G.grillePtr.size() > 0) { G.reinitGrille(); }
-			}
 			if (showIllegal) recalcIllegal = true;
 			break;
 		}
 		case 29: {//Force Selected Emplacement, (UseReel) Change selected node coord (Right Click)
-			if (!useReel) {
-				selectedEmplacement = G.getClosestEmplacementFromPoint(clicX,clicY)->_id;
-			}
-			else {
-				historiqueOpenGL.push_back({0.0,(double)selectedNode,G._noeuds[selectedNode]._xreel,G._noeuds[selectedNode]._yreel});
-				G._noeuds[selectedNode]._xreel = clicX;
-				G._noeuds[selectedNode]._yreel = clicY;
-				if (showIllegal) recalcIllegal = true;
-			}
+			historiqueOpenGL.push_back({0.0,(double)selectedNode,G._noeuds[selectedNode]._xreel,G._noeuds[selectedNode]._yreel});
+			G._noeuds[selectedNode]._xreel = clicX;
+			G._noeuds[selectedNode]._yreel = clicY;
+			if (showIllegal) recalcIllegal = true;
 			break;
 		}
-		case 30: {//Generate x2 more emplacement (KEY: F10)
-			G.generateMoreEmplacement(2);
+		case 30: {
 			break;
 		}
 		case 31: {//CTRL + Z (KEY: Backspace)
@@ -1137,14 +639,8 @@ void openGLKeyPressFunction(Graphe& G) {
 		}
 		case 32: {//ogdfFMMM (KEY: F11)
 #if defined(OGDF_INSTALLED)
-			if (!useReel) { 
-				ogdfFastMultipoleMultilevelEmbedder(G);
-				if (G.grillePtr.size() > 0) { G.reinitGrille(); }
-			}
-			else {
-				ogdfFastMultipoleMultilevelEmbedderReel(G); G.translateGrapheToOriginReel(-1);
-				if (G.grillePtr.size() > 0 ) { G.reinitGrilleReel(); }
-			}
+			ogdfFastMultipoleMultilevelEmbedderReel(G); G.translateGrapheToOriginReel(-1);
+			if (G.grillePtr.size() > 0 ) { G.reinitGrilleReel(); }
 			historiqueOpenGL.clear();
 #endif
 			break;
@@ -1156,7 +652,6 @@ void openGLKeyPressFunction(Graphe& G) {
 		if (recalcIllegal) {
 			G.clearSetAreteInter();
 			if (useReel) { G.recalculateIllegalIntersectionsReel(); }
-			else { G.recalculateIllegalIntersections(); }
 		}
 		if (!repeatInfinitely) {
 			singleKeyPress = false;
@@ -1178,20 +673,10 @@ void openGLKeyPressFunction(Graphe& G) {
 
 void openGLShowEverything(Graphe& G) {
 	openGLShowGrid();
-	if (!useReel) {
-		openGLShowCells(G);
-		openGLShowEdges(G);
-		openGLShowTriangulation(G);
-		openGLShowEmplacement(G);
-		openGLShowNodes(G);
-		openGLShowSelected(G);
-	}
-	else {
-		openGLShowCellsReel(G);
-		openGLShowEdgesReel(G);
-		openGLShowNodesReel(G);
-		openGLShowSelectedReel(G);
-	}
+	openGLShowCellsReel(G);
+	openGLShowEdgesReel(G);
+	openGLShowNodesReel(G);
+	openGLShowSelectedReel(G);
 }
 
 void openGLDisplay() {
@@ -1200,10 +685,8 @@ void openGLDisplay() {
 
 void openGLInitGlobalVariables(Graphe& G,bool useReelCoord) {
 	margeXDebut = initialMargeXDebut, margeXFin = initialMargeXFin, margeYDebut = initialMargeYDebut, margeYFin = initialMargeYFin;
-	if (G._emplacements.size() >= (G._noeuds.size() * G._noeuds.size())/2) { showEmplacement = false; }
 	useReel = useReelCoord;
 	maxNodeIndex = G._noeuds.size() - 1;
-	maxEmplacementIndex = G._emplacements.size() - 1;
 	maxCellY = G.grille.size()-1;
 	if (maxCellY > 0) {
 		maxCellX = G.grille[0].size()-1;

@@ -43,11 +43,11 @@
 
 #include <ogdf/basic/LayoutStatistics.h>
 
-#include "emplacement.hpp"
 #include "graphe.hpp"
 #include "limits.h"
 #include <fstream>
 #include <filesystem>
+#include <utility>
 
 std::vector<ogdf::node> vecNoeudAOGDFNode;
 
@@ -134,16 +134,6 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GridLayout &ogdfGL, ogdf::Graph 
 				ogdfGL.y(nodeTab[i]) = 0;
 			}
 		}
-		else {
-			if (isGraphePlace) {
-				ogdfGL.x(nodeTab[i]) = G._noeuds[i].getX();
-				ogdfGL.y(nodeTab[i]) = G._noeuds[i].getY();
-			}
-			else {
-				ogdfGL.x(nodeTab[i]) = 0;
-				ogdfGL.y(nodeTab[i]) = 0;
-			}
-		}
 		G._noeuds[i].ogdfId = nodeTab[i]->index();
 	}
 	for (int i = 0; i < G._aretes.size(); i++) {
@@ -165,10 +155,6 @@ void createOGDFGraphFromGraphe(Graphe &G, ogdf::GraphAttributes &ogdfGA, ogdf::G
 		if (G.useCoordReel) {
 			ogdfGA.x(nodeTab[i]) = G._noeuds[i]._xreel;
 			ogdfGA.y(nodeTab[i]) = G._noeuds[i]._yreel;
-		}
-		else if (G.estPlace()) {
-			ogdfGA.x(nodeTab[i]) = G._noeuds[i].getX();
-			ogdfGA.y(nodeTab[i]) = G._noeuds[i].getY();
 		}
 		else {
 			ogdfGA.x(nodeTab[i]) = 0;
@@ -366,13 +352,6 @@ void ogdfReadQuickCrossToGraph(std::string input, Graphe& G) {
 }
 
 void ogdfReadQuickCrossToGraphCrossings(std::string quickcrossInput, std::string graphInput, Graphe& G) {
-	Graphe tmpG;
-	ogdfReadQuickCrossToGraph(quickcrossInput,tmpG);
-	G.readFromJsonGraph(graphInput);
-	for (int i=0;i<G._noeuds.size();i++) {
-		G._noeuds[i]._xreel = tmpG._noeuds[i]._xreel;
-		G._noeuds[i]._yreel = tmpG._noeuds[i]._yreel;
-	}
 }
 
 void ogdfTranslateOgdfGraphToOrigin(ogdf::Graph& ogdfG, ogdf::GraphAttributes& ogdfGA) {
@@ -419,173 +398,20 @@ void ogdfPlacementAuPlusProche(ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG
 	if (G.useCoordReel) {
 		ogdfGetCoordsReel(G,ogdfG,ogdfGA);
 	}
-	else {
-		G.clearNodeEmplacement();
-		for (i=0;i<G._noeuds.size();i++) {
-			double x = ogdfGA.x(nodeTab[i]);
-			double y = ogdfGA.y(nodeTab[i]);
-			Emplacement* closestEmplacement;
-			if (G.grillePtr.size() > 0) {
-				closestEmplacement = G.getClosestEmplacementFromPointGrid(x,y,true);
-			}
-			else {
-				closestEmplacement = G.getClosestEmplacementFromPoint(x,y,true);
-			}
-			G._noeuds[i].setEmplacement(closestEmplacement);
-		}
-	}
 	delete[] nodeTab;
 }
 
 // Planarize le graphe avec odgf et essaie de placer les noeuds au plus proche de ses emplacements possible par rapport au grpahe OGDF
 int ogdfPlacementAuPlusProche(Graphe& G) {
-	ogdf::Graph ogdfG;
-	ogdf::GridLayout ogdfGL{ ogdfG };
-	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
-	if (planarizeMaxFace(ogdfGL, ogdfG) != 0) {
-		return 1;
-	}
-	int maxX=0, maxY=0;
-	for (int i = 0; i < G._emplacements.size(); i++) {
-		if (G._emplacements[i].getX() > maxX) { maxX = G._emplacements[i].getX();  }
-		if (G._emplacements[i].getY() > maxY) { maxY = G._emplacements[i].getY();  }
-	}
-	int ogdfMaxX = 0, ogdfMaxY = 0;
-	int nodeNumber = G._noeuds.size();
-	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
-	int i = 0;
-	for (auto n : ogdfG.nodes) {
-		if (ogdfGL.x(n) > ogdfMaxX) { ogdfMaxX = ogdfGL.x(n); }
-		if (ogdfGL.y(n) > ogdfMaxY) { ogdfMaxY = ogdfGL.y(n); }
-		nodeTab[i] = n;
-		i++;
-	}
-	double ratio = (double)ogdfMaxX / (double)maxX;
-	double ratio2 = (double)ogdfMaxY / (double)maxY;
-	if (ratio2 > ratio) { ratio = ratio2; }
-	if (ratio > 1) {
-		for (int i = 0; i < G._emplacements.size(); i++) {
-			G._emplacements[i]._x *= ratio;
-			G._emplacements[i]._y *= ratio;
-		}
-	}
-	else {
-		for (auto n : ogdfG.nodes) {
-			ogdfGL.x(n) /= ratio;
-			ogdfGL.y(n) /= ratio;
-		}
-	}
-	for (int i=0;i<G._noeuds.size();i++) {
-		int indexNoeud = -1, indexEmp = -1;
-		double dist = 9999999;
-		for (int j = 0; j < G._noeuds.size(); j++) {
-			if (!G._noeuds[j].estPlace()) {
-				for (int k = 0; k < G._emplacements.size(); k++) {
-					if (G._emplacements[k].estDisponible()) {
-						double dist2 = ((G._emplacements[k].getX() - ogdfGL.x(nodeTab[j])) * (G._emplacements[k].getX() - ogdfGL.x(nodeTab[j]))) + ((G._emplacements[k].getY() - ogdfGL.y(nodeTab[j])) * (G._emplacements[k].getY() - ogdfGL.y(nodeTab[j])));
-						if (dist2 < dist) {
-							dist = dist2;
-							indexNoeud = j;
-							indexEmp = k;
-						}
-					}
-				}
-			}
-		}
-		G._noeuds[indexNoeud].setEmplacement(&G._emplacements[indexEmp]);
-	}
-	delete[] nodeTab;
 	return 0;
 }
 
 // Planarize le graphe avec odgf et essaie de placer les noeuds au plus proche de ses emplacements possible par rapport au graphe OGDF
 void ogdfPlacementAuPlusProcheStress(Graphe& G) {
-	ogdf::Graph ogdfG;
-	ogdf::GraphAttributes ogdfGA{ ogdfG };
-	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
-	ogdf::StressMinimization sm;
-	sm.call(ogdfGA);
-	ogdfTranslateOgdfGraphToOrigin(ogdfG,ogdfGA);
-	int maxX=0, maxY=0;
-	int i=0;
-	for (i = 0; i < G._emplacements.size(); i++) {
-		if (G._emplacements[i].getX() > maxX) { maxX = G._emplacements[i].getX();  }
-		if (G._emplacements[i].getY() > maxY) { maxY = G._emplacements[i].getY();  }
-	}
-	int ogdfMaxX = 0, ogdfMaxY = 0;
-	int nodeNumber = G._noeuds.size();
-	ogdf::node* nodeTab = new  ogdf::node[nodeNumber];
-	i = 0;
-	for (auto n : ogdfG.nodes) {
-		if (ogdfGA.x(n) > ogdfMaxX) { ogdfMaxX = ogdfGA.x(n); }
-		if (ogdfGA.y(n) > ogdfMaxY) { ogdfMaxY = ogdfGA.y(n); }
-		nodeTab[i] = n;
-		i++;
-	}
-	double ratio = (double)ogdfMaxX / (double)maxX;
-	double ratio2 = (double)ogdfMaxY / (double)maxY;
-	if (ratio2 > ratio) { ratio = ratio2; }
-	if (ratio > 1) {
-		for (i = 0; i < G._emplacements.size(); i++) {
-			G._emplacements[i]._x *= ratio;
-			G._emplacements[i]._y *= ratio;
-		}
-		G.gridWidth *= ratio;
-		G.gridHeight *= ratio;
-	}
-	else {
-		for (auto n : ogdfG.nodes) {
-			ogdfGA.x(n) /= ratio;
-			ogdfGA.y(n) /= ratio;
-		}
-	}
-	G.clearNodeEmplacement();
-	for (i=0;i<G._noeuds.size();i++) {
-		int indexNoeud = -1, indexEmp = -1;
-		long dist = LONG_MAX;
-		for (int j = 0; j < G._noeuds.size(); j++) {
-			if (!G._noeuds[j].estPlace()) {
-				for (int k = 0; k < G._emplacements.size(); k++) {
-					if (G._emplacements[k].estDisponible()) {
-						long long dist2 = ((G._emplacements[k].getX() - ogdfGA.x(nodeTab[j])) * (G._emplacements[k].getX() - ogdfGA.x(nodeTab[j]))) + ((G._emplacements[k].getY() - ogdfGA.y(nodeTab[j])) * (G._emplacements[k].getY() - ogdfGA.y(nodeTab[j])));
-						if (dist2 < dist) {
-							dist = dist2;
-							indexNoeud = j;
-							indexEmp = k;
-						}
-					}
-				}
-			}
-		}
-		G._noeuds[indexNoeud].setEmplacement(&G._emplacements[indexEmp]);
-	}
-	delete[] nodeTab;
 }
 
 // Remplace les emplacements du graphe par les emplacements trouvés par la planarizerMaxFace
 int ogdfReverse(Graphe &G) {
-	ogdf::Graph ogdfG;
-	ogdf::GridLayout ogdfGL{ ogdfG };
-	createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
-	if (planarizeMaxFace(ogdfGL, ogdfG) != 0) {
-		return 1;
-	}
-	G.clearNodeEmplacement();
-	G._emplacements.clear();
-	G.gridHeight = 10;
-	G.gridWidth = 10;
-	int i = 0;
-	for (auto n : ogdfG.nodes) {
-		int x = ogdfGL.x(n);
-		int y = ogdfGL.y(n);
-		G._emplacements.push_back(Emplacement(x,y,i));
-		if (x > G.gridWidth) { G.gridWidth = x; }
-		if (y > G.gridHeight) { G.gridHeight = y; }
-		i++;
-	}
-	for (int i=0;i<G._noeuds.size();i++) {
-		G._noeuds[i].setEmplacement(&G._emplacements[i]);
-	}
 	return 0;
 }
 
@@ -597,84 +423,18 @@ void ogdfRescaleOgdfG(ogdf::Graph& ogdfG, ogdf::GraphAttributes& ogdfGA, int sca
 }
 
 void ogdfReverseAndPlace(Graphe &G, ogdf::GraphAttributes& ogdfGA, ogdf::Graph& ogdfG) {
-	if (!G.useCoordReel) {
-		G.clearNodeEmplacement();
-		G._emplacements.clear();
-		G.gridHeight = 10;
-		G.gridWidth = 10;
-		int i = 0;
-		for (auto n : ogdfG.nodes) {
-			int x = ogdfGA.x(n);
-			int y = ogdfGA.y(n);
-			G._emplacements.push_back(Emplacement(x,y,i));
-			if (x > G.gridWidth) { G.gridWidth = x; }
-			if (y > G.gridHeight) { G.gridHeight = y; }
-			i++;
-		}
-		for (int i=0;i<G._noeuds.size();i++) {
-			G._noeuds[i].setEmplacement(&G._emplacements[i]);
-		}
-	}
-	else {
-		int i=0;
-		for (auto n : ogdfG.nodes) {
-			G._noeuds[i]._xreel = ogdfGA.x(n);
-			G._noeuds[i]._yreel = ogdfGA.y(n);
-			i++;
-		}
+	int i=0;
+	for (auto n : ogdfG.nodes) {
+		G._noeuds[i]._xreel = ogdfGA.x(n);
+		G._noeuds[i]._yreel = ogdfGA.y(n);
+		i++;
 	}
 }
 
 void ogdfReverseNonPlanar(Graphe &G) {
-	G.clearNodeEmplacement();
-	G._emplacements.clear();
-	ogdf::Graph ogdfG;
-	ogdf::GraphAttributes ogdfGA{ ogdfG };
-	createOGDFGraphFromGraphe(G, ogdfGA, ogdfG);
-	
-	ogdf::PlanarizationGridLayout pl;
-
-	ogdf::SubgraphPlanarizer *crossMin = new ogdf::SubgraphPlanarizer;
-
-	pl.setCrossMin(crossMin);
-
-	pl.call(ogdfGA);
-
-	tcout() << "OGDF number of crossings: " << pl.numberOfCrossings() << std::endl;
-
-	int i=0;
-	for (ogdf::node& n : ogdfG.nodes) {
-		int x = ogdfGA.x(n);
-		int y = ogdfGA.y(n);
-		G._emplacements.push_back(Emplacement(x,y,i));
-		if (x > G.gridWidth) { G.gridWidth = x; }
-		if (y > G.gridHeight) { G.gridHeight = y; }
-		i++;
-	}
-	for (int i=0;i<G._noeuds.size();i++) {
-		G._noeuds[i].setEmplacement(&G._emplacements[i]);
-	}
-	ogdf::GraphIO::write(ogdfGA, chemin + "/resultats/output-ERDiagram.svg", ogdf::GraphIO::drawSVG);
 }
 
 void ogdfCrossingNumbers(std::vector<std::string> graphFiles) {
-	for (std::string &nomFichierGraph : graphFiles) {
-		std::string fileGraph = chemin + "exemple/Graphe/" + nomFichierGraph + ".json";
-		Graphe G;
-		G.readFromJsonGraph(fileGraph);
-		ogdf::Graph ogdfG;
-		ogdf::GridLayout ogdfGL{ ogdfG };
-		createOGDFGraphFromGraphe(G, ogdfGL, ogdfG);
-		ogdf::PlanRep pr(ogdfG);
-		std::string nomFichier = chemin + "/resultats/" + nomFichierGraph + ".csv";
-		std::ofstream resultats(nomFichier, std::ios_base::app);
-		int crossingNumber;
-		ogdf::PlanarizerStarReinsertion psr = ogdf::PlanarizerStarReinsertion();
-		psr.call(pr,0,crossingNumber);
-		resultats << crossingNumber << std::endl;
-
-		resultats.close();
-	}
 }
 
 void ogdfStressMinimization(Graphe& G) {
@@ -700,53 +460,10 @@ void ogdfFastMultipoleEmbedder(Graphe& G) {
 }
 
 void ogdfFastMultipoleMultilevelEmbedder(Graphe& G) {
-	G.initGrilleCarre();
-    G.registerSlotsInGridNoMove();
-	ogdf::Graph ogdfG;
-	ogdf::GraphAttributes ogdfGA{ ogdfG };
-	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
-	ogdf::FastMultipoleMultilevelEmbedder fmme;
-	fmme.call(ogdfGA);
-	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
-	G.deleteGrille();
-	G.isNombreCroisementUpdated = false;
-    G.isNodeScoreUpdated = false;
-    G.isIntersectionVectorUpdated = false;
 }
 
 void ogdfFastMultipoleMultilevelEmbedderMinute(Graphe& G) {
-	auto start = std::chrono::system_clock::now();
-	G.initGrilleCarre();
-    G.registerSlotsInGridNoMove();
-	ogdf::Graph ogdfG;
-	ogdf::GraphAttributes ogdfGA{ ogdfG };
-	createOGDFGraphFromGraphe(G,ogdfGA,ogdfG);
-	ogdf::FastMultipoleMultilevelEmbedder fmme;
-	fmme.call(ogdfGA);
-	ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
-	G.registerEdgesInGridNoMove();
-	std::vector<int> graphCopy = G.saveCopy();
-	long bestNbCrossings = G.getNbCroisementDiffGrid();
-	auto end = std::chrono::system_clock::now();
-	std::chrono::duration<double> secondsTotal = end - start;
-	for (int nbIter=0;((nbIter<100)&&(secondsTotal.count() < 20));nbIter++) {
-		fmme.call(ogdfGA);
-		G.clearGrille();
-		ogdfPlacementAuPlusProche(ogdfGA,ogdfG,G);
-		G.registerEdgesInGridNoMove();
-		long nbCrossing = G.getNbCroisementDiffGrid();
-		if (nbCrossing < bestNbCrossings) {
-			bestNbCrossings = nbCrossing;
-			graphCopy = G.saveCopy();
-		}
-		end = std::chrono::system_clock::now();
-		secondsTotal = end - start;
-	}
-	G.loadCopy(graphCopy);
-	G.deleteGrille();
-	G.isNombreCroisementUpdated = false;
-    G.isNodeScoreUpdated = false;
-    G.isIntersectionVectorUpdated = false;
+
 }
 
 void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
@@ -762,8 +479,6 @@ void ogdfFastMultipoleMultilevelEmbedderReel(Graphe& G) {
 		i++;
 	}
 	G.isNombreCroisementUpdated = false;
-    G.isNodeScoreUpdated = false;
-    G.isIntersectionVectorUpdated = false;
 }
 
 void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
@@ -780,7 +495,7 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 	std::vector<std::pair<double,double>> bestCoord(G._noeuds.size());
 	int i=0;
 	for (auto n : ogdfG.nodes) {
-		bestCoord[i] = make_pair(ogdfGA.x(n),ogdfGA.y(n));
+		bestCoord[i] = std::make_pair(ogdfGA.x(n),ogdfGA.y(n));
 		i++;
 	}
 	int nbCrossing = ogdfNumberOfCrossings(ogdfGA);
@@ -795,7 +510,7 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 			bestNbCrossings = nbCrossing;
 			i=0;
 			for (auto n : ogdfG.nodes) {
-				bestCoord[i] = make_pair(ogdfGA.x(n),ogdfGA.y(n));
+				bestCoord[i] = std::make_pair(ogdfGA.x(n),ogdfGA.y(n));
 				i++;
 			}
 		}
@@ -811,8 +526,6 @@ void ogdfFastMultipoleMultilevelEmbedderReelMinute(Graphe& G) {
 		i++;
 	}
 	G.isNombreCroisementUpdated = false;
-    G.isNodeScoreUpdated = false;
-    G.isIntersectionVectorUpdated = false;
 #if defined(DEBUG_GRAPHE)
 	tcout() << "Fin Placement OGDFFMMMM\n";
 #endif
@@ -969,36 +682,9 @@ void getGrapheMaxFace(Graphe& G) {
 }
 
 void sortByGenus() {
-	std::string path = chemin + "benchGraphs/rome/";
-	std::string destination = chemin + "benchGraphs/romeNP/";
-	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		tcout() << dirEntry.path().string() << std::endl;
-		Graphe G;
-		G.readFromGraphmlGraph(dirEntry.path().string());
-		ogdf::Graph ogdfG;
-		createOGDFGraphFromGraphe(G,ogdfG);
-		if (!ogdf::isPlanar(ogdfG)) {
-			std::string nomGraphe = dirEntry.path().string();
-			std::reverse(nomGraphe.begin(), nomGraphe.end());
-			nomGraphe = nomGraphe.substr(0, nomGraphe.find('/'));
-			std::reverse(nomGraphe.begin(), nomGraphe.end());
-			std::string output = destination + nomGraphe;
-			std::filesystem::copy(dirEntry.path(), output);
-		}
-	}
 }
 
 void testGenusFolder() {
-	std::string path = chemin + "benchGraphs/romeNP/";
-	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(path)) {
-		Graphe G;
-		G.readFromGraphmlGraph(dirEntry.path().string());
-		ogdf::Graph ogdfG;
-		createOGDFGraphFromGraphe(G,ogdfG);
-		if (ogdfG.genus() == 0) {
-			tcout() << dirEntry.path().string() << std::endl;
-		}
-	}
 }
 
 #else
