@@ -14,6 +14,7 @@ DebugGraphe fait différentes vérifications sur le graphe pour regarder si sa s
 Ces 4 exécutables peuvent être lancés avec l'option -p pour choisir un fichier différents de celui qui est dans le répertoire originalGraphe.
 L'option -s pour déterminer une seed fixe ainsi que l'option -c pour choisir le coeur d'exécution sont disponibles pour les trois premières heuristiques.
 En raison d'un bug avec OGDF, il est recommandé de toujours utiliser l'option -c pour l'exécution RecuitSimuleChallenge.
+La version windows ne possède pas d'option -c car le bug d'ogdf n'y est pas présent.
 
 
 OpenGLGraphe permet d'afficher le graphe dans une interface graphique ainsi que d'effectuer divers fonctions à l'aide de raccourcis claviers.
@@ -31,3 +32,5 @@ F11 effectue un placement avec le Fast Multipole Multilevel Embedder.
 F10 double le nombre d'emplacement courant. (généré aléatoirement dans la zone)
 F2 effectue un recuit simulé à basse température.
 " effectue un recuit simulé classique.
+
+Les scripts pour la version Windows fonctionnent de la même manière à l'exception de l'option -c qui n'est pas présente.
