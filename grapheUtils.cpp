@@ -386,6 +386,7 @@ void Graphe::deleteGrille() {
 void Graphe::initGrille(int row,int column) {
     deleteGrille();
     grille_with_move = true;
+    areCoordMultiplied = true;
     for (int i=0;i<_emplacements.size();i++) {
         _emplacements[i]._x = (_emplacements[i]._x*2)+2;
         _emplacements[i]._y = (_emplacements[i]._y*2)+2;
