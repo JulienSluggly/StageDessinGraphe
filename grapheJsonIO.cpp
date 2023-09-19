@@ -122,6 +122,8 @@ void Graphe::readFromJsonChallenge(std::string input) {
 		id2 = j["edges"][i]["target"];
 		_aretes.push_back(Aretes(&_noeuds[id1], &_noeuds[id2],i));
 	}
+	originalWidth = j["width"];
+	originalHeight = j["height"];
 	updatePenalite(_aretes.size(),_aretes.size());
 	updateIsolatedNodes();
 }
@@ -301,6 +303,9 @@ void Graphe::writeToJsonChallenge(std::string output) {
 		j["edges"][i]["source"] = _aretes[i].getNoeud1()->getId();
 		j["edges"][i]["target"] = _aretes[i].getNoeud2()->getId();
 	}
+
+	j["width"] = originalWidth;
+	j["height"] = originalHeight;
 
 	std::ofstream o(output);
 	o << std::setw(4) << j << std::endl;

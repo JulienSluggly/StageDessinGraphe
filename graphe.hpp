@@ -58,6 +58,9 @@ public:
 	long nombreInterIll = -1; // Variable pas à jour
 	long nombreInterIllSelf = -1; // Variable pas à jour;
 
+	int originalWidth = -1;
+	int originalHeight = -1;
+
 	bool areCoordMultiplied = false;
 
 	int minXNode = -1, maxXNode = -1, minYNode = -1, maxYNode = -1; // Coord max des noeuds, pas forcément à jour.
